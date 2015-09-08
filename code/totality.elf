@@ -1,3 +1,4 @@
+% Notion of an expression being closed under a given environment.
 closed : venv -> exp -> type.
 
 closed/num : closed Delta (num N).
@@ -13,6 +14,37 @@ closed/app : closed Delta (app E1 E2)
               <- closed Delta E2.
 
 
+
+% Totality of translation for closed terms.
+trans-exists : closed Delta E -> trans Delta E B -> type.
+%mode trans-exists +DC -DT.
+
+trans-exists/num : trans-exists closed/num trans/num.
+
+trans-exists/var : trans-exists (closed/var DTV) (trans/var DTV).
+
+trans-exists/lam : trans-exists (closed/lam DC) (trans/lam DT)
+                    <- {x} trans-exists (DC x) (DT x).
+
+trans-exists/app : trans-exists (closed/app DC2 DC1) (trans/app DT2 DT1)
+                    <- trans-exists DC1 DT1
+                    <- trans-exists DC2 DT2.
+
+%worlds (bl-exp) (trans-exists _ _).
+%total DC (trans-exists DC _).
+
+
+
+% It would be nice to prove (in the empty LF context):
+
+empty-trans-exists : {E} trans venv/nil E B -> type.
+
+% To do that we would need:
+
+closed-exists : {E} closed venv/nil E -> type.
+
+% However, encoding the invariant that all lambda-bound variables occur somewhere in delta seems troublesome.
+% One line of attack is to define a version of 'closed' using an implicit environment, thus:
 
 iclosed : exp -> type.
 %mode iclosed +E.
@@ -31,21 +63,9 @@ iclosed/app : iclosed (app E1 E2)
 %worlds (bl-iclosed) (iclosed _).
 %total E (iclosed E).
 
+% This version is observed to be total, so the problem is now "reduced" to showing:
 
+iclosed-to-closed : iclosed E -> closed venv/nil E -> type.
 
-trans-exists : closed Delta E -> trans Delta E B -> type.
-%mode trans-exists +DC -DT.
-
-trans-exists/num : trans-exists closed/num trans/num.
-
-trans-exists/var : trans-exists (closed/var DTV) (trans/var DTV).
-
-trans-exists/lam : trans-exists (closed/lam DC) (trans/lam DT)
-                    <- {x} trans-exists (DC x) (DT x).
-
-trans-exists/app : trans-exists (closed/app DC2 DC1) (trans/app DT2 DT1)
-                    <- trans-exists DC1 DT1
-                    <- trans-exists DC2 DT2.
-
-%worlds (bl-exp) (trans-exists _ _).
-%total DC (trans-exists DC _).
+% However, there are still issues relating objects in the implicit context with objects in the explicit context.
+% Indeed, it is not even clear what the induction hypothesis should be.

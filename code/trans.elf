@@ -1,3 +1,4 @@
+% Ordered lists of variables.
 venv : type. %name venv Delta.
 
 venv/nil : venv.
@@ -5,6 +6,7 @@ venv/cons : venv -> exp -> venv.
 
 
 
+% Translation of variables.
 trans-var : venv -> exp -> nat -> type.
 
 trans-var/here : trans-var (venv/cons Delta X) X z.
@@ -14,6 +16,7 @@ trans-var/there : trans-var (venv/cons Delta Y) X (s I)
 
 
 
+% Translation of expressions.
 trans : venv -> exp -> bexp -> type.
 
 trans/num : trans Delta (num N) (bnum N).
