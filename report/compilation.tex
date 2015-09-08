@@ -1,0 +1,455 @@
+\documentclass[12pt]{article}
+\usepackage[english]{babel}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{stmaryrd}
+\usepackage{mathtools}
+\usepackage{bussproofs}
+\usepackage{ntheorem}
+
+\newcommand{\alt}{\;\; | \;\;}
+\newcommand{\defi}{\Coloneqq}
+\newcommand{\nil}{\cdot}
+\newcommand{\h}[1]{\hat{#1}}
+\newcommand{\set}[1]{\{#1\}}
+\renewcommand{\rule}{\textsc}
+\newcommand{\sg}{\sigma}
+\renewcommand{\phi}{\varphi}
+\newcommand{\De}{\Delta}
+\newcommand{\E}{\mathcal{E}}
+\newcommand{\Ev}{\h{\mathcal{E}}^{\mathrm{v}}}
+\newcommand{\C}{\mathcal{C}}
+\newcommand{\D}{\mathcal{D}}
+\newcommand{\T}{\mathcal{T}}
+\newcommand{\Tv}{\mathcal{T}^{\mathrm{v}}}
+\newcommand{\z}{\mathtt{z}}
+\newcommand{\s}{\mathtt{s} \;}
+\newcommand{\dom}{\mathsf{dom}}
+
+\newcommand{\n}[1]{\overline{#1}}
+\newcommand{\lam}[2]{\lambda #1. #2}
+\newcommand{\app}{\;}
+\newcommand{\cl}[2]{\langle #1, #2 \rangle}
+\newcommand{\sub}[3]{#1[#2/#3]}
+\newcommand{\subs}[2]{#1[#2]}
+\newcommand{\wo}{\backslash}
+
+\newcommand{\judgement}[1]{\framebox{#1}}
+\newcommand{\ninf}[1]{\AxiomC{#1}}
+\newcommand{\uinf}[1]{\UnaryInfC{#1}}
+\newcommand{\binf}[1]{\BinaryInfC{#1}}
+\newcommand{\tinf}[1]{\TrinaryInfC{#1}}
+\newcommand{\ax}[1]{\ninf{} \uinf{#1}}
+\newcommand{\prem}[2]{\noLine \ninf{$#1$} \uinf{#2}}
+\newcommand{\leftl}[1]{\LeftLabel{#1\;}}
+\newcommand{\rightl}[1]{\RightLabel{#1}}
+
+\newcommand{\tra}[3]{\ensuremath{#1 \vdash #2 \rhd #3}}
+\newcommand{\trav}[3]{\ensuremath{#1 \vdash #2 \rhd^{\mathrm{v}} #3}}
+\newcommand{\ev}[2]{\ensuremath{#1 \downarrow #2}}
+\newcommand{\hev}[3]{\ensuremath{#1 \vdash #2 \Downarrow #3}}
+\newcommand{\hevv}[3]{\ensuremath{#1 \vdash #2 \Downarrow^{\mathrm{v}} #3}}
+\newcommand{\eqv}[3]{\ensuremath{#1 \downarrow #2 \sim #3}}
+\newcommand{\cor}[2]{\ensuremath{#1 \rightsquigarrow #2}}
+\newcommand{\comp}[3]{\ensuremath{#1 \stackrel{#2}{\rightsquigarrow} #3}}
+
+\newcounter{statementcounter}
+\newtheorem{lemma}[statementcounter]{Lemma}
+\newtheorem{theorem}[statementcounter]{Theorem}
+
+\newenvironment{proof}[1][Proof]{
+\paragraph{#1}
+}{
+\begin{flushright}
+$\blacksquare$
+\end{flushright}
+}
+
+\begin{document}
+
+\subsection*{Syntax}
+
+\begin{align*}
+  e &\defi \n{n} \alt x \alt \lam{x}{e_1} \alt e_1 \app e_2 \\
+  v &\defi \n{n} \alt \lam{x}{e} \quad (\text{with} \; FV(e) \subseteq \set{x}) \\
+	\\
+	i &\defi \z \alt \s i \\
+	\h{e} &\defi \n{n} \alt i \alt \lam{}{\h{e}_1} \alt \h{e}_1 \app \h{e}_2 \\
+  \h{v} &\defi \n{n} \alt \cl{\sg}{\h{e}}
+\end{align*}
+Let $\phi$ denote finite partial maps from variable names to $v$-values, and let $\sg$ and $\De$ denote lists as follows:
+\begin{align*}
+  \sg &\defi \nil \alt \sg, \h{v} \\
+	\Delta &\defi \nil \alt \De, x
+\end{align*}
+
+\subsection*{Translation}
+
+\judgement{\tra{\De}{e}{\h{e}}}
+
+\begin{prooftree}
+  \leftl{\rule{T-Num} :}
+  \ax{\tra{\De}{\n{n}}{\n{n}}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\trav{\De}{x}{i}}
+  \leftl{\rule{T-Var} :}
+  \uinf{\tra{\De}{x}{i}}
+\end{prooftree}
+
+\begin{prooftree}
+	\ninf{\tra{\De, x}{e_1}{\h{e}_1}}
+  \leftl{\rule{T-Lam} :}
+  \uinf{\tra{\De}{\lam{x}{e_1}}{\lam{}{\h{e}_1}}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\tra{\De}{e_1}{\h{e}_1}}
+  \ninf{\tra{\De}{e_2}{\h{e}_2}}
+	\leftl{\rule{T-App} :}
+  \binf{\tra{\De}{e_1 \app e_2}{\h{e}_1 \app \h{e}_2}}
+\end{prooftree}
+
+\noindent \judgement{\trav{\De}{e}{\h{e}}}
+
+\begin{prooftree}
+  \leftl{\rule{Tv-Here} :}
+  \ax{\trav{\De, x}{x}{\z}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\trav{\De}{x}{i}}
+  \leftl{\rule{Tv-There} :}
+	\rightl{$(x \neq y)$}
+  \uinf{\trav{\De, y}{x}{\s i}}
+\end{prooftree}
+
+\subsection*{Semantics}
+
+\judgement{\ev{e}{v}} ($e$ closed)
+
+\begin{prooftree}
+  \leftl{\rule{E-Num} :}
+  \ax{\ev{\n{n}}{\n{n}}}
+\end{prooftree}
+
+\begin{prooftree}
+  \leftl{\rule{E-Lam} :}
+  \ax{\ev{\lam{x}{e_1}}{\lam{x}{e_1}}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\ev{e_1}{\lam{x}{e_0}}}
+  \ninf{\ev{e_2}{v_2}}
+  \ninf{\ev{\sub{e_0}{v_2}{x}}{v}}
+	\leftl{\rule{E-App} :}
+  \tinf{\ev{e_1 \app e_2}{v}}
+\end{prooftree}
+
+\noindent \judgement{\hev{\sg}{\h{e}}{\h{v}}}
+
+\begin{prooftree}
+  \leftl{\rule{Eh-Num} :}
+  \ax{\hev{\sg}{\n{n}}{\n{n}}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\hevv{\sg}{i}{\h{v}}}
+  \leftl{\rule{Eh-Var} :}
+  \uinf{\hev{\sg}{i}{\h{v}}}
+\end{prooftree}
+
+\begin{prooftree}
+  \leftl{\rule{Eh-Lam :}}
+  \ax{\hev{\sg}{\lam{}{\h{e}_1}}{\cl{\sg}{\h{e}_1}}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\hev{\sg}{\h{e}_1}{\cl{\sg'}{\h{e}_0}}}
+  \ninf{\hev{\sg}{\h{e}_2}{\h{v}_2}}
+  \ninf{\hev{\sg', \h{v}_2}{\h{e}_0}{\h{v}}}
+	\leftl{\rule{Eh-App} :}
+  \tinf{\hev{\sg}{\h{e}_1 \app \h{e}_2}{\h{v}}}
+\end{prooftree}
+
+\noindent \judgement{\hevv{\sg}{i}{\h{v}}}
+
+\begin{prooftree}
+  \leftl{\rule{Ehv-Here} :}
+  \ax{\hevv{\sg, \h{v}}{\z}{\h{v}}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\hevv{\sg}{i}{\h{v}}}
+  \leftl{\rule{Ehv-There} :}
+  \uinf{\hevv{\sg, \h{v}'}{\s i}{\h{v}}}
+\end{prooftree}
+
+\subsection*{Main Theorem}
+
+\begin{theorem}[Soundness]
+\label{thm:soundness} If \tra{\nil}{e}{\h{e}}, then \ev{e}{\n{n}} if and only if \hev{\nil}{\h{e}}{\n{n}}.
+\end{theorem}
+
+We will now develop the machinery necessary to prove this.
+
+\subsubsection*{Correspondence}
+
+Let $\subs{e}{\phi}$ denote $\sub{\sub{e}{\phi(x_1)}{x_1} \ldots}{\phi(x_n)}{x_n}$, where $\set{x_1, ..., x_n}$ is the domain of $\phi$.
+Also, let $\phi \wo x$ denote $\phi$ with its domain restricted to $\dom(\phi) \wo \set{x}$.
+We first define a notion of correspondence between $\h{v}$- and $v$-values: \\
+
+\noindent \judgement{\cor{\h{v}}{v}}
+
+\begin{prooftree}
+  \leftl{\rule{C-Num} :}
+  \ax{\cor{\n{n}}{\n{n}}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\comp{\sg}{\De}{\phi}}
+  \ninf{\tra{\De, x}{e}{\h{e}}}
+  \leftl{\rule{C-Fun} :}
+  \binf{\cor{\cl{\sg}{\h{e}}}{\lam{x}{\subs{e}{\phi \wo x}}}}
+\end{prooftree}
+
+\noindent \judgement{\comp{\sg}{\De}{\phi}}
+
+\begin{prooftree}
+  \leftl{\rule{D-Nil} :}
+  \ax{\comp{\nil}{\nil}{\nil}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\comp{\sg}{\De}{\phi}}
+  \ninf{\cor{\h{v}}{v}}
+  \leftl{\rule{D-Cons} :}
+  \binf{\comp{\sg, \h{v}}{\De, x}{\phi[x \mapsto v]}}
+\end{prooftree}
+
+\begin{lemma}[Evaluation of Values]
+\label{lem:value-eval}
+For all $v$, \ev{v}{v}.
+\end{lemma}
+
+\begin{lemma}[Determinism]
+\label{lem:determ}
+If \ev{e}{v} and \ev{e}{v'}, then $v = v'$.
+\end{lemma}
+
+\begin{lemma}
+\label{lem:left-to-right-var}
+If \trav{\De}{x}{i} (by $\Tv$) and \comp{\sg}{\De}{\phi} (by $\D$), then there exists $\h{v}$ such that \hevv{\sg}{i}{\h{v}} (by some $\Ev$), $x \in \dom \phi$ and \cor{\h{v}}{\phi(x)} (by some $\C$).
+\end{lemma}
+
+\begin{proof}
+By induction on $\Tv$.
+
+\paragraph{Case \textnormal{\rule{Tv-Here}}}
+
+\begin{prooftree}
+  \leftl{$\Tv =$}
+  \ax{\trav{\De', x}{x}{\z}}
+\end{prooftree}
+So $\De = \De', x$ and $i = \z$.
+Then $\D$ must have the form
+\begin{prooftree}
+  \prem{\D_1}{\comp{\sg'}{\De'}{\phi'}}
+  \prem{\C'}{\cor{\h{v}}{v}}
+  \binf{\comp{\sg', \h{v}}{\De', x}{\phi'[x \mapsto v]}}
+\end{prooftree}
+So $\sg = \sg', \h{v}$ and $\phi = \phi'[x \mapsto v]$.
+We now get the required derivation $\Ev$ of $\hevv{\sg', \h{v}}{\z}{\h{v}}$ directly by rule \rule{Ehv-Here}.
+And since $\phi(x) = \phi'[x \mapsto v](x) = v$, we can take $\C = \C'$.
+
+\paragraph{Case \textnormal{\rule{Tv-There}}}
+
+\begin{prooftree}
+  \prem{\Tv_1}{\trav{\De}{x}{i'}}
+  \leftl{$\Tv =$}
+	\rightl{$(x \neq y)$}
+  \uinf{\trav{\De', y}{x}{\s i'}}
+\end{prooftree}
+So $\De = \De', y$ and $i = \s i'$.
+Then $\D$ must have the form
+\begin{prooftree}
+  \prem{\D_1}{\comp{\sg'}{\De'}{\phi'}}
+  \prem{\C'}{\cor{\h{v}'}{v'}}
+  \binf{\comp{\sg', \h{v}'}{\De', y}{\phi'[y \mapsto v']}}
+\end{prooftree}
+So $\sg = \sg', \h{v}'$ and $\phi = \phi'[y \mapsto v']$.
+
+Now by IH on $\Tv_1$ with $\D_1$, we get derivations $\Ev_1$ of $\hevv{\sg'}{i'}{\h{v}}$ and $\C_1$ of $\cor{\h{v}}{\phi'(x)}$.
+We construct the required derivation $\Ev$ as follows:
+\begin{prooftree}
+  \prem{\Ev_1}{\hevv{\sg'}{i'}{\h{v}}}
+  \uinf{\hevv{\sg', \h{v}'}{\s i'}{\h{v}}}
+\end{prooftree}
+And since $\phi(x) = \phi'[y \mapsto v'](x) = \phi'(x)$ (because $x \neq y$), we can take $C = \C_1$.
+
+\end{proof}
+
+\begin{lemma}
+\label{lem:left-to-right}
+If \tra{\De}{e}{\h{e}} (by $\T$), \ev{\subs{e}{\phi}}{v} (by $\E$) and \comp{\sg}{\De}{\phi} (by $\D$), then there exists $\h{v}$ such that \hev{\sg}{\h{e}}{\h{v}} (by some $\h{\E}$) and \cor{\h{v}}{v} (by some $\C$).
+\end{lemma}
+
+\begin{proof}
+By induction on $\E$. We proceed by case analysis on $e$.
+
+\paragraph{Case $e = \n{n}$}
+
+$\T$ must end in \rule{T-Num} and so $\h{e} = \n{n}$.
+We have $\subs{e}{\phi} = \n{n}$, so $\E$ must end in \rule{E-Num} and $v = \n{n}$.
+Taking $\h{v} = \n{n}$, by rule \rule{Eh-Num} we get a derivation $\h{\E}$ of $\hev{\sg}{\n{n}}{\n{n}}$ as required.
+And $\cor{\n{n}}{\n{n}}$ by rule \rule{C-Num}.
+
+\paragraph{Case $e = x$}
+
+$\T$ must have the form
+\begin{prooftree}
+  \prem{\Tv}{\trav{\De}{x}{i}}
+  \uinf{\tra{\De}{x}{i}}
+\end{prooftree}
+So $\h{e} = i$.
+We have $\subs{e}{\phi} = \phi(x)$ and $\E$ shows \ev{\phi(x)}{v}.
+By Lemma~\ref{lem:value-eval} and Lemma~\ref{lem:determ} combined we get $v = \phi(x)$.
+Now by Lemma~\ref{lem:left-to-right-var} on $\Tv$ and $\D$, we get derivations $\Ev$ of \hevv{\sg}{i}{\h{v}'} and $\C'$ of $\cor{\h{v}'}{\phi(x)}$ (for some $\h{v}'$).
+
+Taking $\h{v} = \h{v}'$, we construct the required $\h{\E}$ as follows and take $\C = \C'$:
+\begin{prooftree}
+  \prem{\Ev}{\hevv{\sg}{i}{\h{v}'}}
+  \uinf{\hev{\sg}{i}{\h{v}'}}
+\end{prooftree}
+
+\paragraph{Case $e = \lam{x}{e_1}$}
+
+$\T$ must have the form
+\begin{prooftree}
+	\prem{\T_1}{\tra{\De, x}{e_1}{\h{e}_1}}
+  \uinf{\tra{\De}{\lam{x}{e_1}}{\lam{}{\h{e}_1}}}
+\end{prooftree}
+So $\h{e} = \lam{}{\h{e}_1}$. We have $\subs{e}{\phi} = \subs{(\lam{x}{e_1})}{\phi} = \lam{x}{\subs{e_1}{\phi \wo x}}$, so $\E$ must end in \rule{E-Lam} and $v = \lam{x}{\subs{e_1}{\phi \backslash x}}$.
+Taking $\h{v} = \cl{\sg}{\h{e}_1}$, we get the required $\h{\E}$ showing $\hev{\sg}{\lam{}{\h{e}_1}}{\cl{\sg}{\h{e}_1}}$ by rule \rule{Eh-Lam}.
+And we construct the required derivation $\C$ as follows:
+\begin{prooftree}
+  \prem{\D}{\comp{\sg}{\De}{\phi}}
+  \prem{\T_1}{\tra{\De, x}{e_1}{\h{e}_1}}
+  \binf{\cor{\cl{\sg}{\h{e}_1}}{\lam{x}{\subs{e_1}{\phi \wo x}}}}
+\end{prooftree}
+
+\paragraph{Case $e = e_1 \app e_2$}
+
+$\T$ must have the form
+\begin{prooftree}
+  \prem{\T_1}{\tra{\De}{e_1}{\h{e}_1}}
+  \prem{\T_2}{\tra{\De}{e_2}{\h{e}_2}}
+  \binf{\tra{\De}{e_1 \app e_2}{\h{e}_1 \app \h{e}_2}}
+\end{prooftree}
+So $\h{e} = \h{e}_1 \app \h{e}_2$.
+
+We have $\subs{e}{\phi} = \subs{e_1}{\phi} \app \subs{e_2}{\phi}$, so $\E$ must end in \rule{E-App} and have the form
+\begin{prooftree}
+  \prem{\E_1}{\ev{\subs{e_1}{\phi}}{\lam{x}{e_0}}}
+  \prem{\E_2}{\ev{\subs{e_2}{\phi}}{v_2}}
+  \prem{\E_3}{\ev{\sub{e_0}{v_2}{x}}{v}}
+  \tinf{\ev{\subs{e_1}{\phi} \app \subs{e_2}{\phi}}{v}}
+\end{prooftree}
+
+By IH on $\E_1$ with $\T_1$ and $\D$, we get derivations $\h{\E}_1$ of \hev{\sg}{\h{e}_1}{\h{v}_1} and $\C_1$ of \cor{\h{v}_1}{\lam{x}{e_0}} (for some $\h{v}_1$).
+$\C_1$ must have the form
+\begin{prooftree}
+  \prem{\D_1'}{\comp{\sg'}{\De'}{\phi'}}
+  \prem{\T_1'}{\tra{\De', x}{e_0'}{\h{e}_0}}
+  \binf{\cor{\cl{\sg'}{\h{e}_0}}{\lam{x}{\subs{e_0'}{\phi' \wo x}}}}
+\end{prooftree}
+So $e_0 = \subs{e_0'}{\phi' \wo x}$ and $\h{v}_1 = \cl{\sg'}{\h{e}_0}$.
+
+By IH on $\E_2$ with $\T_2$ and $\D$, we get derivations $\h{\E}_2$ of \hev{\sg}{\h{e}_2}{\h{v}_2} and $\C_2$ of \cor{\h{v}_2}{v_2}.
+We have $\sub{\subs{e_0'}{\phi' \wo x}}{v_2}{x} = \subs{e_0'}{\phi'[x \mapsto v_2]}$.
+In particular, $\E_3$ shows \ev{\subs{e_0'}{\phi'[x \mapsto v_2]}}{v}.
+We construct the following derivation $\D'$ of $\comp{\sg', \h{v}_2}{\De', x}{\phi'[x \mapsto v_2]}$:
+\begin{prooftree}
+  \prem{\D_1'}{\comp{\sg'}{\De'}{\phi'}}
+  \prem{\C_2}{\cor{\h{v_2}}{v_2}}
+  \binf{\comp{\sg', \h{v}_2}{\De', x}{\phi'[x \mapsto v_2]}}
+\end{prooftree}
+
+Then by IH on $\E_3$ with $\T_1'$ and $\D'$, we get a derivation $\h{\E}_3$ of \hev{\sg', \h{v}_2}{\h{e}_0}{\h{v}} along with the required $\C$ showing \cor{\h{v}}{v}.
+And finally we construct the required derivation $\h{\E}$ as follows:
+\begin{prooftree}
+  \prem{\h{\E}_1}{\hev{\sg}{\h{e}_1}{\cl{\sg'}{\h{e}_0}}}
+  \prem{\h{\E}_2}{\hev{\sg}{\h{e}_2}{\h{v}_2}}
+  \prem{\h{\E}_3}{\hev{\sg', \h{v}_2}{\h{e}_0}{\h{v}}}
+  \tinf{\hev{\sg}{\h{e}_1 \app \h{e}_2}{\h{v}}}
+\end{prooftree}
+
+\end{proof}
+
+\begin{lemma}
+\label{lem:right-to-left}
+If \tra{\De}{e}{\h{e}} (by $\T$), \hev{\sg}{\h{e}}{\h{v}} (by $\h{\E}$) and \comp{\sg}{\De}{\phi} (by $\D$), then there exists $v$ such that \ev{\subs{e}{\phi}}{v} (by some $\E$) and \cor{\h{v}}{v} (by some $\C$).
+\end{lemma}
+
+\begin{proof}
+By induction on $\h{\E}$.
+
+\paragraph{Case \textnormal{\rule{Eh-Num}}}
+
+\begin{prooftree}
+  \leftl{$\h{\E} =$}
+  \ax{\hev{\sg}{\n{n}}{\n{n}}}
+\end{prooftree}
+So $\h{e} = \h{v} = \n{n}$.
+
+% todo: check argument
+$\T$ must end in \rule{T-Num} and so $e = \n{n}$.
+Since $\subs{e}{\phi} = \n{n}$, we can take $v = \n{n}$ and get the required derivation $\E$ of $\ev{\n{n}}{\n{n}}$ by rule \rule{E-Num}.
+And $\cor{\n{n}}{\n{n}}$ by rule \rule{C-Num}.
+
+\paragraph{Case \textnormal{\rule{Eh-Var}}}
+
+\begin{prooftree}
+  \prem{\Ev}{\hevv{\sg}{i}{\h{v}}}
+  \leftl{$\h{\E} =$}
+  \uinf{\hev{\sg}{i}{\h{v}}}
+\end{prooftree}
+So $\h{e} = i$, and $\T$ must have the form
+\begin{prooftree}
+  \prem{\Tv}{\trav{\De}{x}{i}}
+  \uinf{\tra{\De}{x}{i}}
+\end{prooftree}
+So $e = x$, and $\subs{e}{\phi} = \phi(x)$. hmm, is x in domain? [...]
+
+\paragraph{Case \textnormal{\rule{Eh-Lam}}}
+
+\begin{prooftree}
+  \leftl{$\h{\E} =$}
+  \ax{\hev{\sg}{\lam{}{\h{e}_1}}{\cl{\sg}{\h{e}_1}}}
+\end{prooftree}
+So $\h{e} = \lam{}{\h{e}_1}$ and $\h{v} = \cl{\sg}{\h{e}_1}$.
+
+[...]
+
+\paragraph{Case \textnormal{\rule{Eh-App}}}
+
+\begin{prooftree}
+  \ninf{\hev{\sg}{\h{e}_1}{\cl{\sg'}{\h{e}_0}}}
+  \ninf{\hev{\sg}{\h{e}_2}{\h{v}_2}}
+  \ninf{\hev{\sg', \h{v}_2}{\h{e}_0}{\h{v}}}
+  \leftl{$\h{\E} =$}
+  \tinf{\hev{\sg}{\h{e}_1 \app \h{e}_2}{\h{v}}}
+\end{prooftree}
+So $\h{e} = \h{e}_1 \app \h{e}_2$.
+
+[...]
+
+\end{proof}
+
+We can now establish the main theorem.
+\begin{proof}[Proof of Theorem~\ref{thm:soundness}]
+Observe that numbers correspond only to themselves, and use lemmas \ref{lem:left-to-right} and \ref{lem:right-to-left}.
+\end{proof}
+
+\end{document}

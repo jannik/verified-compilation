@@ -1,0 +1,29 @@
+venv : type. %name venv Delta.
+
+venv/nil : venv.
+venv/cons : venv -> exp -> venv.
+
+
+
+trans-var : venv -> exp -> nat -> type.
+
+trans-var/here : trans-var (venv/cons Delta X) X z.
+
+trans-var/there : trans-var (venv/cons Delta Y) X (s I)
+                   <- trans-var Delta X I.
+
+
+
+trans : venv -> exp -> bexp -> type.
+
+trans/num : trans Delta (num N) (bnum N).
+
+trans/var : trans Delta E (bvar I)
+             <- trans-var Delta E I.
+
+trans/lam : trans Delta (lam [x] E x) (blam B)
+             <- {x} trans (venv/cons Delta x) (E x) B.
+
+trans/app : trans Delta (app E1 E2) (bapp B1 B2)
+             <- trans Delta E1 B1
+             <- trans Delta E2 B2.

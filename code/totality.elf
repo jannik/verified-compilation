@@ -1,0 +1,51 @@
+closed : venv -> exp -> type.
+
+closed/num : closed Delta (num N).
+
+closed/var : closed Delta E
+              <- trans-var Delta E I.
+
+closed/lam : closed Delta (lam [x] E x)
+              <- {x} closed (venv/cons Delta x) (E x).
+
+closed/app : closed Delta (app E1 E2)
+              <- closed Delta E1
+              <- closed Delta E2.
+
+
+
+iclosed : exp -> type.
+%mode iclosed +E.
+
+iclosed/num : iclosed (num N).
+
+iclosed/lam : iclosed (lam [x] E x)
+               <- {x} iclosed (E x)
+                       <- iclosed x.
+
+iclosed/app : iclosed (app E1 E2)
+               <- iclosed E1
+               <- iclosed E2.
+
+%block bl-iclosed : block {x : exp} {c : iclosed x}.
+%worlds (bl-iclosed) (iclosed _).
+%total E (iclosed E).
+
+
+
+trans-exists : closed Delta E -> trans Delta E B -> type.
+%mode trans-exists +DC -DT.
+
+trans-exists/num : trans-exists closed/num trans/num.
+
+trans-exists/var : trans-exists (closed/var DTV) (trans/var DTV).
+
+trans-exists/lam : trans-exists (closed/lam DC) (trans/lam DT)
+                    <- {x} trans-exists (DC x) (DT x).
+
+trans-exists/app : trans-exists (closed/app DC2 DC1) (trans/app DT2 DT1)
+                    <- trans-exists DC1 DT1
+                    <- trans-exists DC2 DT2.
+
+%worlds (bl-exp) (trans-exists _ _).
+%total DC (trans-exists DC _).

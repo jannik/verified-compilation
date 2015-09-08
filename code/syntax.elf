@@ -1,0 +1,20 @@
+nat : type.
+z : nat.
+s : nat -> nat.
+
+
+
+exp : type. %name exp E.
+num : nat -> exp.
+lam : (exp -> exp) -> exp.
+app : exp -> exp -> exp.
+
+%block bl-exp : block {e : exp}.
+
+
+
+bexp : type. %name bexp B.
+bnum : nat -> bexp.
+bvar : nat -> bexp.
+blam : bexp -> bexp.
+bapp : bexp -> bexp -> bexp.
