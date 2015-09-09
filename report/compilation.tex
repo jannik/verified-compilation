@@ -402,7 +402,57 @@ If \trav{\De}{x}{i} (by $\Tv$), \hevv{\sg}{i}{\v} (by $\Bv$) and \comp{\sg}{\De}
 \end{lemma}
 
 \begin{proof}
-By induction on $\Tv$ (probably). [todo]
+By induction on $\Tv$.
+
+\paragraph{Case \textnormal{\rule{Tv-Here}}}
+
+\begin{prooftree}
+  \leftl{$\Tv =$}
+  \ax{\trav{\De', x}{x}{\z}}
+\end{prooftree}
+So $\De = \De', x$ and $i = \z$.
+Thus, $\Bv$ has the form
+\begin{prooftree}
+  \ax{\hevv{\sg', \v}{\z}{\v}}
+\end{prooftree}
+Hence $\sg = \sg', v$.
+Now, given the shape of $\sg$ and $\De$, $\D$ must have the form
+\begin{prooftree}
+  \prem{\D_1}{\comp{\sg'}{\De'}{\phi'}}
+  \prem{\C'}{\cor{\v}{\c}}
+  \binf{\comp{\sg', \v}{\De', x}{\phi'[x \mapsto \c]}}
+\end{prooftree}
+So $\phi = \phi'[x \mapsto \c]$ and consequently $\phi(x) = c$.
+In particular, $x \in \dom(\phi)$ and \cor{\v}{c} (taking $\C = \C'$) as required.
+
+\paragraph{Case \textnormal{\rule{Tv-There}}}
+
+\begin{prooftree}
+  \prem{\Tv_1}{\trav{\De}{x}{i'}}
+  \leftl{$\Tv =$}
+	\rightl{$(x \neq y)$}
+  \uinf{\trav{\De', y}{x}{\s i'}}
+\end{prooftree}
+So $\De = \De', y$ and $i = \s i'$.
+Thus, $\Bv$ has the form
+\begin{prooftree}
+  \prem{\Bv_1}{\hevv{\sg'}{i}{\v}}
+  \uinf{\hevv{\sg', \v'}{\s i}{\v}}
+\end{prooftree}
+Hence $\sg = \sg', v'$.
+
+Now, given the shape of $\sg$ and $\De$, $\D$ must have the form
+\begin{prooftree}
+  \prem{\D_1}{\comp{\sg'}{\De'}{\phi'}}
+  \prem{\C'}{\cor{\v'}{\c'}}
+  \binf{\comp{\sg', \v'}{\De', y}{\phi'[y \mapsto \c']}}
+\end{prooftree}
+So $\phi = \phi'[y \mapsto \c']$.
+
+Now by IH on $\Tv_1$ with $\Bv_1$ and $\D_1$, we get $x \in \dom(\phi')$ and a derivation $\C_1$ of $\cor{\v}{\phi'(x)}$.
+Since $x \neq y$ we have $\phi(x) = \phi'(x)$.
+Thus, $x \in \dom(\phi')$ and we can take $\C = \C_1$ to complete the proof.
+
 \end{proof}
 
 \begin{lemma}
