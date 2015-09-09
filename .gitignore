@@ -6,3 +6,6 @@
 *.pdf
 *.synctex
 *.thm
+*.fdb_latexmk
+*.fls
+.tup/
