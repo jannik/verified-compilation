@@ -55,9 +55,10 @@
 \newcommand{\comp}[3]{\ensuremath{#1 \stackrel{#2}{\rightsquigarrow} #3}}
 
 % hopefully temporary:
+\newcommand{\e}{e} % hoas expressions, previously 'e'
 \renewcommand{\c}{c} % canonical forms, previously 'v'
-\renewcommand{\b}{b} % de bruijn expressions, previously '\b'
-\renewcommand{\v}{v} % values, previously '\v'
+\renewcommand{\b}{b} % de bruijn expressions, previously '\h{\e}'
+\renewcommand{\v}{v} % values, previously '\h{v}'
 
 
 \newcounter{statementcounter}
@@ -78,8 +79,8 @@ $\blacksquare$
 
 \begin{align*}
   % x &\in \mathsf{vars} \quad (\text{variable identifiers}) \\
-  e &\defi \n{n} \alt x \alt \lam{x}{e_1} \alt e_1 \app e_2 \\
-  \c &\defi \n{n} \alt \lam{x}{e} \quad (\text{with} \; FV(e) \subseteq \set{x}) \\
+  e &\defi \n{n} \alt x \alt \lam{x}{\e_1} \alt \e_1 \app \e_2 \\
+  \c &\defi \n{n} \alt \lam{x}{\e} \quad (\text{with} \; FV(\e) \subseteq \set{x}) \\
 	\\
 	i &\defi \z \alt \s i \\
 	\b &\defi \n{n} \alt i \alt \lam{}{\b_1} \alt \b_1 \app \b_2 \\
@@ -93,7 +94,7 @@ Let $\phi$ denote finite partial maps from variable names to canonical forms ($c
 
 \subsection*{Translation}
 
-\judgement{\tra{\De}{e}{\b}}
+\judgement{\tra{\De}{\e}{\b}}
 
 \begin{prooftree}
   \leftl{\rule{T-Num} :}
@@ -107,19 +108,19 @@ Let $\phi$ denote finite partial maps from variable names to canonical forms ($c
 \end{prooftree}
 
 \begin{prooftree}
-	\ninf{\tra{\De, x}{e_1}{\b_1}}
+	\ninf{\tra{\De, x}{\e_1}{\b_1}}
   \leftl{\rule{T-Lam} :}
-  \uinf{\tra{\De}{\lam{x}{e_1}}{\lam{}{\b_1}}}
+  \uinf{\tra{\De}{\lam{x}{\e_1}}{\lam{}{\b_1}}}
 \end{prooftree}
 
 \begin{prooftree}
-  \ninf{\tra{\De}{e_1}{\b_1}}
-  \ninf{\tra{\De}{e_2}{\b_2}}
+  \ninf{\tra{\De}{\e_1}{\b_1}}
+  \ninf{\tra{\De}{\e_2}{\b_2}}
 	\leftl{\rule{T-App} :}
-  \binf{\tra{\De}{e_1 \app e_2}{\b_1 \app \b_2}}
+  \binf{\tra{\De}{\e_1 \app \e_2}{\b_1 \app \b_2}}
 \end{prooftree}
 
-\noindent \judgement{\trav{\De}{e}{\b}}
+\noindent \judgement{\trav{\De}{\e}{\b}}
 
 \begin{prooftree}
   \leftl{\rule{Tv-Here} :}
@@ -135,7 +136,7 @@ Let $\phi$ denote finite partial maps from variable names to canonical forms ($c
 
 \subsection*{Semantics}
 
-\judgement{\ev{e}{\c}} ($e$ closed)
+\judgement{\ev{\e}{\c}} ($\e$ closed)
 
 \begin{prooftree}
   \leftl{\rule{E-Num} :}
@@ -144,15 +145,15 @@ Let $\phi$ denote finite partial maps from variable names to canonical forms ($c
 
 \begin{prooftree}
   \leftl{\rule{E-Lam} :}
-  \ax{\ev{\lam{x}{e_1}}{\lam{x}{e_1}}}
+  \ax{\ev{\lam{x}{\e_1}}{\lam{x}{\e_1}}}
 \end{prooftree}
 
 \begin{prooftree}
-  \ninf{\ev{e_1}{\lam{x}{e_0}}}
-  \ninf{\ev{e_2}{\c_2}}
-  \ninf{\ev{\sub{e_0}{\c_2}{x}}{\c}}
+  \ninf{\ev{\e_1}{\lam{x}{\e_0}}}
+  \ninf{\ev{\e_2}{\c_2}}
+  \ninf{\ev{\sub{\e_0}{\c_2}{x}}{\c}}
 	\leftl{\rule{E-App} :}
-  \tinf{\ev{e_1 \app e_2}{\c}}
+  \tinf{\ev{\e_1 \app \e_2}{\c}}
 \end{prooftree}
 
 \noindent \judgement{\hev{\sg}{\b}{\v}}
@@ -197,14 +198,14 @@ Let $\phi$ denote finite partial maps from variable names to canonical forms ($c
 \subsection*{Main Theorem}
 
 \begin{theorem}[Soundness]
-\label{thm:soundness} If \tra{\nil}{e}{\b}, then \ev{e}{\n{n}} if and only if \hev{\nil}{\b}{\n{n}}.
+\label{thm:soundness} If \tra{\nil}{\e}{\b}, then \ev{\e}{\n{n}} if and only if \hev{\nil}{\b}{\n{n}}.
 \end{theorem}
 
 We will now develop the machinery necessary to prove this.
 
 \subsubsection*{Correspondence}
 
-Let $\subs{e}{\phi}$ denote $\sub{\sub{e}{\phi(x_1)}{x_1} \ldots}{\phi(x_n)}{x_n}$, where $\set{x_1, ..., x_n}$ is the domain of $\phi$.
+Let $\subs{\e}{\phi}$ denote $\sub{\sub{\e}{\phi(x_1)}{x_1} \ldots}{\phi(x_n)}{x_n}$, where $\set{x_1, ..., x_n}$ is the domain of $\phi$.
 Note that, since each $\phi(x_i)$ is closed, the substitution order does not matter.
 Also, let $\phi \wo x$ denote $\phi$ with its domain restricted to $\dom(\phi) \wo \set{x}$.
 We first define a notion of correspondence between values and canonical forms: \\
@@ -218,9 +219,9 @@ We first define a notion of correspondence between values and canonical forms: \
 
 \begin{prooftree}
   \ninf{\comp{\sg}{\De}{\phi}}
-  \ninf{\tra{\De, x}{e}{\b}}
+  \ninf{\tra{\De, x}{\e}{\b}}
   \leftl{\rule{C-Fun} :}
-  \binf{\cor{\cl{\sg}{\b}}{\lam{x}{\subs{e}{\phi \wo x}}}}
+  \binf{\cor{\cl{\sg}{\b}}{\lam{x}{\subs{\e}{\phi \wo x}}}}
 \end{prooftree}
 
 \noindent \judgement{\comp{\sg}{\De}{\phi}}
@@ -244,7 +245,7 @@ For all $\c$, \ev{\c}{\c}.
 
 \begin{lemma}[Determinism]
 \label{lem:determ}
-If \ev{e}{\c} and \ev{e}{c'}, then $\c = \c'$.
+If \ev{\e}{\c} and \ev{\e}{c'}, then $\c = \c'$.
 \end{lemma}
 
 \begin{lemma}
@@ -301,20 +302,20 @@ And since $\phi(x) = \phi'[y \mapsto \c'](x) = \phi'(x)$ (because $x \neq y$), w
 
 \begin{lemma}
 \label{lem:left-to-right}
-If \tra{\De}{e}{\b} (by $\T$), \ev{\subs{e}{\phi}}{\c} (by $\E$) and \comp{\sg}{\De}{\phi} (by $\D$), then there exists $\v$ such that \hev{\sg}{\b}{\v} (by some $\B$) and \cor{\v}{\c} (by some $\C$).
+If \tra{\De}{\e}{\b} (by $\T$), \ev{\subs{\e}{\phi}}{\c} (by $\E$) and \comp{\sg}{\De}{\phi} (by $\D$), then there exists $\v$ such that \hev{\sg}{\b}{\v} (by some $\B$) and \cor{\v}{\c} (by some $\C$).
 \end{lemma}
 
 \begin{proof}
-By induction on $\E$. We proceed by case analysis on $e$.
+By induction on $\E$. We proceed by case analysis on $\e$.
 
-\paragraph{Case $e = \n{n}$}
+\paragraph{Case $\e = \n{n}$}
 
 $\T$ must end in \rule{T-Num} and so $\b = \n{n}$.
-We have $\subs{e}{\phi} = \n{n}$, so $\E$ must end in \rule{E-Num} and $v = \n{n}$.
+We have $\subs{\e}{\phi} = \n{n}$, so $\E$ must end in \rule{E-Num} and $v = \n{n}$.
 Taking $\v = \n{n}$, by rule \rule{B-Num} we get a derivation $\B$ of $\hev{\sg}{\n{n}}{\n{n}}$ as required.
 And $\cor{\n{n}}{\n{n}}$ by rule \rule{C-Num}.
 
-\paragraph{Case $e = x$}
+\paragraph{Case $\e = x$}
 
 $\T$ must have the form
 \begin{prooftree}
@@ -322,7 +323,7 @@ $\T$ must have the form
   \uinf{\tra{\De}{x}{i}}
 \end{prooftree}
 So $\b = i$.
-We have $\subs{e}{\phi} = \phi(x)$ and $\E$ shows \ev{\phi(x)}{\c}.
+We have $\subs{\e}{\phi} = \phi(x)$ and $\E$ shows \ev{\phi(x)}{\c}.
 By Lemma~\ref{lem:value-eval} and Lemma~\ref{lem:determ} combined we get $v = \phi(x)$.
 Now by Lemma~\ref{lem:left-to-right-var} on $\Tv$ and $\D$, we get derivations $\Bv$ of \hevv{\sg}{i}{\v'} and $\C'$ of $\cor{\v'}{\phi(x)}$ (for some $\v'$).
 
@@ -332,56 +333,56 @@ Taking $\v = \v'$, we construct the required $\B$ as follows and take $\C = \C'$
   \uinf{\hev{\sg}{i}{\v'}}
 \end{prooftree}
 
-\paragraph{Case $e = \lam{x}{e_1}$}
+\paragraph{Case $\e = \lam{x}{\e_1}$}
 
 $\T$ must have the form
 \begin{prooftree}
-	\prem{\T_1}{\tra{\De, x}{e_1}{\b_1}}
-  \uinf{\tra{\De}{\lam{x}{e_1}}{\lam{}{\b_1}}}
+	\prem{\T_1}{\tra{\De, x}{\e_1}{\b_1}}
+  \uinf{\tra{\De}{\lam{x}{\e_1}}{\lam{}{\b_1}}}
 \end{prooftree}
-So $\b = \lam{}{\b_1}$. We have $\subs{e}{\phi} = \subs{(\lam{x}{e_1})}{\phi} = \lam{x}{\subs{e_1}{\phi \wo x}}$, so $\E$ must end in \rule{E-Lam} and $v = \lam{x}{\subs{e_1}{\phi \backslash x}}$.
+So $\b = \lam{}{\b_1}$. We have $\subs{\e}{\phi} = \subs{(\lam{x}{\e_1})}{\phi} = \lam{x}{\subs{\e_1}{\phi \wo x}}$, so $\E$ must end in \rule{E-Lam} and $v = \lam{x}{\subs{\e_1}{\phi \wo x}}$.
 Taking $\v = \cl{\sg}{\b_1}$, we get the required $\B$ showing $\hev{\sg}{\lam{}{\b_1}}{\cl{\sg}{\b_1}}$ by rule \rule{B-Lam}.
 And we construct the required derivation $\C$ as follows:
 \begin{prooftree}
   \prem{\D}{\comp{\sg}{\De}{\phi}}
-  \prem{\T_1}{\tra{\De, x}{e_1}{\b_1}}
-  \binf{\cor{\cl{\sg}{\b_1}}{\lam{x}{\subs{e_1}{\phi \wo x}}}}
+  \prem{\T_1}{\tra{\De, x}{\e_1}{\b_1}}
+  \binf{\cor{\cl{\sg}{\b_1}}{\lam{x}{\subs{\e_1}{\phi \wo x}}}}
 \end{prooftree}
 
-\paragraph{Case $e = e_1 \app e_2$}
+\paragraph{Case $\e = \e_1 \app \e_2$}
 
 $\T$ must have the form
 \begin{prooftree}
-  \prem{\T_1}{\tra{\De}{e_1}{\b_1}}
-  \prem{\T_2}{\tra{\De}{e_2}{\b_2}}
-  \binf{\tra{\De}{e_1 \app e_2}{\b_1 \app \b_2}}
+  \prem{\T_1}{\tra{\De}{\e_1}{\b_1}}
+  \prem{\T_2}{\tra{\De}{\e_2}{\b_2}}
+  \binf{\tra{\De}{\e_1 \app \e_2}{\b_1 \app \b_2}}
 \end{prooftree}
 So $\b = \b_1 \app \b_2$.
 
-We have $\subs{e}{\phi} = \subs{e_1}{\phi} \app \subs{e_2}{\phi}$, so $\E$ must end in \rule{E-App} and have the form
+We have $\subs{\e}{\phi} = \subs{\e_1}{\phi} \app \subs{\e_2}{\phi}$, so $\E$ must end in \rule{E-App} and have the form
 \begin{prooftree}
-  \prem{\E_1}{\ev{\subs{e_1}{\phi}}{\lam{x}{e_0}}}
-  \prem{\E_2}{\ev{\subs{e_2}{\phi}}{\c_2}}
-  \prem{\E_3}{\ev{\sub{e_0}{\c_2}{x}}{\c}}
-  \tinf{\ev{\subs{e_1}{\phi} \app \subs{e_2}{\phi}}{\c}}
+  \prem{\E_1}{\ev{\subs{\e_1}{\phi}}{\lam{x}{\e_0}}}
+  \prem{\E_2}{\ev{\subs{\e_2}{\phi}}{\c_2}}
+  \prem{\E_3}{\ev{\sub{\e_0}{\c_2}{x}}{\c}}
+  \tinf{\ev{\subs{\e_1}{\phi} \app \subs{\e_2}{\phi}}{\c}}
 \end{prooftree}
 
-By IH on $\E_1$ with $\T_1$ and $\D$, we get derivations $\B_1$ of \hev{\sg}{\b_1}{\v_1} and $\C_1$ of \cor{\v_1}{\lam{x}{e_0}} (for some $\v_1$).
+By IH on $\E_1$ with $\T_1$ and $\D$, we get derivations $\B_1$ of \hev{\sg}{\b_1}{\v_1} and $\C_1$ of \cor{\v_1}{\lam{x}{\e_0}} (for some $\v_1$).
 $\C_1$ must have the form
 \begin{prooftree}
   \prem{\D_1'}{\comp{\sg'}{\De'}{\phi'}}
-  \prem{\T_1'}{\tra{\De', x}{e_0'}{\b_0}}
-  \binf{\cor{\cl{\sg'}{\b_0}}{\lam{x}{\subs{e_0'}{\phi' \wo x}}}}
+  \prem{\T_1'}{\tra{\De', x}{\e_0'}{\b_0}}
+  \binf{\cor{\cl{\sg'}{\b_0}}{\lam{x}{\subs{\e_0'}{\phi' \wo x}}}}
 \end{prooftree}
-So $e_0 = \subs{e_0'}{\phi' \wo x}$ and $\v_1 = \cl{\sg'}{\b_0}$.
+So $\e_0 = \subs{\e_0'}{\phi' \wo x}$ and $\v_1 = \cl{\sg'}{\b_0}$.
 
 By IH on $\E_2$ with $\T_2$ and $\D$, we get derivations $\B_2$ of \hev{\sg}{\b_2}{\v_2} and $\C_2$ of \cor{\v_2}{\c_2}.
-We have $\sub{\subs{e_0'}{\phi' \wo x}}{\c_2}{x} = \subs{e_0'}{\phi'[x \mapsto \c_2]}$.
-In particular, $\E_3$ shows \ev{\subs{e_0'}{\phi'[x \mapsto \c_2]}}{\c}.
+We have $\sub{\subs{\e_0'}{\phi' \wo x}}{\c_2}{x} = \subs{\e_0'}{\phi'[x \mapsto \c_2]}$.
+In particular, $\E_3$ shows \ev{\subs{\e_0'}{\phi'[x \mapsto \c_2]}}{\c}.
 We construct the following derivation $\D'$ of $\comp{\sg', \v_2}{\De', x}{\phi'[x \mapsto \c_2]}$:
 \begin{prooftree}
   \prem{\D_1'}{\comp{\sg'}{\De'}{\phi'}}
-  \prem{\C_2}{\cor{\h{\c_2}}{\c_2}}
+  \prem{\C_2}{\cor{\v_2}{\c_2}}
   \binf{\comp{\sg', \v_2}{\De', x}{\phi'[x \mapsto \c_2]}}
 \end{prooftree}
 
@@ -457,7 +458,7 @@ Thus, $x \in \dom(\phi')$ and we can take $\C = \C_1$ to complete the proof.
 
 \begin{lemma}
 \label{lem:right-to-left}
-If \tra{\De}{e}{\b} (by $\T$), \hev{\sg}{\b}{\v} (by $\B$) and \comp{\sg}{\De}{\phi} (by $\D$), then there exists $v$ such that \ev{\subs{e}{\phi}}{\c} (by some $\E$) and \cor{\v}{\c} (by some $\C$).
+If \tra{\De}{\e}{\b} (by $\T$), \hev{\sg}{\b}{\v} (by $\B$) and \comp{\sg}{\De}{\phi} (by $\D$), then there exists $\c$ such that \ev{\subs{\e}{\phi}}{\c} (by some $\E$) and \cor{\v}{\c} (by some $\C$).
 \end{lemma}
 
 \begin{proof}
@@ -471,8 +472,8 @@ By induction on $\B$.
 \end{prooftree}
 So $\b = \v = \n{n}$.
 
-$\T$ must end in \rule{T-Num} and so $e = \n{n}$.
-Since $\subs{e}{\phi} = \n{n}$, we can take $v = \n{n}$ and get the required derivation $\E$ of $\ev{\n{n}}{\n{n}}$ by rule \rule{E-Num}.
+$\T$ must end in \rule{T-Num} and so $\e = \n{n}$.
+Since $\subs{\e}{\phi} = \n{n}$, we can take $\c = \n{n}$ and get the required derivation $\E$ of $\ev{\n{n}}{\n{n}}$ by rule \rule{E-Num}.
 And $\cor{\n{n}}{\n{n}}$ by rule \rule{C-Num}.
 
 \paragraph{Case \textnormal{\rule{B-Var}}}
@@ -487,7 +488,11 @@ So $\b = i$, and $\T$ must have the form
   \prem{\Tv}{\trav{\De}{x}{i}}
   \uinf{\tra{\De}{x}{i}}
 \end{prooftree}
-So $e = x$, and $\subs{e}{\phi} = \phi(x)$.
+So $\e = x$.
+By Lemma~\ref{lem:right-to-left-var} on $\Tv$, $\Bv$ and $\D$, we get $x \in \dom(\phi)$ and a derivation $\C'$ of $\cor{\v}{\phi(x)}$.
+We then have $\subs{\e}{\phi} = \phi(x)$, which by definition is a canonical form.
+Taking $\c = \phi(x)$, we get a suitable derivation $\E$ of $\ev{\phi(x)}{\phi(x)}$ by Lemma~\ref{lem:value-eval}.
+And we can take $\C = \C'$.
 
 \paragraph{Case \textnormal{\rule{B-Lam}}}
 
@@ -496,21 +501,64 @@ So $e = x$, and $\subs{e}{\phi} = \phi(x)$.
   \ax{\hev{\sg}{\lam{}{\b_1}}{\cl{\sg}{\b_1}}}
 \end{prooftree}
 So $\b = \lam{}{\b_1}$ and $\v = \cl{\sg}{\b_1}$.
-
-[...]
+$\T$ must have the form
+\begin{prooftree}
+	\prem{\T_1}{\tra{\De, x}{\e_1}{\b_1}}
+  \uinf{\tra{\De}{\lam{x}{\e_1}}{\lam{}{\b_1}}}
+\end{prooftree}
+So $\e = \lam{x}{\e_1}$.
+We have $\subs{\e}{\phi} = \subs{(\lam{x}{\e_1})}{\phi} = \lam{x}{\subs{\e_1}{\phi \wo x}}$, and taking $\c = \lam{x}{\subs{\e_1}{\phi \wo x}}$ we get the required $\E$ showing $\ev{\lam{x}{\subs{\e_1}{\phi \wo x}}}{\lam{x}{\subs{\e_1}{\phi \wo x}}}$ by rule \rule{E-Lam}.
+We then construct the required the required $\C$ as follows:
+\begin{prooftree}
+  \prem{\D}{\comp{\sg}{\De}{\phi}}
+  \prem{\T_1}{\tra{\De, x}{\e_1}{\b_1}}
+  \binf{\cor{\cl{\sg}{\b_1}}{\lam{x}{\subs{\e_1}{\phi \wo x}}}}
+\end{prooftree}
 
 \paragraph{Case \textnormal{\rule{B-App}}}
 
 \begin{prooftree}
-  \ninf{\hev{\sg}{\b_1}{\cl{\sg'}{\b_0}}}
-  \ninf{\hev{\sg}{\b_2}{\v_2}}
-  \ninf{\hev{\sg', \v_2}{\b_0}{\v}}
+  \prem{\B_1}{\hev{\sg}{\b_1}{\cl{\sg'}{\b_0}}}
+  \prem{\B_2}{\hev{\sg}{\b_2}{\v_2}}
+  \prem{\B_3}{\hev{\sg', \v_2}{\b_0}{\v}}
   \leftl{$\B =$}
   \tinf{\hev{\sg}{\b_1 \app \b_2}{\v}}
 \end{prooftree}
 So $\b = \b_1 \app \b_2$.
+$\T$ must have the form
+\begin{prooftree}
+  \prem{\T_1}{\tra{\De}{\e_1}{\b_1}}
+  \prem{\T_2}{\tra{\De}{\e_2}{\b_2}}
+  \binf{\tra{\De}{\e_1 \app \e_2}{\b_1 \app \b_2}}
+\end{prooftree}
+So $\e = \e_1 \app \e_2$.
 
-[...]
+By IH on $\B_1$ with $\T_1$ and $\D$, we get derivations $\E_1$ of \ev{\subs{\e_1}{\phi}}{\c_1} and $\C_1$ of \cor{\cl{\sg'}{\b_0}}{\c_1} (for some $\c_1$).
+$\C_1$ must have the form
+\begin{prooftree}
+  \prem{\D_1'}{\comp{\sg'}{\De'}{\phi'}}
+  \prem{\T_1'}{\tra{\De', x}{\e_0'}{\b_0}}
+  \binf{\cor{\cl{\sg'}{\b_0}}{\lam{x}{\subs{\e_0'}{\phi' \wo x}}}}
+\end{prooftree}
+So $\c_1 = \lam{x}{\subs{\e_0'}{\phi' \wo x}}$.
+
+By IH on $\B_2$ with $\T_2$ and $\D$, we get derivations $\E_2$ of \ev{\subs{\e_2}{\phi}}{\c_2} and $\C_2$ of \cor{\v_2}{\c_2}.
+We construct the following derivation $\D'$ of $\comp{\sg', \v_2}{\De', x}{\phi'[x \mapsto \c_2]}$:
+\begin{prooftree}
+  \prem{\D_1'}{\comp{\sg'}{\De'}{\phi'}}
+  \prem{\C_2}{\cor{\v_2}{\c_2}}
+  \binf{\comp{\sg', \v_2}{\De', x}{\phi'[x \mapsto \c_2]}}
+\end{prooftree}
+
+Then by IH on $\B_3$ with $\T_1'$ and $\D'$, we get a derivation $\E_3$ of \ev{\subs{\e_0'}{\phi'[x \mapsto \c_2]}}{\c} along with the required $\C$ showing \cor{\v}{\c}.
+We have $\subs{\e_0'}{\phi'[x \mapsto \c_2]} = \sub{\subs{\e_0'}{\phi' \wo x}}{\c_2}{x}$, in particular $\E_3$ shows \ev{\sub{\subs{\e_0'}{\phi' \wo x}}{\c_2}{x}}{\c}.
+And finally, noting $\subs{\e}{\phi} = \subs{\e_1}{\phi} \app \subs{\e_2}{\phi}$, we construct the required derivation $\E$ as follows:
+\begin{prooftree}
+  \prem{\E_1}{\ev{\subs{\e_1}{\phi}}{\lam{x}{\subs{\e_0'}{\phi' \wo x}}}}
+  \prem{\E_2}{\ev{\subs{\e_2}{\phi}}{\c_2}}
+  \prem{\E_3}{\ev{\sub{\subs{\e_0'}{\phi' \wo x}}{\c_2}{x}}{\c}}
+  \tinf{\ev{\subs{\e_1}{\phi} \app \subs{\e_2}{\phi}}{\c}}
+\end{prooftree}
 
 \end{proof}
 
