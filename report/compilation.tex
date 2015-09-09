@@ -86,7 +86,7 @@ $\blacksquare$
 	\b &\defi \n{n} \alt i \alt \lam{}{\b_1} \alt \b_1 \app \b_2 \\
   \v &\defi \n{n} \alt \cl{\sg}{\b}
 \end{align*}
-Let $\phi$ denote finite partial maps from variable names to canonical forms ($c$), and let $\sg$ and $\De$ denote ordered lists (with possible repetitions) as follows:
+Let $\phi$ denote finite partial maps from variable names to canonical forms ($\c$), and let $\sg$ and $\De$ denote ordered lists (with possible repetitions) as follows:
 \begin{align*}
   \sg &\defi \nil \alt \sg, \v \\
 	\Delta &\defi \nil \alt \De, x
@@ -120,7 +120,7 @@ Let $\phi$ denote finite partial maps from variable names to canonical forms ($c
   \binf{\tra{\De}{\e_1 \app \e_2}{\b_1 \app \b_2}}
 \end{prooftree}
 
-\noindent \judgement{\trav{\De}{\e}{\b}}
+\noindent \judgement{\trav{\De}{x}{i}}
 
 \begin{prooftree}
   \leftl{\rule{Tv-Here} :}
@@ -508,7 +508,7 @@ $\T$ must have the form
 \end{prooftree}
 So $\e = \lam{x}{\e_1}$.
 We have $\subs{\e}{\phi} = \subs{(\lam{x}{\e_1})}{\phi} = \lam{x}{\subs{\e_1}{\phi \wo x}}$, and taking $\c = \lam{x}{\subs{\e_1}{\phi \wo x}}$ we get the required $\E$ showing $\ev{\lam{x}{\subs{\e_1}{\phi \wo x}}}{\lam{x}{\subs{\e_1}{\phi \wo x}}}$ by rule \rule{E-Lam}.
-We then construct the required the required $\C$ as follows:
+We then construct the required $\C$ using rule \rule{C-Fun} as follows:
 \begin{prooftree}
   \prem{\D}{\comp{\sg}{\De}{\phi}}
   \prem{\T_1}{\tra{\De, x}{\e_1}{\b_1}}
@@ -550,7 +550,7 @@ We construct the following derivation $\D'$ of $\comp{\sg', \v_2}{\De', x}{\phi'
   \binf{\comp{\sg', \v_2}{\De', x}{\phi'[x \mapsto \c_2]}}
 \end{prooftree}
 
-Then by IH on $\B_3$ with $\T_1'$ and $\D'$, we get a derivation $\E_3$ of \ev{\subs{\e_0'}{\phi'[x \mapsto \c_2]}}{\c} along with the required $\C$ showing \cor{\v}{\c}.
+Then by IH on $\B_3$ with $\T_1'$ and $\D'$, we get a derivation $\E_3$ of \mbox{\ev{\subs{\e_0'}{\phi'[x \mapsto \c_2]}}{\c}} along with the required $\C$ showing \cor{\v}{\c}.
 We have $\subs{\e_0'}{\phi'[x \mapsto \c_2]} = \sub{\subs{\e_0'}{\phi' \wo x}}{\c_2}{x}$, in particular $\E_3$ shows \ev{\sub{\subs{\e_0'}{\phi' \wo x}}{\c_2}{x}}{\c}.
 And finally, noting $\subs{\e}{\phi} = \subs{\e_1}{\phi} \app \subs{\e_2}{\phi}$, we construct the required derivation $\E$ as follows:
 \begin{prooftree}
