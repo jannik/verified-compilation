@@ -1,22 +1,28 @@
 % Natural numbers.
-nat : type.
+nat : type. %name nat N.
+
 z : nat.
 s : nat -> nat.
+
+%worlds () (nat).
 
 
 
 % The source language -- uses higher-order abstract syntax.
-exp : type. %name exp E.
+exp : type. %name exp E x.
+
 num : nat -> exp.
 lam : (exp -> exp) -> exp.
 app : exp -> exp -> exp.
 
 %block bl-exp : block {e : exp}.
+%worlds (bl-exp) (exp).
 
 
 
 % The target language -- uses de Bruijn indices.
 bexp : type. %name bexp B.
+
 bnum : nat -> bexp.
 bvar : nat -> bexp.
 blam : bexp -> bexp.

@@ -1,0 +1,76 @@
+cor : value -> exp -> type. %name cor DC.
+comp : store -> venv -> map -> type. %name comp DD.
+
+cor/num : cor (vnum N) (num N).
+
+cor/fun : {E} {Delta} {Phi} cor (vclos Sigma B) (lam [x] E' x)
+           <- ({x} local x -> subst Phi (E x) (E' x))
+           <- comp Sigma Delta Phi
+           <- ({x} trans (venv/cons Delta x) (E x) B).
+
+cor/local : cor B E
+             <- (exp -> cor B E).
+
+comp/nil : comp store/nil venv/nil map/nil.
+
+comp/cons : comp (store/cons Sigma V) (venv/cons Delta X) (map/cons Phi X C)
+             <- comp Sigma Delta Phi
+             <- cor V C.
+
+
+
+left-to-right-var : trans-var Delta X I -> lookup Phi X C -> comp Sigma Delta Phi
+                 -> beval-var Sigma I V -> cor V C -> type.
+%mode left-to-right-var +DTV +DL +DD -DB -DC.
+
+% Missing implementation.
+
+%worlds (bl-exp) (left-to-right-var _ _ _ _ _).
+% total (DT) (left-to-right-var DT _ _ _ _).
+
+
+
+left-to-right : trans Delta E B -> subst Phi E E' -> eval E' C -> comp Sigma Delta Phi
+             -> beval Sigma B V -> cor V C -> type.
+%mode left-to-right +DT +DS +DE +DD -DB -DC.
+
+left-to-right/num : left-to-right trans/num subst/num eval/num DD beval/num cor/num.
+
+left-to-right/var : left-to-right (trans/var DTV) (subst/var DL) DE DD (beval/var DBV) DC
+                     <- left-to-right-var DTV DL DD DBV DC.
+
+left-to-right/lam : left-to-right
+                     (trans/lam (DT : {x} trans (venv/cons Delta x) (E1 x) B1))
+                     (subst/lam DS)
+                     eval/lam
+                     (DD : comp Sigma Delta Phi)
+                     beval/lam
+                     (cor/fun E1 Delta Phi DT DD DS).
+
+left-to-right/app : left-to-right
+                     (trans/app (DT2 : trans Delta E2 B2) (DT1 : trans Delta E1 B1))
+                     (subst/app (DS2 : subst Phi E2 E2') (DS1 : subst Phi E1 E1'))
+                     (eval/app (DE3 : eval (E0' C2) C) (DE2 : eval E2' C2) (DE1 : eval E1' (lam E0')))
+                     (DD : comp Sigma Delta Phi)
+                     (beval/app DB3 DB2 DB1)
+                     DC
+                     <- left-to-right DT1 DS1 DE1 DD DB1 (cor/fun _ Delta' Phi' DT1' DD1' DS1')
+                     <- left-to-right DT2 DS2 DE2 DD DB2 DC2
+                     <- ({x} {l} subst-append E0 E0' C2 (DS1' x l) (DS1'' x))
+                     <- {x}  left-to-right (DT1' x) (DS1'' x) DE3 (comp/cons DC2 DD1') DB3 DC.
+
+%worlds (bl-exp) (left-to-right _ _ _ _ _ _).
+% total DE (left-to-right _ _ DE _ _ _).
+
+
+
+soundness-ltr : trans venv/nil E B -> eval E (num N) -> beval store/nil B (vnum N) -> cor V C -> type.
+%mode soundness-ltr +DT +DE -DB -DC.
+
+- : soundness-ltr (DT : trans venv/nil E B) DE DB DC
+     <- empty-subst E DS
+     <- left-to-right DT DS DE comp/nil DB DC.
+
+%worlds () (soundness-ltr _ _ _ _).
+%covers soundness-ltr +DT +DE -DB -DC.
+% total {} (soundness-ltr _ _ _ _).
