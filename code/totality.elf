@@ -1,3 +1,22 @@
+rtrans-exists : {E} rtrans E R -> type.
+%mode rtrans-exists +E -DT.
+
+rtrans-exists/num : rtrans-exists (num N) rtrans/num.
+
+rtrans-exists/lam : rtrans-exists (lam E) (rtrans/lam DT)
+                     <- {x} {y} {dt} rtrans-exists x dt -> rtrans-exists (E x) (DT x y dt).
+
+rtrans-exists/app : rtrans-exists (app E1 E2) (rtrans/app DT2 DT1)
+                     <- rtrans-exists E1 DT1
+                     <- rtrans-exists E2 DT2.
+
+%block bl-rtrans-exists : block {x : exp} {y : var} {dt : rtrans x (rvar y)} {pf : rtrans-exists x dt}.
+
+%worlds (bl-rtrans-exists) (rtrans-exists _ _).
+%total E (rtrans-exists E _).
+
+
+
 % Notion of an expression being closed under a given environment.
 closed : venv -> exp -> type.
 

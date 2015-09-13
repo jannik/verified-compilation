@@ -1,3 +1,16 @@
+rtrans : exp -> rexp -> type.
+
+rtrans/num : rtrans (num N) (rnum N).
+
+rtrans/lam : rtrans (lam E) (rlam R)
+              <- {x} {y} rtrans x (rvar y) -> rtrans (E x) (R y).
+
+rtrans/app : rtrans (app E1 E2) (rapp R1 R2)
+              <- rtrans E1 R1
+              <- rtrans E2 R2.
+
+
+
 % Ordered lists of variables.
 venv : type. %name venv Delta.
 

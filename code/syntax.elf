@@ -20,6 +20,19 @@ app : exp -> exp -> exp.
 
 
 
+rexp : type. %name rexp R.
+var : type. %name var X x.
+
+rnum : nat -> rexp.
+rvar : var -> rexp.
+rlam : (var -> rexp) -> rexp.
+rapp : rexp -> rexp -> rexp.
+
+%block bl-var : block {x : var}.
+%worlds (bl-var) (var) (rexp).
+
+
+
 % The target language -- uses de Bruijn indices.
 bexp : type. %name bexp B.
 

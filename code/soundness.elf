@@ -1,3 +1,90 @@
+rsubst-sound : ({x} {y} rtrans x (rvar y) -> rtrans (E x) (R y)) -> rtrans C S -> rsubst R S R'
+            -> rtrans (E C) R' -> type.
+%mode rsubst-sound +DTE +DTC +DS -DTE'.
+
+rsubst-sound/num : rsubst-sound ([x] [y] [dt] rtrans/num) DTC rsubst/num rtrans/num.
+
+rsubst-sound/var-same : rsubst-sound ([x] [y] [dt] dt) DTC rsubst/var-same DTC.
+
+rsubst-sound/var-diff : rsubst-sound ([x] [y] [dt] DTE) DTC rsubst/var-diff DTE.
+
+rsubst-sound/lam : rsubst-sound ([x] [y] [dt] rtrans/lam (DTE x y dt))
+                    DTC (rsubst/lam DS) (rtrans/lam DTE')
+                    <- {x'} {y'} {dt'}
+                       rsubst-sound ([x] [y] [dt] DTE x y dt x' y' dt') DTC (DS y') (DTE' x' y' dt').
+
+rsubst-sound/app : rsubst-sound ([x] [y] [dt] rtrans/app (DTE2 x y dt) (DTE1 x y dt))
+                    DTC (rsubst/app DS2 DS1) (rtrans/app DTE2' DTE1')
+                    <- rsubst-sound DTE1 DTC DS1 DTE1'
+                    <- rsubst-sound DTE2 DTC DS2 DTE2'.
+
+%block bl-rsubst-sound : block {x : exp} {y : var} {dt : rtrans x (rvar y)}.
+
+%worlds (bl-rsubst-sound) (rsubst-sound _ _ _ _).
+%total DS (rsubst-sound _ _ DS _).
+
+
+
+rsubst-exists : {R} {S} rsubst R S R' -> type.
+%mode rsubst-exists +R +S -DS.
+
+rsubst-exists/num : rsubst-exists ([x] rnum N) S rsubst/num.
+
+rsubst-exists/var-same : rsubst-exists ([x] rvar x) S rsubst/var-same.
+
+rsubst-exists/var-diff : rsubst-exists ([x] rvar Y) S rsubst/var-diff.
+
+rsubst-exists/lam : rsubst-exists ([x] rlam (R x)) S (rsubst/lam DS)
+                     <- {y} rsubst-exists ([x] R x y) S (DS y).
+
+rsubst-exists/app : rsubst-exists ([x] rapp (R1 x) (R2 x)) S (rsubst/app DS2 DS1)
+                     <- rsubst-exists R1 S DS1
+                     <- rsubst-exists R2 S DS2.
+
+%worlds (bl-var) (rsubst-exists _ _ _).
+%total R (rsubst-exists R _ _).
+
+
+
+rsoundness-ltr : rtrans E R -> eval E C -> reval R S -> rtrans C S -> type.
+%mode rsoundness-ltr +DT +DE -DR -DT'.
+
+rsoundness-ltr/num : rsoundness-ltr rtrans/num eval/num reval/num rtrans/num.
+
+rsoundness-ltr/lam : rsoundness-ltr (rtrans/lam DT) eval/lam reval/lam (rtrans/lam DT).
+
+rsoundness-ltr/app : rsoundness-ltr (rtrans/app DT2 DT1) (eval/app DE3 DE2 DE1)
+                      (reval/app DR3 DS DR2 DR1) DT'
+                  <- rsoundness-ltr DT1 DE1 DR1 (rtrans/lam DT1')
+                  <- rsoundness-ltr DT2 DE2 DR2 DT2'
+                  <- rsubst-exists R0 S2 DS
+                  <- rsubst-sound DT1' DT2' DS DT3
+                  <- rsoundness-ltr DT3 DE3 DR3 DT'.
+
+%worlds () (rsoundness-ltr _ _ _ _).
+%total DE (rsoundness-ltr _ DE _ _).
+
+
+
+rsoundness-rtl : rtrans E R -> reval R S -> eval E C -> rtrans C S -> type.
+%mode rsoundness-rtl +DT +DR -DE -DT'.
+
+rsoundness-rtl/num : rsoundness-rtl rtrans/num reval/num eval/num rtrans/num.
+
+rsoundness-rtl/lam : rsoundness-rtl (rtrans/lam DT) reval/lam eval/lam (rtrans/lam DT).
+
+rsoundness-rtl/app : rsoundness-rtl (rtrans/app DT2 DT1) (reval/app DR3 DS DR2 DR1)
+                      (eval/app DE3 DE2 DE1) DT'
+                      <- rsoundness-rtl DT1 DR1 DE1 (rtrans/lam DT1')
+                      <- rsoundness-rtl DT2 DR2 DE2 DT2'
+                      <- rsubst-sound DT1' DT2' DS DT3
+                      <- rsoundness-rtl DT3 DR3 DE3 DT'.
+
+%worlds () (rsoundness-rtl _ _ _ _).
+%total DR (rsoundness-rtl _ DR _ _).
+
+
+
 cor : value -> exp -> type. %name cor DC.
 comp : store -> venv -> map -> type. %name comp DD.
 
