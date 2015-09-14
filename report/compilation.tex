@@ -86,7 +86,7 @@ $\blacksquare$
 	\b &\defi \n{n} \alt i \alt \lam{}{\b_1} \alt \b_1 \app \b_2 \\
   \v &\defi \n{n} \alt \cl{\sg}{\b}
 \end{align*}
-Let $\phi$ denote finite partial maps from variable names to canonical forms ($\c$), and let $\sg$ and $\De$ denote ordered lists (with possible repetitions) as follows:
+Let $\sg$ and $\De$ denote ordered lists (with possible repetitions) as follows:
 \begin{align*}
   \sg &\defi \nil \alt \sg, \v \\
 	\Delta &\defi \nil \alt \De, x
@@ -205,6 +205,7 @@ We will now develop the machinery necessary to prove this.
 
 \subsubsection*{Correspondence}
 
+Let $\phi$ denote finite partial maps from variable names to canonical forms.
 Let $\subs{\e}{\phi}$ denote $\sub{\sub{\e}{\phi(x_1)}{x_1} \ldots}{\phi(x_n)}{x_n}$, where $\set{x_1, ..., x_n}$ is the domain of $\phi$.
 Note that, since each $\phi(x_i)$ is closed, the substitution order does not matter.
 Also, let $\phi \wo x$ denote $\phi$ with its domain restricted to $\dom(\phi) \wo \set{x}$.
@@ -324,7 +325,7 @@ $\T$ must have the form
 \end{prooftree}
 So $\b = i$.
 We have $\subs{\e}{\phi} = \phi(x)$ and $\E$ shows \ev{\phi(x)}{\c}.
-By Lemma~\ref{lem:value-eval} and Lemma~\ref{lem:determ} combined we get $c = \phi(x)$.
+By Lemma~\ref{lem:value-eval} and Lemma~\ref{lem:determ} combined we get $\c = \phi(x)$.
 Now by Lemma~\ref{lem:left-to-right-var} on $\Tv$ and $\D$, we get derivations $\Bv$ of \hevv{\sg}{i}{\v'} and $\C'$ of $\cor{\v'}{\phi(x)}$ (for some $\v'$).
 
 Taking $\v = \v'$, we construct the required $\B$ as follows and take $\C = \C'$:
@@ -563,8 +564,15 @@ And finally, noting $\subs{\e}{\phi} = \subs{\e_1}{\phi} \app \subs{\e_2}{\phi}$
 \end{proof}
 
 We can now establish the main theorem.
+
 \begin{proof}[Proof of Theorem~\ref{thm:soundness}]
-Observe that numbers correspond only to themselves, and use lemmas \ref{lem:left-to-right} and \ref{lem:right-to-left}.
+Supposing \tra{\nil}{\e}{\b} (by $\T$), we show the bi-implication.
+For the left-to-right direction, assume \ev{\e}{\n{n}} (by $\E$) and note $\e = \subs{\e}{\nil}$.
+Rule \rule{D-Nil} provides $\D$ showing the compatibility of empty contexts.
+Then use Lemma~\ref{lem:left-to-right} on $\T$, $\E$ and $\D$ to get \hev{\nil}{\b}{\v} for some $\v$ satisfying \cor{\v}{\n{n}}.
+But since numbers correspond only to themselves, we must have $\v = \n{n}$ as required.
+
+The other direction is analogous, using Lemma~\ref{lem:right-to-left} instead.
 \end{proof}
 
 \end{document}
