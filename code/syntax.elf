@@ -20,6 +20,14 @@ app : exp -> exp -> exp.
 
 
 
+canon : exp -> type. %name canon DC.
+
+canon/num : canon (num N).
+
+canon/lam : canon (lam E).
+
+
+
 rexp : type. %name rexp R.
 var : type. %name var X x.
 

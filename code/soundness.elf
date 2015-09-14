@@ -108,12 +108,21 @@ comp/cons : comp (store/cons Sigma V) (venv/cons Delta X) (map/cons Phi X C)
 
 left-to-right-var : trans-var Delta X I -> lookup Phi X C -> comp Sigma Delta Phi
                  -> beval-var Sigma I V -> cor V C -> type.
-%mode left-to-right-var +DTV +DL +DD -DB -DC.
+%mode left-to-right-var +DTV +DL +DD -DBV -DC.
 
-% Missing implementation.
+left-to-right-var/here : left-to-right-var trans-var/here lookup/here (comp/cons DC DD1) beval-var/here DC.
+
+% missing here-there case
+% probably need the requirement X /= Y in 'there' rules..
+
+left-to-right-var/there : left-to-right-var (trans-var/there DTV1) (lookup/there DL1) (comp/cons DC DD1)
+                           (beval-var/there DBV1) DC1
+                           <- left-to-right-var DTV1 DL1 DD1 DBV1 DC1.
+
+% missing there-here case
 
 %worlds (bl-exp) (left-to-right-var _ _ _ _ _).
-% total (DT) (left-to-right-var DT _ _ _ _).
+% total (DTV) (left-to-right-var DTV _ _ _ _).
 
 
 
@@ -161,3 +170,56 @@ soundness-ltr : trans venv/nil E B -> eval E (num N) -> beval store/nil B (vnum 
 %worlds () (soundness-ltr _ _ _ _).
 %covers soundness-ltr +DT +DE -DB -DC.
 % total {} (soundness-ltr _ _ _ _).
+
+
+
+eval-canon : canon C -> eval C C -> type.
+%mode eval-canon +DC -DE.
+
+eval-canon/num : eval-canon canon/num eval/num.
+
+eval-canon/lam : eval-canon canon/lam eval/lam.
+
+%worlds () (eval-canon _ _).
+%total (DC) (eval-canon DC _).
+
+
+
+right-to-left-var : trans-var Delta X I -> beval-var Sigma I V -> lookup Phi X C -> comp Sigma Delta Phi
+                 -> cor V C -> type.
+%mode right-to-left-var +DTV +DBV +DL +DD -DC.
+
+% missing cases
+
+%worlds (bl-exp) (right-to-left-var _ _ _ _ _).
+% total (DTV) (right-to-left-var DTV _ _ _ _).
+
+
+
+right-to-left : trans Delta E B -> subst Phi E E' -> beval Sigma B V -> comp Sigma Delta Phi
+             -> eval E' C -> cor V C -> type.
+%mode right-to-left +DT +DS +DB +DD -DE -DC.
+
+right-to-left/num : right-to-left trans/num subst/num beval/num DD eval/num cor/num.
+
+% need to change definition of map (Phi) such that it maps to canonical forms
+
+% right-to-left/var : right-to-left (trans/var DTV) (subst/var DL) (beval/var DBV) DD DE DC
+%                      <- right-to-left-var DTV DBV DL DD DC
+%                      <- % must have 'canon C' and use eval-canon to get DE.
+
+%worlds (bl-exp) (right-to-left _ _ _ _ _ _).
+% total DB (right-to-left _ _ DB _ _ _).
+
+
+
+soundness-rtl : trans venv/nil E B -> beval store/nil B (vnum N) -> eval E (num N) -> cor V C -> type.
+%mode soundness-rtl +DT +DB -DE -DC.
+
+- : soundness-rtl (DT : trans venv/nil E B) DB DE DC
+     <- empty-subst E DS
+     <- right-to-left DT DS DB comp/nil DE DC.
+
+%worlds () (soundness-rtl _ _ _ _).
+%covers soundness-rtl +DT +DB -DE -DC.
+% total {} (soundness-rtl _ _ _ _).
