@@ -1,17 +1,17 @@
 test1 : exp = app (lam [x] lam [y] x) (num z).
 
-%query 1 1 trans venv/nil test1 B.
+%query 1 1 trans-hb venv/nil test1 B.
 %solve closed1 : closed venv/nil test1.
-%query 1 1 trans-exists closed1 T.
+%query 1 1 trans-hb-exists closed1 T.
 
 test2 : exp = lam [x] lam [y] lam [z] app x (lam [w] app y z).
 
-%query 1 1 trans venv/nil test2 B.
+%query 1 1 trans-hb venv/nil test2 B.
 %solve closed2 : closed venv/nil test2.
-%query 1 1 trans-exists closed2 T.
+%query 1 1 trans-hb-exists closed2 T.
 
 % cor1 : cor (vclos (store/cons store/nil (vnum z)) (bvar (s z))) (lam [x] num z)
 %         = cor/local [y] cor/fun ([x] y) (venv/cons venv/nil y) (map/cons map/nil y (num z))
-%            ([x] trans/var (trans-var/there trans-var/here))
+%            ([x] trans-hb/var (trans-hb-var/there trans-hb-var/here))
 %            (comp/cons cor/num comp/nil)
 %            ([x] subst/var lookup/here).

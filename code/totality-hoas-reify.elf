@@ -1,0 +1,16 @@
+trans-hr-exists : {E} trans-hr E R -> type.
+%mode trans-hr-exists +E -DT.
+
+trans-hr-exists/num : trans-hr-exists (num N) trans-hr/num.
+
+trans-hr-exists/lam : trans-hr-exists (lam E) (trans-hr/lam DT)
+                     <- {x} {y} {dt} trans-hr-exists x dt -> trans-hr-exists (E x) (DT x y dt).
+
+trans-hr-exists/app : trans-hr-exists (app E1 E2) (trans-hr/app DT2 DT1)
+                     <- trans-hr-exists E1 DT1
+                     <- trans-hr-exists E2 DT2.
+
+%block bl-trans-hr-exists : block {x : exp} {y : var} {dt : trans-hr x (rvar y)} {pf : trans-hr-exists x dt}.
+
+%worlds (bl-trans-hr-exists) (trans-hr-exists _ _).
+%total E (trans-hr-exists E _).

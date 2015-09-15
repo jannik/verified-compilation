@@ -1,0 +1,12 @@
+eval : exp -> exp -> type.
+
+eval/num : eval (num N) (num N).
+
+eval/lam : eval (lam E) (lam E).
+
+eval/app : eval (app E1 E2) C
+            <- eval E1 (lam E0)
+            <- eval E2 C2
+            <- eval (E0 C2) C.
+
+%worlds () (eval _ _).

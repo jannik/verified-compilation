@@ -1,0 +1,32 @@
+% Ordered lists of variables.
+venv : type. %name venv Delta.
+
+venv/nil : venv.
+venv/cons : venv -> exp -> venv.
+
+
+
+% Translation of variables.
+trans-hb-var : venv -> exp -> nat -> type.
+
+trans-hb-var/here : trans-hb-var (venv/cons Delta X) X z.
+
+trans-hb-var/there : trans-hb-var (venv/cons Delta Y) X (s I)
+                   <- trans-hb-var Delta X I.
+
+
+
+% Translation from HOAS to de Bruijn.
+trans-hb : venv -> exp -> bexp -> type.
+
+trans-hb/num : trans-hb Delta (num N) (bnum N).
+
+trans-hb/var : trans-hb Delta E (bvar I)
+             <- trans-hb-var Delta E I.
+
+trans-hb/lam : trans-hb Delta (lam [x] E x) (blam B)
+             <- {x} trans-hb (venv/cons Delta x) (E x) B.
+
+trans-hb/app : trans-hb Delta (app E1 E2) (bapp B1 B2)
+             <- trans-hb Delta E1 B1
+             <- trans-hb Delta E2 B2.

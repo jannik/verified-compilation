@@ -1,0 +1,35 @@
+store : type. %name store Sigma.
+value : type. %name value V.
+
+store/nil : store.
+
+store/cons : store -> value -> store.
+
+vnum : nat -> value.
+
+vclos : store -> bexp -> value.
+
+
+
+beval-var : store -> nat -> value -> type.
+
+beval-var/here : beval-var (store/cons Sigma V) z V.
+
+beval-var/there : beval-var (store/cons Sigma V') (s I) V
+                   <- beval-var Sigma I V.
+
+
+
+beval : store -> bexp -> value -> type.
+
+beval/num : beval Sigma (bnum N) (vnum N).
+
+beval/var : beval Sigma (bvar I) V
+             <- beval-var Sigma I V.
+
+beval/lam : beval Sigma (blam B) (vclos Sigma B).
+
+beval/app : beval Sigma (bapp B1 B2) V
+             <- beval Sigma B1 (vclos Sigma' B0)
+             <- beval Sigma B2 V2
+             <- beval (store/cons Sigma' V2) B0 V.

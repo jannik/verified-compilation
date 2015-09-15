@@ -1,0 +1,7 @@
+% Natural numbers.
+nat : type. %name nat N.
+
+z : nat.
+s : nat -> nat.
+
+%worlds () (nat).

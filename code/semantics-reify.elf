@@ -1,0 +1,32 @@
+rsubst : (var -> rexp) -> rexp -> rexp -> type.
+%mode rsubst +R +S -R'.
+
+rsubst/num : rsubst ([x] rnum N) S (rnum N).
+
+rsubst/var-same : rsubst ([x] rvar x) S S.
+
+rsubst/var-diff : rsubst ([x] rvar Y) S (rvar Y).
+
+rsubst/lam : rsubst ([x] rlam (R x)) S (rlam R')
+              <- {y} rsubst ([x] R x y) S (R' y).
+
+rsubst/app : rsubst ([x] rapp (R1 x) (R2 x)) S (rapp R1' R2')
+              <- rsubst R1 S R1'
+              <- rsubst R2 S R2'.
+
+%worlds (bl-var) (rsubst _ _ _).
+%total R (rsubst R _ _).
+
+
+
+reval : rexp -> rexp -> type.
+
+reval/num : reval (rnum N) (rnum N).
+
+reval/lam : reval (rlam R) (rlam R).
+
+reval/app : reval (rapp R1 R2) S
+             <- reval R1 (rlam R0)
+             <- reval R2 S2
+             <- rsubst R0 S2 R0'
+             <- reval R0' S.
