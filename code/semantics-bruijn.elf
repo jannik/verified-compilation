@@ -11,6 +11,12 @@ vclos : store -> bexp -> value.
 
 
 
+id-value : value -> value -> type.
+
+id-value/refl : id-value V V.
+
+
+
 beval-var : store -> nat -> value -> type.
 
 beval-var/here : beval-var (store/cons Sigma V) z V.

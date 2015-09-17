@@ -1,0 +1,29 @@
+var-list : type. %name var-list Delta.
+
+var-list/nil : var-list.
+var-list/cons : var-list -> var -> var-list.
+
+
+
+trans-rb-var : var-list -> var -> nat -> type.
+
+trans-rb-var/here : trans-rb-var (var-list/cons Delta X) X z.
+
+trans-rb-var/there : trans-rb-var (var-list/cons Delta Y) X (s I)
+                      <- trans-rb-var Delta X I.
+
+
+
+trans-rb : var-list -> rexp -> bexp -> type.
+
+trans-rb/num : trans-rb Delta (rnum N) (bnum N).
+
+trans-rb/var : trans-rb Delta (rvar X) (bvar I)
+                <- trans-rb-var Delta X I.
+
+trans-rb/lam : trans-rb Delta (rlam R) (blam B)
+                <- {x} trans-rb (var-list/cons Delta x) (R x) B.
+
+trans-rb/app : trans-rb Delta (rapp R1 R2) (bapp B1 B2)
+                <- trans-rb Delta R1 B1
+                <- trans-rb Delta R2 B2.

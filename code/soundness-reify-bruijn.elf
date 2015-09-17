@@ -1,0 +1,314 @@
+void-to-rexp : void -> rexp -> type.
+%mode void-to-rexp +V -R.
+
+rlookup : var -> rexp -> type. %name rlookup DL.
+%mode rlookup +X -R.
+
+rlookup/void : rlookup (var/void V) R
+                <- void-to-rexp V R.
+
+rlookup-canon : rlookup X R -> rcanon R -> type.
+%mode rlookup-canon +DL -DC.
+
+freeze-fix-rlookup : rlookup X R -> rlookup X R -> type.
+
+- : freeze-fix-rlookup A B <- {_ : rlookup C D} {_ : rcanon E} {_ : rlookup-canon F G} rlookup C' D'.
+
+%block bl-rlookup : some {R : var -> rexp} {DC : {x} rcanon (R x)}
+                     block {x : var} {dl : rlookup x (R x)} {dp : rlookup-canon dl (DC x)}.
+
+%worlds (bl-rlookup) (void-to-rexp _ _) (rlookup _ _) (rlookup-canon _ _).
+%total {} (void-to-rexp _ _) (rlookup _ _) (rlookup-canon _ _).
+
+
+
+rlookup-unique : rlookup X R -> rlookup X R' -> id R R' -> type.
+%mode rlookup-unique +DL +DL' -ID.
+
+rlookup-unique/same : rlookup-unique DL DL id/refl.
+
+%worlds (bl-rlookup) (rlookup-unique _ _ _).
+%total {} (rlookup-unique _ _ _).
+
+
+
+void-to-rexp-exists : {V} void-to-rexp V R -> type.
+%mode void-to-rexp-exists +V -DV.
+
+
+
+rlookup-exists : {X} rlookup X R -> type.
+%mode rlookup-exists +X -DL.
+
+rlookup-exists/void : rlookup-exists (var/void V) (rlookup/void DV)
+                  <- void-to-rexp-exists V DV.
+
+%block bl-rlookup-exists : some {R : var -> rexp}
+                            block {x : var} {dl : rlookup x (R x)} {pf : rlookup-exists x dl}.
+
+%worlds (bl-rlookup-exists) (void-to-rexp-exists _ _) (rlookup-exists _ _).
+%total {} (void-to-rexp-exists _ _) (rlookup-exists _ _).
+
+
+
+rsubst-many : rexp -> rexp -> type.
+%mode rsubst-many +R -R'.
+
+rsubst-many/num : rsubst-many (rnum N) (rnum N).
+
+rsubst-many/var : rsubst-many (rvar X) R'
+                   <- rlookup X R'.
+
+rsubst-many/lam : rsubst-many (rlam R) (rlam R')
+                   <- {x} {dl : rlookup x (rvar x)} rlookup-canon dl rcanon/var
+                      -> rsubst-many (R x) (R' x).
+
+rsubst-many/app : rsubst-many (rapp R1 R2) (rapp R1' R2')
+                   <- rsubst-many R1 R1'
+                   <- rsubst-many R2 R2'.
+
+%worlds (bl-rlookup) (rsubst-many _ _).
+%total R (rsubst-many R _).
+
+
+
+rsubst-indep : rsubst ([x] R) S R' -> id R R' -> type.
+%mode rsubst-indep +DS -ID.
+
+- : rsubst-indep rsubst/num id/refl.
+
+- : rsubst-indep rsubst/var-diff id/refl.
+
+- : rsubst-indep (rsubst/lam DS) ID'
+     <- ({x} rsubst-indep (DS x) (ID x))
+     <- id-rlam ID ID'.
+
+- : rsubst-indep (rsubst/app DS2 DS1) ID
+     <- rsubst-indep DS1 ID1
+     <- rsubst-indep DS2 ID2
+     <- id-rapp ID1 ID2 ID.
+
+%worlds (bl-var) (rsubst-indep _ _).
+%total DS (rsubst-indep DS _).
+
+
+
+coerce-rlookup : rlookup X R -> id R R' -> rlookup X R' -> type.
+%mode coerce-rlookup +DL +ID -DL'.
+
+- : coerce-rlookup DL id/refl DL.
+
+%worlds (bl-rlookup) (coerce-rlookup _ _ _).
+%total {} (coerce-rlookup _ _ _).
+
+
+
+coerce-beval : beval Sigma B V -> id-value V V' -> beval Sigma B V' -> type.
+%mode coerce-beval +DB +ID -DB'.
+
+- : coerce-beval DB id-value/refl DB.
+
+%worlds (bl-rlookup) (coerce-beval _ _ _).
+%total {} (coerce-beval _ _ _).
+
+
+
+rlookup-combine : ({x} {dl : rlookup x (rvar x)} rlookup-canon dl rcanon/var -> rlookup (Y x) (R' x))
+                   -> {DC : rcanon S}
+                   rsubst R' S R''
+                   -> ({x} {dl : rlookup x S} rlookup-canon dl DC -> rlookup (Y x) R'') -> type.
+%mode rlookup-combine +DL +DC +DS -DL'.
+
+- : rlookup-combine ([x] [dl] [dp] (DL : rlookup Y R')) DC DS ([x] [dl] [dp] DL')
+     <- rsubst-indep DS ID
+     <- coerce-rlookup DL ID DL'.
+
+- : rlookup-combine ([x] [dl] [dp] dl) DC DS ([x] [dl] [dp] dl).
+
+%worlds (bl-rlookup) (rlookup-combine _ _ _ _).
+%total DL (rlookup-combine DL _ _ _).
+
+
+
+rsubst-combine : ({x} {dl : rlookup x (rvar x)} rlookup-canon dl rcanon/var -> rsubst-many (R x) (R' x))
+                  -> {DC : rcanon S}
+                  rsubst R' S R''
+                  -> ({x} {dl : rlookup x S} rlookup-canon dl DC -> rsubst-many (R x) R'') -> type.
+%mode rsubst-combine +DS +DC +DS' -DS''.
+
+- : rsubst-combine ([x] [dl] [dp] rsubst-many/num) DC rsubst/num ([x] [dl] [dp] rsubst-many/num).
+
+- : rsubst-combine ([x] [dl] [dp] rsubst-many/var (DL x dl dp)) DC DS'
+     ([x] [dl] [dp] rsubst-many/var (DL' x dl dp))
+     <- rlookup-combine DL DC DS' DL'.
+
+- : rsubst-combine ([x] [dl] [dp] rsubst-many/lam (DS x dl dp)) DC (rsubst/lam DS')
+     ([x] [dl] [dp] rsubst-many/lam (DS'' x dl dp))
+     <- {x'} {dc'} {dl'} rsubst-combine ([x] [dl] [dp] DS x dl dp x' dc' dl') DC (DS' x')
+        ([x] [dl] [dp] DS'' x dl dp x' dc' dl').
+
+- : rsubst-combine ([x] [dl] [dp] rsubst-many/app (DS2 x dl dp) (DS1 x dl dp)) DC
+     (rsubst/app DS2' DS1') ([x] [dl] [dp] rsubst-many/app (DS2'' x dl dp) (DS1'' x dl dp))
+     <- rsubst-combine DS1 DC DS1' DS1''
+     <- rsubst-combine DS2 DC DS2' DS2''.
+
+%worlds (bl-rlookup) (rsubst-combine _ _ _ _).
+%total DS (rsubst-combine DS _ _ _).
+
+
+
+cor-rb : value -> rexp -> type. %name cor-rb DC.
+comp-rb : store -> var-list -> type. %name comp-rb DD.
+
+cor-rb/num : cor-rb (vnum N) (rnum N).
+
+cor-rb/fun : cor-rb (vclos Sigma B) (rlam R')
+              <- ({x} {dl : rlookup x (rvar x)} rlookup-canon dl rcanon/var -> rsubst-many (R x) (R' x))
+              <- comp-rb Sigma Delta
+              <- ({x} trans-rb (var-list/cons Delta x) (R x) B).
+
+cor-rb/local : cor-rb V C
+                <- {x} {dl : rlookup x (C' x)} rlookup-canon dl (DC x) -> cor-rb V C.
+
+comp-rb/nil : comp-rb store/nil var-list/nil.
+
+comp-rb/cons : comp-rb (store/cons Sigma V) (var-list/cons Delta X)
+                <- comp-rb Sigma Delta
+                <- rlookup X C
+                <- cor-rb V C.
+
+
+
+rcanon-eval : rcanon R -> reval R R' -> id R R' -> type.
+%mode rcanon-eval +DC +DR -ID.
+
+rcanon-eval/num : rcanon-eval rcanon/num reval/num id/refl.
+
+rcanon-eval/lam : rcanon-eval rcanon/lam reval/lam id/refl.
+
+%worlds (bl-rlookup) (rcanon-eval _ _ _).
+%total {} (rcanon-eval _ _ _).
+
+
+
+reval-canon : reval R C -> rcanon C -> type.
+%mode reval-canon +DR -DC.
+
+reval-canon/num : reval-canon reval/num rcanon/num.
+
+reval-canon/lam : reval-canon reval/lam rcanon/lam.
+
+reval-canon/app : reval-canon (reval/app DR3 DS DR2 DR1) DC
+                   <- reval-canon DR3 DC.
+
+%worlds (bl-rlookup) (reval-canon _ _).
+%total DR (reval-canon DR _).
+
+
+
+coerce-cor-rb : cor-rb V C -> id C C' -> cor-rb V C' -> type.
+%mode coerce-cor-rb +DC +ID -DC'.
+
+- : coerce-cor-rb DC id/refl DC.
+
+%worlds (bl-rlookup) (coerce-cor-rb _ _ _).
+%total {} (coerce-cor-rb _ _ _).
+
+
+
+lemma-rb-ltr-var : trans-rb-var Delta X I -> rlookup X C -> comp-rb Sigma Delta
+                -> beval-var Sigma I V -> cor-rb V C -> type.
+%mode lemma-rb-ltr-var +DTv +DL +DD -DBv -DC.
+
+- : lemma-rb-ltr-var trans-rb-var/here DL (comp-rb/cons DC DL' DD) beval-var/here DC.
+
+- : lemma-rb-ltr-var (trans-rb-var/there DTv) DL (comp-rb/cons DC DL' DD)
+     (beval-var/there DBv) DC'
+     <- lemma-rb-ltr-var DTv DL DD DBv DC'.
+
+%worlds (bl-rlookup) (lemma-rb-ltr-var _ _ _ _ _).
+%total DTv (lemma-rb-ltr-var DTv _ _ _ _).
+
+
+
+cor-rb-canon : cor-rb V C -> rcanon C -> type.
+%mode cor-rb-canon +DC -DCn.
+
+cor-rb-canon/num : cor-rb-canon cor-rb/num rcanon/num.
+
+cor-rb-canon/fun : cor-rb-canon (cor-rb/fun DT DD DS) rcanon/lam.
+
+cor-rb-canon/local : cor-rb-canon (cor-rb/local [x] [dl] [dp] DC x dl dp) DCn
+                      <- {x} {dl} {dp} cor-rb-canon (DC x dl dp) DCn.
+
+%worlds (bl-rlookup) (cor-rb-canon _ _).
+%total DC (cor-rb-canon DC _).
+
+
+
+cor-lam-clos : cor-rb V (rlam R) -> id-value V (vclos Sigma B) -> type.
+%mode cor-lam-clos +DC -ID.
+
+cor-lam-clos/fun : cor-lam-clos (cor-rb/fun DT DD DS) id-value/refl.
+
+cor-lam-clos/local : cor-lam-clos (cor-rb/local [x] [dl] [dp] DC x dl dp) ID
+                      <- {x} {dl} {dp} cor-lam-clos (DC x dl dp) ID.
+
+%worlds (bl-rlookup) (cor-lam-clos _ _).
+%total DC (cor-lam-clos DC _).
+
+
+
+lemma-rb-ltr-local : rsubst DR0 C2 DR0'
+                      -> reval DR0' C
+                      -> comp-rb Sigma Delta
+                      -> id-value V1 (vclos Sigma' B0)
+                      -> cor-rb V1 C1
+                      -> cor-rb V2 C2
+                      -> beval (store/cons Sigma' V2) B0 V
+                      -> cor-rb V C
+                      -> type.
+%mode lemma-rb-ltr-local +DS' +DR3 +DD +ID +DC1 +DC2 -DB3 -DC.
+
+lemma-rb-ltr : cor-rb V* C* -> trans-rb Delta R B -> rsubst-many R R' -> reval R' C -> comp-rb Sigma Delta
+            -> beval Sigma B V -> cor-rb V C -> type.
+%mode lemma-rb-ltr +D* +DT +DS +DR +DD -DB -DC.
+
+
+% The following proof is not sufficiently general to be accepted as covering all "fun"-cases.
+lemma-rb-ltr-local/fun : lemma-rb-ltr-local DS' DR3 DD ID
+                          (cor-rb/fun DT0 DD0 DS0) DC2 DB3 (cor-rb/local DC')
+                          <- cor-rb-canon DC2 DCn
+                          <- rsubst-combine DS0 DCn DS' DS''
+                          <- {x} {dl} {dp}
+                             lemma-rb-ltr (cor-rb/fun DT0 DD0 DS0) (DT0 x) (DS'' x dl dp) DR3
+                             (comp-rb/cons DC2 dl DD0) DB3 (DC' x dl dp).
+
+lemma-rb-ltr-local/local : lemma-rb-ltr-local DS' DR3 DD ID
+                            (cor-rb/local DC1) DC2 DB3 (cor-rb/local DC)
+                            <- {x} {dl} {dp}
+                               lemma-rb-ltr-local DS' DR3 DD ID (DC1 x dl dp) DC2 DB3 (DC x dl dp).
+
+
+
+- : lemma-rb-ltr D* trans-rb/num rsubst-many/num reval/num DD beval/num cor-rb/num.
+
+- : lemma-rb-ltr D* (trans-rb/var DTv) (rsubst-many/var DL) DR DD (beval/var DBv) DC
+     <- lemma-rb-ltr-var DTv DL DD DBv DC'
+     <- rlookup-canon DL DCn
+     <- rcanon-eval DCn DR ID
+     <- coerce-cor-rb DC' ID DC.
+
+- : lemma-rb-ltr D* (trans-rb/lam DT) (rsubst-many/lam DS) reval/lam DD
+     beval/lam (cor-rb/fun DT DD DS).
+
+- : lemma-rb-ltr D* (trans-rb/app DT2 DT1) (rsubst-many/app DS2 DS1)
+     (reval/app DR3 DS' DR2 DR1) DD (beval/app DB3 DB2 DB1) DC
+     <- lemma-rb-ltr D* DT1 DS1 DR1 DD DB1' DC1
+     <- lemma-rb-ltr D* DT2 DS2 DR2 DD DB2 DC2
+     <- cor-lam-clos DC1 ID
+     <- coerce-beval DB1' ID DB1
+     <- lemma-rb-ltr-local DS' DR3 DD ID DC1 DC2 DB3 DC.
+
+%worlds (bl-rlookup) (lemma-rb-ltr-local _ _ _ _ _ _ _ _) (lemma-rb-ltr _ _ _ _ _ _ _).
+%total {(DR1 DR2) (DC1 DC2)} (lemma-rb-ltr DC1 _ _ DR1 _ _ _) (lemma-rb-ltr-local _ DR2 _ _ DC2 _ _ _).
