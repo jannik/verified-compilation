@@ -311,4 +311,4 @@ lemma-rb-ltr-local/local : lemma-rb-ltr-local DS' DR3 DD ID
      <- lemma-rb-ltr-local DS' DR3 DD ID DC1 DC2 DB3 DC.
 
 %worlds (bl-rlookup) (lemma-rb-ltr-local _ _ _ _ _ _ _ _) (lemma-rb-ltr _ _ _ _ _ _ _).
-%total {(DR1 DR2) (DC1 DC2)} (lemma-rb-ltr DC1 _ _ DR1 _ _ _) (lemma-rb-ltr-local _ DR2 _ _ DC2 _ _ _).
+% total {(DR1 DR2) (DC1 DC2)} (lemma-rb-ltr DC1 _ _ DR1 _ _ _) (lemma-rb-ltr-local _ DR2 _ _ DC2 _ _ _).
