@@ -1,138 +1,111 @@
-cor : value -> exp -> type. %name cor DC.
-comp : store -> venv -> map -> type. %name comp DD.
+soundness-hb-var : eval E C -> trans-hb-var Sigma I E -> beval-var Sigma I V -> cor V C -> type.
+%mode soundness-hb-var +DE +DTV -DBV -DC.
 
-cor/num : cor (vnum N) (num N).
+soundness-hb-var/here/num : soundness-hb-var eval/num (trans-hb-var/here DC) beval-var/here DC.
 
-cor/fun : {E} {Delta} {Phi} cor (vclos Sigma B) (lam [x] E' x)
-           <- ({x} local x -> subst Phi (E x) (E' x))
-           <- comp Sigma Delta Phi
-           <- ({x} trans-hb (venv/cons Delta x) (E x) B).
+soundness-hb-var/here/fun : soundness-hb-var eval/lam (trans-hb-var/here DC) beval-var/here DC.
 
-cor/local : cor B E
-             <- (exp -> cor B E).
+soundness-hb-var/there : soundness-hb-var DE (trans-hb-var/there DTV) (beval-var/there DBV) DC
+                          <- soundness-hb-var DE DTV DBV DC.
 
-comp/nil : comp store/nil venv/nil map/nil.
-
-comp/cons : comp (store/cons Sigma V) (venv/cons Delta X) (map/cons Phi X C)
-             <- comp Sigma Delta Phi
-             <- cor V C.
+%worlds () (soundness-hb-var _ _ _ _).
+%total (DTV) (soundness-hb-var _ DTV _ _).
 
 
 
-left-to-right-var : trans-hb-var Delta X I -> lookup Phi X C -> comp Sigma Delta Phi
-                 -> beval-var Sigma I V -> cor V C -> type.
-%mode left-to-right-var +DTV +DL +DD -DBV -DC.
+soundness-hb : eval E C -> trans-hb Sigma B E -> beval Sigma B V -> cor V C -> type.
+%mode soundness-hb +DE +DT -DB -DC.
 
-left-to-right-var/here : left-to-right-var trans-hb-var/here lookup/here (comp/cons DC DD1) beval-var/here DC.
+soundness-hb/num : soundness-hb eval/num trans-hb/num beval/num cor/num.
 
-% missing here-there case
-% probably need the requirement X /= Y in 'there' rules..
+soundness-hb/var : soundness-hb DE (trans-hb/var DTV) (beval/var DBV) DC
+                    <- soundness-hb-var DE DTV DBV DC.
 
-left-to-right-var/there : left-to-right-var (trans-hb-var/there DTV1) (lookup/there DL1) (comp/cons DC DD1)
-                           (beval-var/there DBV1) DC1
-                           <- left-to-right-var DTV1 DL1 DD1 DBV1 DC1.
+soundness-hb/lam : soundness-hb eval/lam (trans-hb/lam DT) beval/lam (cor/fun (trans-hb/lam DT)).
 
-% missing there-here case
+soundness-hb/app : soundness-hb (eval/app DE3 DE2 DE1) (trans-hb/app DT2 DT1) (beval/app DB3 DB2 DB1) DC3
+                    <- soundness-hb DE1 DT1 DB1 (cor/fun (trans-hb/lam [v] [x] [dc] DT v x dc))
+                    <- soundness-hb DE2 DT2 DB2 (DC2 : cor V2 C2)
+                    <- soundness-hb DE3 (DT V2 C2 DC2) DB3 DC3.
 
-%worlds (bl-exp) (left-to-right-var _ _ _ _ _).
-% total (DTV) (left-to-right-var DTV _ _ _ _).
-
-
-
-left-to-right : trans-hb Delta E B -> subst Phi E E' -> eval E' C -> comp Sigma Delta Phi
-             -> beval Sigma B V -> cor V C -> type.
-%mode left-to-right +DT +DS +DE +DD -DB -DC.
-
-left-to-right/num : left-to-right trans-hb/num subst/num eval/num DD beval/num cor/num.
-
-left-to-right/var : left-to-right (trans-hb/var DTV) (subst/var DL) DE DD (beval/var DBV) DC
-                     <- left-to-right-var DTV DL DD DBV DC.
-
-left-to-right/lam : left-to-right
-                     (trans-hb/lam (DT : {x} trans-hb (venv/cons Delta x) (E1 x) B1))
-                     (subst/lam DS)
-                     eval/lam
-                     (DD : comp Sigma Delta Phi)
-                     beval/lam
-                     (cor/fun E1 Delta Phi DT DD DS).
-
-left-to-right/app : left-to-right
-                     (trans-hb/app (DT2 : trans-hb Delta E2 B2) (DT1 : trans-hb Delta E1 B1))
-                     (subst/app (DS2 : subst Phi E2 E2') (DS1 : subst Phi E1 E1'))
-                     (eval/app (DE3 : eval (E0' C2) C) (DE2 : eval E2' C2) (DE1 : eval E1' (lam E0')))
-                     (DD : comp Sigma Delta Phi)
-                     (beval/app DB3 DB2 DB1)
-                     DC
-                     <- left-to-right DT1 DS1 DE1 DD DB1 (cor/fun _ Delta' Phi' DT1' DD1' DS1')
-                     <- left-to-right DT2 DS2 DE2 DD DB2 DC2
-                     <- ({x} {l} subst-append E0 E0' C2 (DS1' x l) (DS1'' x))
-                     <- {x}  left-to-right (DT1' x) (DS1'' x) DE3 (comp/cons DC2 DD1') DB3 DC.
-
-%worlds (bl-exp) (left-to-right _ _ _ _ _ _).
-% total DE (left-to-right _ _ DE _ _ _).
+%worlds () (soundness-hb _ _ _ _).
+%total (DE) (soundness-hb DE _ _ _).
 
 
 
-soundness-ltr : trans-hb venv/nil E B -> eval E (num N) -> beval store/nil B (vnum N) -> cor V C -> type.
-%mode soundness-ltr +DT +DE -DB -DC.
+coerce-beval : cor (vnum N1) (num N2) -> beval Sigma B (vnum N1) -> beval Sigma B (vnum N2) -> type.
+%mode coerce-beval +DC +DB -DB'.
 
-- : soundness-ltr (DT : trans-hb venv/nil E B) DE DB DC
-     <- empty-subst E DS
-     <- left-to-right DT DS DE comp/nil DB DC.
+- : coerce-beval cor/num DB DB.
 
-%worlds () (soundness-ltr _ _ _ _).
-%covers soundness-ltr +DT +DE -DB -DC.
-% total {} (soundness-ltr _ _ _ _).
+%worlds () (coerce-beval _ _ _).
+%total (DC) (coerce-beval DC _ _).
 
 
 
-eval-canon : canon C -> eval C C -> type.
-%mode eval-canon +DC -DE.
+soundness-hb' : eval E (num N) -> trans-hb store/nil B E -> beval store/nil B (vnum N) -> type.
+%mode soundness-hb' +DE +DT -DB.
 
-eval-canon/num : eval-canon canon/num eval/num.
+- : soundness-hb' DE DT DB'
+     <- soundness-hb DE DT DB DC
+     <- coerce-beval DC DB DB'.
 
-eval-canon/lam : eval-canon canon/lam eval/lam.
-
-%worlds () (eval-canon _ _).
-%total (DC) (eval-canon DC _).
-
-
-
-right-to-left-var : trans-hb-var Delta X I -> beval-var Sigma I V -> lookup Phi X C -> comp Sigma Delta Phi
-                 -> cor V C -> type.
-%mode right-to-left-var +DTV +DBV +DL +DD -DC.
-
-% missing cases
-
-%worlds (bl-exp) (right-to-left-var _ _ _ _ _).
-% total (DTV) (right-to-left-var DTV _ _ _ _).
+%worlds () (soundness-hb' _ _ _).
+%total (DE) (soundness-hb' DE _ _).
 
 
 
-right-to-left : trans-hb Delta E B -> subst Phi E E' -> beval Sigma B V -> comp Sigma Delta Phi
-             -> eval E' C -> cor V C -> type.
-%mode right-to-left +DT +DS +DB +DD -DE -DC.
+completeness-hb-var : eval E C -> trans-hb-var Sigma I E -> beval-var Sigma I V -> cor V C -> type.
+%mode completeness-hb-var -DE +DTV +DBV -DC.
 
-right-to-left/num : right-to-left trans-hb/num subst/num beval/num DD eval/num cor/num.
+completeness-hb-var/here/num : completeness-hb-var eval/num (trans-hb-var/here DC) beval-var/here DC.
 
-% need to change definition of map (Phi) such that it maps to canonical forms
+completeness-hb-var/here/fun : completeness-hb-var eval/lam (trans-hb-var/here DC) beval-var/here DC.
 
-% right-to-left/var : right-to-left (trans-hb/var DTV) (subst/var DL) (beval/var DBV) DD DE DC
-%                      <- right-to-left-var DTV DBV DL DD DC
-%                      <- % must have 'canon C' and use eval-canon to get DE.
+completeness-hb-var/there : completeness-hb-var DE (trans-hb-var/there DTV) (beval-var/there DBV) DC
+                             <- completeness-hb-var DE DTV DBV DC.
 
-%worlds (bl-exp) (right-to-left _ _ _ _ _ _).
-% total DB (right-to-left _ _ DB _ _ _).
+%worlds () (completeness-hb-var _ _ _ _).
+%total (DTV) (completeness-hb-var _ DTV _ _).
 
 
 
-soundness-rtl : trans-hb venv/nil E B -> beval store/nil B (vnum N) -> eval E (num N) -> cor V C -> type.
-%mode soundness-rtl +DT +DB -DE -DC.
+completeness-hb : eval E C -> trans-hb Sigma B E -> beval Sigma B V -> cor V C -> type.
+%mode completeness-hb -DE +DT +DB -DC.
 
-- : soundness-rtl (DT : trans-hb venv/nil E B) DB DE DC
-     <- empty-subst E DS
-     <- right-to-left DT DS DB comp/nil DE DC.
+completeness-hb/num : completeness-hb eval/num trans-hb/num beval/num cor/num.
 
-%worlds () (soundness-rtl _ _ _ _).
-%covers soundness-rtl +DT +DB -DE -DC.
-% total {} (soundness-rtl _ _ _ _).
+completeness-hb/var : completeness-hb DE (trans-hb/var DTV) (beval/var DBV) DC
+                       <- completeness-hb-var DE DTV DBV DC.
+
+completeness-hb/lam : completeness-hb eval/lam (trans-hb/lam DT) beval/lam (cor/fun (trans-hb/lam DT)).
+
+completeness-hb/app : completeness-hb (eval/app DE3 DE2 DE1) (trans-hb/app DT2 DT1) (beval/app DB3 DB2 DB1) DC3
+                       <- completeness-hb DE1 DT1 DB1 (cor/fun (trans-hb/lam [v] [x] [dc] DT v x dc))
+                       <- completeness-hb DE2 DT2 DB2 (DC2 : cor V2 C2)
+                       <- completeness-hb DE3 (DT V2 C2 DC2) DB3 DC3.
+
+%worlds () (completeness-hb _ _ _ _).
+%total (DB) (completeness-hb _ _ DB _).
+
+
+
+coerce-eval : cor (vnum N2) (num N1) -> eval E (num N1) -> eval E (num N2) -> type.
+%mode coerce-eval +DC +DE -DE'.
+
+- : coerce-eval cor/num DE DE.
+
+%worlds () (coerce-eval _ _ _).
+%total (DC) (coerce-eval DC _ _).
+
+
+
+completeness-hb' : beval store/nil B (vnum N) -> trans-hb store/nil B E -> eval E (num N) -> type.
+%mode completeness-hb' +DB +DT -DE.
+
+- : completeness-hb' DB DT DE'
+     <- completeness-hb DE DT DB DC
+     <- coerce-eval DC DE DE'.
+
+%worlds () (completeness-hb' _ _ _).
+%total (DB) (completeness-hb' DB _ _).

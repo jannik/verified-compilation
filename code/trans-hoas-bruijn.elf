@@ -1,32 +1,47 @@
-% Ordered lists of variables.
-venv : type. %name venv Delta.
-
-venv/nil : venv.
-venv/cons : venv -> exp -> venv.
-
-
+% Translation of values.
+cor : value -> exp -> type. %name cor DC.
+%mode cor +V -C.
 
 % Translation of variables.
-trans-hb-var : venv -> exp -> nat -> type.
+trans-hb-var : store -> nat -> exp -> type. %name trans-hb-var DTV.
+%mode trans-hb-var +Sigma +I -C.
 
-trans-hb-var/here : trans-hb-var (venv/cons Delta X) X z.
-
-trans-hb-var/there : trans-hb-var (venv/cons Delta Y) X (s I)
-                   <- trans-hb-var Delta X I.
-
+% Translation between HOAS and de Bruijn.
+trans-hb : store -> bexp -> exp -> type. %name trans-hb DT.
+%mode trans-hb +Sigma +B -E.
 
 
-% Translation from HOAS to de Bruijn.
-trans-hb : venv -> exp -> bexp -> type.
 
-trans-hb/num : trans-hb Delta (num N) (bnum N).
+% rules for cor
 
-trans-hb/var : trans-hb Delta E (bvar I)
-             <- trans-hb-var Delta E I.
+cor/num : cor (vnum N) (num N).
 
-trans-hb/lam : trans-hb Delta (lam [x] E x) (blam B)
-             <- {x} trans-hb (venv/cons Delta x) (E x) B.
+cor/fun : cor (vclos Sigma B) (lam E)
+           <- trans-hb Sigma (blam B) (lam E).
 
-trans-hb/app : trans-hb Delta (app E1 E2) (bapp B1 B2)
-             <- trans-hb Delta E1 B1
-             <- trans-hb Delta E2 B2.
+
+
+% rules for trans-hb-var
+
+trans-hb-var/here : trans-hb-var (store/cons Sigma V) z C
+                     <- cor V C.
+
+trans-hb-var/there : trans-hb-var (store/cons Sigma V') (s I) C
+                      <- trans-hb-var Sigma I C.
+
+
+
+% rules for trans-hb
+
+trans-hb/num : trans-hb Sigma (bnum N) (num N).
+
+trans-hb/var : trans-hb Sigma (bvar I) E
+                <- trans-hb-var Sigma I E.
+
+trans-hb/lam : trans-hb Sigma (blam B) (lam E)
+                <- ({v : value} {x : exp}
+                      cor v x -> trans-hb (store/cons Sigma v) B (E x)).
+
+trans-hb/app : trans-hb Sigma (bapp B1 B2) (app E1 E2)
+                <- trans-hb Sigma B1 E1
+                <- trans-hb Sigma B2 E2.
