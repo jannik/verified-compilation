@@ -45,3 +45,5 @@ trans-hb/lam : trans-hb Sigma (blam B) (lam E)
 trans-hb/app : trans-hb Sigma (bapp B1 B2) (app E1 E2)
                 <- trans-hb Sigma B1 E1
                 <- trans-hb Sigma B2 E2.
+
+%block bl-trans-hb : block {v : value} {x : exp} {dc : cor v x}.

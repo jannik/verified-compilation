@@ -1,0 +1,121 @@
+closed-var : store -> exp -> type.
+
+closed-var/here : closed-var (store/cons Sigma V) E
+                   <- cor V E.
+
+closed-var/there : closed-var (store/cons Sigma E') E
+                    <- closed-var Sigma E.
+
+
+
+closed : store -> exp -> type.
+
+closed/num : closed Sigma (num N).
+
+closed/var : closed Sigma E
+              <- closed-var Sigma E.
+
+closed/lam : closed Sigma (lam E)
+              <- {v} {x} cor v x -> closed (store/cons Sigma v) (E x).
+
+closed/app : closed Sigma (app E1 E2)
+              <- closed Sigma E1
+              <- closed Sigma E2.
+
+
+
+closed-trans-hb-var-exists : closed-var Sigma E -> trans-hb-var Sigma I E -> type.
+%mode closed-trans-hb-var-exists +DCv -DTv.
+
+closed-trans-hb-var-exists/here
+   : closed-trans-hb-var-exists (closed-var/here DCor) (trans-hb-var/here DCor).
+
+closed-trans-hb-var-exists/there
+   : closed-trans-hb-var-exists (closed-var/there DC) (trans-hb-var/there DCor)
+                             <- closed-trans-hb-var-exists DC DCor.
+
+%worlds (bl-trans-hb) (closed-trans-hb-var-exists _ _).
+%total DCv (closed-trans-hb-var-exists DCv _).
+
+
+
+closed-trans-hb-exists : closed Sigma E -> trans-hb Sigma B E -> type.
+%mode closed-trans-hb-exists +DC -DT.
+
+closed-trans-hb-exists/num : closed-trans-hb-exists closed/num trans-hb/num.
+
+closed-trans-hb-exists/var : closed-trans-hb-exists (closed/var DCv) (trans-hb/var DTv)
+                              <- closed-trans-hb-var-exists DCv DTv.
+
+closed-trans-hb-exists/lam : closed-trans-hb-exists (closed/lam DC) (trans-hb/lam DT)
+                              <- {v} {x} {dc} closed-trans-hb-exists (DC v x dc) (DT v x dc).
+
+closed-trans-hb-exists/app : closed-trans-hb-exists (closed/app DC2 DC1) (trans-hb/app DT2 DT1)
+                              <- closed-trans-hb-exists DC1 DT1
+                              <- closed-trans-hb-exists DC2 DT2.
+
+%worlds (bl-trans-hb) (closed-trans-hb-exists _ _).
+%total DC (closed-trans-hb-exists DC _).
+
+
+
+cor-pseudo-exists : {V} {E} cor V E -> type.
+%mode cor-pseudo-exists +V +E -DCor.
+
+%block bl-closed-exists : block {v : value} {x : exp} {dc : cor v x}
+                           {pf : cor-pseudo-exists v x dc}.
+
+%worlds (bl-closed-exists) (cor-pseudo-exists _ _ _).
+%terminates {} (cor-pseudo-exists _ _ _).
+
+
+
+closed-var-pseudo-exists : {Sigma} {E} closed-var Sigma E -> type.
+%mode closed-var-pseudo-exists +Sigma +E -DCv.
+
+closed-var-pseudo-exists/here
+   : closed-var-pseudo-exists (store/cons Sigma V) E (closed-var/here DCor)
+      <- cor-pseudo-exists V E DCor.
+
+closed-var-pseudo-exists/there
+   : closed-var-pseudo-exists (store/cons Sigma V') E (closed-var/there DCv)
+      <- closed-var-pseudo-exists Sigma E DCv.
+
+%worlds (bl-closed-exists) (closed-var-pseudo-exists _ _ _).
+%terminates Sigma (closed-var-pseudo-exists Sigma _ _).
+
+
+
+closed-pseudo-exists : {Sigma} {E} closed Sigma E -> type.
+%mode closed-pseudo-exists +Sigma +E -DC.
+
+closed-pseudo-exists/num : closed-pseudo-exists Sigma (num N) closed/num.
+
+closed-pseudo-exists/var : closed-pseudo-exists Sigma E (closed/var DCv)
+                            <- closed-var-pseudo-exists Sigma E DCv.
+
+closed-pseudo-exists/lam : closed-pseudo-exists Sigma (lam E) (closed/lam DC)
+                            <- {v} {x} {dc}
+                                 cor-pseudo-exists v x dc ->
+                                 closed-pseudo-exists (store/cons Sigma v) (E x) (DC v x dc).
+
+closed-pseudo-exists/app : closed-pseudo-exists Sigma (app E1 E2) (closed/app DC2 DC1)
+                            <- closed-pseudo-exists Sigma E1 DC1
+                            <- closed-pseudo-exists Sigma E2 DC2.
+
+%worlds (bl-closed-exists) (closed-pseudo-exists _ _ _).
+%covers closed-pseudo-exists +Sigma +E -DC.
+%terminates E (closed-pseudo-exists _ E _).
+
+
+
+trans-hb-pseudo-exists : {E} trans-hb store/nil B E -> type.
+%mode trans-hb-pseudo-exists +E -DT.
+
+- : trans-hb-pseudo-exists E DT
+     <- closed-pseudo-exists store/nil E DC
+     <- closed-trans-hb-exists DC DT.
+
+%worlds () (trans-hb-pseudo-exists _ _).
+%covers trans-hb-pseudo-exists +E -DT.
+%terminates {} (trans-hb-pseudo-exists _ _).
