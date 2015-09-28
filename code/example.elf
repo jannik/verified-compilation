@@ -1,0 +1,16 @@
+test1 : exp = app (app (lam [f] lam [x] app f x) (lam [x] x)) (num (s z)).
+
+%define btest1 = B
+%solve _ : trans-hb-pseudo-exists test1 (DT : trans-hb store/nil B test1).
+
+%define stest1 = S
+%solve _ : trans-bs btest1 S.
+
+%query 1 4 D : seval stest1 W.
+
+btest2 : bexp = bnum z.
+
+%define stest2 = S
+%solve _ : trans-bs btest2 S. 
+
+%query 1 4 D : seval stest2 W.

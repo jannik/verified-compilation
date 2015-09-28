@@ -1,0 +1,10 @@
+sexp : type. %name sexp S.
+sprog : type. %name sprog P.
+
+snum : nat -> sexp.
+svar : nat -> sexp.
+slam : sprog -> sexp.
+sapp : sexp.
+
+sprog/nil : sprog.
+sprog/cons : sexp -> sprog -> sprog.

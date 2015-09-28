@@ -1,0 +1,29 @@
+sprog-append : sprog -> sprog -> sprog -> type.
+%mode sprog-append +S1* +S2* -S*.
+
+sprog-append/nil : sprog-append sprog/nil S2* S2*.
+
+sprog-append/cons : sprog-append (sprog/cons S1 S1*) S2* (sprog/cons S1 S*)
+                     <- sprog-append S1* S2* S*.
+
+%worlds () (sprog-append _ _ _).
+
+
+
+trans-bs : bexp -> sprog -> type. %name trans-bs DT.
+%mode trans-bs +B -S*.
+
+trans-bs/num : trans-bs (bnum N) (sprog/cons (snum N) sprog/nil).
+
+trans-bs/var : trans-bs (bvar I) (sprog/cons (svar I) sprog/nil).
+
+trans-bs/lam : trans-bs (blam B) (sprog/cons (slam S*) sprog/nil)
+                <- trans-bs B S*.
+
+trans-bs/app : trans-bs (bapp B1 B2) S*
+                <- trans-bs B1 S1*
+                <- trans-bs B2 S2*
+                <- sprog-append S1* S2* S3*
+                <- sprog-append S3* (sprog/cons sapp sprog/nil) S*.
+
+%worlds () (trans-bs _ _).
