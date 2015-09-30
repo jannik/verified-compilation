@@ -1,0 +1,97 @@
+cor-bs : value -> svalue -> type. %name cor-bs DC.
+comp-bs : store -> sstore -> type. %name comp-bs DD.
+
+cor-bs/num : cor-bs (vnum N) (wnum N).
+
+cor-bs/fun : cor-bs (vclos Sigma B) (wclos Tau S*)
+              <- comp-bs Sigma Tau
+              <- trans-bs B S*.
+
+comp-bs/nil : comp-bs store/nil sstore/nil.
+
+comp-bs/cons : comp-bs (store/cons Sigma V) (sstore/cons Tau W)
+                <- comp-bs Sigma Tau
+                <- cor-bs V W.
+
+
+
+soundness-bs-var : beval-var Sigma I V -> comp-bs Sigma Tau
+                -> seval-var Tau I W -> cor-bs V W -> type.
+%mode soundness-bs-var +DBV +DD -DSV -DC.
+
+soundness-bs-var/here : soundness-bs-var beval-var/here (comp-bs/cons DC DD) seval-var/here DC.
+
+soundness-bs-var/there : soundness-bs-var (beval-var/there DBV) (comp-bs/cons DC' DD) (seval-var/there DSV) DC
+                          <- soundness-bs-var DBV DD DSV DC.
+
+%worlds () (soundness-bs-var _ _ _ _).
+%total DBV (soundness-bs-var DBV _ _ _).
+
+
+
+single-ssteps : sstep Xi Psi Xi' Psi' -> ssteps Xi Psi Xi' Psi' -> type.
+%mode single-ssteps +DS -DS*.
+
+single-ssteps/ : single-ssteps DS (ssteps/trans ssteps/refl DS).
+
+%worlds () (single-ssteps _ _).
+%total DS (single-ssteps DS _).
+
+
+
+cat-ssteps : ssteps Xi Psi Xi' Psi' -> ssteps Xi' Psi' Xi'' Psi'' -> ssteps Xi Psi Xi'' Psi'' -> type.
+%mode cat-ssteps +DS*1 +DS*2 -DS*3.
+
+cat-ssteps/refl : cat-ssteps ssteps/refl DS*2 DS*2.
+
+cat-ssteps/trans : cat-ssteps (ssteps/trans DS*1 DS1) DS*2 (ssteps/trans DS*3 DS1)
+                    <- cat-ssteps DS*1 DS*2 DS*3.
+
+%worlds () (cat-ssteps _ _ _).
+%total DS*1 (cat-ssteps DS*1 _ _).
+
+
+
+append-lemma : ssteps (frames/cons Xi Tau S*1) Psi (frames/cons Xi Tau sprog/nil) (wstack/cons Psi W1)
+            -> ssteps (frames/cons Xi Tau S*2) (wstack/cons Psi W1) (frames/cons Xi Tau sprog/nil) (wstack/cons (wstack/cons Psi W1) W2)
+            -> sprog-append S*1 S*2 S*3
+            -> ssteps (frames/cons Xi Tau S*3) Psi (frames/cons Xi Tau sprog/nil) (wstack/cons (wstack/cons Psi W1) W2)
+            -> type.
+%mode append-lemma +DS*1 +DS*2 +DAp -DS*3.
+
+% ???
+
+
+
+soundness-bs : trans-bs B S* -> beval Sigma B V -> comp-bs Sigma Tau
+            -> ssteps (frames/cons Xi Tau S*) Psi (frames/cons Xi Tau sprog/nil) (wstack/cons Psi W)
+            -> cor-bs V W -> type.
+%mode +{B} +{S*} +{Sigma} +{V} +{Tau} +{Xi} +{Psi} -{W}
+      +{DT:trans-bs B S*} +{DB:beval Sigma B V} +{DD:comp-bs Sigma Tau}
+      -{DS*:ssteps (frames/cons Xi Tau S*) Psi (frames/cons Xi Tau sprog/nil) (wstack/cons Psi W)}
+      -{DC:cor-bs V W}
+      soundness-bs DT DB DD DS* DC.
+
+soundness-bs/num : soundness-bs trans-bs/num beval/num DD
+                                (ssteps/trans ssteps/refl sstep/num) cor-bs/num.
+
+soundness-bs/var : soundness-bs trans-bs/var (beval/var DBV) DD
+                                (ssteps/trans ssteps/refl (sstep/var DSV)) DC
+                    <- soundness-bs-var DBV DD DSV DC.
+
+soundness-bs/lam : soundness-bs (trans-bs/lam DT) beval/lam DD
+                                (ssteps/trans ssteps/refl sstep/lam) (cor-bs/fun DT DD).
+
+%{
+soundness-bs/app : soundness-bs (trans-bs/app DAp2 DAp1 DT2 DT1) (beval/app DB3 DB2 DB1) DD
+                    XX
+                    DC
+                    <- soundness-bs DT1 DB1 DD DS*1 (cor-bs/fun DT0 DD0)
+                    <- soundness-bs DT2 DB2 DD DS*2 DC2.
+                    <- soundness-bs DT0 DB3 (comp-bs/cons DD0 DC2) DS*3 DC
+                    % binding together the sequences
+}%
+
+
+%worlds () (soundness-bs _ _ _ _ _).
+% total DT (soundness-bs DT _ _ _ _).

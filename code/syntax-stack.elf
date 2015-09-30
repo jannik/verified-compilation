@@ -1,5 +1,5 @@
 sexp : type. %name sexp S.
-sprog : type. %name sprog P.
+sprog : type. %name sprog S*.
 
 snum : nat -> sexp.
 svar : nat -> sexp.
