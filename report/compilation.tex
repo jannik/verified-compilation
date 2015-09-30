@@ -24,7 +24,7 @@
 \newcommand{\T}{\mathcal{T}}
 \newcommand{\Tv}{\mathcal{T}^{\mathrm{v}}}
 \newcommand{\z}{\mathtt{z}}
-\newcommand{\s}{\mathtt{s} \;}
+\newcommand{\suc}{\mathtt{s} \;}
 \newcommand{\dom}{\mathsf{dom}}
 
 \newcommand{\n}[1]{\overline{#1}}
@@ -34,6 +34,7 @@
 \newcommand{\sub}[3]{#1[#2/#3]}
 \newcommand{\subs}[2]{#1[#2]}
 \newcommand{\wo}{\backslash}
+\newcommand{\sapp}{\mathbf{app}}
 
 \newcommand{\judgement}[1]{\framebox{#1}}
 \newcommand{\ninf}[1]{\AxiomC{#1}}
@@ -45,11 +46,16 @@
 \newcommand{\leftl}[1]{\LeftLabel{#1\;}}
 \newcommand{\rightl}[1]{\RightLabel{#1}}
 
+\newcommand{\tr}[2]{\ensuremath{#1 \rhd #2}}
 \newcommand{\tra}[3]{\ensuremath{#1 \vdash #2 \rhd #3}}
 \newcommand{\trav}[3]{\ensuremath{#1 \vdash #2 \rhd^{\mathrm{v}} #3}}
 \newcommand{\ev}[2]{\ensuremath{#1 \downarrow #2}}
 \newcommand{\hev}[3]{\ensuremath{#1 \vdash #2 \Downarrow #3}}
 \newcommand{\hevv}[3]{\ensuremath{#1 \vdash #2 \Downarrow^{\mathrm{v}} #3}}
+\newcommand{\sev}[4]{\ensuremath{\langle #1; #2 \rangle \rightarrow \langle #3; #4 \rangle}}
+\newcommand{\ssev}[4]{\ensuremath{\langle #1; #2 \rangle \rightarrow^* \langle #3; #4 \rangle}}
+\newcommand{\sevv}{\hevv}
+\newcommand{\fr}[2]{\langle #1; #2 \rangle}
 \newcommand{\eqv}[3]{\ensuremath{#1 \downarrow #2 \sim #3}}
 \newcommand{\cor}[2]{\ensuremath{#1 \rightsquigarrow #2}}
 \newcommand{\comp}[3]{\ensuremath{#1 \stackrel{#2}{\rightsquigarrow} #3}}
@@ -59,6 +65,9 @@
 \renewcommand{\c}{c} % canonical forms, previously 'v'
 \renewcommand{\b}{b} % de bruijn expressions, previously '\h{\e}'
 \renewcommand{\v}{v} % values, previously '\h{v}'
+\newcommand{\s}{s}
+\renewcommand{\ss}{\s^*}
+\newcommand{\w}{w}
 
 
 \newcounter{statementcounter}
@@ -82,7 +91,7 @@ $\blacksquare$
   e &\defi \n{n} \alt x \alt \lam{x}{\e_1} \alt \e_1 \app \e_2 \\
   \c &\defi \n{n} \alt \lam{x}{\e} \quad (\text{with} \; FV(\e) \subseteq \set{x}) \\
 	\\
-	i &\defi \z \alt \s i \\
+	i &\defi \z \alt \suc i \\
 	\b &\defi \n{n} \alt i \alt \lam{}{\b_1} \alt \b_1 \app \b_2 \\
   \v &\defi \n{n} \alt \cl{\sg}{\b}
 \end{align*}
@@ -131,7 +140,7 @@ Let $\sg$ and $\De$ denote ordered lists (with possible repetitions) as follows:
   \ninf{\trav{\De}{x}{i}}
   \leftl{\rule{Tv-There} :}
 	\rightl{$(x \neq y)$}
-  \uinf{\trav{\De, y}{x}{\s i}}
+  \uinf{\trav{\De, y}{x}{\suc i}}
 \end{prooftree}
 
 \subsection*{Semantics}
@@ -192,7 +201,7 @@ Let $\sg$ and $\De$ denote ordered lists (with possible repetitions) as follows:
 \begin{prooftree}
   \ninf{\hevv{\sg}{i}{\v}}
   \leftl{\rule{Bv-There} :}
-  \uinf{\hevv{\sg, \v'}{\s i}{\v}}
+  \uinf{\hevv{\sg, \v'}{\suc i}{\v}}
 \end{prooftree}
 
 \subsection*{Main Theorem}
@@ -280,9 +289,9 @@ And since $\phi(x) = \phi'[x \mapsto \c](x) = \c$, we can take $\C = \C'$.
   \prem{\Tv_1}{\trav{\De}{x}{i'}}
   \leftl{$\Tv =$}
 	\rightl{$(x \neq y)$}
-  \uinf{\trav{\De', y}{x}{\s i'}}
+  \uinf{\trav{\De', y}{x}{\suc i'}}
 \end{prooftree}
-So $\De = \De', y$ and $i = \s i'$.
+So $\De = \De', y$ and $i = \suc i'$.
 Then $\D$ must have the form
 \begin{prooftree}
   \prem{\D_1}{\comp{\sg'}{\De'}{\phi'}}
@@ -295,7 +304,7 @@ Now by IH on $\Tv_1$ with $\D_1$, we get derivations $\Bv_1$ of $\hevv{\sg'}{i'}
 We construct the required derivation $\Bv$ as follows:
 \begin{prooftree}
   \prem{\Bv_1}{\hevv{\sg'}{i'}{\v}}
-  \uinf{\hevv{\sg', \v'}{\s i'}{\v}}
+  \uinf{\hevv{\sg', \v'}{\suc i'}{\v}}
 \end{prooftree}
 And since $\phi(x) = \phi'[y \mapsto \c'](x) = \phi'(x)$ (because $x \neq y$), we can take $\C = \C_1$.
 
@@ -433,13 +442,13 @@ In particular, $x \in \dom(\phi)$ and \cor{\v}{c} (taking $\C = \C'$) as require
   \prem{\Tv_1}{\trav{\De}{x}{i'}}
   \leftl{$\Tv =$}
 	\rightl{$(x \neq y)$}
-  \uinf{\trav{\De', y}{x}{\s i'}}
+  \uinf{\trav{\De', y}{x}{\suc i'}}
 \end{prooftree}
-So $\De = \De', y$ and $i = \s i'$.
+So $\De = \De', y$ and $i = \suc i'$.
 Thus, $\Bv$ has the form
 \begin{prooftree}
   \prem{\Bv_1}{\hevv{\sg'}{i}{\v}}
-  \uinf{\hevv{\sg', \v'}{\s i}{\v}}
+  \uinf{\hevv{\sg', \v'}{\suc i}{\v}}
 \end{prooftree}
 Hence $\sg = \sg', v'$.
 
@@ -574,5 +583,139 @@ But since numbers correspond only to themselves, we must have $\v = \n{n}$ as re
 
 The other direction is analogous, using Lemma~\ref{lem:right-to-left} instead.
 \end{proof}
+
+\subsection*{A Stack Machine}
+We now develop the next translation target, a stack-based language.
+\begin{align*}
+  \s &\defi \n{n} \alt i \alt \lam{}{\ss_1} \alt \sapp \\
+  \ss &\defi \nil \alt \s, \ss \\
+  \w &\defi \n{n} \alt \cl{\tau}{\ss} \\
+  \tau &\defi \nil \alt \tau, \w \\
+\end{align*}
+Note that $i$ was defined previously.
+
+We translate from de Bruijn expressions to stack instructions using the following judgment.
+\vspace{0.5cm}
+
+\judgement{\tr{\b}{\ss}}
+
+\begin{prooftree}
+  \leftl{\rule{T-Num} :}
+  \ax{\tr{\n{n}}{\n{n}}}
+\end{prooftree}
+
+\begin{prooftree}
+  \leftl{\rule{T-Var} :}
+  \ax{\tr{i}{i}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\tr{\b_1}{\ss_1}}
+  \leftl{\rule{T-Lam} :}
+  \uinf{\tr{\lam{}{\b_1}}{\lam{}{\ss_1}}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\tr{\b_1}{\ss_1}}
+  \ninf{\tr{\b_2}{\ss_2}}
+  \leftl{\rule{T-App} :}
+  \binf{\tr{\b_1 \app \b_2}{\ss_1, \ss_2, \sapp}}
+\end{prooftree}
+
+The semantics of the stack language is given as follows:
+
+\begin{align*}
+  \Xi &\defi \nil \alt \Xi, \fr{\tau}{\ss} \\
+  \Psi &\defi \nil \alt \Psi, \w \\
+\end{align*}
+
+\judgement{\ev{\ss}{\w}}
+
+\begin{prooftree}
+  \ninf{\sev{\fr{\nil}{\ss}}{\nil}{\nil}{\w}}
+  \uinf{\ev{\ss}{\w}}
+\end{prooftree}
+
+\judgement{\sevv{\tau}{i}{\w}}
+
+\begin{prooftree}
+  \leftl{\rule{Sv-Here} :}
+  \ax{\hevv{\tau, \v}{\z}{\w}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\hevv{\tau}{i}{\w}}
+  \leftl{\rule{Sv-There} :}
+  \uinf{\hevv{\tau, \v'}{\suc i}{\w}}
+\end{prooftree}
+
+\judgement{\sev{\Xi}{\Psi}{\Xi'}{\Psi'}}
+
+\begin{prooftree}
+  \leftl{\rule{S-Num} :}
+  \ax{\sev{\Xi, \fr{\tau}{\n{n}, \ss}}{\Psi}{\Xi, \fr{\tau}{\ss}}{\Psi, \n{n}}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\sevv{\tau}{i}{\w}}
+  \leftl{\rule{S-Var} :}
+  \uinf{\sev{\Xi, \fr{\tau}{i, \ss}}{\Psi}{\Xi, \fr{\tau}{\ss}}{\Psi, \w}}
+\end{prooftree}
+
+\begin{prooftree}
+  \leftl{\rule{S-Lam} :}
+  \ax{\sev{\Xi, \fr{\tau}{(\lam{}{\s_1}), \ss}}{\Psi}{\Xi, \fr{\tau}{\ss}}{\Psi, \cl{\tau}{\s_1}}}
+\end{prooftree}
+
+\begin{prooftree}
+  \leftl{\rule{S-App} :}
+  \ax{\sev{\Xi, \fr{\tau}{\sapp, \ss}}{\Psi, \cl{\tau'}{\ss_1}, \w_2}{\Xi, \fr{\tau}{\ss}, \fr{\tau', \w_2}{\ss_1}}{\Psi}}
+\end{prooftree}
+
+\begin{prooftree}
+  \leftl{\rule{S-Nil} :}
+  \ax{\sev{\Xi, \fr{\tau}{\nil}}{\Psi}{\Xi}{\Psi}}
+\end{prooftree}
+
+\judgement{\ssev{\Xi}{\Psi}{\Xi'}{\Psi'}}
+
+\begin{prooftree}
+  \leftl{\rule{SS-Refl} :}
+  \ax{\ssev{\Xi}{\Psi}{\Xi}{\Psi}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\sev{\Xi}{\Psi}{\Xi''}{\Psi''}}
+  \ninf{\ssev{\Xi''}{\Psi''}{\Xi'}{\Psi'}}
+  \leftl{\rule{SS-Trans} :}
+  \binf{\ssev{\Xi}{\Psi}{\Xi'}{\Psi'}}
+\end{prooftree}
+
+\begin{theorem}
+If \tr{\b}{\ss}, then \hev{\b}{\n{n}} if and only if \ev{\ss}{\n{n}}.
+\end{theorem}
+
+To prove this we need an additional judgement.
+\vspace{0.5cm}
+
+\judgement{\cor{\v}{\w}}
+
+\begin{prooftree}
+  \leftl{\rule{C-Num} :}
+  \ax{\cor{\n{n}}{\n{n}}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\cor{\sg}{\tau}}
+  \ninf{\tr{\b}{\ss}}
+  \leftl{\rule{C-Fun} :}
+  \binf{\cor{\cl{\sg}{\b}}{\cl{\tau}{\ss}}}
+\end{prooftree}
+
+\begin{lemma}
+If \tr{\b}{\ss} and \hev{\sg}{\b}{\v} where \cor{\sg}{\tau} then for all $\Xi$ and $\Psi$ there exists a $\w$ such that \sev{\Xi, \fr{\tau}{\ss}}{\Psi}{\Xi, \fr{\tau}{\nil}}{\Psi, \w} with \cor{\v}{\w}.
+\end{lemma}
+
+What should the lemma for the other direction be?
 
 \end{document}
