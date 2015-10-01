@@ -23,7 +23,7 @@ trans-bs/lam : trans-bs (blam B) (sprog/cons (slam S*) sprog/nil)
 trans-bs/app : trans-bs (bapp B1 B2) S*
                 <- trans-bs B1 S1*
                 <- trans-bs B2 S2*
-                <- sprog-append S1* S2* S3*
-                <- sprog-append S3* (sprog/cons sapp sprog/nil) S*.
+                <- sprog-append S2* (sprog/cons sapp sprog/nil) S3*
+                <- sprog-append S1* S3* S*.
 
 %worlds () (trans-bs _ _).

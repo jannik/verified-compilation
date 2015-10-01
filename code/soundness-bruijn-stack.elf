@@ -29,13 +29,7 @@ soundness-bs-var/there : soundness-bs-var (beval-var/there DBV) (comp-bs/cons DC
 
 
 
-single-ssteps : sstep Xi Psi Xi' Psi' -> ssteps Xi Psi Xi' Psi' -> type.
-%mode single-ssteps +DS -DS*.
-
-single-ssteps/ : single-ssteps DS (ssteps/trans ssteps/refl DS).
-
-%worlds () (single-ssteps _ _).
-%total DS (single-ssteps DS _).
+ssteps/single : sstep Xi Psi Xi' Psi' -> ssteps Xi Psi Xi' Psi' = [ds] ssteps/trans ssteps/refl ds.
 
 
 
@@ -52,46 +46,99 @@ cat-ssteps/trans : cat-ssteps (ssteps/trans DS*1 DS1) DS*2 (ssteps/trans DS*3 DS
 
 
 
-append-lemma : ssteps (frames/cons Xi Tau S*1) Psi (frames/cons Xi Tau sprog/nil) (wstack/cons Psi W1)
-            -> ssteps (frames/cons Xi Tau S*2) (wstack/cons Psi W1) (frames/cons Xi Tau sprog/nil) (wstack/cons (wstack/cons Psi W1) W2)
-            -> sprog-append S*1 S*2 S*3
-            -> ssteps (frames/cons Xi Tau S*3) Psi (frames/cons Xi Tau sprog/nil) (wstack/cons (wstack/cons Psi W1) W2)
-            -> type.
-%mode append-lemma +DS*1 +DS*2 +DAp -DS*3.
+sprog-append-assoc-helper : sprog-append sprog/nil P1 P2 -> sprog-append sprog/nil (sprog/cons S P1) (sprog/cons S P2) -> type.
+%mode +{S} +{P1} +{P2} +{DA:sprog-append sprog/nil P1 P2} -{DA':sprog-append sprog/nil (sprog/cons S P1) (sprog/cons S P2)} sprog-append-assoc-helper DA DA'.
 
-% ???
+- : sprog-append-assoc-helper sprog-append/nil sprog-append/nil.
 
+%worlds () (sprog-append-assoc-helper _ _).
+%total {} (sprog-append-assoc-helper _ _).
 
 
-soundness-bs : trans-bs B S* -> beval Sigma B V -> comp-bs Sigma Tau
-            -> ssteps (frames/cons Xi Tau S*) Psi (frames/cons Xi Tau sprog/nil) (wstack/cons Psi W)
+
+sprog-append-assoc : sprog-append P1 P2 P1-P2 -> sprog-append P1-P2 P3 P1-P2-P3 -> sprog-append P2 P3 P2-P3 -> sprog-append P1 P2-P3 P1-P2-P3 -> type.
+%mode sprog-append-assoc +DA1 +DA2 +DA1' -DA2'.
+
+sprog-append-assoc/nil/nil : sprog-append-assoc sprog-append/nil sprog-append/nil DA1' DA1'.
+
+sprog-append-assoc/nil/cons : sprog-append-assoc sprog-append/nil (sprog-append/cons DA2) (sprog-append/cons DA1') DA2'
+                               <- sprog-append-assoc sprog-append/nil DA2 DA1' DA2''
+                               <- sprog-append-assoc-helper DA2'' DA2'.
+
+sprog-append-assoc/cons : sprog-append-assoc (sprog-append/cons DA1) (sprog-append/cons DA2) DA1' (sprog-append/cons DA2')
+                           <- sprog-append-assoc DA1 DA2 DA1' DA2'.
+
+%worlds () (sprog-append-assoc _ _ _ _).
+%total DA (sprog-append-assoc _ DA _ _).
+
+
+
+sprog-append-id : {P} sprog-append P sprog/nil P -> type.
+%mode sprog-append-id +P -DA.
+
+sprog-append-id/nil : sprog-append-id sprog/nil sprog-append/nil.
+
+sprog-append-id/cons : sprog-append-id (sprog/cons S P) (sprog-append/cons DA)
+                        <- sprog-append-id P DA.
+
+%worlds () (sprog-append-id _ _).
+%total P (sprog-append-id P _).
+
+
+
+sprog-append-exists : {P1} {P2} sprog-append P1 P2 P1-P2 -> type.
+%mode sprog-append-exists +P1 +P2 -DA.
+
+sprog-append-exists/nil : sprog-append-exists sprog/nil P2 sprog-append/nil.
+
+sprog-append-exists/cons : sprog-append-exists (sprog/cons S P1) P2 (sprog-append/cons DA)
+                            <- sprog-append-exists P1 P2 DA.
+
+%worlds () (sprog-append-exists _ _ _).
+%total P1 (sprog-append-exists P1 _ _).
+
+
+
+soundness-bs : sprog-append S*1 S*2 S* -> trans-bs B S*1 -> beval Sigma B V -> comp-bs Sigma Tau
+            -> ssteps (frames/cons Xi Tau S*) Psi (frames/cons Xi Tau S*2) (wstack/cons Psi W)
             -> cor-bs V W -> type.
-%mode +{B} +{S*} +{Sigma} +{V} +{Tau} +{Xi} +{Psi} -{W}
-      +{DT:trans-bs B S*} +{DB:beval Sigma B V} +{DD:comp-bs Sigma Tau}
-      -{DS*:ssteps (frames/cons Xi Tau S*) Psi (frames/cons Xi Tau sprog/nil) (wstack/cons Psi W)}
+%mode +{B} +{S*1} +{S*2} +{S*} +{Sigma} +{V} +{Tau} +{Xi} +{Psi} -{W}
+      +{DA:sprog-append S*1 S*2 S*} +{DT:trans-bs B S*1} +{DB:beval Sigma B V} +{DD:comp-bs Sigma Tau}
+      -{DS*:ssteps (frames/cons Xi Tau S*) Psi (frames/cons Xi Tau S*2) (wstack/cons Psi W)}
       -{DC:cor-bs V W}
-      soundness-bs DT DB DD DS* DC.
+      soundness-bs DA DT DB DD DS* DC.
 
-soundness-bs/num : soundness-bs trans-bs/num beval/num DD
-                                (ssteps/trans ssteps/refl sstep/num) cor-bs/num.
+soundness-bs/num : soundness-bs (sprog-append/cons DA) trans-bs/num beval/num DD
+                                (ssteps/single sstep/num) cor-bs/num.
 
-soundness-bs/var : soundness-bs trans-bs/var (beval/var DBV) DD
-                                (ssteps/trans ssteps/refl (sstep/var DSV)) DC
+soundness-bs/var : soundness-bs (sprog-append/cons DA) trans-bs/var (beval/var DBV) DD
+                                (ssteps/single (sstep/var DSV)) DC
                     <- soundness-bs-var DBV DD DSV DC.
 
-soundness-bs/lam : soundness-bs (trans-bs/lam DT) beval/lam DD
-                                (ssteps/trans ssteps/refl sstep/lam) (cor-bs/fun DT DD).
+soundness-bs/lam : soundness-bs (sprog-append/cons DA) (trans-bs/lam DT) beval/lam DD
+                                (ssteps/single sstep/lam) (cor-bs/fun DT DD).
 
-%{
-soundness-bs/app : soundness-bs (trans-bs/app DAp2 DAp1 DT2 DT1) (beval/app DB3 DB2 DB1) DD
-                    XX
-                    DC
-                    <- soundness-bs DT1 DB1 DD DS*1 (cor-bs/fun DT0 DD0)
-                    <- soundness-bs DT2 DB2 DD DS*2 DC2.
-                    <- soundness-bs DT0 DB3 (comp-bs/cons DD0 DC2) DS*3 DC
-                    % binding together the sequences
-}%
+soundness-bs/app : soundness-bs
+                    (DA : sprog-append P1-P2-App P4 P1-P2-App-P4)
+                    (trans-bs/app
+                       (DA2 : sprog-append P1 P2-App P1-P2-App)
+                       (DA1 : sprog-append P2 (sprog/single sapp) P2-App)
+                       DT2 DT1)
+                    (beval/app DB3 DB2 DB1) DD
+                    DS* DC
+                       % (P1 ++ (P2 ++ app)) ++ P4
+                    <- sprog-append-exists _ _ DA1'
+                    <- sprog-append-assoc DA2 DA (DA1' : sprog-append P2-App P4 P2-App-P4) (DA2' : sprog-append P1 P2-App-P4 P1-P2-App-P4)
+                       % P1 ++ ((P2 ++ app) ++ P4)
+                    <- sprog-append-assoc DA1 DA1' (sprog-append/cons sprog-append/nil) (DA3' : sprog-append P2 (sprog/cons sapp P4) P2-App-P4)
+                       % P1 ++ (P2 ++ (app ++ P4))
+                    <- soundness-bs DA2' DT1 DB1 DD DS*1 (cor-bs/fun DT0 DD0)
+                    <- soundness-bs DA3' DT2 DB2 DD DS*2 DC2
+                    <- sprog-append-id _ DA4'
+                    <- soundness-bs DA4' DT0 DB3 (comp-bs/cons DC2 DD0) DS*3 DC
+                    <- cat-ssteps DS*1 DS*2 DS*12
+                    <- cat-ssteps DS*12 (ssteps/trans DS*3 sstep/app) DS*123
+                    <- cat-ssteps DS*123 (ssteps/trans ssteps/refl sstep/nil) DS*.
 
-
-%worlds () (soundness-bs _ _ _ _ _).
-% total DT (soundness-bs DT _ _ _ _).
+%worlds () (soundness-bs _ _ _ _ _ _).
+%total DB (soundness-bs _ _ DB _ _ _).

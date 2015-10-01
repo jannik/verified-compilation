@@ -8,3 +8,5 @@ sapp : sexp.
 
 sprog/nil : sprog.
 sprog/cons : sexp -> sprog -> sprog.
+
+sprog/single : sexp -> sprog = [s] sprog/cons s sprog/nil.
