@@ -20,7 +20,7 @@ trans-hz/num : trans-hz (num N) (zprog/single (znum N)).
 trans-hz/lam : trans-hz (lam E) (zprog/single (zlam Z))
                 <- {x} {y} cor-hz x y -> trans-hz (E x) (Z y).
 
-tranz-hz/app : trans-hz (app E1 E2) P
+trans-hz/app : trans-hz (app E1 E2) P
                 <- trans-hz E1 P1
                 <- trans-hz E2 P2
                 <- zprog-append P2 (zprog/single zapp) P3
