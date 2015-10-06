@@ -1,0 +1,10 @@
+%abbrev zsteps/single = [dz] zsteps/cons zsteps/nil dz.
+
+
+
+soundness-hz : zprog-append P1 P2 P -> trans-hz E P1 -> eval E C
+            -> {Xi} {Psi} zsteps (zcontext/cons Xi P) Psi (zcontext/cons Xi P2) (ystack/cons Psi Y)
+            -> cor-hz C Y -> type.
+%mode soundness-hz +DA +DT +DE +Xi +Psi -DZ* -DC.
+
+soundness-hz/num : soundness-hz (zprog-append/cons DA) trans-hz/num eval/num Xi Psi (zsteps/single zstep/num) trans-hz/num.
