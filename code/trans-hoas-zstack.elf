@@ -1,0 +1,32 @@
+zprog-append : zprog -> zprog -> zprog -> type.
+%mode zprog-append +P1 +P2 -P.
+
+zprog-append/nil : zprog-append zprog/nil P2 P2.
+
+zprog-append/cons : zprog-append (zprog/cons Z1 P1) P2 (zprog/cons Z1 P)
+                     <- zprog-append P1 P2 P.
+
+%worlds (bl-zexp) (zprog-append _ _ _).
+%total P (zprog-append P _ _).
+
+
+trans-hz : exp -> zprog -> type. %name trans-hz DT.
+%mode trans-hz +E -P.
+
+%abbrev cor-hz : exp -> zexp -> type = [e] [z] trans-hz e (zprog/single z).
+
+trans-hz/num : trans-hz (num N) (zprog/single (znum N)).
+
+trans-hz/lam : trans-hz (lam E) (zprog/single (zlam Z))
+                <- {x} {y} cor-hz x y -> trans-hz (E x) (Z y).
+
+tranz-hz/app : trans-hz (app E1 E2) P
+                <- trans-hz E1 P1
+                <- trans-hz E2 P2
+                <- zprog-append P2 (zprog/single zapp) P3
+                <- zprog-append P1 P3 P.
+
+%block bl-trans-hz : block {x : exp} {y : zexp} {dc : cor-hz x y}.
+
+%worlds (bl-trans-hz) (trans-hz _ _).
+%total E (trans-hz E _).

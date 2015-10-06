@@ -1,0 +1,42 @@
+zcontext : type.
+
+zcontext/nil : zcontext.
+zcontext/cons : zcontext -> zprog -> zcontext.
+
+
+
+ystack : type.
+
+ystack/nil : ystack.
+
+ystack/cons : ystack -> zexp -> ystack.
+
+
+
+zstep : zcontext -> ystack -> zcontext -> ystack -> type.
+
+zstep/num : zstep (zcontext/cons Xi (zprog/cons (znum N) P)) Psi (zcontext/cons Xi P) (ystack/cons Psi (znum N)).
+
+zstep/lam : zstep (zcontext/cons Xi (zprog/cons (zlam P') P)) Psi (zcontext/cons Xi P) (ystack/cons Psi (zlam P')).
+
+zstep/app : zstep (zcontext/cons Xi (zprog/cons zapp P)) (ystack/cons (ystack/cons Psi (zlam P')) Y2) (zcontext/cons (zcontext/cons Xi P) (P' Y2)) Psi.
+
+zstep/ret : zstep (zcontext/cons Xi zprog/nil) Psi Xi Psi.
+
+
+
+zsteps : zcontext -> ystack -> zcontext -> ystack -> type.
+
+zsteps/nil : zsteps Xi Psi Xi Psi.
+
+zsteps/cons : zsteps Xi Psi Xi' Psi'
+               <- zstep Xi Psi Xi'' Psi''
+               <- zsteps Xi'' Psi'' Xi' Psi'.
+
+
+
+zeval : zprog -> zexp -> type.
+
+zeval/ : zeval P Z
+          <- zsteps (zcontext/cons zcontext/nil P) ystack/nil zcontext/nil (ystack/cons ystack/nil Z).
+ 

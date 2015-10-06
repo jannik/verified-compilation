@@ -1,0 +1,13 @@
+zexp : type. %name zexp Z.
+zprog : type. %name zprog P.
+
+znum : nat -> zexp.
+zlam : (zexp -> zprog) -> zexp.
+zapp : zexp.
+
+%block bl-zexp : block {z : zexp}.
+
+zprog/nil : zprog.
+zprog/cons : zexp -> zprog -> zprog.
+
+%abbrev zprog/single : zexp -> zprog = [z] zprog/cons z zprog/nil.
