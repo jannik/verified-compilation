@@ -7,6 +7,7 @@ sprog-append/cons : sprog-append (sprog/cons S1 S1*) S2* (sprog/cons S1 S*)
                      <- sprog-append S1* S2* S*.
 
 %worlds () (sprog-append _ _ _).
+%total P (sprog-append P _ _).
 
 
 
@@ -27,3 +28,4 @@ trans-bs/app : trans-bs (bapp B1 B2) S*
                 <- sprog-append S1* S3* S*.
 
 %worlds () (trans-bs _ _).
+%total B (trans-bs B _).
