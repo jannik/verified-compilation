@@ -13,7 +13,7 @@ ystack/cons : ystack -> zexp -> ystack.
 
 
 
-zstep : zcontext -> ystack -> zcontext -> ystack -> type.
+zstep : zcontext -> ystack -> zcontext -> ystack -> type. %name zstep DZ.
 
 zstep/num : zstep (zcontext/cons Xi (zprog/cons (znum N) P)) Psi (zcontext/cons Xi P) (ystack/cons Psi (znum N)).
 
@@ -25,7 +25,7 @@ zstep/ret : zstep (zcontext/cons Xi zprog/nil) Psi Xi Psi.
 
 
 
-zsteps : zcontext -> ystack -> zcontext -> ystack -> type.
+zsteps : zcontext -> ystack -> zcontext -> ystack -> type. %name zsteps DZ*.
 
 zsteps/nil : zsteps Xi Psi Xi Psi.
 
@@ -35,8 +35,8 @@ zsteps/cons : zsteps Xi Psi Xi' Psi'
 
 
 
-zeval : zprog -> zexp -> type.
+zeval : zprog -> zexp -> type. %name zeval DP.
 
-zeval/ : zeval P Z
-          <- zsteps (zcontext/cons zcontext/nil P) ystack/nil zcontext/nil (ystack/cons ystack/nil Z).
+zeval/ : zeval P Y
+          <- zsteps (zcontext/cons zcontext/nil P) ystack/nil zcontext/nil (ystack/cons ystack/nil Y).
  

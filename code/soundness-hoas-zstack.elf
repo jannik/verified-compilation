@@ -1,4 +1,70 @@
-%abbrev zsteps/single = [dz] zsteps/cons zsteps/nil dz.
+%abbrev zsteps/single : zstep Xi Psi Xi' Psi' -> zsteps Xi Psi Xi' Psi' = [dz] zsteps/cons zsteps/nil dz.
+
+
+
+cat-zsteps : zsteps Xi Psi Xi' Psi' -> zsteps Xi' Psi' Xi'' Psi'' -> zsteps Xi Psi Xi'' Psi'' -> type.
+%mode cat-zsteps +DZ*1 +DZ*2 -DZ*3.
+
+cat-zsteps/nil : cat-zsteps zsteps/nil DZ*2 DZ*2.
+
+cat-zsteps/cons : cat-zsteps (zsteps/cons DZ*1 DZ1) DZ*2 (zsteps/cons DZ*3 DZ1)
+                    <- cat-zsteps DZ*1 DZ*2 DZ*3.
+
+%worlds () (cat-zsteps _ _ _).
+%total DZ*1 (cat-zsteps DZ*1 _ _).
+
+
+
+zprog-append-assoc-helper : zprog-append zprog/nil P1 P2 -> zprog-append zprog/nil (zprog/cons Z P1) (zprog/cons Z P2) -> type.
+%mode +{Z} +{P1} +{P2} +{DA:zprog-append zprog/nil P1 P2} -{DA':zprog-append zprog/nil (zprog/cons Z P1) (zprog/cons Z P2)} zprog-append-assoc-helper DA DA'.
+
+- : zprog-append-assoc-helper zprog-append/nil zprog-append/nil.
+
+%worlds () (zprog-append-assoc-helper _ _).
+%total {} (zprog-append-assoc-helper _ _).
+
+
+
+zprog-append-assoc : zprog-append P1 P2 P1-P2 -> zprog-append P1-P2 P3 P1-P2-P3 -> zprog-append P2 P3 P2-P3 -> zprog-append P1 P2-P3 P1-P2-P3 -> type.
+%mode zprog-append-assoc +DA1 +DA2 +DA1' -DA2'.
+
+zprog-append-assoc/nil/nil : zprog-append-assoc zprog-append/nil zprog-append/nil DA1' DA1'.
+
+zprog-append-assoc/nil/cons : zprog-append-assoc zprog-append/nil (zprog-append/cons DA2) (zprog-append/cons DA1') DA2'
+                               <- zprog-append-assoc zprog-append/nil DA2 DA1' DA2''
+                               <- zprog-append-assoc-helper DA2'' DA2'.
+
+zprog-append-assoc/cons : zprog-append-assoc (zprog-append/cons DA1) (zprog-append/cons DA2) DA1' (zprog-append/cons DA2')
+                           <- zprog-append-assoc DA1 DA2 DA1' DA2'.
+
+%worlds () (zprog-append-assoc _ _ _ _).
+%total DA2 (zprog-append-assoc _ DA2 _ _).
+
+
+
+zprog-append-exists : {P1} {P2} zprog-append P1 P2 P1-P2 -> type.
+%mode zprog-append-exists +P1 +P2 -DA.
+
+zprog-append-exists/nil : zprog-append-exists zprog/nil P2 zprog-append/nil.
+
+zprog-append-exists/cons : zprog-append-exists (zprog/cons Z P1) P2 (zprog-append/cons DA)
+                            <- zprog-append-exists P1 P2 DA.
+
+%worlds () (zprog-append-exists _ _ _).
+%total P1 (zprog-append-exists P1 _ _).
+
+
+
+zprog-append-id : {P} zprog-append P zprog/nil P -> type.
+%mode zprog-append-id +P -DA.
+
+zprog-append-id/nil : zprog-append-id zprog/nil zprog-append/nil.
+
+zprog-append-id/cons : zprog-append-id (zprog/cons Z P) (zprog-append/cons DA)
+                        <- zprog-append-id P DA.
+
+%worlds () (zprog-append-id _ _).
+%total P (zprog-append-id P _).
 
 
 
@@ -8,3 +74,54 @@ soundness-hz : zprog-append P1 P2 P -> trans-hz E P1 -> eval E C
 %mode soundness-hz +DA +DT +DE +Xi +Psi -DZ* -DC.
 
 soundness-hz/num : soundness-hz (zprog-append/cons DA) trans-hz/num eval/num Xi Psi (zsteps/single zstep/num) trans-hz/num.
+
+soundness-hz/lam : soundness-hz (zprog-append/cons DA) (trans-hz/lam [x] [y] [dc] DT x y dc) eval/lam Xi Psi (zsteps/single zstep/lam) (trans-hz/lam DT).
+
+soundness-hz/app : soundness-hz
+                    (DA : zprog-append P1-P2-App P4 P1-P2-App-P4)
+                    (trans-hz/app
+                       (DA2 : zprog-append P1 P2-App P1-P2-App)
+                       (DA1 : zprog-append P2 (zprog/single zapp) P2-App)
+                       DT2 DT1)
+                    (eval/app DE3 DE2 DE1) Xi Psi
+                    DZ* DC
+                       % (P1 ++ (P2 ++ app)) ++ P4
+                    <- zprog-append-exists _ _ DA1'
+                    <- zprog-append-assoc DA2 DA (DA1' : zprog-append P2-App P4 P2-App-P4) (DA2' : zprog-append P1 P2-App-P4 P1-P2-App-P4)
+                       % P1 ++ ((P2 ++ app) ++ P4)
+                    <- zprog-append-assoc DA1 DA1' (zprog-append/cons zprog-append/nil) (DA3' : zprog-append P2 (zprog/cons zapp P4) P2-App-P4)
+                       % P1 ++ (P2 ++ (app ++ P4))
+                    <- soundness-hz DA2' DT1 DE1 Xi Psi DZ*1 (trans-hz/lam [x] [y] [dc] DT0 x y dc)
+                    <- soundness-hz DA3' DT2 DE2 Xi (ystack/cons Psi (zlam P0)) DZ*2 DC2
+                    <- zprog-append-id _ DA4'
+                    <- soundness-hz DA4' (DT0 _ _ DC2) DE3 (zcontext/cons Xi P4) Psi DZ*3 DC
+                    <- cat-zsteps DZ*1 DZ*2 DZ*12
+                    <- cat-zsteps DZ*12 (zsteps/cons DZ*3 zstep/app) DZ*123
+                    <- cat-zsteps DZ*123 (zsteps/cons zsteps/nil zstep/ret) DZ*.
+
+%worlds () (soundness-hz _ _ _ _ _ _ _).
+%total DE (soundness-hz _ _ DE _ _ _ _).
+
+
+
+coerce-zeval : cor-hz (num N1) (znum N2) -> zeval P (znum N2) -> zeval P (znum N1) -> type.
+%mode coerce-zeval +DC +DP -DP'.
+
+- : coerce-zeval trans-hz/num DP DP.
+
+%worlds () (coerce-zeval _ _ _).
+%total (DC) (coerce-zeval DC _ _).
+
+
+
+soundness-hz-real : eval E (num N) -> trans-hz E P -> zeval P (znum N) -> type.
+%mode soundness-hz-real +DE +DT -DP.
+
+- : soundness-hz-real DE DT DP
+     <- zprog-append-id _ DA
+     <- soundness-hz DA DT DE zcontext/nil ystack/nil DZ* DC
+     <- cat-zsteps DZ* (zsteps/cons zsteps/nil zstep/ret) DZ*'
+     <- coerce-zeval DC (zeval/ DZ*') DP.
+
+%worlds () (soundness-hz-real _ _ _).
+%total DE (soundness-hz-real DE _ _).
