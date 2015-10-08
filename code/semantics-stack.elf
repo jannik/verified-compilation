@@ -36,39 +36,39 @@ seval-var/there : seval-var (sstore/cons Tau W') (s I) W
 sstep : frames -> wstack -> frames -> wstack -> type. %name sstep DS.
 %mode sstep +Xi +Psi -Xi' -Psi'.
 
-sstep/num : sstep (frames/cons Xi Tau (sprog/cons (snum N) S*)) Psi
-                  (frames/cons Xi Tau S*) (wstack/cons Psi (wnum N)).
+sstep/num : sstep (frames/cons Xi Tau (sprog/cons (snum N) P)) Psi
+                  (frames/cons Xi Tau P) (wstack/cons Psi (wnum N)).
 
-sstep/var : sstep (frames/cons Xi Tau (sprog/cons (svar I) S*)) Psi
-                  (frames/cons Xi Tau S*) (wstack/cons Psi W)
+sstep/var : sstep (frames/cons Xi Tau (sprog/cons (svar I) P)) Psi
+                  (frames/cons Xi Tau P) (wstack/cons Psi W)
              <- seval-var Tau I W.
 
-sstep/lam : sstep (frames/cons Xi Tau (sprog/cons (slam S*') S*)) Psi
-                  (frames/cons Xi Tau S*) (wstack/cons Psi (wclos Tau S*')).
+sstep/lam : sstep (frames/cons Xi Tau (sprog/cons (slam P') P)) Psi
+                  (frames/cons Xi Tau P) (wstack/cons Psi (wclos Tau P')).
 
-sstep/app : sstep (frames/cons Xi Tau (sprog/cons sapp S*))
-                    (wstack/cons (wstack/cons Psi (wclos Tau' S*')) W)
-                  (frames/cons (frames/cons Xi Tau S*) (sstore/cons Tau' W) S*') Psi.
+sstep/app : sstep (frames/cons Xi Tau (sprog/cons sapp P))
+                  (wstack/cons (wstack/cons Psi (wclos Tau' P')) W)
+                  (frames/cons (frames/cons Xi Tau P) (sstore/cons Tau' W) P') Psi.
 
-sstep/nil : sstep (frames/cons Xi Tau sprog/nil) Psi
+sstep/ret : sstep (frames/cons Xi Tau sprog/nil) Psi
                   Xi Psi.
 
 
 
-ssteps : frames -> wstack -> frames -> wstack -> type. %name ssteps DS*.
+ssteps : frames -> wstack -> frames -> wstack -> type. %name ssteps DP.
 %mode ssteps +Xi +Psi -Xi' -Psi'.
 
-ssteps/refl : ssteps Xi Psi Xi Psi.
+ssteps/zero : ssteps Xi Psi Xi Psi.
 
-ssteps/trans : ssteps Xi Psi Xi'' Psi''
-                <- sstep Xi Psi Xi' Psi'
-                <- ssteps Xi' Psi' Xi'' Psi''.
+ssteps/more : ssteps Xi Psi Xi'' Psi''
+               <- sstep Xi Psi Xi' Psi'
+               <- ssteps Xi' Psi' Xi'' Psi''.
 
 
 
-seval : sprog -> svalue -> type.
-%mode seval +S* -W.
+seval : sprog -> svalue -> type. %name seval DP.
+%mode seval +P -W.
 
-seval/ : seval S* W
-          <- ssteps (frames/cons frames/nil sstore/nil S*) wstack/nil
+seval/ : seval P W
+          <- ssteps (frames/cons frames/nil sstore/nil P) wstack/nil
                     frames/nil (wstack/cons wstack/nil W).

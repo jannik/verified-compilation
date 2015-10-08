@@ -21,13 +21,13 @@ invert-cor-bs-fun/ : invert-cor-bs-fun (cor-bs/fun DT DD) eq-svalue/refl eq-valu
 
 
 invert-ssteps-app : ssteps (frames/cons Xi Tau (sprog/cons sapp P)) (wstack/cons (wstack/cons Psi W1) W2) frames/nil Psi'
-                    -> eq-svalue W1 (wclos Tau' P') -> ssteps (frames/cons (frames/cons Xi Tau P) (sstore/cons Tau' W2) P') Psi frames/nil Psi' -> type.
-%mode invert-ssteps-app +DS* -DQ -DS*'.
+                 -> eq-svalue W1 (wclos Tau' P') -> ssteps (frames/cons (frames/cons Xi Tau P) (sstore/cons Tau' W2) P') Psi frames/nil Psi' -> type.
+%mode invert-ssteps-app +DP -DQ -DP'.
 
-invert-ssteps-app/ : invert-ssteps-app (ssteps/trans DS* sstep/app) eq-svalue/refl DS*.
+invert-ssteps-app/ : invert-ssteps-app (ssteps/more DP sstep/app) eq-svalue/refl DP.
 
 %worlds () (invert-ssteps-app _ _ _).
-%reduces DS*' < DS* (invert-ssteps-app DS* _ DS*').
+%reduces DP' < DP (invert-ssteps-app DP _ DP').
 %total {} (invert-ssteps-app _ _ _).
 
 
@@ -57,40 +57,67 @@ completeness-bs-var/there : completeness-bs-var (seval-var/there DSV) (comp-bs/c
 
 completeness-bs' : sprog-append P1 P2 P1-P2 -> ssteps (frames/cons Xi Tau P1-P2) Psi frames/nil (wstack/cons wstack/nil W')-> trans-bs B P1
                 -> comp-bs Sigma Tau -> beval Sigma B V -> cor-bs V W -> ssteps (frames/cons Xi Tau P2) (wstack/cons Psi W) frames/nil (wstack/cons wstack/nil W') -> type.
-%mode completeness-bs' +DA +DS* +DT +DD -DB -DC -DS*'.
+%mode completeness-bs' +DA +DP +DT +DD -DB -DC -DP'.
 
-completeness-bs'/num : completeness-bs' (sprog-append/cons DA) (ssteps/trans DS* sstep/num) trans-bs/num DD beval/num cor-bs/num DS*.
+completeness-bs'/num : completeness-bs' (sprog-append/cons DA) (ssteps/more DP sstep/num) trans-bs/num DD beval/num cor-bs/num DP.
 
-completeness-bs'/var : completeness-bs' (sprog-append/cons DA) (ssteps/trans DS* (sstep/var DSV)) trans-bs/var DD (beval/var DBV) DC DS*
-                       <- completeness-bs-var DSV DD DBV DC.
+completeness-bs'/var : completeness-bs' (sprog-append/cons DA) (ssteps/more DP (sstep/var DSV)) trans-bs/var DD (beval/var DBV) DC DP
+                        <- completeness-bs-var DSV DD DBV DC.
 
-completeness-bs'/lam : completeness-bs' (sprog-append/cons DA) (ssteps/trans DS* sstep/lam) (trans-bs/lam DT) DD beval/lam (cor-bs/fun DT DD) DS*.
+completeness-bs'/lam : completeness-bs' (sprog-append/cons DA) (ssteps/more DP sstep/lam) (trans-bs/lam DT) DD beval/lam (cor-bs/fun DT DD) DP.
 
-completeness-bs'/app : completeness-bs' DA DS*
-                       (trans-bs/app
-                          (DA2 : sprog-append P1 P2-App P1-P2-App)
-                          (DA1 : sprog-append P2 (sprog/single sapp) P2-App)
-                          DT2 DT1)
-                       DD (beval/app DB3 DB2 DB1') DC DS*4
-                    <- sprog-append-exists _ _ DA1'
-                    <- sprog-append-assoc DA2 DA DA1' DA2'
-                    <- sprog-append-assoc DA1 DA1' (sprog-append/cons sprog-append/nil) DA3'
-                    <- completeness-bs' DA2' DS* DT1 DD DB1 DC1 DS*1
-                    <- completeness-bs' DA3' DS*1 DT2 DD DB2 DC2 DS*2
-                    <- invert-ssteps-app DS*2 DQW DS*3
-                    <- invert-cor-bs-fun DC1 DQW DQV DT3 DD'
-                    <- coerce-beval DB1 DQV DB1'
-                    <- sprog-append-id _ DA4'
-                    <- completeness-bs' DA4' DS*3 DT3 (comp-bs/cons DC2 DD') DB3 DC (ssteps/trans DS*4 sstep/nil).
+completeness-bs'/app : completeness-bs' DA DP
+                        (trans-bs/app
+                           (DA2 : sprog-append P1 P2-App P1-P2-App)
+                           (DA1 : sprog-append P2 (sprog/single sapp) P2-App)
+                           DT2 DT1)
+                        DD (beval/app DB3 DB2 DB1') DC DP4
+                        <- sprog-append-exists _ _ DA1'
+                        <- sprog-append-assoc DA2 DA DA1' DA2'
+                        <- sprog-append-assoc DA1 DA1' (sprog-append/cons sprog-append/nil) DA3'
+                        <- completeness-bs' DA2' DP DT1 DD DB1 DC1 DP1
+                        <- completeness-bs' DA3' DP1 DT2 DD DB2 DC2 DP2
+                        <- invert-ssteps-app DP2 DQW DP3
+                        <- invert-cor-bs-fun DC1 DQW DQV DT3 DD'
+                        <- coerce-beval DB1 DQV DB1'
+                        <- sprog-append-id _ DA4'
+                        <- completeness-bs' DA4' DP3 DT3 (comp-bs/cons DC2 DD') DB3 DC (ssteps/more DP4 sstep/ret).
 
 %worlds () (completeness-bs' _ _ _ _ _ _ _).
-%reduces DS*' < DS* (completeness-bs' _ DS* _ _ _ _ DS*').
-%total {DS* DT} (completeness-bs' _ DS* DT _ _ _ _).
+%reduces DP' < DP (completeness-bs' _ DP _ _ _ _ DP').
+%total {DP DT} (completeness-bs' _ DP DT _ _ _ _).
 
 
 
-completeness-bs : trans-bs B P -> seval P W -> beval store/nil B V -> cor-bs V W -> type.
+coerce-cor-bs : sstep (frames/cons Xi Tau sprog/nil) (wstack/cons Psi W1) Xi (wstack/cons Psi W2)
+             -> cor-bs V W1 -> cor-bs V W2 -> type.
+%mode coerce-cor-bs +DS +DC -DC'.
 
-completeness-bs/ : completeness-bs DT (seval/ DS*) DB DC
+- : coerce-cor-bs sstep/ret DC DC.
+
+%worlds () (coerce-cor-bs _ _ _).
+%total DS (coerce-cor-bs DS _ _).
+
+
+
+coerce-beval-num : cor-bs (vnum N1) (wnum N2) -> beval Sigma B (vnum N1) -> beval Sigma B (vnum N2) -> type.
+%mode coerce-beval-num +DC +DB -DB'.
+
+- : coerce-beval-num cor-bs/num DB DB.
+
+%worlds () (coerce-beval-num _ _ _).
+%total DC (coerce-beval-num DC _ _).
+
+
+
+completeness-bs : seval P (wnum N) -> trans-bs B P -> beval store/nil B (vnum N) -> type.
+%mode completeness-bs +DP +DT -DB.
+
+completeness-bs/ : completeness-bs (seval/ DS*) DT DB'
                     <- sprog-append-id _ DA
-                    <- completeness-bs' DA DS* DT comp-bs/nil DB DC (ssteps/single sstep/nil).
+                    <- completeness-bs' DA DS* DT comp-bs/nil DB DC (ssteps/single DS)
+                    <- coerce-cor-bs DS DC DC'
+                    <- coerce-beval-num DC' DB DB'.
+
+%worlds () (completeness-bs _ _ _).
+%total DP (completeness-bs DP _ _).

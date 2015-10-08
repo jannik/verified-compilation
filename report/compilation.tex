@@ -732,13 +732,13 @@ To prove this we need two additional judgements:
 \end{prooftree}
 
 \begin{lemma}
-If \tr{\b}{\ss_1} and \hev{\sg}{\b}{\v} with \cor{\sg}{\tau}, then (for all $\Xi$, $\Psi$ and $\ss_2$) there exists $\w$ such that \sev{\Xi, \fr{\tau}{\ss_1 \circ \ss_2}}{\Psi}{\Xi, \fr{\tau}{\ss_2}}{\Psi, \w} with \cor{\v}{\w}.
+If \tr{\b}{\ss_1} and \hev{\sg}{\b}{\v} with \cor{\sg}{\tau}, then (for all $\Xi$, $\Psi$ and $\ss_2$) there exists $\w$ such that \ssev{\Xi, \fr{\tau}{\ss_1 \circ \ss_2}}{\Psi}{\Xi, \fr{\tau}{\ss_2}}{\Psi, \w} with \cor{\v}{\w}.
 \end{lemma}
 
 Let $\prec$ denote the standard subterm order on step sequences, i.e. $\P_1 \prec \P_2$ if $\P_1$ is a proper subterm of $\P_2$.
 
 \begin{lemma}
-If \tr{\b}{\ss_1} and \sev{\Xi, \fr{\tau}{\ss_1 \circ \ss_2}}{\Psi}{\nil}{\nil, \w'} (by $\P$) with \cor{\sg}{\tau}, then there exists $\v$ such that \hev{\sg}{\b}{\v} with \cor{\v}{\w} and \sev{\Xi, \fr{\tau}{\ss_2}}{\Psi, \w}{\nil}{\nil, \w'} (by $\P'$) where $\P' \prec \P$.
+If \tr{\b}{\ss_1} and \ssev{\Xi, \fr{\tau}{\ss_1 \circ \ss_2}}{\Psi}{\nil}{\nil, \w'} (by $\P$) with \cor{\sg}{\tau}, then there exists $\v$ such that \hev{\sg}{\b}{\v} with \cor{\v}{\w} and \ssev{\Xi, \fr{\tau}{\ss_2}}{\Psi, \w}{\nil}{\nil, \w'} (by $\P'$) where $\P' \prec \P$.
 \end{lemma}
 
 \end{document}
