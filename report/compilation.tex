@@ -34,7 +34,7 @@
 \newcommand{\sub}[3]{#1[#2/#3]}
 \newcommand{\subs}[2]{#1[#2]}
 \newcommand{\wo}{\backslash}
-\newcommand{\sapp}{\mathbf{app}}
+\newcommand{\sapp}{\mathtt{app}}
 
 \newcommand{\judgement}[1]{\framebox{#1}}
 \newcommand{\ninf}[1]{\AxiomC{#1}}
@@ -54,11 +54,12 @@
 \newcommand{\hevv}[3]{\ensuremath{#1 \vdash #2 \Downarrow^{\mathrm{v}} #3}}
 \newcommand{\sev}[4]{\ensuremath{\langle #1; #2 \rangle \rightarrow \langle #3; #4 \rangle}}
 \newcommand{\ssev}[4]{\ensuremath{\langle #1; #2 \rangle \rightarrow^* \langle #3; #4 \rangle}}
-\newcommand{\sevv}{\hevv}
+\newcommand{\sevv}[3]{\ensuremath{#1 \vdash #2 \downarrow^{\mathrm{v}} #3}}
 \newcommand{\fr}[2]{\langle #1; #2 \rangle}
 \newcommand{\eqv}[3]{\ensuremath{#1 \downarrow #2 \sim #3}}
 \newcommand{\cor}[2]{\ensuremath{#1 \rightsquigarrow #2}}
 \newcommand{\comp}[3]{\ensuremath{#1 \stackrel{#2}{\rightsquigarrow} #3}}
+\newcommand{\scomp}{\cor}
 
 % hopefully temporary:
 \newcommand{\e}{e} % hoas expressions, previously 'e'
@@ -66,7 +67,7 @@
 \renewcommand{\b}{b} % de bruijn expressions, previously '\h{\e}'
 \renewcommand{\v}{v} % values, previously '\h{v}'
 \newcommand{\s}{s}
-\renewcommand{\ss}{\s^*}
+\renewcommand{\ss}{p} % previously '\s^*'
 \newcommand{\w}{w}
 
 
@@ -588,68 +589,71 @@ The other direction is analogous, using Lemma~\ref{lem:right-to-left} instead.
 We now develop the next translation target, a stack-based language.
 \begin{align*}
   \s &\defi \n{n} \alt i \alt \lam{}{\ss_1} \alt \sapp \\
-  \ss &\defi \nil \alt \s, \ss \\
-  \w &\defi \n{n} \alt \cl{\tau}{\ss} \\
-  \tau &\defi \nil \alt \tau, \w \\
+  \ss &\defi \nil \alt \s, \ss
 \end{align*}
-Note that $i$ was defined previously.
+(Note that $i$ was defined previously.)
 
-We translate from de Bruijn expressions to stack instructions using the following judgment.
+We translate from De Bruijn expressions to stack programs using the following judgement --- where $\circ$ denotes concatenation of programs.
+
 \vspace{0.5cm}
 
-\judgement{\tr{\b}{\ss}}
+\noindent \judgement{\tr{\b}{\ss}}
 
 \begin{prooftree}
   \leftl{\rule{T-Num} :}
-  \ax{\tr{\n{n}}{\n{n}}}
+  \ax{\tr{\n{n}}{\n{n}, \nil}}
 \end{prooftree}
 
 \begin{prooftree}
   \leftl{\rule{T-Var} :}
-  \ax{\tr{i}{i}}
+  \ax{\tr{i}{i, \nil}}
 \end{prooftree}
 
 \begin{prooftree}
   \ninf{\tr{\b_1}{\ss_1}}
   \leftl{\rule{T-Lam} :}
-  \uinf{\tr{\lam{}{\b_1}}{\lam{}{\ss_1}}}
+  \uinf{\tr{\lam{}{\b_1}}{(\lam{}{\ss_1}), .}}
 \end{prooftree}
 
 \begin{prooftree}
   \ninf{\tr{\b_1}{\ss_1}}
   \ninf{\tr{\b_2}{\ss_2}}
   \leftl{\rule{T-App} :}
-  \binf{\tr{\b_1 \app \b_2}{\ss_1, \ss_2, \sapp}}
+  \binf{\tr{\b_1 \app \b_2}{\ss_1 \circ \ss_2 \circ (\sapp, \nil)}}
 \end{prooftree}
+
+\vspace{0.5cm}
 
 The semantics of the stack language is given as follows:
 
 \begin{align*}
+  \w &\defi \n{n} \alt \cl{\tau}{\ss} \\
+  \tau &\defi \nil \alt \tau, \w \\
   \Xi &\defi \nil \alt \Xi, \fr{\tau}{\ss} \\
   \Psi &\defi \nil \alt \Psi, \w \\
 \end{align*}
 
-\judgement{\ev{\ss}{\w}}
+\noindent \judgement{\ev{\ss}{\w}}
 
 \begin{prooftree}
-  \ninf{\sev{\fr{\nil}{\ss}}{\nil}{\nil}{\w}}
+  \ninf{\ssev{\fr{\nil}{\ss}}{\nil}{\nil}{\w}}
   \uinf{\ev{\ss}{\w}}
 \end{prooftree}
 
-\judgement{\sevv{\tau}{i}{\w}}
+\noindent \judgement{\sevv{\tau}{i}{\w}}
 
 \begin{prooftree}
   \leftl{\rule{Sv-Here} :}
-  \ax{\hevv{\tau, \v}{\z}{\w}}
+  \ax{\sevv{\tau, \w}{\z}{\w}}
 \end{prooftree}
 
 \begin{prooftree}
-  \ninf{\hevv{\tau}{i}{\w}}
+  \ninf{\sevv{\tau}{i}{\w}}
   \leftl{\rule{Sv-There} :}
-  \uinf{\hevv{\tau, \v'}{\suc i}{\w}}
+  \uinf{\sevv{\tau, \w'}{\suc i}{\w}}
 \end{prooftree}
 
-\judgement{\sev{\Xi}{\Psi}{\Xi'}{\Psi'}}
+\noindent \judgement{\sev{\Xi}{\Psi}{\Xi'}{\Psi'}}
 
 \begin{prooftree}
   \leftl{\rule{S-Num} :}
@@ -664,7 +668,7 @@ The semantics of the stack language is given as follows:
 
 \begin{prooftree}
   \leftl{\rule{S-Lam} :}
-  \ax{\sev{\Xi, \fr{\tau}{(\lam{}{\s_1}), \ss}}{\Psi}{\Xi, \fr{\tau}{\ss}}{\Psi, \cl{\tau}{\s_1}}}
+  \ax{\sev{\Xi, \fr{\tau}{(\lam{}{\ss_1}), \ss}}{\Psi}{\Xi, \fr{\tau}{\ss}}{\Psi, \cl{\tau}{\ss_1}}}
 \end{prooftree}
 
 \begin{prooftree}
@@ -673,32 +677,32 @@ The semantics of the stack language is given as follows:
 \end{prooftree}
 
 \begin{prooftree}
-  \leftl{\rule{S-Nil} :}
+  \leftl{\rule{S-Ret} :}
   \ax{\sev{\Xi, \fr{\tau}{\nil}}{\Psi}{\Xi}{\Psi}}
 \end{prooftree}
 
-\judgement{\ssev{\Xi}{\Psi}{\Xi'}{\Psi'}}
+\noindent \judgement{\ssev{\Xi}{\Psi}{\Xi'}{\Psi'}}
 
 \begin{prooftree}
-  \leftl{\rule{SS-Refl} :}
+  \leftl{\rule{SS-Zero} :}
   \ax{\ssev{\Xi}{\Psi}{\Xi}{\Psi}}
 \end{prooftree}
 
 \begin{prooftree}
   \ninf{\sev{\Xi}{\Psi}{\Xi''}{\Psi''}}
   \ninf{\ssev{\Xi''}{\Psi''}{\Xi'}{\Psi'}}
-  \leftl{\rule{SS-Trans} :}
+  \leftl{\rule{SS-More} :}
   \binf{\ssev{\Xi}{\Psi}{\Xi'}{\Psi'}}
 \end{prooftree}
 
 \begin{theorem}
-If \tr{\b}{\ss}, then \hev{\b}{\n{n}} if and only if \ev{\ss}{\n{n}}.
+If \tr{\b}{\ss}, then \hev{\nil}{\b}{\n{n}} if and only if \ev{\ss}{\n{n}}.
 \end{theorem}
 
-To prove this we need an additional judgement.
+To prove this we need two additional judgements:
 \vspace{0.5cm}
 
-\judgement{\cor{\v}{\w}}
+\noindent \judgement{\cor{\v}{\w}}
 
 \begin{prooftree}
   \leftl{\rule{C-Num} :}
@@ -712,10 +716,24 @@ To prove this we need an additional judgement.
   \binf{\cor{\cl{\sg}{\b}}{\cl{\tau}{\ss}}}
 \end{prooftree}
 
+\noindent \judgement{\scomp{\sg}{\tau}}
+
+\begin{prooftree}
+  \leftl{\rule{D-Nil} :}
+  \ax{\scomp{\nil}{\nil}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\scomp{\sg}{\tau}}
+  \ninf{\cor{\v}{\w}}
+  \leftl{\rule{D-Cons} :}
+  \binf{\scomp{\sg, \v}{\tau, \w}}
+\end{prooftree}
+
 \begin{lemma}
-If \tr{\b}{\ss} and \hev{\sg}{\b}{\v} where \cor{\sg}{\tau} then for all $\Xi$ and $\Psi$ there exists a $\w$ such that \sev{\Xi, \fr{\tau}{\ss}}{\Psi}{\Xi, \fr{\tau}{\nil}}{\Psi, \w} with \cor{\v}{\w}.
+If \tr{\b}{\ss_1} and \hev{\sg}{\b}{\v} with \cor{\sg}{\tau}, then (for all $\Xi$, $\Psi$ and $\ss_2$) there exists $\w$ such that \sev{\Xi, \fr{\tau}{\ss_1 \circ \ss_2}}{\Psi}{\Xi, \fr{\tau}{\ss_2}}{\Psi, \w} with \cor{\v}{\w}.
 \end{lemma}
 
-What should the lemma for the other direction be?
+Completeness coming soon!
 
 \end{document}
