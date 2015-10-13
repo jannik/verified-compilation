@@ -15,6 +15,7 @@
 \renewcommand{\rule}{\textsc}
 \newcommand{\sg}{\sigma}
 \renewcommand{\phi}{\varphi}
+\renewcommand{\H}{H}
 \newcommand{\De}{\Delta}
 \newcommand{\E}{\mathcal{E}}
 \newcommand{\B}{\mathcal{B}}
@@ -36,6 +37,17 @@
 \newcommand{\subs}[2]{#1[#2]}
 \newcommand{\wo}{\backslash}
 \newcommand{\sapp}{\mathtt{app}}
+\newcommand{\load}{\mathtt{load} \;}
+\newcommand{\store}{\mathtt{store} \;}
+\newcommand{\alloc}{\mathtt{alloc} \;}
+\newcommand{\cpeek}{\mathtt{cpeek} \;}
+\newcommand{\cpop}{\mathtt{cpop}}
+\newcommand{\vpush}{\mathtt{vpush} \;}
+\newcommand{\vdup}{\mathtt{vdup}}
+\newcommand{\transfer}{\mathtt{transfer}}
+\newcommand{\jump}{\mathtt{jump}}
+\newcommand{\getaddr}{\mathtt{getaddr \;}}
+\newcommand{\halt}{\mathtt{halt}}
 
 \newcommand{\judgement}[1]{\framebox{#1}}
 \newcommand{\ninf}[1]{\AxiomC{#1}}
@@ -56,6 +68,13 @@
 \newcommand{\sev}[4]{\ensuremath{\langle #1; #2 \rangle \rightarrow \langle #3; #4 \rangle}}
 \newcommand{\ssev}[4]{\ensuremath{\langle #1; #2 \rangle \rightarrow^* \langle #3; #4 \rangle}}
 \newcommand{\sevv}[3]{\ensuremath{#1 \vdash #2 \downarrow^{\mathrm{v}} #3}}
+\newcommand{\meval}[3]{\ensuremath{\langle #1; #2 \rangle \downarrow #3}}
+\newcommand{\mev}[9]{\ensuremath{#1 \vdash \langle #2; #3; #4; #5 \rangle \rightarrow \langle #6; #7; #8; #9 \rangle}}
+\newcommand{\mmev}[9]{\ensuremath{#1 \vdash \langle #2; #3; #4; #5 \rangle \rightarrow^* \langle #6; #7; #8; #9 \rangle}}
+\newcommand{\fetch}[3]{\ensuremath{#1 \vdash #2 \uparrow #3}}
+\newcommand{\fetchdata}[4]{\ensuremath{#1 \vdash \langle #2, #3 \rangle \uparrow #4}}
+\newcommand{\update}[4]{\ensuremath{\mathbf{update}(#1, #2, #3, #4)}}
+\newcommand{\allocate}[4]{\ensuremath{\mathbf{allocate}(#1, #2, #3, #4)}}
 \newcommand{\fr}[2]{\langle #1; #2 \rangle}
 \newcommand{\eqv}[3]{\ensuremath{#1 \downarrow #2 \sim #3}}
 \newcommand{\cor}[2]{\ensuremath{#1 \rightsquigarrow #2}}
@@ -70,6 +89,12 @@
 \newcommand{\s}{s}
 \renewcommand{\ss}{p} % previously '\s^*'
 \newcommand{\w}{w}
+\newcommand{\q}{q}
+\renewcommand{\r}{r}
+\renewcommand{\k}{k}
+\newcommand{\m}{m}
+\renewcommand{\h}{h}
+\renewcommand{\o}{o}
 
 
 \newcounter{statementcounter}
@@ -741,4 +766,76 @@ Let $\prec$ denote the standard subterm order on step sequences, i.e. $\P_1 \pre
 If \tr{\b}{\ss_1} and \ssev{\Xi, \fr{\tau}{\ss_1 \circ \ss_2}}{\Psi}{\nil}{\nil, \w'} (by $\P$) with \cor{\sg}{\tau}, then there exists $\v$ such that \hev{\sg}{\b}{\v} with \cor{\v}{\w} and \ssev{\Xi, \fr{\tau}{\ss_2}}{\Psi, \w}{\nil}{\nil, \w'} (by $\P'$) where $\P' \prec \P$.
 \end{lemma}
 
+\subsection*{Machine Language}
+
+\noindent \judgement{\meval{\q}{\k}{\r}}
+
+\noindent \judgement{\mev{\q}{\H}{\Gamma}{\k}{\Phi}{\H'}{\Gamma'}{\k'}{\Phi'}}
+
+\begin{prooftree}
+  \ninf{\fetch{\q}{\k}{\m}}
+  \uinf{\mev{\q}{\H}{\Gamma}{\k}{\Phi}{\H}{\Gamma}{\k + 1}{\Phi}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\fetch{\q}{\k}{\load \o}}
+  \ninf{\fetch{\H}{\h + \o}{\r}}
+  \binf{\mev{\q}{\H}{\Gamma}{\k}{\Phi, \boxed{\h}}{\H}{\Gamma}{\k + 1}{\Phi, \r}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\fetch{\q}{\k}{\store \o}}
+  \ninf{\update{\H}{\h + \o}{\r}{\H'}}
+  \binf{\mev{\q}{\H}{\Gamma}{\k}{\Phi, \boxed{\h}, \r}{\H'}{\Gamma}{\k + 1}{\Phi, \boxed{\h}}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\fetch{\q}{\k}{\alloc \o}}
+  \ninf{\allocate{\H}{\o}{\H'}{\h}}
+  \binf{\mev{\q}{\H}{\Gamma}{\k}{\Phi}{\H'}{\Gamma}{\k + 1}{\Phi, \h}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\fetch{\q}{\k}{\cpeek \o}}
+  \ninf{\fetch{\Gamma}{\o}{\r}}
+  \binf{\mev{\q}{\H}{\Gamma}{\k}{\Phi}{\H}{\Gamma}{\k + 1}{\Phi, \r}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\fetch{\q}{\k}{\cpop}}
+  \uinf{\mev{\q}{\H}{\Gamma, \r}{\k}{\Phi}{\H}{\Gamma}{\k + 1}{\Phi}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\fetch{\q}{\k}{\vpush \r}}
+  \uinf{\mev{\q}{\H}{\Gamma}{\k}{\Phi}{\H}{\Gamma}{\k + 1}{\Phi, \r}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\fetch{\q}{\k}{\vdup}}
+  \uinf{\mev{\q}{\H}{\Gamma}{\k}{\Phi, \r}{\H}{\Gamma}{\k + 1}{\Phi, \r, \r}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\fetch{\q}{\k}{\transfer}}
+  \uinf{\mev{\q}{\H}{\Gamma}{\k}{\Phi, \r}{\H}{\Gamma, \r}{\k + 1}{\Phi}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\fetch{\q}{\k}{\jump}}
+  \uinf{\mev{\q}{\H}{\Gamma, \boxed{\k'}}{\k}{\Phi}{\H}{\Gamma}{\k'}{\Phi}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\fetch{\q}{\k}{\getaddr \o}}
+  \uinf{\mev{\q}{\H}{\Gamma}{\k}{\Phi}{\H}{\Gamma}{\k + 1}{\Phi, \boxed{\k + \o}}}
+\end{prooftree}
+
+% No rule for halt!
+
+\noindent \judgement{\mmev{\q}{\H}{\Gamma}{\k}{\Phi}{\H'}{\Gamma'}{\k'}{\Phi'}}
+
+\noindent \judgement{\fetch{\q}{\k}{\m}}
+
+\noindent \judgement{\fetch{\Gamma}{\o}{\r}}
 \end{document}
