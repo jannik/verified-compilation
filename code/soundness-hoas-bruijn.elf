@@ -1,5 +1,5 @@
 soundness-hb'-var : eval E C -> trans-hb-var Sigma I E -> beval-var Sigma I V -> cor V C -> type.
-%mode soundness-hb'-var +DE +DTV -DBV -DC.
+%mode soundness-hb'-var -DE +DTV +DBV -DC.
 
 soundness-hb'-var/here/num : soundness-hb'-var eval/num (trans-hb-var/here DC) beval-var/here DC.
 
@@ -14,7 +14,7 @@ soundness-hb'-var/there : soundness-hb'-var DE (trans-hb-var/there DTV) (beval-v
 
 
 soundness-hb' : eval E C -> trans-hb Sigma B E -> beval Sigma B V -> cor V C -> type.
-%mode soundness-hb' +DE +DT -DB -DC.
+%mode soundness-hb' -DE +DT +DB -DC.
 
 soundness-hb'/num : soundness-hb' eval/num trans-hb/num beval/num cor/num.
 
@@ -29,64 +29,7 @@ soundness-hb'/app : soundness-hb' (eval/app DE3 DE2 DE1) (trans-hb/app DT2 DT1) 
                      <- soundness-hb' DE3 (DT V2 C2 DC2) DB3 DC3.
 
 %worlds () (soundness-hb' _ _ _ _).
-%total (DE) (soundness-hb' DE _ _ _).
-
-
-
-coerce-beval : cor (vnum N1) (num N2) -> beval Sigma B (vnum N1) -> beval Sigma B (vnum N2) -> type.
-%mode coerce-beval +DC +DB -DB'.
-
-- : coerce-beval cor/num DB DB.
-
-%worlds () (coerce-beval _ _ _).
-%total (DC) (coerce-beval DC _ _).
-
-
-
-soundness-hb : eval E (num N) -> trans-hb store/nil B E -> beval store/nil B (vnum N) -> type.
-%mode soundness-hb +DE +DT -DB.
-
-- : soundness-hb DE DT DB'
-     <- soundness-hb' DE DT DB DC
-     <- coerce-beval DC DB DB'.
-
-%worlds () (soundness-hb _ _ _).
-%total (DE) (soundness-hb DE _ _).
-
-
-
-completeness-hb'-var : eval E C -> trans-hb-var Sigma I E -> beval-var Sigma I V -> cor V C -> type.
-%mode completeness-hb'-var -DE +DTV +DBV -DC.
-
-completeness-hb'-var/here/num : completeness-hb'-var eval/num (trans-hb-var/here DC) beval-var/here DC.
-
-completeness-hb'-var/here/fun : completeness-hb'-var eval/lam (trans-hb-var/here DC) beval-var/here DC.
-
-completeness-hb'-var/there : completeness-hb'-var DE (trans-hb-var/there DTV) (beval-var/there DBV) DC
-                              <- completeness-hb'-var DE DTV DBV DC.
-
-%worlds () (completeness-hb'-var _ _ _ _).
-%total (DTV) (completeness-hb'-var _ DTV _ _).
-
-
-
-completeness-hb' : eval E C -> trans-hb Sigma B E -> beval Sigma B V -> cor V C -> type.
-%mode completeness-hb' -DE +DT +DB -DC.
-
-completeness-hb'/num : completeness-hb' eval/num trans-hb/num beval/num cor/num.
-
-completeness-hb'/var : completeness-hb' DE (trans-hb/var DTV) (beval/var DBV) DC
-                        <- completeness-hb'-var DE DTV DBV DC.
-
-completeness-hb'/lam : completeness-hb' eval/lam (trans-hb/lam DT) beval/lam (cor/fun (trans-hb/lam DT)).
-
-completeness-hb'/app : completeness-hb' (eval/app DE3 DE2 DE1) (trans-hb/app DT2 DT1) (beval/app DB3 DB2 DB1) DC3
-                        <- completeness-hb' DE1 DT1 DB1 (cor/fun (trans-hb/lam [v] [x] [dc] DT v x dc))
-                        <- completeness-hb' DE2 DT2 DB2 (DC2 : cor V2 C2)
-                        <- completeness-hb' DE3 (DT V2 C2 DC2) DB3 DC3.
-
-%worlds () (completeness-hb' _ _ _ _).
-%total (DB) (completeness-hb' _ _ DB _).
+%total (DB) (soundness-hb' _ _ DB _).
 
 
 
@@ -100,12 +43,12 @@ coerce-eval : cor (vnum N2) (num N1) -> eval E (num N1) -> eval E (num N2) -> ty
 
 
 
-completeness-hb : beval store/nil B (vnum N) -> trans-hb store/nil B E -> eval E (num N) -> type.
-%mode completeness-hb +DB +DT -DE.
+soundness-hb : beval store/nil B (vnum N) -> trans-hb store/nil B E -> eval E (num N) -> type.
+%mode soundness-hb +DB +DT -DE.
 
-- : completeness-hb DB DT DE'
-     <- completeness-hb' DE DT DB DC
-     <- coerce-eval DC DE DE'.
+soundness-hb/ : soundness-hb DB DT DE'
+                 <- soundness-hb' DE DT DB DC
+                 <- coerce-eval DC DE DE'.
 
-%worlds () (completeness-hb _ _ _).
-%total (DB) (completeness-hb DB _ _).
+%worlds () (soundness-hb _ _ _).
+%total (DB) (soundness-hb DB _ _).

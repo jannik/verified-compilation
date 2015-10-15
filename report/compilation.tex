@@ -234,8 +234,8 @@ Let $\sg$ and $\De$ denote ordered lists (with possible repetitions) as follows:
 
 \subsection*{Main Theorem}
 
-\begin{theorem}[Soundness]
-\label{thm:soundness} If \tra{\nil}{\e}{\b}, then \ev{\e}{\n{n}} if and only if \hev{\nil}{\b}{\n{n}}.
+\begin{theorem} [Equivalence HOAS-Bruijn]
+\label{thm:equiv-hb} If \tra{\nil}{\e}{\b}, then \ev{\e}{\n{n}} if and only if \hev{\nil}{\b}{\n{n}}.
 \end{theorem}
 
 We will now develop the machinery necessary to prove this.
@@ -339,7 +339,7 @@ And since $\phi(x) = \phi'[y \mapsto \c'](x) = \phi'(x)$ (because $x \neq y$), w
 \end{proof}
 
 \begin{lemma}
-\label{lem:left-to-right}
+\label{lem:completeness-hb}
 If \tra{\De}{\e}{\b} (by $\T$), \ev{\subs{\e}{\phi}}{\c} (by $\E$) and \comp{\sg}{\De}{\phi} (by $\D$), then there exists $\v$ such that \hev{\sg}{\b}{\v} (by some $\B$) and \cor{\v}{\c} (by some $\C$).
 \end{lemma}
 
@@ -495,7 +495,7 @@ Thus, $x \in \dom(\phi')$ and we can take $\C = \C_1$ to complete the proof.
 \end{proof}
 
 \begin{lemma}
-\label{lem:right-to-left}
+\label{lem:soundness-hb}
 If \tra{\De}{\e}{\b} (by $\T$), \hev{\sg}{\b}{\v} (by $\B$) and \comp{\sg}{\De}{\phi} (by $\D$), then there exists $\c$ such that \ev{\subs{\e}{\phi}}{\c} (by some $\E$) and \cor{\v}{\c} (by some $\C$).
 \end{lemma}
 
@@ -602,14 +602,14 @@ And finally, noting $\subs{\e}{\phi} = \subs{\e_1}{\phi} \app \subs{\e_2}{\phi}$
 
 We can now establish the main theorem.
 
-\begin{proof}[Proof of Theorem~\ref{thm:soundness}]
+\begin{proof}[Proof of Theorem~\ref{thm:equiv-hb}]
 Supposing \tra{\nil}{\e}{\b} (by $\T$), we show the bi-implication.
 For the left-to-right direction, assume \ev{\e}{\n{n}} (by $\E$) and note $\e = \subs{\e}{\nil}$.
 Rule \rule{D-Nil} provides $\D$ showing the compatibility of empty contexts.
-Then use Lemma~\ref{lem:left-to-right} on $\T$, $\E$ and $\D$ to get \hev{\nil}{\b}{\v} for some $\v$ satisfying \cor{\v}{\n{n}}.
+Then use Lemma~\ref{lem:completeness-hb} on $\T$, $\E$ and $\D$ to get \hev{\nil}{\b}{\v} for some $\v$ satisfying \cor{\v}{\n{n}}.
 But since numbers correspond only to themselves, we must have $\v = \n{n}$ as required.
 
-The other direction is analogous, using Lemma~\ref{lem:right-to-left} instead.
+The other direction is analogous, using Lemma~\ref{lem:soundness-hb} instead.
 \end{proof}
 
 \subsection*{A Stack Machine}
