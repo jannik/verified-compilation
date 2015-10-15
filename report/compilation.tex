@@ -60,6 +60,7 @@
 \newcommand{\rightl}[1]{\RightLabel{#1}}
 
 \newcommand{\tr}[2]{\ensuremath{#1 \rhd #2}}
+\newcommand{\tracc}[3]{\ensuremath{#1 \circ #2 \rhd #3}}
 \newcommand{\tra}[3]{\ensuremath{#1 \vdash #2 \rhd #3}}
 \newcommand{\trav}[3]{\ensuremath{#1 \vdash #2 \rhd^{\mathrm{v}} #3}}
 \newcommand{\ev}[2]{\ensuremath{#1 \downarrow #2}}
@@ -614,38 +615,45 @@ The other direction is analogous, using Lemma~\ref{lem:right-to-left} instead.
 \subsection*{A Stack Machine}
 We now develop the next translation target, a stack-based language.
 \begin{align*}
-  \s &\defi \n{n} \alt i \alt \lam{}{\ss_1} \alt \sapp \\
+  \s &\defi \n{n} \alt i \alt \lam{}{\ss} \alt \sapp \\
   \ss &\defi \nil \alt \s, \ss
 \end{align*}
 (Note that $i$ was defined previously.)
 
-We translate from De Bruijn expressions to stack programs using the following judgement --- where $\circ$ denotes concatenation of programs.
+We translate from De Bruijn expressions to stack programs using the following judgements:
 
 \vspace{0.5cm}
 
 \noindent \judgement{\tr{\b}{\ss}}
 
 \begin{prooftree}
+  \ninf{\tracc{\b}{\nil}{\ss}}
+  \uinf{\tr{\b}{\ss}}
+\end{prooftree}
+
+\noindent \judgement{\tracc{\b}{\ss}{\ss'}}
+
+\begin{prooftree}
   \leftl{\rule{T-Num} :}
-  \ax{\tr{\n{n}}{\n{n}, \nil}}
+  \ax{\tracc{\n{n}}{\ss}{\n{n}, \ss}}
 \end{prooftree}
 
 \begin{prooftree}
   \leftl{\rule{T-Var} :}
-  \ax{\tr{i}{i, \nil}}
+  \ax{\tracc{i}{\ss}{i, \ss}}
 \end{prooftree}
 
 \begin{prooftree}
-  \ninf{\tr{\b_1}{\ss_1}}
+  \ninf{\tracc{\b_1}{\nil}{\ss_1}}
   \leftl{\rule{T-Lam} :}
-  \uinf{\tr{\lam{}{\b_1}}{(\lam{}{\ss_1}), .}}
+  \uinf{\tracc{\lam{}{\b_1}}{\ss}{(\lam{}{\ss_1}), \ss}}
 \end{prooftree}
 
 \begin{prooftree}
-  \ninf{\tr{\b_1}{\ss_1}}
-  \ninf{\tr{\b_2}{\ss_2}}
+  \ninf{\tracc{\b_2}{\sapp, \ss}{\ss''}}
+  \ninf{\tracc{\b_1}{\ss''}{\ss'}}
   \leftl{\rule{T-App} :}
-  \binf{\tr{\b_1 \app \b_2}{\ss_1 \circ \ss_2 \circ (\sapp, \nil)}}
+  \binf{\tracc{\b_1 \app \b_2}{\ss}{\ss'}}
 \end{prooftree}
 
 \vspace{0.5cm}
@@ -756,14 +764,16 @@ To prove this we need two additional judgements:
   \binf{\scomp{\sg, \v}{\tau, \w}}
 \end{prooftree}
 
+% completeness
 \begin{lemma}
-If \tr{\b}{\ss_1} and \hev{\sg}{\b}{\v} with \cor{\sg}{\tau}, then (for all $\Xi$, $\Psi$ and $\ss_2$) there exists $\w$ such that \ssev{\Xi, \fr{\tau}{\ss_1 \circ \ss_2}}{\Psi}{\Xi, \fr{\tau}{\ss_2}}{\Psi, \w} with \cor{\v}{\w}.
+If \tracc{\b}{\ss_2}{\ss} and \hev{\sg}{\b}{\v} with \cor{\sg}{\tau}, then (for all $\Xi$ and $\Psi$) there exists $\w$ such that \ssev{\Xi, \fr{\tau}{\ss}}{\Psi}{\Xi, \fr{\tau}{\ss_2}}{\Psi, \w} with \cor{\v}{\w}.
 \end{lemma}
 
-Let $\prec$ denote the standard subterm order on step sequences, i.e. $\P_1 \prec \P_2$ if $\P_1$ is a proper subterm of $\P_2$.
+Let $\prec$ denote the standard subtree order on step sequences, i.e. $\P_1 \prec \P_2$ if $\P_1$ is a proper suffix of $\P_2$.
 
+% soundness
 \begin{lemma}
-If \tr{\b}{\ss_1} and \ssev{\Xi, \fr{\tau}{\ss_1 \circ \ss_2}}{\Psi}{\nil}{\nil, \w'} (by $\P$) with \cor{\sg}{\tau}, then there exists $\v$ such that \hev{\sg}{\b}{\v} with \cor{\v}{\w} and \ssev{\Xi, \fr{\tau}{\ss_2}}{\Psi, \w}{\nil}{\nil, \w'} (by $\P'$) where $\P' \prec \P$.
+If \tracc{\b}{\ss_2}{\ss} and \ssev{\Xi, \fr{\tau}{\ss}}{\Psi}{\nil}{\nil, \w'} (by $\P$) with \cor{\sg}{\tau}, then there exists $\v$ such that \hev{\sg}{\b}{\v} with \cor{\v}{\w} and \ssev{\Xi, \fr{\tau}{\ss_2}}{\Psi, \w}{\nil}{\nil, \w'} (by $\P'$) where $\P' \prec \P$.
 \end{lemma}
 
 \subsection*{Machine Language}
