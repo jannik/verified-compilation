@@ -112,13 +112,47 @@ $\blacksquare$
 
 \begin{document}
 
+\section*{Introduction}
+
+\section*{Previous Work}
+
+\section*{Source Language}            
+
 \subsection*{Syntax}
 
 \begin{align*}
   % x &\in \mathsf{vars} \quad (\text{variable identifiers}) \\
   e &\defi \n{n} \alt x \alt \lam{x}{\e_1} \alt \e_1 \app \e_2 \\
   \c &\defi \n{n} \alt \lam{x}{\e} \quad (\text{with} \; FV(\e) \subseteq \set{x}) \\
-	\\
+\end{align*}
+
+\subsection*{Semantics}
+
+\judgement{\ev{\e}{\c}} ($\e$ closed)
+
+\begin{prooftree}
+  \leftl{\rule{E-Num} :}
+  \ax{\ev{\n{n}}{\n{n}}}
+\end{prooftree}
+
+\begin{prooftree}
+  \leftl{\rule{E-Lam} :}
+  \ax{\ev{\lam{x}{\e_1}}{\lam{x}{\e_1}}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\ev{\e_1}{\lam{x}{\e_0}}}
+  \ninf{\ev{\e_2}{\c_2}}
+  \ninf{\ev{\sub{\e_0}{\c_2}{x}}{\c}}
+	\leftl{\rule{E-App} :}
+  \tinf{\ev{\e_1 \app \e_2}{\c}}
+\end{prooftree}
+
+\section*{De Bruijn Language}
+
+\subsection*{Syntax}
+
+\begin{align*}
 	i &\defi \z \alt \suc i \\
 	\b &\defi \n{n} \alt i \alt \lam{}{\b_1} \alt \b_1 \app \b_2 \\
   \v &\defi \n{n} \alt \cl{\sg}{\b}
@@ -128,6 +162,46 @@ Let $\sg$ and $\De$ denote ordered lists (with possible repetitions) as follows:
   \sg &\defi \nil \alt \sg, \v \\
 	\Delta &\defi \nil \alt \De, x
 \end{align*}
+
+\subsection*{Semantics}
+\noindent \judgement{\hev{\sg}{\b}{\v}}
+
+\begin{prooftree}
+  \leftl{\rule{B-Num} :}
+  \ax{\hev{\sg}{\n{n}}{\n{n}}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\hevv{\sg}{i}{\v}}
+  \leftl{\rule{B-Var} :}
+  \uinf{\hev{\sg}{i}{\v}}
+\end{prooftree}
+
+\begin{prooftree}
+  \leftl{\rule{B-Lam :}}
+  \ax{\hev{\sg}{\lam{}{\b_1}}{\cl{\sg}{\b_1}}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\hev{\sg}{\b_1}{\cl{\sg'}{\b_0}}}
+  \ninf{\hev{\sg}{\b_2}{\v_2}}
+  \ninf{\hev{\sg', \v_2}{\b_0}{\v}}
+	\leftl{\rule{B-App} :}
+  \tinf{\hev{\sg}{\b_1 \app \b_2}{\v}}
+\end{prooftree}
+
+\noindent \judgement{\hevv{\sg}{i}{\v}}
+
+\begin{prooftree}
+  \leftl{\rule{Bv-Here} :}
+  \ax{\hevv{\sg, \v}{\z}{\v}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\hevv{\sg}{i}{\v}}
+  \leftl{\rule{Bv-There} :}
+  \uinf{\hevv{\sg, \v'}{\suc i}{\v}}
+\end{prooftree}
 
 \subsection*{Translation}
 
@@ -171,68 +245,7 @@ Let $\sg$ and $\De$ denote ordered lists (with possible repetitions) as follows:
   \uinf{\trav{\De, y}{x}{\suc i}}
 \end{prooftree}
 
-\subsection*{Semantics}
-
-\judgement{\ev{\e}{\c}} ($\e$ closed)
-
-\begin{prooftree}
-  \leftl{\rule{E-Num} :}
-  \ax{\ev{\n{n}}{\n{n}}}
-\end{prooftree}
-
-\begin{prooftree}
-  \leftl{\rule{E-Lam} :}
-  \ax{\ev{\lam{x}{\e_1}}{\lam{x}{\e_1}}}
-\end{prooftree}
-
-\begin{prooftree}
-  \ninf{\ev{\e_1}{\lam{x}{\e_0}}}
-  \ninf{\ev{\e_2}{\c_2}}
-  \ninf{\ev{\sub{\e_0}{\c_2}{x}}{\c}}
-	\leftl{\rule{E-App} :}
-  \tinf{\ev{\e_1 \app \e_2}{\c}}
-\end{prooftree}
-
-\noindent \judgement{\hev{\sg}{\b}{\v}}
-
-\begin{prooftree}
-  \leftl{\rule{B-Num} :}
-  \ax{\hev{\sg}{\n{n}}{\n{n}}}
-\end{prooftree}
-
-\begin{prooftree}
-  \ninf{\hevv{\sg}{i}{\v}}
-  \leftl{\rule{B-Var} :}
-  \uinf{\hev{\sg}{i}{\v}}
-\end{prooftree}
-
-\begin{prooftree}
-  \leftl{\rule{B-Lam :}}
-  \ax{\hev{\sg}{\lam{}{\b_1}}{\cl{\sg}{\b_1}}}
-\end{prooftree}
-
-\begin{prooftree}
-  \ninf{\hev{\sg}{\b_1}{\cl{\sg'}{\b_0}}}
-  \ninf{\hev{\sg}{\b_2}{\v_2}}
-  \ninf{\hev{\sg', \v_2}{\b_0}{\v}}
-	\leftl{\rule{B-App} :}
-  \tinf{\hev{\sg}{\b_1 \app \b_2}{\v}}
-\end{prooftree}
-
-\noindent \judgement{\hevv{\sg}{i}{\v}}
-
-\begin{prooftree}
-  \leftl{\rule{Bv-Here} :}
-  \ax{\hevv{\sg, \v}{\z}{\v}}
-\end{prooftree}
-
-\begin{prooftree}
-  \ninf{\hevv{\sg}{i}{\v}}
-  \leftl{\rule{Bv-There} :}
-  \uinf{\hevv{\sg, \v'}{\suc i}{\v}}
-\end{prooftree}
-
-\subsection*{Main Theorem}
+\subsection*{Equivalence}
 
 \begin{theorem} [Equivalence HOAS-Bruijn]
 \label{thm:equiv-hb} If \tra{\nil}{\e}{\b}, then \ev{\e}{\n{n}} if and only if \hev{\nil}{\b}{\n{n}}.
@@ -276,6 +289,7 @@ We first define a notion of correspondence between values and canonical forms: \
   \binf{\comp{\sg, \v}{\De, x}{\phi[x \mapsto \c]}}
 \end{prooftree}
 
+\subsubsection*{Proof of Equivalence}
 \begin{lemma}[Evaluation of Values]
 \label{lem:value-eval}
 For all $\c$, \ev{\c}{\c}.
@@ -612,52 +626,17 @@ But since numbers correspond only to themselves, we must have $\v = \n{n}$ as re
 The other direction is analogous, using Lemma~\ref{lem:soundness-hb} instead.
 \end{proof}
 
-\subsection*{A Stack Machine}
+\section*{Stack Language}
 We now develop the next translation target, a stack-based language.
+
+\subsection*{Syntax}
 \begin{align*}
   \s &\defi \n{n} \alt i \alt \lam{}{\ss} \alt \sapp \\
   \ss &\defi \nil \alt \s, \ss
 \end{align*}
 (Note that $i$ was defined previously.)
 
-We translate from De Bruijn expressions to stack programs using the following judgements:
-
-\vspace{0.5cm}
-
-\noindent \judgement{\tr{\b}{\ss}}
-
-\begin{prooftree}
-  \ninf{\tracc{\b}{\nil}{\ss}}
-  \uinf{\tr{\b}{\ss}}
-\end{prooftree}
-
-\noindent \judgement{\tracc{\b}{\ss}{\ss'}}
-
-\begin{prooftree}
-  \leftl{\rule{T-Num} :}
-  \ax{\tracc{\n{n}}{\ss}{\n{n}, \ss}}
-\end{prooftree}
-
-\begin{prooftree}
-  \leftl{\rule{T-Var} :}
-  \ax{\tracc{i}{\ss}{i, \ss}}
-\end{prooftree}
-
-\begin{prooftree}
-  \ninf{\tracc{\b_1}{\nil}{\ss_1}}
-  \leftl{\rule{T-Lam} :}
-  \uinf{\tracc{\lam{}{\b_1}}{\ss}{(\lam{}{\ss_1}), \ss}}
-\end{prooftree}
-
-\begin{prooftree}
-  \ninf{\tracc{\b_2}{\sapp, \ss}{\ss''}}
-  \ninf{\tracc{\b_1}{\ss''}{\ss'}}
-  \leftl{\rule{T-App} :}
-  \binf{\tracc{\b_1 \app \b_2}{\ss}{\ss'}}
-\end{prooftree}
-
-\vspace{0.5cm}
-
+\subsection*{Semantics}
 The semantics of the stack language is given as follows:
 
 \begin{align*}
@@ -729,6 +708,46 @@ The semantics of the stack language is given as follows:
   \binf{\ssev{\Xi}{\Psi}{\Xi'}{\Psi'}}
 \end{prooftree}
 
+
+\subsection*{Translation}
+We translate from De Bruijn expressions to stack programs using the following judgements:
+
+\vspace{0.5cm}
+
+\noindent \judgement{\tr{\b}{\ss}}
+
+\begin{prooftree}
+  \ninf{\tracc{\b}{\nil}{\ss}}
+  \uinf{\tr{\b}{\ss}}
+\end{prooftree}
+
+\noindent \judgement{\tracc{\b}{\ss}{\ss'}}
+
+\begin{prooftree}
+  \leftl{\rule{T-Num} :}
+  \ax{\tracc{\n{n}}{\ss}{\n{n}, \ss}}
+\end{prooftree}
+
+\begin{prooftree}
+  \leftl{\rule{T-Var} :}
+  \ax{\tracc{i}{\ss}{i, \ss}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\tracc{\b_1}{\nil}{\ss_1}}
+  \leftl{\rule{T-Lam} :}
+  \uinf{\tracc{\lam{}{\b_1}}{\ss}{(\lam{}{\ss_1}), \ss}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\tracc{\b_2}{\sapp, \ss}{\ss''}}
+  \ninf{\tracc{\b_1}{\ss''}{\ss'}}
+  \leftl{\rule{T-App} :}
+  \binf{\tracc{\b_1 \app \b_2}{\ss}{\ss'}}
+\end{prooftree}
+
+\subsection*{Equivalence}
+
 \begin{theorem}
 If \tr{\b}{\ss}, then \hev{\nil}{\b}{\n{n}} if and only if \ev{\ss}{\n{n}}.
 \end{theorem}
@@ -776,7 +795,9 @@ Let $\prec$ denote the standard subtree order on step sequences, i.e. $\P_1 \pre
 If \tracc{\b}{\ss_2}{\ss} and \ssev{\Xi, \fr{\tau}{\ss}}{\Psi}{\nil}{\nil, \w'} (by $\P$) with \cor{\sg}{\tau}, then there exists $\v$ such that \hev{\sg}{\b}{\v} with \cor{\v}{\w} and \ssev{\Xi, \fr{\tau}{\ss_2}}{\Psi, \w}{\nil}{\nil, \w'} (by $\P'$) where $\P' \prec \P$.
 \end{lemma}
 
-\subsection*{Machine Language}
+\section*{Machine Language}
+
+\subsection*{Semantics}
 
 \noindent \judgement{\meval{\q}{\k}{\r}}
 
@@ -848,4 +869,9 @@ If \tracc{\b}{\ss_2}{\ss} and \ssev{\Xi, \fr{\tau}{\ss}}{\Psi}{\nil}{\nil, \w'} 
 \noindent \judgement{\fetch{\q}{\k}{\m}}
 
 \noindent \judgement{\fetch{\Gamma}{\o}{\r}}
+
+\section*{Conclusion}
+
+\section*{Future Work}
+
 \end{document}
