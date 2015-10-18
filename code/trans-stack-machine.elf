@@ -1,0 +1,96 @@
+mprog-length : mprog -> nat -> type.
+%mode mprog-length +Q -N.
+
+mprog-length/nil : mprog-length end z.
+
+mprog-length/cons : mprog-length (M , Q) (s N)
+                     <- mprog-length Q N.
+
+
+
+sexp-max-var : sexp -> nat -> type.
+%mode sexp-max-var +S -I.
+
+sprog-max-var : sprog -> nat -> type.
+%mode sprog-max-var +P -I.
+
+sexp-max-var/num : sexp-max-var (snum N) z.
+
+sexp-max-var/var : sexp-max-var (svar I) (s I).
+
+sexp-max-var/lam : sexp-max-var (slam P) (s I)
+                    <- sprog-max-var P I.
+
+sexp-max-var/app : sexp-max-var sapp z.
+
+sprog-max-var/nil : sprog-max-var sprog/nil z.
+
+sprog-max-var/cons : sprog-max-var (sprog/cons S P) I
+                      <- sexp-max-var S I1
+                      <- sprog-max-var P I2
+                      <- max I1 I2 I.
+
+
+
+% Accumulative approach to avoid append when right-consing.
+%abbrev mprog-acc = mprog -> mprog.
+
+%abbrev mprog-acc/nil : mprog-acc = [q] q.
+
+%abbrev make-clos : nat -> nat -> mprog-acc
+                           = [k] [i] [q]
+                              malloc (s i) ,
+                              mvpush (raddr k) ,
+                              mstore z ,
+                              mcpeek (s (s z)) ,
+                              mstore (s z) ,
+                              mvdup ,
+                              mcpeek (s z) ,
+                              q.
+
+%abbrev make-call : mprog-acc
+                     = [q]
+                        mtransfer ,
+                        mvdup ,
+                        mtransfer ,
+                        mgetaddr (s (s (s (s (s (s (s z))))))) ,
+                        mtransfer ,
+                        mload z ,
+                        mtransfer ,
+                        mjump ,
+                        mcpop ,
+                        mcpop ,
+                        q.
+
+trans-sm-acc : mprog-acc -> mprog-acc -> sexp -> mprog-acc -> mprog-acc -> type.
+%mode trans-sm-acc +QQ +Q +S -QQ' -Q'.
+
+trans-sms-acc : mprog-acc -> mprog-acc -> sprog -> mprog-acc -> mprog-acc -> type.
+%mode trans-sms-acc +QQ +Q +S -QQ' -Q'.
+
+trans-sm-acc/num : trans-sm-acc QQ Q (snum N) QQ ([q] Q (mvpush (rnum N) , q)).
+
+trans-sm-acc/svar/z : trans-sm-acc QQ Q (svar z) QQ ([q] Q (mcpeek (s z) , q)).
+
+trans-sm-acc/svar/s : trans-sm-acc QQ Q (svar (s I)) QQ ([q] Q (mcpeek (s (s z)) , mload (s I) , q)).
+
+trans-sm-acc/lam : trans-sm-acc QQ Q (slam P) ([q] QQ' (Q' (mjump , q))) ([q] Q (make-clos K I q))
+                    <- trans-sms-acc QQ mprog-acc/nil P QQ' Q'
+                    <- mprog-length (QQ end) K
+                    <- sprog-max-var P I.
+
+trans-sm-acc/app : trans-sm-acc QQ Q sapp QQ ([q] Q (make-call q)).
+
+trans-sms-acc/nil : trans-sms-acc QQ Q sprog/nil QQ Q.
+
+trans-sms-acc/cons : trans-sms-acc QQ Q (sprog/cons S P) QQ' Q'
+                      <- trans-sm-acc QQ Q S QQ'' Q''
+                      <- trans-sms-acc QQ'' Q'' P QQ' Q'.
+
+
+
+trans-sm : sprog -> mprog -> type.
+%mode trans-sm +P -Q.
+
+trans-sm/ : trans-sm P (QQ (Q (mhalt , end)))
+             <- trans-sms-acc ([q] q) ([q] q) P QQ Q.

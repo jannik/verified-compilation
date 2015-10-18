@@ -18,3 +18,15 @@ add/s : add (s N1) N2 (s N)
 
 %worlds () (add _ _ _).
 %total N (add N _ _).
+
+
+
+max : nat -> nat -> nat -> type.
+%mode max +N1 +N2 -N.
+
+max/z1 : max z N2 N2.
+
+max/z2 : max N1 z N1.
+
+max/s : max (s N1) (s N2) (s N)
+         <- max N1 N2 N.

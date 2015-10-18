@@ -17,6 +17,7 @@ mvdup : inst.
 mtransfer : inst.
 mjump : inst.
 mgetaddr : nat -> inst.
+mhalt : inst.
 
 mprog : type. %name mprog Q.
 

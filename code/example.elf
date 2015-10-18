@@ -14,3 +14,18 @@ btest2 : bexp = bnum z.
 %solve _ : trans-bs btest2 S. 
 
 %query 1 4 D : seval stest2 W.
+
+test3 : exp = app (app (lam [x] lam [y] x) (num z)) (num (s z)).
+
+%define btest3 = B
+%solve _ : trans-hb-pseudo-exists test3 (DT : trans-hb store/nil B test3).
+
+%define ptest3 = P
+%solve _ : trans-bs btest3 P.
+
+%query 1 5 D : eval test3 C.
+%query 1 5 D : beval store/nil btest3 V.
+%query 1 5 D : seval ptest3 W.
+
+%define qtest3 = Q
+%solve _ : trans-sm ptest3 Q.
