@@ -13,4 +13,4 @@ trans-hr-exists/app : trans-hr-exists (app E1 E2) (trans-hr/app DT2 DT1)
 %block bl-trans-hr-exists : block {x : exp} {y : var} {dt : trans-hr x (rvar y)} {pf : trans-hr-exists x dt}.
 
 %worlds (bl-trans-hr-exists) (trans-hr-exists _ _).
-%total E (trans-hr-exists E _).
+% %total E (trans-hr-exists E _).

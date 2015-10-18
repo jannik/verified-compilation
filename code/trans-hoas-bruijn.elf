@@ -38,9 +38,18 @@ trans-hb/num : trans-hb Sigma (bnum N) (num N).
 trans-hb/var : trans-hb Sigma (bvar I) E
                 <- trans-hb-var Sigma I E.
 
-trans-hb/lam : trans-hb Sigma (blam B) (lam E)
+trans-hb/suc : trans-hb Sigma (bsuc B1) (suc E1)
+                <- trans-hb Sigma B1 E1.
+
+trans-hb/case : trans-hb Sigma (bcase B1 B2 B3) (case E1 E2 E3)
+                 <- trans-hb Sigma B1 E1
+                 <- trans-hb Sigma B2 E2
+                 <- ({v : value} {x : exp}
+                       cor v x -> trans-hb (store/cons Sigma v) B3 (E3 x)).
+
+trans-hb/lam : trans-hb Sigma (blam B1) (lam E1)
                 <- ({v : value} {x : exp}
-                      cor v x -> trans-hb (store/cons Sigma v) B (E x)).
+                      cor v x -> trans-hb (store/cons Sigma v) B1 (E1 x)).
 
 trans-hb/app : trans-hb Sigma (bapp B1 B2) (app E1 E2)
                 <- trans-hb Sigma B1 E1

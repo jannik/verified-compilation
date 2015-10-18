@@ -3,6 +3,8 @@ sprog : type. %name sprog P.
 
 snum : nat -> sexp.
 svar : nat -> sexp.
+ssuc : sexp.
+scase : sprog -> sprog -> sexp.
 slam : sprog -> sexp.
 sapp : sexp.
 

@@ -29,4 +29,4 @@ trans-hz/app : trans-hz (app E1 E2) P
 %block bl-trans-hz : block {x : exp} {y : zexp} {dc : cor-hz x y}.
 
 %worlds (bl-trans-hz) (trans-hz _ _).
-%total E (trans-hz E _).
+% %total E (trans-hz E _).

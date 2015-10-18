@@ -13,6 +13,26 @@ completeness-hb'-var/there : completeness-hb'-var DE (trans-hb-var/there DTV) (b
 
 
 
+s-compat-cor : cor (vnum N1) (num N2) -> cor (vnum (s N1)) (num (s N2)) -> type.
+%mode s-compat-cor +DC -DC'.
+
+- : s-compat-cor cor/num cor/num.
+
+%worlds () (s-compat-cor _ _).
+%total DC (s-compat-cor DC _).
+
+
+
+s-inj-cor : cor (vnum (s N1)) (num (s N2)) -> cor (vnum N1) (num N2) -> type.
+%mode s-inj-cor +DC -DC'.
+
+- : s-inj-cor cor/num cor/num.
+
+%worlds () (s-inj-cor _ _).
+%total DC (s-inj-cor DC _).
+
+
+
 completeness-hb' : eval E C -> trans-hb Sigma B E -> beval Sigma B V -> cor V C -> type.
 %mode completeness-hb' +DE +DT -DB -DC.
 
@@ -21,7 +41,20 @@ completeness-hb'/num : completeness-hb' eval/num trans-hb/num beval/num cor/num.
 completeness-hb'/var : completeness-hb' DE (trans-hb/var DTV) (beval/var DBV) DC
                         <- completeness-hb'-var DE DTV DBV DC.
 
-completeness-hb'/lam : completeness-hb' eval/lam (trans-hb/lam DT) beval/lam (cor/fun (trans-hb/lam DT)).
+completeness-hb'/suc : completeness-hb' (eval/suc DE1) (trans-hb/suc DT1) (beval/suc DB1) DC
+                        <- completeness-hb' DE1 DT1 DB1 DC1
+                        <- s-compat-cor DC1 DC.
+
+completeness-hb'/case/z : completeness-hb' (eval/case/z DE2 DE1) (trans-hb/case DT3 DT2 DT1) (beval/case/z DB2 DB1) DC2
+                           <- completeness-hb' DE1 DT1 DB1 cor/num
+                           <- completeness-hb' DE2 DT2 DB2 DC2.
+
+completeness-hb'/case/s : completeness-hb' (eval/case/s DE3 DE1) (trans-hb/case DT3 DT2 DT1) (beval/case/s DB3 DB1) DC3
+                           <- completeness-hb' DE1 DT1 DB1 (DC1 : cor (vnum (s N1)) (num (s N2)))
+                           <- s-inj-cor DC1 (DC1' : cor (vnum N1) (num N2))
+                           <- completeness-hb' DE3 (DT3 (vnum N1) (num N2) DC1') DB3 DC3.
+
+completeness-hb'/lam : completeness-hb' eval/lam (trans-hb/lam DT1) beval/lam (cor/fun (trans-hb/lam DT1)).
 
 completeness-hb'/app : completeness-hb' (eval/app DE3 DE2 DE1) (trans-hb/app DT2 DT1) (beval/app DB3 DB2 DB1) DC3
                         <- completeness-hb' DE1 DT1 DB1 (cor/fun (trans-hb/lam [v] [x] [dc] DT v x dc))

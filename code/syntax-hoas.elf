@@ -2,6 +2,8 @@
 exp : type. %name exp E x.
 
 num : nat -> exp.
+suc : exp -> exp.
+case : exp -> exp -> (exp -> exp) -> exp.
 lam : (exp -> exp) -> exp.
 app : exp -> exp -> exp.
 

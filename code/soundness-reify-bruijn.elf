@@ -1,3 +1,9 @@
+id-value : value -> value -> type.
+
+id-value/refl : id-value V V.
+
+
+
 void-to-rexp : void -> rexp -> type.
 %mode void-to-rexp +V -R.
 

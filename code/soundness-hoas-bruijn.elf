@@ -21,7 +21,20 @@ soundness-hb'/num : soundness-hb' eval/num trans-hb/num beval/num cor/num.
 soundness-hb'/var : soundness-hb' DE (trans-hb/var DTV) (beval/var DBV) DC
                      <- soundness-hb'-var DE DTV DBV DC.
 
-soundness-hb'/lam : soundness-hb' eval/lam (trans-hb/lam DT) beval/lam (cor/fun (trans-hb/lam DT)).
+soundness-hb'/suc : soundness-hb' (eval/suc DE1) (trans-hb/suc DT1) (beval/suc DB1) DC
+                     <- soundness-hb' DE1 DT1 DB1 DC1
+                     <- s-compat-cor DC1 DC.
+
+soundness-hb'/case/z : soundness-hb' (eval/case/z DE2 DE1) (trans-hb/case DT3 DT2 DT1) (beval/case/z DB2 DB1) DC2
+                        <- soundness-hb' DE1 DT1 DB1 cor/num
+                        <- soundness-hb' DE2 DT2 DB2 DC2.
+
+soundness-hb'/case/s : soundness-hb' (eval/case/s DE3 DE1) (trans-hb/case DT3 DT2 DT1) (beval/case/s DB3 DB1) DC3
+                        <- soundness-hb' DE1 DT1 DB1 (DC1 : cor (vnum (s N1)) (num (s N2)))
+                        <- s-inj-cor DC1 (DC1' : cor (vnum N1) (num N2))
+                        <- soundness-hb' DE3 (DT3 (vnum N1) (num N2) DC1') DB3 DC3.
+
+soundness-hb'/lam : soundness-hb' eval/lam (trans-hb/lam DT1) beval/lam (cor/fun (trans-hb/lam DT1)).
 
 soundness-hb'/app : soundness-hb' (eval/app DE3 DE2 DE1) (trans-hb/app DT2 DT1) (beval/app DB3 DB2 DB1) DC3
                      <- soundness-hb' DE1 DT1 DB1 (cor/fun (trans-hb/lam [v] [x] [dc] DT v x dc))

@@ -49,6 +49,13 @@
 \newcommand{\getaddr}{\mathtt{getaddr \;}}
 \newcommand{\halt}{\mathtt{halt}}
 
+\newcommand{\hsuc}[1]{\mathtt{suc} \; #1}
+\newcommand{\hcase}[3]{\mathtt{case} \; #1 \; #2 \; #3}
+\newcommand{\bsuc}[1]{\mathtt{bsuc} \; #1}
+\newcommand{\bcase}[3]{\mathtt{bcase} \; #1 \; #2 \; #3}
+\newcommand{\ssuc}{\mathtt{ssuc}}
+\newcommand{\scase}[2]{\mathtt{scase} \; #1 \; #2}
+
 \newcommand{\judgement}[1]{\framebox{#1}}
 \newcommand{\ninf}[1]{\AxiomC{#1}}
 \newcommand{\uinf}[1]{\UnaryInfC{#1}}
@@ -141,6 +148,27 @@ $\blacksquare$
 \end{prooftree}
 
 \begin{prooftree}
+  \ninf{\ev{\e_1}{\n{n}}}
+	\leftl{\rule{E-Suc} :}
+  \uinf{\ev{\hsuc{\e_1}}{\n{\suc{n}}}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\ev{\e_1}{\n{\z}}}
+  \ninf{\ev{\e_2}{\c_2}}
+	\leftl{\rule{E-Case-z} :}
+  \binf{\ev{\hcase{\e_1}{\e_2}{\e_3}}{\c_2}}
+\end{prooftree}
+
+% will make sense with proper case syntax (that binds x)
+\begin{prooftree}
+  \ninf{\ev{\e_1}{\n{\suc{n}}}}
+  \ninf{\ev{\sub{\e_3}{\n{n}}{x}}{\c_3}}
+	\leftl{\rule{E-Case-s} :}
+  \binf{\ev{\hcase{\e_1}{\e_2}{\e_3}}{\c_3}}
+\end{prooftree}
+
+\begin{prooftree}
   \ninf{\ev{\e_1}{\lam{x}{\e_0}}}
   \ninf{\ev{\e_2}{\c_2}}
   \ninf{\ev{\sub{\e_0}{\c_2}{x}}{\c}}
@@ -180,6 +208,27 @@ Let $\sg$ and $\De$ denote ordered lists (with possible repetitions) as follows:
 \begin{prooftree}
   \leftl{\rule{B-Lam :}}
   \ax{\hev{\sg}{\lam{}{\b_1}}{\cl{\sg}{\b_1}}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\hev{\sg}{\b_1}{\n{n}}}
+	\leftl{\rule{B-Suc} :}
+  \uinf{\hev{\sg}{\bsuc{\b_1}}{\n{\suc{n}}}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\hev{\sg}{\b_1}{\n{\z}}}
+  \ninf{\hev{\sg}{\b_2}{\v_2}}
+	\leftl{\rule{B-Case-z} :}
+  \binf{\hev{\sg}{\bcase{\b_1}{\b_2}{\b_3}}{\v_2}}
+\end{prooftree}
+
+% will make sense with proper case syntax (that binds x)
+\begin{prooftree}
+  \ninf{\hev{\sg}{\b_1}{\n{\suc{n}}}}
+  \ninf{\hev{\sg, \n{n}}{b_3}{\v_3}}
+	\leftl{\rule{B-Case-s} :}
+  \binf{\hev{\sg}{\bcase{\b_1}{\b_2}{\b_3}}{\v_3}}
 \end{prooftree}
 
 \begin{prooftree}
@@ -223,6 +272,20 @@ Let $\sg$ and $\De$ denote ordered lists (with possible repetitions) as follows:
   \leftl{\rule{T-Lam} :}
   \uinf{\tra{\De}{\lam{x}{\e_1}}{\lam{}{\b_1}}}
 \end{prooftree}
+
+\begin{prooftree}
+  \ninf{\tra{\De}{\e_1}{\b_1}}
+	\leftl{\rule{T-Suc} :}
+  \uinf{\tra{\De}{\hsuc{\e_1}}{\bsuc{\b_1}}}
+\end{prooftree}
+
+% missing rule for case
+
+% trans-hb/case : trans-hb Sigma (bcase B1 B2 B3) (case E1 E2 E3)
+%                  <- trans-hb Sigma B1 E1
+%                  <- trans-hb Sigma B2 E2
+%                  <- ({v : value} {x : exp}
+%                        cor v x -> trans-hb (store/cons Sigma v) B3 (E3 x)).
 
 \begin{prooftree}
   \ninf{\tra{\De}{\e_1}{\b_1}}
@@ -685,6 +748,21 @@ The semantics of the stack language is given as follows:
 \end{prooftree}
 
 \begin{prooftree}
+  \leftl{\rule{S-Suc} :}
+  \ax{\sev{\Xi, \fr{\tau}{\ssuc, \ss}}{\Psi, \n{n}}{\Xi, \fr{\tau}{\ss}}{\Psi, \n{\suc{n}}}}
+\end{prooftree}
+
+\begin{prooftree}
+  \leftl{\rule{S-Case-z} :}
+  \ax{\sev{\Xi, \fr{\tau}{\scase{\ss_1}{\ss_2}, \ss}}{\Psi, \n{\z}}{\Xi, \fr{\tau}{\ss}, \fr{\tau}{\ss_1}}{\Psi}}
+\end{prooftree}
+
+\begin{prooftree}
+  \leftl{\rule{S-Case-s} :}
+  \ax{\sev{\Xi, \fr{\tau}{\scase{\ss_1}{\ss_2}, \ss}}{\Psi, \n{\suc{n}}}{\Xi, \fr{\tau}{\ss}, \fr{\tau, \n{n}}{\ss_2}}{\Psi}}
+\end{prooftree}
+
+\begin{prooftree}
   \leftl{\rule{S-App} :}
   \ax{\sev{\Xi, \fr{\tau}{\sapp, \ss}}{\Psi, \cl{\tau'}{\ss_1}, \w_2}{\Xi, \fr{\tau}{\ss}, \fr{\tau', \w_2}{\ss_1}}{\Psi}}
 \end{prooftree}
@@ -737,6 +815,20 @@ We translate from De Bruijn expressions to stack programs using the following ju
   \ninf{\tracc{\b_1}{\nil}{\ss_1}}
   \leftl{\rule{T-Lam} :}
   \uinf{\tracc{\lam{}{\b_1}}{\ss}{(\lam{}{\ss_1}), \ss}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\tracc{\b_1}{\ssuc, \ss}{\ss'}}
+  \leftl{\rule{T-Suc} :}
+  \uinf{\tracc{\bsuc{\b_1}}{\ss}{\ss'}}
+\end{prooftree}
+
+\begin{prooftree}
+	\ninf{\tracc{\b_3}{\nil}{\ss_3}}
+	\ninf{\tracc{\b_2}{\nil}{\ss_2}}
+  \ninf{\tracc{\b_1}{\scase{\ss_2}{\ss_3}, \ss}{\ss'}}
+  \leftl{\rule{T-Case} :}
+  \tinf{\tracc{\bcase{\b_1}{\b_2}{\b_3}}{\ss}{\ss'}}
 \end{prooftree}
 
 \begin{prooftree}

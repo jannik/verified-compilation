@@ -43,12 +43,26 @@ sstep/var : sstep (frames/cons Xi Tau (sprog/cons (svar I) P)) Psi
                   (frames/cons Xi Tau P) (wstack/cons Psi W)
              <- seval-var Tau I W.
 
+sstep/suc : sstep (frames/cons Xi Tau (sprog/cons ssuc P)) (wstack/cons Psi (wnum N))
+                  (frames/cons Xi Tau P) (wstack/cons Psi (wnum (s N))).
+
+sstep/case/z : sstep (frames/cons Xi Tau (sprog/cons (scase P1 P2) P))
+                     (wstack/cons Psi (wnum z))
+                     (frames/cons (frames/cons Xi Tau P) Tau P1)
+                     Psi.
+
+sstep/case/s : sstep (frames/cons Xi Tau (sprog/cons (scase P1 P2) P))
+                     (wstack/cons Psi (wnum (s N)))
+                     (frames/cons (frames/cons Xi Tau P) (sstore/cons Tau (wnum N)) P2)
+                     Psi.
+
 sstep/lam : sstep (frames/cons Xi Tau (sprog/cons (slam P') P)) Psi
                   (frames/cons Xi Tau P) (wstack/cons Psi (wclos Tau P')).
 
 sstep/app : sstep (frames/cons Xi Tau (sprog/cons sapp P))
                   (wstack/cons (wstack/cons Psi (wclos Tau' P')) W)
-                  (frames/cons (frames/cons Xi Tau P) (sstore/cons Tau' W) P') Psi.
+                  (frames/cons (frames/cons Xi Tau P) (sstore/cons Tau' W) P')
+                  Psi.
 
 sstep/ret : sstep (frames/cons Xi Tau sprog/nil) Psi
                   Xi Psi.

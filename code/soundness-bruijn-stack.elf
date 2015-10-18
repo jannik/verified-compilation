@@ -10,8 +10,32 @@ eq-svalue/refl : eq-svalue W W.
 
 
 
+invert-ssteps-suc : ssteps (frames/cons Xi Tau (sprog/cons ssuc P)) (wstack/cons Psi W) frames/nil Psi'
+                 -> eq-svalue W (wnum N)
+                 -> ssteps (frames/cons Xi Tau P) (wstack/cons Psi (wnum (s N))) frames/nil Psi'
+                 -> type.
+%mode invert-ssteps-suc +DP -DQ1 -DP'.
+
+invert-ssteps-suc/ : invert-ssteps-suc (ssteps/more DP sstep/suc) eq-svalue/refl DP.
+
+%worlds () (invert-ssteps-suc _ _ _).
+%reduces DP' < DP (invert-ssteps-suc DP _ DP').
+%total DP (invert-ssteps-suc DP _ _).
+
+
+
+invert-cor-bs-num : cor-bs V W -> eq-svalue W (wnum N) -> eq-value V (vnum N) -> type.
+%mode invert-cor-bs-num +DC +DQW -DQV.
+
+invert-cor-bs-num/ : invert-cor-bs-num cor-bs/num eq-svalue/refl eq-value/refl.
+
+%worlds () (invert-cor-bs-num _ _ _).
+%total DC (invert-cor-bs-num DC _ _).
+
+
+
 invert-cor-bs-fun : cor-bs V W -> eq-svalue W (wclos Tau P) -> eq-value V (vclos Sigma B) -> trans-bs B P -> comp-bs Sigma Tau -> type.
-%mode invert-cor-bs-fun +DC +DQW -DQV -DD -DT.
+%mode invert-cor-bs-fun +DC +DQW -DQV -DT -DD.
 
 invert-cor-bs-fun/ : invert-cor-bs-fun (cor-bs/fun DT DD) eq-svalue/refl eq-value/refl DT DD.
 
@@ -55,8 +79,8 @@ soundness-bs-var/there : soundness-bs-var (seval-var/there DSV) (comp-bs/cons DC
 
 
 
-soundness-bs' : ssteps (frames/cons Xi Tau P1-P2) Psi frames/nil (wstack/cons wstack/nil W')-> trans-bs-acc B P2 P1-P2
-             -> comp-bs Sigma Tau -> beval Sigma B V -> cor-bs V W -> ssteps (frames/cons Xi Tau P2) (wstack/cons Psi W) frames/nil (wstack/cons wstack/nil W') -> type.
+soundness-bs' : ssteps (frames/cons Xi Tau P1-P2) Psi frames/nil (wstack/cons wstack/nil W') -> trans-bs-acc B P2 P1-P2 -> comp-bs Sigma Tau
+             -> beval Sigma B V -> cor-bs V W -> ssteps (frames/cons Xi Tau P2) (wstack/cons Psi W) frames/nil (wstack/cons wstack/nil W') -> type.
 %mode soundness-bs' +DP +DT +DD -DB -DC -DP'.
 
 soundness-bs'/num : soundness-bs' (ssteps/more DP sstep/num) trans-bs-acc/num DD beval/num cor-bs/num DP.
@@ -64,7 +88,22 @@ soundness-bs'/num : soundness-bs' (ssteps/more DP sstep/num) trans-bs-acc/num DD
 soundness-bs'/var : soundness-bs' (ssteps/more DP (sstep/var DSV)) trans-bs-acc/var DD (beval/var DBV) DC DP
                      <- soundness-bs-var DSV DD DBV DC.
 
-soundness-bs'/lam : soundness-bs' (ssteps/more DP sstep/lam) (trans-bs-acc/lam DT) DD beval/lam (cor-bs/fun DT DD) DP.
+soundness-bs'/suc : soundness-bs' DP (trans-bs-acc/suc DT1) DD (beval/suc DB1') cor-bs/num DP1'
+                     <- soundness-bs' DP DT1 DD DB1 DC1 DP1
+                     <- invert-ssteps-suc DP1 DQW DP1'
+                     <- invert-cor-bs-num DC1 DQW DQV
+                     <- coerce-beval DB1 DQV DB1'.
+
+soundness-bs'/case/z : soundness-bs' DP (trans-bs-acc/case DT1 DT2 DT3) DD (beval/case/z DB2 DB1) DC2 DP2'
+                        <- soundness-bs' DP DT1 DD DB1 DC1 (ssteps/more DP1' sstep/case/z)
+                        <- soundness-bs' DP1' DT2 DD DB2 DC2 (ssteps/more DP2' sstep/ret).
+
+soundness-bs'/case/s : soundness-bs' DP (trans-bs-acc/case DT1 DT2 DT3) DD (beval/case/s DB3 DB1) DC3 DP3'
+                        <- soundness-bs' DP DT1 DD DB1 DC1 (ssteps/more DP1' sstep/case/s)
+                        <- s-inj-cor-bs DC1 DC1'
+                        <- soundness-bs' DP1' DT3 (comp-bs/cons DC1' DD) DB3 DC3 (ssteps/more DP3' sstep/ret).
+
+soundness-bs'/lam : soundness-bs' (ssteps/more DP sstep/lam) (trans-bs-acc/lam DT1) DD beval/lam (cor-bs/fun DT1 DD) DP.
 
 soundness-bs'/app : soundness-bs' DP (trans-bs-acc/app DT1 DT2) DD (beval/app DB3 DB2 DB1') DC DP4
                      <- soundness-bs' DP DT1 DD DB1 DC1 DP1
@@ -76,7 +115,7 @@ soundness-bs'/app : soundness-bs' DP (trans-bs-acc/app DT1 DT2) DD (beval/app DB
 
 %worlds () (soundness-bs' _ _ _ _ _ _).
 %reduces DP' < DP (soundness-bs' DP _ _ _ _ DP').
-%total {DP DT} (soundness-bs' DP DT _ _ _ _).
+% total {DP DT} (soundness-bs' DP DT _ _ _ _).
 
 
 
@@ -110,4 +149,4 @@ soundness-bs/ : soundness-bs (seval/ DS*) DT DB'
                  <- coerce-beval-num DC' DB DB'.
 
 %worlds () (soundness-bs _ _ _).
-%total DP (soundness-bs DP _ _).
+% total DP (soundness-bs DP _ _).

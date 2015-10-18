@@ -46,6 +46,26 @@ cat-ssteps/more : cat-ssteps (ssteps/more DP1 DS1) DP2 (ssteps/more DP3 DS1)
 
 
 
+s-compat-cor-bs : cor-bs (vnum N1) (wnum N2) -> cor-bs (vnum (s N1)) (wnum (s N2)) -> type.
+%mode s-compat-cor-bs +DC -DC'.
+
+- : s-compat-cor-bs cor-bs/num cor-bs/num.
+
+%worlds () (s-compat-cor-bs _ _).
+%total DC (s-compat-cor-bs DC _).
+
+
+
+s-inj-cor-bs : cor-bs (vnum (s N1)) (wnum (s N2)) -> cor-bs (vnum N1) (wnum N2) -> type.
+%mode s-inj-cor-bs +DC -DC'.
+
+- : s-inj-cor-bs cor-bs/num cor-bs/num.
+
+%worlds () (s-inj-cor-bs _ _).
+%total DC (s-inj-cor-bs DC _).
+
+
+
 completeness-bs' : trans-bs-acc B P2 P -> beval Sigma B V -> comp-bs Sigma Tau
                 -> ssteps (frames/cons Xi Tau P) Psi (frames/cons Xi Tau P2) (wstack/cons Psi W)
                 -> cor-bs V W -> type.
@@ -61,8 +81,28 @@ completeness-bs'/var : completeness-bs' trans-bs-acc/var (beval/var DBV) DD
                                         (ssteps/single (sstep/var DSV)) DC
                         <- completeness-bs-var DBV DD DSV DC.
 
-completeness-bs'/lam : completeness-bs' (trans-bs-acc/lam DT) beval/lam DD
-                                        (ssteps/single sstep/lam) (cor-bs/fun DT DD).
+completeness-bs'/suc : completeness-bs' (trans-bs-acc/suc DT1) (beval/suc DB1) DD DP DC
+                        <- completeness-bs' DT1 DB1 DD DP1 DC1
+                        <- cat-ssteps DP1 (ssteps/single sstep/suc) DP
+                        <- s-compat-cor-bs DC1 DC.
+
+completeness-bs'/case/z : completeness-bs' (trans-bs-acc/case DT1 DT2 DT3) (beval/case/z DB2 DB1) DD
+                                           DP DC2
+                           <- completeness-bs' DT1 DB1 DD DP1 cor-bs/num
+                           <- completeness-bs' DT2 DB2 DD DP2 DC2
+                           <- cat-ssteps DP1 (ssteps/more DP2 sstep/case/z) DP12
+                           <- cat-ssteps DP12 (ssteps/single sstep/ret) DP.
+
+completeness-bs'/case/s : completeness-bs' (trans-bs-acc/case DT1 DT2 DT3) (beval/case/s DB3 DB1) DD
+                                           DP DC3
+                           <- completeness-bs' DT1 DB1 DD DP1 DC1
+                           <- s-inj-cor-bs DC1 DC1'
+                           <- completeness-bs' DT3 DB3 (comp-bs/cons DC1' DD) DP3 DC3
+                           <- cat-ssteps DP1 (ssteps/more DP3 sstep/case/s) DP13
+                           <- cat-ssteps DP13 (ssteps/single sstep/ret) DP.
+
+completeness-bs'/lam : completeness-bs' (trans-bs-acc/lam DT1) beval/lam DD
+                                        (ssteps/single sstep/lam) (cor-bs/fun DT1 DD).
 
 completeness-bs'/app : completeness-bs' (trans-bs-acc/app DT1 DT2) (beval/app DB3 DB2 DB1) DD DP DC
                         <- completeness-bs' DT1 DB1 DD DP1 (cor-bs/fun DT0 DD0)
@@ -70,7 +110,7 @@ completeness-bs'/app : completeness-bs' (trans-bs-acc/app DT1 DT2) (beval/app DB
                         <- completeness-bs' DT0 DB3 (comp-bs/cons DC2 DD0) DP3 DC
                         <- cat-ssteps DP1 DP2 DP12
                         <- cat-ssteps DP12 (ssteps/more DP3 sstep/app) DP123
-                        <- cat-ssteps DP123 (ssteps/more ssteps/zero sstep/ret) DP.
+                        <- cat-ssteps DP123 (ssteps/single sstep/ret) DP.
 
 %worlds () (completeness-bs' _ _ _ _ _).
 %total DB (completeness-bs' _ DB _ _ _).

@@ -3,5 +3,7 @@ bexp : type. %name bexp B.
 
 bnum : nat -> bexp.
 bvar : nat -> bexp.
+bsuc : bexp -> bexp.
+bcase : bexp -> bexp -> bexp -> bexp.
 blam : bexp -> bexp.
 bapp : bexp -> bexp -> bexp.

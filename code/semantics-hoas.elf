@@ -2,7 +2,18 @@ eval : exp -> exp -> type.
 
 eval/num : eval (num N) (num N).
 
-eval/lam : eval (lam E) (lam E).
+eval/suc : eval (suc E1) (num (s N))
+            <- eval E1 (num N).
+
+eval/case/z : eval (case E1 E2 E3) C2
+               <- eval E1 (num z)
+               <- eval E2 C2.
+
+eval/case/s : eval (case E1 E2 E3) C3
+               <- eval E1 (num (s N))
+               <- eval (E3 (num N)) C3.
+
+eval/lam : eval (lam E1) (lam E1).
 
 eval/app : eval (app E1 E2) C
             <- eval E1 (lam E0)
