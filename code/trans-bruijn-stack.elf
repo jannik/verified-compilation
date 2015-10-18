@@ -7,6 +7,13 @@ trans-bs-acc/num : trans-bs-acc (bnum N) P (sprog/cons (snum N) P).
 
 trans-bs-acc/var : trans-bs-acc (bvar I) P (sprog/cons (svar I) P).
 
+trans-bs-acc/lam : trans-bs-acc (blam B1) P (sprog/cons (slam P1) P)
+                    <- trans-bs B1 P1.
+
+trans-bs-acc/app : trans-bs-acc (bapp B1 B2) P P'
+                    <- trans-bs-acc B2 (sprog/cons sapp P) P''
+                    <- trans-bs-acc B1 P'' P'.
+
 trans-bs-acc/suc : trans-bs-acc (bsuc B1) P P'
                     <- trans-bs-acc B1 (sprog/cons ssuc P) P'.
 
@@ -14,13 +21,6 @@ trans-bs-acc/case : trans-bs-acc (bcase B1 B2 B3) P P'
                      <- trans-bs B3 P3
                      <- trans-bs B2 P2
                      <- trans-bs-acc B1 (sprog/cons (scase P2 P3) P) P'.
-
-trans-bs-acc/lam : trans-bs-acc (blam B1) P (sprog/cons (slam P1) P)
-                    <- trans-bs B1 P1.
-
-trans-bs-acc/app : trans-bs-acc (bapp B1 B2) P P'
-                    <- trans-bs-acc B2 (sprog/cons sapp P) P''
-                    <- trans-bs-acc B1 P'' P'.
 
 %worlds () (trans-bs-acc _ _ _).
 %total B (trans-bs-acc B _ _).

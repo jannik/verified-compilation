@@ -15,6 +15,13 @@ closed/num : closed Sigma (num N).
 closed/var : closed Sigma E
               <- closed-var Sigma E.
 
+closed/lam : closed Sigma (lam E1)
+              <- {v} {x} cor v x -> closed (store/cons Sigma v) (E1 x).
+
+closed/app : closed Sigma (app E1 E2)
+              <- closed Sigma E1
+              <- closed Sigma E2.
+
 closed/suc : closed Sigma (suc E1)
               <- closed Sigma E1.
 
@@ -22,13 +29,6 @@ closed/case : closed Sigma (case E1 E2 E3)
                <- closed Sigma E1
                <- closed Sigma E2
                <- {v} {x} cor v x -> closed (store/cons Sigma v) (E3 x).
-
-closed/lam : closed Sigma (lam E1)
-              <- {v} {x} cor v x -> closed (store/cons Sigma v) (E1 x).
-
-closed/app : closed Sigma (app E1 E2)
-              <- closed Sigma E1
-              <- closed Sigma E2.
 
 
 
@@ -55,6 +55,13 @@ closed-trans-hb-exists/num : closed-trans-hb-exists closed/num trans-hb/num.
 closed-trans-hb-exists/var : closed-trans-hb-exists (closed/var DCv) (trans-hb/var DTv)
                               <- closed-trans-hb-var-exists DCv DTv.
 
+closed-trans-hb-exists/lam : closed-trans-hb-exists (closed/lam DC1) (trans-hb/lam DT1)
+                              <- {v} {x} {dc} closed-trans-hb-exists (DC1 v x dc) (DT1 v x dc).
+
+closed-trans-hb-exists/app : closed-trans-hb-exists (closed/app DC2 DC1) (trans-hb/app DT2 DT1)
+                              <- closed-trans-hb-exists DC1 DT1
+                              <- closed-trans-hb-exists DC2 DT2.
+
 closed-trans-hb-exists/suc : closed-trans-hb-exists (closed/suc DC1) (trans-hb/suc DT1)
                               <- closed-trans-hb-exists DC1 DT1.
 
@@ -62,13 +69,6 @@ closed-trans-hb-exists/case : closed-trans-hb-exists (closed/case DC3 DC2 DC1) (
                                <- closed-trans-hb-exists DC1 DT1
                                <- closed-trans-hb-exists DC2 DT2
                                <- {v} {x} {dc} closed-trans-hb-exists (DC3 v x dc) (DT3 v x dc).
-
-closed-trans-hb-exists/lam : closed-trans-hb-exists (closed/lam DC1) (trans-hb/lam DT1)
-                              <- {v} {x} {dc} closed-trans-hb-exists (DC1 v x dc) (DT1 v x dc).
-
-closed-trans-hb-exists/app : closed-trans-hb-exists (closed/app DC2 DC1) (trans-hb/app DT2 DT1)
-                              <- closed-trans-hb-exists DC1 DT1
-                              <- closed-trans-hb-exists DC2 DT2.
 
 %worlds (bl-trans-hb) (closed-trans-hb-exists _ _).
 %total DC (closed-trans-hb-exists DC _).
@@ -110,6 +110,15 @@ closed-pseudo-exists/num : closed-pseudo-exists Sigma (num N) closed/num.
 closed-pseudo-exists/var : closed-pseudo-exists Sigma E (closed/var DCv)
                             <- closed-var-pseudo-exists Sigma E DCv.
 
+closed-pseudo-exists/lam : closed-pseudo-exists Sigma (lam E1) (closed/lam DC1)
+                            <- {v} {x} {dc}
+                                 cor-pseudo-exists v x dc ->
+                                 closed-pseudo-exists (store/cons Sigma v) (E1 x) (DC1 v x dc).
+
+closed-pseudo-exists/app : closed-pseudo-exists Sigma (app E1 E2) (closed/app DC2 DC1)
+                            <- closed-pseudo-exists Sigma E1 DC1
+                            <- closed-pseudo-exists Sigma E2 DC2.
+
 closed-pseudo-exists/suc : closed-pseudo-exists Sigma (suc E1) (closed/suc DC1)
                             <- closed-pseudo-exists Sigma E1 DC1.
 
@@ -119,15 +128,6 @@ closed-pseudo-exists/case : closed-pseudo-exists Sigma (case E1 E2 E3) (closed/c
                              <- {v} {x} {dc}
                                   cor-pseudo-exists v x dc ->
                                   closed-pseudo-exists (store/cons Sigma v) (E3 x) (DC3 v x dc).
-
-closed-pseudo-exists/lam : closed-pseudo-exists Sigma (lam E1) (closed/lam DC1)
-                            <- {v} {x} {dc}
-                                 cor-pseudo-exists v x dc ->
-                                 closed-pseudo-exists (store/cons Sigma v) (E1 x) (DC1 v x dc).
-
-closed-pseudo-exists/app : closed-pseudo-exists Sigma (app E1 E2) (closed/app DC2 DC1)
-                            <- closed-pseudo-exists Sigma E1 DC1
-                            <- closed-pseudo-exists Sigma E2 DC2.
 
 %worlds (bl-closed-exists) (closed-pseudo-exists _ _ _).
 %covers closed-pseudo-exists +Sigma +E -DC.

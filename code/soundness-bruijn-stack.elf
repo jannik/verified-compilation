@@ -88,6 +88,16 @@ soundness-bs'/num : soundness-bs' (ssteps/more DP sstep/num) trans-bs-acc/num DD
 soundness-bs'/var : soundness-bs' (ssteps/more DP (sstep/var DSV)) trans-bs-acc/var DD (beval/var DBV) DC DP
                      <- soundness-bs-var DSV DD DBV DC.
 
+soundness-bs'/lam : soundness-bs' (ssteps/more DP sstep/lam) (trans-bs-acc/lam DT1) DD beval/lam (cor-bs/fun DT1 DD) DP.
+
+soundness-bs'/app : soundness-bs' DP (trans-bs-acc/app DT1 DT2) DD (beval/app DB3 DB2 DB1') DC DP4
+                     <- soundness-bs' DP DT1 DD DB1 DC1 DP1
+                     <- soundness-bs' DP1 DT2 DD DB2 DC2 DP2
+                     <- invert-ssteps-app DP2 DQW DP3
+                     <- invert-cor-bs-fun DC1 DQW DQV DT3 DD'
+                     <- coerce-beval DB1 DQV DB1'
+                     <- soundness-bs' DP3 DT3 (comp-bs/cons DC2 DD') DB3 DC (ssteps/more DP4 sstep/ret).
+
 soundness-bs'/suc : soundness-bs' DP (trans-bs-acc/suc DT1) DD (beval/suc DB1') cor-bs/num DP1'
                      <- soundness-bs' DP DT1 DD DB1 DC1 DP1
                      <- invert-ssteps-suc DP1 DQW DP1'
@@ -102,16 +112,6 @@ soundness-bs'/case/s : soundness-bs' DP (trans-bs-acc/case DT1 DT2 DT3) DD (beva
                         <- soundness-bs' DP DT1 DD DB1 DC1 (ssteps/more DP1' sstep/case/s)
                         <- s-inj-cor-bs DC1 DC1'
                         <- soundness-bs' DP1' DT3 (comp-bs/cons DC1' DD) DB3 DC3 (ssteps/more DP3' sstep/ret).
-
-soundness-bs'/lam : soundness-bs' (ssteps/more DP sstep/lam) (trans-bs-acc/lam DT1) DD beval/lam (cor-bs/fun DT1 DD) DP.
-
-soundness-bs'/app : soundness-bs' DP (trans-bs-acc/app DT1 DT2) DD (beval/app DB3 DB2 DB1') DC DP4
-                     <- soundness-bs' DP DT1 DD DB1 DC1 DP1
-                     <- soundness-bs' DP1 DT2 DD DB2 DC2 DP2
-                     <- invert-ssteps-app DP2 DQW DP3
-                     <- invert-cor-bs-fun DC1 DQW DQV DT3 DD'
-                     <- coerce-beval DB1 DQV DB1'
-                     <- soundness-bs' DP3 DT3 (comp-bs/cons DC2 DD') DB3 DC (ssteps/more DP4 sstep/ret).
 
 %worlds () (soundness-bs' _ _ _ _ _ _).
 %reduces DP' < DP (soundness-bs' DP _ _ _ _ DP').
