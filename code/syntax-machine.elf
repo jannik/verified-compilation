@@ -1,0 +1,24 @@
+mvalue : type. %name mvalue R.
+
+%abbrev addr = nat.
+
+rnum : nat -> mvalue.
+raddr : addr -> mvalue.
+
+inst : type. %name inst M.
+
+mload : nat -> inst.
+mstore : nat -> inst.
+malloc : nat -> inst.
+mcpeek : nat -> inst.
+mcpop : inst.
+mvpush : mvalue -> inst.
+mvdup : inst.
+mtransfer : inst.
+mjump : inst.
+mgetaddr : nat -> inst.
+
+mprog : type. %name mprog Q.
+
+end : mprog.
+, : inst -> mprog -> mprog. %infix right 5 ,.

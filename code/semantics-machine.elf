@@ -1,0 +1,102 @@
+mstack : type.
+
+mstack/nil : mstack.
+; : mstack -> mvalue -> mstack. %infix left 5 ;.
+
+%abbrev mheap = mstack.
+%abbrev pc = nat.
+
+fetch : mprog -> pc -> inst -> type.
+%mode fetch +Q +K -M.
+
+fetch/here : fetch (M , Q) z M.
+
+fetch/there : fetch (M' , Q) (s K) M
+               <- fetch Q K M.
+
+
+
+peek : mstack -> nat -> mvalue -> type.
+%mode peek +Gamma +O -R.
+
+peek/here : peek (Gamma ; R) z R.
+
+peek/there : peek (Gamma ; R') (s O) R
+              <- peek Gamma O R.
+
+
+
+heap-fetch : mheap -> addr -> mvalue -> type = peek.
+%mode heap-fetch +H +A -R.
+
+
+
+heap-update : mheap -> addr -> mvalue -> mheap -> type.
+%mode heap-update +H +A +R -H'.
+
+heap-update/here : heap-update (H ; R') z R (H ; R).
+
+heap-update/there : heap-update (H ; R') (s A) R (H' ; R')
+                     <- heap-update H A R H'.
+
+
+
+raw-memory : nat -> mheap -> type.
+%mode raw-memory +O -H.
+
+raw-memory/z : raw-memory z mstack/nil.
+
+raw-memory/s : raw-memory (s O) (H ; rnum z)
+                <- raw-memory O H.
+
+
+
+heap-alloc : mheap -> nat -> mheap -> addr -> type.
+%mode heap-alloc +H +O -H' -A.
+
+heap-alloc/nil : heap-alloc mstack/nil O H' z
+                  <- raw-memory O H'.
+
+heap-alloc/cons : heap-alloc (H ; R) O (H' ; R) (s A)
+                   <- heap-alloc H O H' A.
+
+
+
+mstep : mprog -> mheap -> mstack -> pc -> mstack -> mheap -> mstack -> pc -> mstack -> type.
+%mode mstep +Q +H +Gamma +K +Phi -H' -Gamma' -K' -Phi'.
+
+mstep/load : mstep Q H Gamma K (Phi ; raddr A) H Gamma (s K) (Phi ; R)
+              <- fetch Q K (mload O)
+              <- add A O A'
+              <- heap-fetch H A' R.
+
+mstep/store : mstep Q H Gamma K (Phi ; raddr A ; R) H' Gamma (s K) (Phi ; raddr A)
+               <- fetch Q K (mstore O)
+               <- heap-update H A R H'.
+
+mstep/alloc : mstep Q H Gamma K Phi H' Gamma (s K) (Phi ; raddr A)
+               <- fetch Q K (malloc O)
+               <- heap-alloc H O H' A.
+
+mstep/cpeek : mstep Q H Gamma K Phi H Gamma (s K) (Phi ; R)
+               <- fetch Q K (mcpeek O)
+               <- peek Gamma O R.
+
+mstep/cpop : mstep Q H (Gamma ; R) K Phi H Gamma (s K) Phi
+              <- fetch Q K mcpop.
+
+mstep/vpush : mstep Q H Gamma K Phi H Gamma (s K) (Phi ; R)
+               <- fetch Q K (mvpush R).
+
+mstep/vdup : mstep Q H Gamma K (Phi ; R) H Gamma (s K) (Phi ; R ; R)
+              <- fetch Q K mvdup.
+
+mstep/transfer : mstep Q H Gamma K (Phi ; R) H (Gamma ; R) (s K) Phi
+                  <- fetch Q K mtransfer.
+
+mstep/jump : mstep Q H (Gamma ; raddr K') K Phi H Gamma K' Phi
+              <- fetch Q K mjump.
+
+mstep/getaddr : mstep Q H Gamma K Phi H Gamma (s K) (Phi ; raddr K')
+                 <- fetch Q K (mgetaddr O)
+                 <- add K O K'.

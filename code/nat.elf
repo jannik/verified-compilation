@@ -5,3 +5,16 @@ z : nat.
 s : nat -> nat.
 
 %worlds () (nat).
+
+
+
+add : nat -> nat -> nat -> type.
+%mode add +N1 +N2 -N.
+
+add/z : add z N N.
+
+add/s : add (s N1) N2 (s N)
+         <- add N1 N2 N.
+
+%worlds () (add _ _ _).
+%total N (add N _ _).
