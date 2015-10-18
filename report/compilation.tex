@@ -132,10 +132,10 @@ $\blacksquare$
 
 \subsection*{Syntax}
 
-Let $n$ denote natural numbers and $x$ variable identifiers. We then define source language expressions $\e$ and canonical forms $\c$ as follows:
+Let $n$ denote natural numbers and $x$ variable identifiers. We then define source language expressions $\e$:
 \begin{align*}
-  \e &\defi \n{n} \alt x \alt \lam{x}{\e_1} \alt \e_1 \app \e_2 \alt \hsuc{\e_1} \alt (\hcase{\e_1}{\e_2}{\e_3}) \\
-  \c &\defi \n{n} \alt \lam{x}{\e} \quad (\text{with} \; FV(\e) \subseteq \set{x}) \\
+  \e &\defi \n{n} \alt x \alt \lam{x}{\e_1} \alt \e_1 \app \e_2 \alt \hsuc{\e_1} \alt (\hcase{\e_1}{\e_2}{\e_3})
+  % \c &\defi \n{n} \alt \lam{x}{\e} \quad (\text{with} \; FV(\e) \subseteq \set{x}) \\
 \end{align*}
 
 \subsection*{Semantics}
@@ -144,7 +144,7 @@ The semantics of the source language is based on substitution.
 
 \vspace{0.5cm}
 
-\judgement{\ev{\e}{\c}} ($\e$ closed)
+\judgement{\ev{\e}{\e'}} ($\e$ closed)
 
 \begin{prooftree}
   \leftl{\rule{E-Num} :}
@@ -158,10 +158,10 @@ The semantics of the source language is based on substitution.
 
 \begin{prooftree}
   \ninf{\ev{\e_1}{\lam{x}{\e_0}}}
-  \ninf{\ev{\e_2}{\c_2}}
-  \ninf{\ev{\sub{\e_0}{\c_2}{x}}{\c}}
+  \ninf{\ev{\e_2}{\e_2'}}
+  \ninf{\ev{\sub{\e_0}{\e_2'}{x}}{\e'}}
 	\leftl{\rule{E-App} :}
-  \tinf{\ev{\e_1 \app \e_2}{\c}}
+  \tinf{\ev{\e_1 \app \e_2}{\e'}}
 \end{prooftree}
 
 \begin{prooftree}
@@ -172,17 +172,17 @@ The semantics of the source language is based on substitution.
 
 \begin{prooftree}
   \ninf{\ev{\e_1}{\n{0}}}
-  \ninf{\ev{\e_2}{\c_2}}
+  \ninf{\ev{\e_2}{\e_2'}}
 	\leftl{\rule{E-Case-z} :}
-  \binf{\ev{\hcase{\e_1}{\e_2}{\e_3}}{\c_2}}
+  \binf{\ev{\hcase{\e_1}{\e_2}{\e_3}}{\e_2'}}
 \end{prooftree}
 
 \begin{prooftree}
   \ninf{\ev{\e_1}{\n{n}}}
-  \ninf{\ev{\sub{\e_3}{\n{n-1}}{x}}{\c_3}}
+  \ninf{\ev{\sub{\e_3}{\n{n-1}}{x}}{\e_3'}}
 	\leftl{\rule{E-Case-s} :}
 	\rightl{$(n > 0)$}
-  \binf{\ev{\hcase{\e_1}{\e_2}{\e_3}}{\c_3}}
+  \binf{\ev{\hcase{\e_1}{\e_2}{\e_3}}{\e_3'}}
 \end{prooftree}
 
 \section*{De Bruijn Language}
@@ -312,33 +312,31 @@ We define De Bruin values $\v$ as follows, and environments $\sg$ are then order
   \uinf{\vdots}
   \noLine
 	\uinf{\tra{\sg, \v}{\b_3}{\e_3}}
-  \leftl{\rule{T-Lam} :}
+  \leftl{\rule{T-Case} :}
   \tinf{\tra{\sg}{\bcase{b_1}{b_2}{b_3}}{\hcase{e_1}{e_2}{e_3}}}
 \end{prooftree}
 
 % explain the need for hypothetical and parametric judgements
 
-\judgement{\trav{\sg}{i}{\c}}
+\judgement{\trav{\sg}{i}{\e}}
 
 \begin{prooftree}
-	\ninf{\cor{\v}{\c}}
+	\ninf{\cor{\v}{\e}}
   \leftl{\rule{Tv-Here} :}
-  \uinf{\trav{\sg, \v}{\z}{\c}}
+  \uinf{\trav{\sg, \v}{\z}{\e}}
 \end{prooftree}
 
 \begin{prooftree}
-  \ninf{\trav{\sg}{i}{\c}}
+  \ninf{\trav{\sg}{i}{\e}}
   \leftl{\rule{Tv-There} :}
-  \uinf{\trav{\sg, \v'}{\suc{i}}{\c}}
+  \uinf{\trav{\sg, \v'}{\suc{i}}{\e}}
 \end{prooftree}
 
 % should really be 'e' rather than 'c' (also in hoas semantics) to support the hypothetical judgements
 
-We define a correspondence (or translation) between values and canonical forms:
+% We define a correspondence between values and expressions in canonical form:
 
-\vspace{0.5cm}
-
-\judgement{\cor{\v}{\c}}
+\judgement{\cor{\v}{\e}}
 
 \begin{prooftree}
   \leftl{\rule{C-Num} :}
@@ -358,6 +356,8 @@ We define a correspondence (or translation) between values and canonical forms:
 \end{theorem}
 
 To prove this, we first generalise to the following lemmas.
+
+\ldots
 
 %\begin{lemma}[Evaluation of Values]
 %\label{lem:value-eval}
@@ -701,7 +701,7 @@ We now develop the next translation target, a stack-based language.
 
 \subsection*{Syntax}
 \begin{align*}
-  \s &\defi \n{n} \alt i \alt \lam{}{\ss} \alt \sapp \\
+  \s &\defi \n{n} \alt i \alt \lam{}{\ss} \alt \sapp \alt \ssuc \alt \scase{\ss_1}{\ss_2} \\
   \ss &\defi \nil \alt \s, \ss
 \end{align*}
 (Note that $i$ was defined previously.)
@@ -755,6 +755,11 @@ The semantics of the stack language is given as follows:
 \end{prooftree}
 
 \begin{prooftree}
+  \leftl{\rule{S-App} :}
+  \ax{\sev{\Xi, \fr{\tau}{\sapp, \ss}}{\Psi, \cl{\tau'}{\ss_1}, \w_2}{\Xi, \fr{\tau}{\ss}, \fr{\tau', \w_2}{\ss_1}}{\Psi}}
+\end{prooftree}
+
+\begin{prooftree}
   \leftl{\rule{S-Suc} :}
   \ax{\sev{\Xi, \fr{\tau}{\ssuc, \ss}}{\Psi, \n{n}}{\Xi, \fr{\tau}{\ss}}{\Psi, \n{\suc{n}}}}
 \end{prooftree}
@@ -767,11 +772,6 @@ The semantics of the stack language is given as follows:
 \begin{prooftree}
   \leftl{\rule{S-Case-s} :}
   \ax{\sev{\Xi, \fr{\tau}{\scase{\ss_1}{\ss_2}, \ss}}{\Psi, \n{\suc{n}}}{\Xi, \fr{\tau}{\ss}, \fr{\tau, \n{n}}{\ss_2}}{\Psi}}
-\end{prooftree}
-
-\begin{prooftree}
-  \leftl{\rule{S-App} :}
-  \ax{\sev{\Xi, \fr{\tau}{\sapp, \ss}}{\Psi, \cl{\tau'}{\ss_1}, \w_2}{\Xi, \fr{\tau}{\ss}, \fr{\tau', \w_2}{\ss_1}}{\Psi}}
 \end{prooftree}
 
 \begin{prooftree}
@@ -825,6 +825,13 @@ We translate from De Bruijn expressions to stack programs using the following ju
 \end{prooftree}
 
 \begin{prooftree}
+  \ninf{\tracc{\b_2}{\sapp, \ss}{\ss''}}
+  \ninf{\tracc{\b_1}{\ss''}{\ss'}}
+  \leftl{\rule{T-App} :}
+  \binf{\tracc{\b_1 \app \b_2}{\ss}{\ss'}}
+\end{prooftree}
+
+\begin{prooftree}
   \ninf{\tracc{\b_1}{\ssuc, \ss}{\ss'}}
   \leftl{\rule{T-Suc} :}
   \uinf{\tracc{\bsuc{\b_1}}{\ss}{\ss'}}
@@ -838,17 +845,10 @@ We translate from De Bruijn expressions to stack programs using the following ju
   \tinf{\tracc{\bcase{\b_1}{\b_2}{\b_3}}{\ss}{\ss'}}
 \end{prooftree}
 
-\begin{prooftree}
-  \ninf{\tracc{\b_2}{\sapp, \ss}{\ss''}}
-  \ninf{\tracc{\b_1}{\ss''}{\ss'}}
-  \leftl{\rule{T-App} :}
-  \binf{\tracc{\b_1 \app \b_2}{\ss}{\ss'}}
-\end{prooftree}
-
 \subsection*{Equivalence}
 
-\begin{theorem}
-If \tr{\b}{\ss}, then \hev{\nil}{\b}{\n{n}} if and only if \ev{\ss}{\n{n}}.
+\begin{theorem} [Equivalence Bruijn-stack]
+\label{thm:equiv-bs} If \tr{\b}{\ss}, then \hev{\nil}{\b}{\n{n}} if and only if \ev{\ss}{\n{n}}.
 \end{theorem}
 
 To prove this we need two additional judgements:

@@ -9,12 +9,3 @@ app : exp -> exp -> exp.
 
 %block bl-exp : block {e : exp}.
 %worlds (bl-exp) (exp).
-
-
-
-% Canonical forms.
-canon : exp -> type. %name canon DC.
-
-canon/num : canon (num N).
-
-canon/lam : canon (lam E).
