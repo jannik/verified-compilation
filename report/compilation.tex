@@ -70,6 +70,7 @@
 \newcommand{\tracc}[3]{\ensuremath{#1 \circ #2 \rhd #3}}
 \newcommand{\tra}[3]{\ensuremath{#1 \vdash #2 \rhd #3}}
 \newcommand{\trav}[3]{\ensuremath{#1 \vdash #2 \rhd^{\mathrm{v}} #3}}
+\newcommand{\trm}[5]{\ensuremath{\langle #1; #2 \rangle \circ #3 \rhd \langle #4; #5 \rangle}}
 \newcommand{\ev}[2]{\ensuremath{#1 \downarrow #2}}
 \newcommand{\hev}[3]{\ensuremath{#1 \vdash #2 \Downarrow #3}}
 \newcommand{\hevv}[3]{\ensuremath{#1 \vdash #2 \Downarrow^{\mathrm{v}} #3}}
@@ -88,7 +89,6 @@
 \newcommand{\cor}[2]{\ensuremath{#1 \rightsquigarrow #2}}
 \newcommand{\comp}[3]{\ensuremath{#1 \stackrel{#2}{\rightsquigarrow} #3}}
 \newcommand{\scomp}{\cor}
-
 % hopefully temporary:
 \newcommand{\e}{e} % hoas expressions, previously 'e'
 \renewcommand{\c}{c} % canonical forms, previously 'v'
@@ -98,6 +98,7 @@
 \renewcommand{\ss}{p} % previously '\s^*'
 \newcommand{\w}{w}
 \newcommand{\q}{q}
+\newcommand{\hq}{\hat{q}}
 \renewcommand{\r}{r}
 \renewcommand{\k}{k}
 \newcommand{\m}{m}
@@ -889,6 +890,14 @@ If \tracc{\b}{\ss_2}{\ss} and \ssev{\Xi, \fr{\tau}{\ss}}{\Psi}{\nil}{\nil, \w'} 
 
 \section*{Machine Language}
 
+\subsection*{Syntax}
+\begin{align*}
+  \r &\defi \n{n} \alt \boxed{n} \\
+  \m &\defi \load \o \alt \store \o \alt \alloc \o \alt \cpeek \o \alt \cpop \alt \vpush \r \alt \vdup \\
+  & \quad \quad \quad \quad \,\,\,\, \alt \transfer \alt \jump \alt \getaddr \o \alt \halt \\
+  \q &\defi \nil \alt \m, \q \\
+\end{align*}
+
 \subsection*{Semantics}
 
 \noindent \judgement{\meval{\q}{\k}{\r}}
@@ -961,6 +970,53 @@ If \tracc{\b}{\ss_2}{\ss} and \ssev{\Xi, \fr{\tau}{\ss}}{\Psi}{\nil}{\nil, \w'} 
 \noindent \judgement{\fetch{\q}{\k}{\m}}
 
 \noindent \judgement{\fetch{\Gamma}{\o}{\r}}
+
+\subsection*{Translation}
+Let $|i|$ denote the numeric value of a de Bruijn index.
+
+\vspace{0.5cm}
+
+\noindent \judgement{\trm{\hq}{\q}{\s}{\hq'}{\q'}}
+
+\noindent \judgement{\trm{\hq}{\q}{\ss}{\hq'}{\q'}}
+
+\begin{prooftree}
+\ax{\trm{\hq}{\q}{\n{n}}{\hq}{\q, \vpush \n{n}}}
+\end{prooftree}
+
+\begin{prooftree}
+\ax{\trm{\hq}{\q}{\z}{\hq}{\q, \cpeek 1}}
+\end{prooftree}
+
+\begin{prooftree}
+\ax{\trm{\hq}{\q}{\s i}{\hq}{\q, \cpeek 2, \load (|i| + 1)}}
+\end{prooftree}
+
+\begin{prooftree}
+\ninf{\trm{\hq}{\nil}{\ss}{\hq'}{\q'}}
+\uinf{\trm{\hq}{\q}{\lam{}{\ss}}{\hq, \q', \jump}{\q, \mathbf{makeclosure}(\mathbf{length}(\hq), \mathbf{maxvar}(\ss))}}
+\end{prooftree}
+
+\vspace{0.5cm}
+(See the code for the three mentioned functions.)
+\vspace{0.5cm}
+
+\begin{prooftree}
+\ax{\trm{\hq}{\q}{\sapp}{\hq}{\q, \mathbf{call}}}
+\end{prooftree}
+where $\mathbf{call}$ is
+\begin{align*}
+  &\transfer \\
+  &\vdup \\
+  &\transfer \\
+  &\getaddr 5 \\
+  &\transfer \\
+  &\load 0 \\
+  &\transfer \\
+  &\jump \\
+  &\cpop \\
+  &\cpop \\
+\end{align*}
 
 \section*{Conclusion}
 

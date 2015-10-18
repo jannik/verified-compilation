@@ -46,6 +46,7 @@ sprog-max-var/cons : sprog-max-var (sprog/cons S P) I
                               mstore (s z) ,
                               mvdup ,
                               mcpeek (s z) ,
+                              % Need to copy variables into closure
                               q.
 
 %abbrev make-call : mprog-acc
@@ -53,7 +54,7 @@ sprog-max-var/cons : sprog-max-var (sprog/cons S P) I
                         mtransfer ,
                         mvdup ,
                         mtransfer ,
-                        mgetaddr (s (s (s (s (s (s (s z))))))) ,
+                        mgetaddr (s (s (s (s (s z))))) ,
                         mtransfer ,
                         mload z ,
                         mtransfer ,
