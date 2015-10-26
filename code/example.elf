@@ -29,3 +29,6 @@ test3 : exp = app (app (lam [x] lam [y] x) (num z)) (num (s z)).
 
 %define qtest3 = Q
 %solve _ : trans-sm ptest3 Q.
+
+%query 1 1 D : prog-fetch qtest3 19 M.
+%query 1 1 mevaln 13 qtest3 12 H Gamma F K M.

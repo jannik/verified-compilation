@@ -1,25 +1,34 @@
 mvalue : type. %name mvalue R.
 
-%abbrev addr = nat.
+% Program address.
+%abbrev paddr = nat.
+
+% Heap address.
+%abbrev haddr = nat.
 
 rnum : nat -> mvalue.
-raddr : addr -> mvalue.
+rpaddr : paddr -> mvalue.
+rhaddr : haddr -> mvalue.
+rundef : mvalue.
 
-inst : type. %name inst M.
+minst : type. %name minst M.
 
-mload : nat -> inst.
-mstore : nat -> inst.
-malloc : nat -> inst.
-mcpeek : nat -> inst.
-mcpop : inst.
-mvpush : mvalue -> inst.
-mvdup : inst.
-mtransfer : inst.
-mjump : inst.
-mgetaddr : nat -> inst.
-mhalt : inst.
+mload : nat -> minst.
+mstore : nat -> minst.
+malloc : nat -> minst.
+mpeek : nat -> minst.
+mpushnum : nat -> minst.
+mpushpaddr : paddr -> minst.
+mnewframe : minst.
+mendframe : minst.
+mgetarg : minst.
+mgetenv : minst.
+mgetret : minst.
+mjump : minst.
+mgetaddr : nat -> minst.
+mhalt : minst.
 
 mprog : type. %name mprog Q.
 
 end : mprog.
-, : inst -> mprog -> mprog. %infix right 5 ,.
+; : minst -> mprog -> mprog. %infix right 5 ;.
