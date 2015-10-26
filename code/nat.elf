@@ -12,21 +12,6 @@ s : nat -> nat.
 3 : nat = s 2.
 4 : nat = s 3.
 5 : nat = s 4.
-6 : nat = s 5.
-7 : nat = s 6.
-8 : nat = s 7.
-9 : nat = s 8.
-10 : nat = s 9.
-11 : nat = s 10.
-12 : nat = s 11.
-13 : nat = s 12.
-14 : nat = s 13.
-15 : nat = s 14.
-16 : nat = s 15.
-17 : nat = s 16.
-18 : nat = s 17.
-19 : nat = s 18.
-20 : nat = s 19.
 
 
 
@@ -41,14 +26,3 @@ add/s : add (s N1) N2 (s N)
 %worlds () (add _ _ _).
 %total N (add N _ _).
 
-
-
-max : nat -> nat -> nat -> type.
-%mode max +N1 +N2 -N.
-
-max/z1 : max z N2 N2.
-
-max/z2 : max N1 z N1.
-
-max/s : max (s N1) (s N2) (s N)
-         <- max N1 N2 N.

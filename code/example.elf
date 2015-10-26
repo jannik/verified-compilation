@@ -1,21 +1,44 @@
-test1 : exp = app (app (lam [f] lam [x] app f x) (lam [x] x)) (num (s z)).
+test1 : exp =  app (lam [x] x) (num 3).
 
 %define btest1 = B
 %solve _ : trans-hb-pseudo-exists test1 (DT : trans-hb store/nil B test1).
 
-%define stest1 = S
-%solve _ : trans-bs btest1 S.
+%define ptest1 = P
+%solve _ : trans-bs btest1 P.
 
-%query 1 4 D : seval stest1 W.
+%query 1 5 D : eval test1 C.
+%query 1 5 D : beval store/nil btest1 V.
+%query 1 5 D : seval ptest1 W.
 
-btest2 : bexp = bnum z.
+%define qtest1 = Q
+%define qtest1-start = K
+%solve _ : trans-sm ptest1 Q K.
 
-%define stest2 = S
-%solve _ : trans-bs btest2 S. 
+%query 1 1 meval qtest1 qtest1-start R.
 
-%query 1 4 D : seval stest2 W.
 
-test3 : exp = app (app (lam [x] lam [y] x) (num z)) (num (s z)).
+
+test2 : exp = app (app (lam [x] lam [y] x) (num 3)) (num 5).
+
+%define btest2 = B
+%solve _ : trans-hb-pseudo-exists test2 (DT : trans-hb store/nil B test2).
+
+%define ptest2 = P
+%solve _ : trans-bs btest2 P.
+
+%query 1 5 D : eval test2 C.
+%query 1 5 D : beval store/nil btest2 V.
+%query 1 5 D : seval ptest2 W.
+
+%define qtest2 = Q
+%define qtest2-start = K
+%solve _ : trans-sm ptest2 Q K.
+
+%query 1 1 meval qtest2 qtest2-start R.
+
+
+
+test3 : exp = app (app (lam [f] lam [x] app f x) (lam [x] x)) (num 3).
 
 %define btest3 = B
 %solve _ : trans-hb-pseudo-exists test3 (DT : trans-hb store/nil B test3).
@@ -35,7 +58,7 @@ test3 : exp = app (app (lam [x] lam [y] x) (num z)) (num (s z)).
 
 
 
-test4 : exp = app (lam [x] x) (num 5).
+test4 : exp = app (app (app (lam [f] lam [x] app f x) (lam [x] lam [y] x)) (num 3)) (num 5).
 
 %define btest4 = B
 %solve _ : trans-hb-pseudo-exists test4 (DT : trans-hb store/nil B test4).
@@ -52,23 +75,3 @@ test4 : exp = app (lam [x] x) (num 5).
 %solve _ : trans-sm ptest4 Q K.
 
 %query 1 1 meval qtest4 qtest4-start R.
-
-
-
-test5 : exp = app (app (app (lam [f] lam [x] app f x) (lam [x] lam [y] x)) (num 4)) (num 5).
-
-%define btest5 = B
-%solve _ : trans-hb-pseudo-exists test5 (DT : trans-hb store/nil B test5).
-
-%define ptest5 = P
-%solve _ : trans-bs btest5 P.
-
-%query 1 5 D : eval test5 C.
-%query 1 5 D : beval store/nil btest5 V.
-%query 1 5 D : seval ptest5 W.
-
-%define qtest5 = Q
-%define qtest5-start = K
-%solve _ : trans-sm ptest5 Q K.
-
-%query 1 1 meval qtest5 qtest5-start R.
