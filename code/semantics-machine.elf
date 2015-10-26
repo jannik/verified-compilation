@@ -134,7 +134,7 @@ mexec/alloc : mexec (malloc N) H Gamma (fr Phi Env Arg Ret) K
                <- heap-alloc H N H' A.
 
 mexec/peek : mexec (mpeek N) H Gamma (fr Phi Env Arg Ret) K
-                            H Gamma (fr (mregs/cons Phi R) Env Arg Ret) (s K)
+                             H Gamma (fr (mregs/cons Phi R) Env Arg Ret) (s K)
               <- reg-peek Phi N R.
 
 mexec/pushnum : mexec (mpushnum N) H Gamma (fr Phi Env Arg Ret) K
@@ -144,13 +144,13 @@ mexec/pushpaddr : mexec (mpushpaddr K') H Gamma (fr Phi Env Arg Ret) K
                                        H Gamma (fr (mregs/cons Phi (rpaddr K')) Env Arg Ret) (s K).
 
 mexec/getarg : mexec mgetarg H Gamma (fr Phi Env Arg Ret) K
-                            H Gamma (fr (mregs/cons Phi Arg) Env Arg Ret) (s K).
+                             H Gamma (fr (mregs/cons Phi Arg) Env Arg Ret) (s K).
 
 mexec/getenv : mexec mgetenv H Gamma (fr Phi Env Arg Ret) K
-                            H Gamma (fr (mregs/cons Phi Env) Env Arg Ret) (s K).
+                             H Gamma (fr (mregs/cons Phi Env) Env Arg Ret) (s K).
 
 mexec/getret : mexec mgetret H Gamma (fr Phi Env Arg Ret) K
-                            H Gamma (fr (mregs/cons Phi Ret) Env Arg Ret) (s K).
+                             H Gamma (fr (mregs/cons Phi Ret) Env Arg Ret) (s K).
 
 mexec/newframe : mexec mnewframe H Gamma (fr (mregs/cons4 Phi Env' Arg' Ret' R) Env Arg Ret) K
                                  H (mstack/cons Gamma (fr Phi Env Arg Ret))
@@ -187,6 +187,7 @@ msteps/more : msteps Q H Gamma F K H' Gamma' F' K'
 
 
 
+% Complete evaluation.
 meval : mprog -> paddr -> mvalue -> type.
 %mode meval +Q +K -R.
 
@@ -197,6 +198,7 @@ meval/ : meval Q K R
 
 
 
+% Partial evaluation.
 mstepsn : nat -> mprog -> mheap -> mstack -> mframe -> paddr -> mheap -> mstack -> mframe -> paddr -> type.
 %mode mstepsn +N +Q +H +Gamma +F +K -H' -Gamma' -F' -K'.
 

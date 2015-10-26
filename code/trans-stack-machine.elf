@@ -76,9 +76,9 @@ trans-sm-acc/svar/z : trans-sm-acc I QQ Q (svar z) QQ ([q] Q (mgetarg ; q)).
 
 trans-sm-acc/svar/s : trans-sm-acc I QQ Q (svar (s I')) QQ ([q] Q (mgetenv ; mload (s I') ; q)).
 
-trans-sm-acc/lam : trans-sm-acc I QQ Q (slam P) ([q] QQ' (Q' (mjump ; q))) ([q] Q (make-clos K I (Q'' q)))
+trans-sm-acc/lam : trans-sm-acc I QQ Q (slam P) ([q] QQ' (Q' (mgetret ; mjump ; q))) ([q] Q (make-clos K I (Q'' q)))
                     <- trans-sms-acc (s I) QQ mprog-acc/nil P QQ' Q'
-                    <- mprog-length (QQ end) K
+                    <- mprog-length (QQ' end) K
                     <- trans-copy I 1 Q''.
 
 trans-sm-acc/app : trans-sm-acc I QQ Q sapp QQ ([q] Q (make-call q)).
@@ -90,14 +90,13 @@ trans-sms-acc/cons : trans-sms-acc I QQ Q (sprog/cons S P) QQ' Q'
                       <- trans-sms-acc I QQ'' Q'' P QQ' Q'.
 
 %worlds () (trans-sm-acc _ _ _ _ _ _) (trans-sms-acc _ _ _ _ _ _).
-% total (S P) (trans-sm-acc _ _ _ S _ _) (trans-sms-acc _ _ _ P _ _).
+%%total (S P) (trans-sm-acc _ _ _ S _ _) (trans-sms-acc _ _ _ P _ _).
 
 
 
-trans-sm : sprog -> mprog -> type.
-%mode trans-sm +P -Q.
+trans-sm : sprog -> mprog -> nat -> type.
+%mode trans-sm +P -Q -K.
 
-trans-sm/ : trans-sm P (QQ (Q (mhalt ; end)))
-             <- trans-sms-acc z mprog-acc/nil mprog-acc/nil P QQ Q.
-
-% How do we obtain the index of the first instruction of the program?
+trans-sm/ : trans-sm P (QQ (Q (mhalt ; end))) K
+             <- trans-sms-acc z mprog-acc/nil mprog-acc/nil P QQ Q
+             <- mprog-length (QQ end) K.
