@@ -122,7 +122,19 @@ $\blacksquare$
 
 \section*{Introduction}
 
-\ldots
+There are several ways of ensuring the correctness of a compiler.
+One way is through extensive testing, though in practice this is never quite sufficient to be rid of all errors. [citation?]
+Another way is to prove correctness through some external mechanism.
+Yet another way, which is a variation of this idea, is to develop the compiler in such a way that it is correct by construction.
+
+This last option is the subject of this inquiry.
+Using a dependently typed language it is possible to encode properties about the behaviour of the program in its types --- in particular, given the right types, the mere fact that a program type checks is a witness that it is a correct compiler with respect to the semantics of the source and target languages.
+
+We use the Twelf logic programming language, which is based on the LF logical framework. [citation]
+Twelf is dependently typed, but it is limited in other respects such as only being able to prove metatheorems of the form $\Pi \cdots \Pi \Sigma \cdots \Sigma$. [what's the proper description?]
+Hence, for a given statement it is not a priori clear whether Twelf is capable of proving (or even stating) it, even if a proof exists on paper.
+
+Our aim therefore is to investigate the feasibility of implementing a verified compiler using Twelf.
 
 \section*{Previous Work}
 
