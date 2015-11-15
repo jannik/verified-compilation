@@ -37,17 +37,27 @@
 \newcommand{\subs}[2]{#1[#2]}
 \newcommand{\wo}{\backslash}
 \newcommand{\sapp}{\mathtt{app}}
-\newcommand{\load}{\mathtt{load} \;}
-\newcommand{\store}{\mathtt{store} \;}
-\newcommand{\alloc}{\mathtt{alloc} \;}
-\newcommand{\cpeek}{\mathtt{cpeek} \;}
-\newcommand{\cpop}{\mathtt{cpop}}
-\newcommand{\vpush}{\mathtt{vpush} \;}
-\newcommand{\vdup}{\mathtt{vdup}}
-\newcommand{\transfer}{\mathtt{transfer}}
-\newcommand{\jump}{\mathtt{jump}}
-\newcommand{\getaddr}{\mathtt{getaddr \;}}
-\newcommand{\halt}{\mathtt{halt}}
+
+\newcommand{\rpaddr}[1]{\mathtt{paddr} \; #1}
+\newcommand{\rhaddr}[1]{\mathtt{haddr} \; #1}
+\newcommand{\rundef}{\mathtt{undef}}
+
+\newcommand{\mload}[1]{\mathtt{load} \; #1}
+\newcommand{\mstore}[1]{\mathtt{store} \; #1}
+\newcommand{\malloc}[1]{\mathtt{alloc} \; #1}
+\newcommand{\mpeek}[1]{\mathtt{peek} \; #1}
+\newcommand{\mpushnum}[1]{\mathtt{pushnum} \; #1}
+\newcommand{\mpushpaddr}[1]{\mathtt{pushpaddr} \; #1}
+\newcommand{\mnewframe}{\mathtt{newframe}}
+\newcommand{\mendframe}{\mathtt{endframe}}
+\newcommand{\mgetarg}{\mathtt{getarg}}
+\newcommand{\mgetenv}{\mathtt{getenv}}
+\newcommand{\mgetret}{\mathtt{getret}}
+\newcommand{\mjump}{\mathtt{jump}}
+\newcommand{\mgetaddr}[1]{\mathtt{getaddr} \; #1}
+\newcommand{\mhalt}{\mathtt{halt}}
+
+\newcommand{\mend}{\mathtt{end}}
 
 \newcommand{\hsuc}[1]{\mathtt{suc} \; #1}
 \newcommand{\hcase}[3]{\mathtt{case} \; #1 \; \mathtt{of} \; \z \Rightarrow #2 \; | \; \suc{x} \Rightarrow #3}
@@ -144,10 +154,10 @@ Our aim therefore is to investigate the feasibility of implementing a verified c
 
 \subsection*{Syntax}
 
-Let $n$ denote natural numbers and $x$ variable identifiers. We then define source language expressions $\e$:
+Let $n$ denote natural numbers and $x$ variable identifiers. We then define source language expressions $\e$ and canonical forms $\c$:
 \begin{align*}
-  \e &\defi \n{n} \alt x \alt \lam{x}{\e_1} \alt \e_1 \app \e_2 \alt \hsuc{\e_1} \alt (\hcase{\e_1}{\e_2}{\e_3})
-  % \c &\defi \n{n} \alt \lam{x}{\e} \quad (\text{with} \; FV(\e) \subseteq \set{x}) \\
+  \e &\defi \n{n} \alt x \alt \lam{x}{\e_1} \alt \e_1 \app \e_2 \alt \hsuc{\e_1} \alt (\hcase{\e_1}{\e_2}{\e_3}) \\
+  \c &\defi \n{n} \alt \lam{x}{\e} \quad (\text{with} \; FV(\e) \subseteq \set{x}) \\
 \end{align*}
 
 \subsection*{Semantics}
@@ -156,7 +166,7 @@ The semantics of the source language is based on substitution.
 
 \vspace{0.5cm}
 
-\judgement{\ev{\e}{\e'}} ($\e$ closed)
+\judgement{\ev{\e}{\c}} ($\e$ closed)
 
 \begin{prooftree}
   \leftl{\rule{E-Num} :}
@@ -170,10 +180,10 @@ The semantics of the source language is based on substitution.
 
 \begin{prooftree}
   \ninf{\ev{\e_1}{\lam{x}{\e_0}}}
-  \ninf{\ev{\e_2}{\e_2'}}
-  \ninf{\ev{\sub{\e_0}{\e_2'}{x}}{\e'}}
+  \ninf{\ev{\e_2}{\c_2}}
+  \ninf{\ev{\sub{\e_0}{\c_2}{x}}{\c}}
 	\leftl{\rule{E-App} :}
-  \tinf{\ev{\e_1 \app \e_2}{\e'}}
+  \tinf{\ev{\e_1 \app \e_2}{\c}}
 \end{prooftree}
 
 \begin{prooftree}
@@ -184,17 +194,17 @@ The semantics of the source language is based on substitution.
 
 \begin{prooftree}
   \ninf{\ev{\e_1}{\n{0}}}
-  \ninf{\ev{\e_2}{\e_2'}}
+  \ninf{\ev{\e_2}{\c_2}}
 	\leftl{\rule{E-Case-z} :}
-  \binf{\ev{\hcase{\e_1}{\e_2}{\e_3}}{\e_2'}}
+  \binf{\ev{\hcase{\e_1}{\e_2}{\e_3}}{\c_2}}
 \end{prooftree}
 
 \begin{prooftree}
   \ninf{\ev{\e_1}{\n{n}}}
-  \ninf{\ev{\sub{\e_3}{\n{n-1}}{x}}{\e_3'}}
+  \ninf{\ev{\sub{\e_3}{\n{n-1}}{x}}{\c_3}}
 	\leftl{\rule{E-Case-s} :}
 	\rightl{$(n > 0)$}
-  \binf{\ev{\hcase{\e_1}{\e_2}{\e_3}}{\e_3'}}
+  \binf{\ev{\hcase{\e_1}{\e_2}{\e_3}}{\c_3}}
 \end{prooftree}
 
 \section*{De Bruijn Language}
@@ -210,7 +220,7 @@ We define variable indices $i$ and De Bruijn expressions $\b$ as follows:
 \subsection*{Semantics}
 
 The semantics of the De Bruijn language is environment-based.
-We define De Bruin values $\v$ as follows, and environments $\sg$ are then ordered lists of values (with possible repetitions).
+We define De Bruin values $\v$ as follows, and environments $\sg$ are then ordered lists of values.
 \begin{align*}
   \v &\defi \n{n} \alt \cl{\sg}{\b} \\
   \sg &\defi \nil \alt \sg, \v
@@ -329,6 +339,7 @@ We define De Bruin values $\v$ as follows, and environments $\sg$ are then order
 \end{prooftree}
 
 % explain the need for hypothetical and parametric judgements
+% rather, rewrite with explicit environtment containing v ~> e bindings
 
 \judgement{\trav{\sg}{i}{\e}}
 
@@ -356,7 +367,7 @@ We define De Bruin values $\v$ as follows, and environments $\sg$ are then order
 \end{prooftree}
 
 \begin{prooftree}
-  \ninf{\tra{\sg}{\lam{}{\b}}{\lam{x}{\b}}}
+  \ninf{\tra{\sg}{\lam{}{\b}}{\lam{x}{\e}}}
   \leftl{\rule{C-Fun} :}
   \uinf{\cor{\cl{\sg}{\b}}{\lam{x}{\e}}}
 \end{prooftree}
@@ -910,151 +921,154 @@ If \tracc{\b}{\ss_2}{\ss} and \ssev{\Xi, \fr{\tau}{\ss}}{\Psi}{\nil}{\nil, \w'} 
 
 \subsection*{Syntax}
 \begin{align*}
-  \r &\defi \n{n} \alt \boxed{n} \\
-  \m &\defi \load \o \alt \store \o \alt \alloc \o \alt \cpeek \o \alt \cpop \alt \vpush \r \alt \vdup \\
-  & \quad \quad \quad \quad \,\,\,\, \alt \transfer \alt \jump \alt \getaddr \o \alt \halt \\
-  \q &\defi \nil \alt \m, \q \\
+	\o &\defi \z \alt \suc \o \\
+  \r &\defi \n{n} \alt \rpaddr{n} \alt \rhaddr{n} \alt \rundef \\
+  \m &\defi \mload{\o} \alt \mstore{\o} \alt \malloc{\o} \alt \mpeek{\o} \alt \mpushnum{n} \alt \mpushpaddr{n} \\
+     &\quad \quad \quad \quad \,\,\,\, \alt \mnewframe \alt \mendframe \alt \mgetarg \alt \mgetenv \alt \mgetret \\
+		 &\quad \quad \quad \quad \,\,\,\, \alt \mjump \alt \mgetaddr{\o} \alt \mhalt \\
+	\q &\defi \mend \alt \m ; \q \\
 \end{align*}
 
 \subsection*{Semantics}
 
-\judgement{\meval{\q}{\k}{\r}}
 
-\vspace{0.5cm}
-\ldots
-\vspace{0.5cm}
-
-\judgement{\mev{\q}{\H}{\Gamma}{\k}{\Phi}{\H'}{\Gamma'}{\k'}{\Phi'}}
-
-\begin{prooftree}
-  \ninf{\fetch{\q}{\k}{\m}}
-  \uinf{\mev{\q}{\H}{\Gamma}{\k}{\Phi}{\H}{\Gamma}{\k + 1}{\Phi}}
-\end{prooftree}
-
-\begin{prooftree}
-  \ninf{\fetch{\q}{\k}{\load \o}}
-  \ninf{\fetch{\H}{\h + \o}{\r}}
-  \binf{\mev{\q}{\H}{\Gamma}{\k}{\Phi, \boxed{\h}}{\H}{\Gamma}{\k + 1}{\Phi, \r}}
-\end{prooftree}
-
-\begin{prooftree}
-  \ninf{\fetch{\q}{\k}{\store \o}}
-  \ninf{\update{\H}{\h + \o}{\r}{\H'}}
-  \binf{\mev{\q}{\H}{\Gamma}{\k}{\Phi, \boxed{\h}, \r}{\H'}{\Gamma}{\k + 1}{\Phi, \boxed{\h}}}
-\end{prooftree}
-
-\begin{prooftree}
-  \ninf{\fetch{\q}{\k}{\alloc \o}}
-  \ninf{\allocate{\H}{\o}{\H'}{\h}}
-  \binf{\mev{\q}{\H}{\Gamma}{\k}{\Phi}{\H'}{\Gamma}{\k + 1}{\Phi, \h}}
-\end{prooftree}
-
-\begin{prooftree}
-  \ninf{\fetch{\q}{\k}{\cpeek \o}}
-  \ninf{\fetch{\Gamma}{\o}{\r}}
-  \binf{\mev{\q}{\H}{\Gamma}{\k}{\Phi}{\H}{\Gamma}{\k + 1}{\Phi, \r}}
-\end{prooftree}
-
-\begin{prooftree}
-  \ninf{\fetch{\q}{\k}{\cpop}}
-  \uinf{\mev{\q}{\H}{\Gamma, \r}{\k}{\Phi}{\H}{\Gamma}{\k + 1}{\Phi}}
-\end{prooftree}
-
-\begin{prooftree}
-  \ninf{\fetch{\q}{\k}{\vpush \r}}
-  \uinf{\mev{\q}{\H}{\Gamma}{\k}{\Phi}{\H}{\Gamma}{\k + 1}{\Phi, \r}}
-\end{prooftree}
-
-\begin{prooftree}
-  \ninf{\fetch{\q}{\k}{\vdup}}
-  \uinf{\mev{\q}{\H}{\Gamma}{\k}{\Phi, \r}{\H}{\Gamma}{\k + 1}{\Phi, \r, \r}}
-\end{prooftree}
-
-\begin{prooftree}
-  \ninf{\fetch{\q}{\k}{\transfer}}
-  \uinf{\mev{\q}{\H}{\Gamma}{\k}{\Phi, \r}{\H}{\Gamma, \r}{\k + 1}{\Phi}}
-\end{prooftree}
-
-\begin{prooftree}
-  \ninf{\fetch{\q}{\k}{\jump}}
-  \uinf{\mev{\q}{\H}{\Gamma, \boxed{\k'}}{\k}{\Phi}{\H}{\Gamma}{\k'}{\Phi}}
-\end{prooftree}
-
-\begin{prooftree}
-  \ninf{\fetch{\q}{\k}{\getaddr \o}}
-  \uinf{\mev{\q}{\H}{\Gamma}{\k}{\Phi}{\H}{\Gamma}{\k + 1}{\Phi, \boxed{\k + \o}}}
-\end{prooftree}
-
-% No rule for halt!
-
-\judgement{\mmev{\q}{\H}{\Gamma}{\k}{\Phi}{\H'}{\Gamma'}{\k'}{\Phi'}}
-
-\vspace{0.5cm}
-\ldots
-\vspace{0.5cm}
-
-\judgement{\fetch{\q}{\k}{\m}}
-
-\vspace{0.5cm}
-\ldots
-\vspace{0.5cm}
-
-\judgement{\fetch{\Gamma}{\o}{\r}}
-
-\vspace{0.5cm}
-\ldots
-\vspace{0.5cm}
-
-\subsection*{Translation}
-Let $|i|$ denote the numeric value of a de Bruijn index.
-
-\vspace{0.5cm}
-
-\noindent \judgement{\trm{\hq}{\q}{\s}{\hq'}{\q'}}
-
-\vspace{0.5cm}
-\ldots
-\vspace{0.5cm}
-
-\noindent \judgement{\trm{\hq}{\q}{\ss}{\hq'}{\q'}}
-
-\begin{prooftree}
-\ax{\trm{\hq}{\q}{\n{n}}{\hq}{\q, \vpush \n{n}}}
-\end{prooftree}
-
-\begin{prooftree}
-\ax{\trm{\hq}{\q}{\z}{\hq}{\q, \cpeek 1}}
-\end{prooftree}
-
-\begin{prooftree}
-\ax{\trm{\hq}{\q}{\s i}{\hq}{\q, \cpeek 2, \load (|i| + 1)}}
-\end{prooftree}
-
-\begin{prooftree}
-\ninf{\trm{\hq}{\nil}{\ss}{\hq'}{\q'}}
-\uinf{\trm{\hq}{\q}{\lam{}{\ss}}{\hq, \q', \jump}{\q, \mathbf{makeclosure}(\mathbf{length}(\hq), \mathbf{maxvar}(\ss))}}
-\end{prooftree}
-
-\vspace{0.5cm}
-(See the code for the three mentioned functions.)
-\vspace{0.5cm}
-
-\begin{prooftree}
-\ax{\trm{\hq}{\q}{\sapp}{\hq}{\q, \mathbf{call}}}
-\end{prooftree}
-where $\mathbf{call}$ is
-\begin{align*}
-  &\transfer \\
-  &\vdup \\
-  &\transfer \\
-  &\getaddr 5 \\
-  &\transfer \\
-  &\load 0 \\
-  &\transfer \\
-  &\jump \\
-  &\cpop \\
-  &\cpop \\
-\end{align*}
+%\judgement{\meval{\q}{\k}{\r}}
+%
+%\vspace{0.5cm}
+%\ldots
+%\vspace{0.5cm}
+%
+%\judgement{\mev{\q}{\H}{\Gamma}{\k}{\Phi}{\H'}{\Gamma'}{\k'}{\Phi'}}
+%
+%\begin{prooftree}
+  %\ninf{\fetch{\q}{\k}{\m}}
+  %\uinf{\mev{\q}{\H}{\Gamma}{\k}{\Phi}{\H}{\Gamma}{\k + 1}{\Phi}}
+%\end{prooftree}
+%
+%\begin{prooftree}
+  %\ninf{\fetch{\q}{\k}{\load \o}}
+  %\ninf{\fetch{\H}{\h + \o}{\r}}
+  %\binf{\mev{\q}{\H}{\Gamma}{\k}{\Phi, \boxed{\h}}{\H}{\Gamma}{\k + 1}{\Phi, \r}}
+%\end{prooftree}
+%
+%\begin{prooftree}
+  %\ninf{\fetch{\q}{\k}{\store \o}}
+  %\ninf{\update{\H}{\h + \o}{\r}{\H'}}
+  %\binf{\mev{\q}{\H}{\Gamma}{\k}{\Phi, \boxed{\h}, \r}{\H'}{\Gamma}{\k + 1}{\Phi, \boxed{\h}}}
+%\end{prooftree}
+%
+%\begin{prooftree}
+  %\ninf{\fetch{\q}{\k}{\alloc \o}}
+  %\ninf{\allocate{\H}{\o}{\H'}{\h}}
+  %\binf{\mev{\q}{\H}{\Gamma}{\k}{\Phi}{\H'}{\Gamma}{\k + 1}{\Phi, \h}}
+%\end{prooftree}
+%
+%\begin{prooftree}
+  %\ninf{\fetch{\q}{\k}{\cpeek \o}}
+  %\ninf{\fetch{\Gamma}{\o}{\r}}
+  %\binf{\mev{\q}{\H}{\Gamma}{\k}{\Phi}{\H}{\Gamma}{\k + 1}{\Phi, \r}}
+%\end{prooftree}
+%
+%\begin{prooftree}
+  %\ninf{\fetch{\q}{\k}{\cpop}}
+  %\uinf{\mev{\q}{\H}{\Gamma, \r}{\k}{\Phi}{\H}{\Gamma}{\k + 1}{\Phi}}
+%\end{prooftree}
+%
+%\begin{prooftree}
+  %\ninf{\fetch{\q}{\k}{\vpush \r}}
+  %\uinf{\mev{\q}{\H}{\Gamma}{\k}{\Phi}{\H}{\Gamma}{\k + 1}{\Phi, \r}}
+%\end{prooftree}
+%
+%\begin{prooftree}
+  %\ninf{\fetch{\q}{\k}{\vdup}}
+  %\uinf{\mev{\q}{\H}{\Gamma}{\k}{\Phi, \r}{\H}{\Gamma}{\k + 1}{\Phi, \r, \r}}
+%\end{prooftree}
+%
+%\begin{prooftree}
+  %\ninf{\fetch{\q}{\k}{\transfer}}
+  %\uinf{\mev{\q}{\H}{\Gamma}{\k}{\Phi, \r}{\H}{\Gamma, \r}{\k + 1}{\Phi}}
+%\end{prooftree}
+%
+%\begin{prooftree}
+  %\ninf{\fetch{\q}{\k}{\jump}}
+  %\uinf{\mev{\q}{\H}{\Gamma, \boxed{\k'}}{\k}{\Phi}{\H}{\Gamma}{\k'}{\Phi}}
+%\end{prooftree}
+%
+%\begin{prooftree}
+  %\ninf{\fetch{\q}{\k}{\getaddr \o}}
+  %\uinf{\mev{\q}{\H}{\Gamma}{\k}{\Phi}{\H}{\Gamma}{\k + 1}{\Phi, \boxed{\k + \o}}}
+%\end{prooftree}
+%
+%% No rule for halt!
+%
+%\judgement{\mmev{\q}{\H}{\Gamma}{\k}{\Phi}{\H'}{\Gamma'}{\k'}{\Phi'}}
+%
+%\vspace{0.5cm}
+%\ldots
+%\vspace{0.5cm}
+%
+%\judgement{\fetch{\q}{\k}{\m}}
+%
+%\vspace{0.5cm}
+%\ldots
+%\vspace{0.5cm}
+%
+%\judgement{\fetch{\Gamma}{\o}{\r}}
+%
+%\vspace{0.5cm}
+%\ldots
+%\vspace{0.5cm}
+%
+%\subsection*{Translation}
+%Let $|i|$ denote the numeric value of a de Bruijn index.
+%
+%\vspace{0.5cm}
+%
+%\noindent \judgement{\trm{\hq}{\q}{\s}{\hq'}{\q'}}
+%
+%\vspace{0.5cm}
+%\ldots
+%\vspace{0.5cm}
+%
+%\noindent \judgement{\trm{\hq}{\q}{\ss}{\hq'}{\q'}}
+%
+%\begin{prooftree}
+%\ax{\trm{\hq}{\q}{\n{n}}{\hq}{\q, \vpush \n{n}}}
+%\end{prooftree}
+%
+%\begin{prooftree}
+%\ax{\trm{\hq}{\q}{\z}{\hq}{\q, \cpeek 1}}
+%\end{prooftree}
+%
+%\begin{prooftree}
+%\ax{\trm{\hq}{\q}{\s i}{\hq}{\q, \cpeek 2, \load (|i| + 1)}}
+%\end{prooftree}
+%
+%\begin{prooftree}
+%\ninf{\trm{\hq}{\nil}{\ss}{\hq'}{\q'}}
+%\uinf{\trm{\hq}{\q}{\lam{}{\ss}}{\hq, \q', \jump}{\q, \mathbf{makeclosure}(\mathbf{length}(\hq), \mathbf{maxvar}(\ss))}}
+%\end{prooftree}
+%
+%\vspace{0.5cm}
+%(See the code for the three mentioned functions.)
+%\vspace{0.5cm}
+%
+%\begin{prooftree}
+%\ax{\trm{\hq}{\q}{\sapp}{\hq}{\q, \mathbf{call}}}
+%\end{prooftree}
+%where $\mathbf{call}$ is
+%\begin{align*}
+  %&\transfer \\
+  %&\vdup \\
+  %&\transfer \\
+  %&\getaddr 5 \\
+  %&\transfer \\
+  %&\load 0 \\
+  %&\transfer \\
+  %&\jump \\
+  %&\cpop \\
+  %&\cpop \\
+%\end{align*}
 
 \section*{Conclusion}
 
