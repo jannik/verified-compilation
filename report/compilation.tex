@@ -78,8 +78,7 @@
 
 \newcommand{\tr}[2]{\ensuremath{#1 \rhd #2}}
 \newcommand{\tracc}[3]{\ensuremath{#1 \circ #2 \rhd #3}}
-\newcommand{\tra}[3]{\ensuremath{#1 \vdash #2 \rhd #3}}
-\newcommand{\trav}[3]{\ensuremath{#1 \vdash #2 \rhd^{\mathrm{v}} #3}}
+\newcommand{\tra}[4]{\ensuremath{#1; #2 \vdash #3 \rhd #4}}
 \newcommand{\trm}[5]{\ensuremath{\langle #1; #2 \rangle \circ #3 \rhd \langle #4; #5 \rangle}}
 \newcommand{\ev}[2]{\ensuremath{#1 \downarrow #2}}
 \newcommand{\hev}[3]{\ensuremath{#1 \vdash #2 \Downarrow #3}}
@@ -97,6 +96,7 @@
 \newcommand{\fr}[2]{\langle #1; #2 \rangle}
 \newcommand{\eqv}[3]{\ensuremath{#1 \downarrow #2 \sim #3}}
 \newcommand{\cor}[2]{\ensuremath{#1 \rightsquigarrow #2}}
+\newcommand{\vcor}[3]{\ensuremath{#1 \vdash #2 \rightsquigarrow #3}}
 \newcommand{\comp}[3]{\ensuremath{#1 \stackrel{#2}{\rightsquigarrow} #3}}
 \newcommand{\scomp}{\cor}
 % hopefully temporary:
@@ -133,15 +133,15 @@ $\blacksquare$
 \section*{Introduction}
 
 There are several ways of ensuring the correctness of a compiler.
-One way is through extensive testing, though in practice this is never quite sufficient to be rid of all errors. [citation?]
+One way is through extensive testing, though in practice this is never quite sufficient to be rid of all errors [citation?].
 Another way is to prove correctness through some external mechanism.
 Yet another way, which is a variation of this idea, is to develop the compiler in such a way that it is correct by construction.
 
 This last option is the subject of this inquiry.
 Using a dependently typed language it is possible to encode properties about the behaviour of the program in its types --- in particular, given the right types, the mere fact that a program type checks is a witness that it is a correct compiler with respect to the semantics of the source and target languages.
 
-We use the Twelf logic programming language, which is based on the LF logical framework. [citation]
-Twelf is dependently typed, but it is limited in other respects such as only being able to prove metatheorems of the form $\Pi \cdots \Pi \Sigma \cdots \Sigma$. [what's the proper description?]
+We use the Twelf logic programming language, which is based on the LF logical framework [citation Pfenning].
+Twelf is dependently typed, but it is limited in other respects such as only being able to prove metatheorems of the form $\Pi \cdots \Pi \Sigma \cdots \Sigma$ [what's the proper description?].
 Hence, for a given statement it is not a priori clear whether Twelf is capable of proving (or even stating) it, even if a proof exists on paper.
 On the other hand, Twelf has higher-order abstract syntax offering advantages when dealing with binders.
 
@@ -149,18 +149,20 @@ Our aim therefore is to investigate the feasibility of implementing a verified c
 
 \section*{Previous Work}
 
-The main work in this area is the CompCert C verified compiler, a ``high-assurance compiler for almost all of the ISO C90 / ANSI C language, generating efficient code for the PowerPC, ARM and x86 processors''. [cite http://compcert.inria.fr/]
+The main work in this area is the CompCert C verified compiler, a ``high-assurance compiler for almost all of the ISO C90 / ANSI C language, generating efficient code for the PowerPC, ARM and x86 processors'' [cite http://compcert.inria.fr/].
 It targets embedded programming and is written almost entirely in Coq (exceptions being the parser and the assembly code pretty-printer).
 Notably, the compiler implements non-trivial optimisations such as inlining.
 
-The same framework has been used to make a compiler for mini-ML with progress towards verified garbage collection. [cite Xavier Leroy]
+The same framework has been used to make a compiler for mini-ML with progress towards verified garbage collection [cite Xavier Leroy].
 
-Another project similarly achieves verified compilation for an ML-like language using Coq. [cite Adam Chlipala]
+Another project similarly achieves verified compilation for an ML-like language using Coq [cite Adam Chlipala].
 The focus is on maintainability of the compiler, in particular using parameterised higher-order abstract syntax, while memory management is largely ignored.
 
 [maybe mention PILSNER, a compositionally verified compiler]
 
 \section*{Source Language}            
+
+[Some kind of introduction to the language.]
 
 \subsection*{Syntax}
 
@@ -233,7 +235,8 @@ The semantics of the De Bruijn language is environment-based.
 We define De Bruin values $\v$ as follows, and environments $\sg$ are then ordered lists of values.
 \begin{align*}
   \v &\defi \n{n} \alt \cl{\sg}{\b} \\
-  \sg &\defi \nil \alt \sg, \v
+  \sg &\defi \nil \alt \sg, \v \\
+  \De &\defi \nil \alt \De, \cor{\v}{x}
 \end{align*}
 
 \judgement{\hev{\sg}{\b}{\v}}
@@ -298,88 +301,75 @@ We define De Bruin values $\v$ as follows, and environments $\sg$ are then order
 
 \subsection*{Translation}
 
-\judgement{\tra{\sg}{\b}{\e}}
+\judgement{\tra{\De}{\sg}{\b}{\e}}
 
 % explain why it is going in the 'wrong' direction
 
 \begin{prooftree}
   \leftl{\rule{T-Num} :}
-  \ax{\tra{\sg}{\n{n}}{\n{n}}}
+  \ax{\tra{\De}{\sg}{\n{n}}{\n{n}}}
 \end{prooftree}
 
 \begin{prooftree}
-  \ninf{\trav{\sg}{i}{e}}
+  \ninf{\hevv{\sg}{i}{\v}}
+  \ninf{\vcor{\De}{\v}{\e}}
   \leftl{\rule{T-Var} :}
-  \uinf{\tra{\sg}{i}{e}}
+  \binf{\tra{\De}{\sg}{i}{e}}
 \end{prooftree}
 
 \begin{prooftree}
-  \ax{\cor{\v}{x}}
-	\noLine
-  \uinf{\vdots}
-  \noLine
-	\uinf{\tra{\sg, \v}{\b_1}{\e_1}}
+	\ninf{\tra{\De, \cor{\v}{x}}{\sg, \v}{\b_1}{\e_1}}
   \leftl{\rule{T-Lam} :}
-  \uinf{\tra{\sg}{\lam{}{\b_1}}{\lam{x}{\e_1}}}
+  \rightl{$(\forall \v' . \; (\cor{\v'}{x}) \notin \De)$}
+  \uinf{\tra{\De}{\sg}{\lam{}{\b_1}}{\lam{x}{\e_1}}}
 \end{prooftree}
 
 \begin{prooftree}
-  \ninf{\tra{\sg}{\b_1}{\e_1}}
-  \ninf{\tra{\sg}{\b_2}{\e_2}}
+  \ninf{\tra{\De}{\sg}{\b_1}{\e_1}}
+  \ninf{\tra{\De}{\sg}{\b_2}{\e_2}}
 	\leftl{\rule{T-App} :}
-  \binf{\tra{\sg}{\b_1 \app \b_2}{\e_1 \app \e_2}}
+  \binf{\tra{\De}{\sg}{\b_1 \app \b_2}{\e_1 \app \e_2}}
 \end{prooftree}
 
 \begin{prooftree}
-  \ninf{\tra{\sg}{\b_1}{\e_1}}
+  \ninf{\tra{\De}{\sg}{\b_1}{\e_1}}
 	\leftl{\rule{T-Suc} :}
-  \uinf{\tra{\sg}{\bsuc{\b_1}}{\hsuc{\e_1}}}
+  \uinf{\tra{\De}{\sg}{\bsuc{\b_1}}{\hsuc{\e_1}}}
 \end{prooftree}
 
 \begin{prooftree}
-	\ninf{\tra{\sg}{\b_1}{\e_1}}
-	\ninf{\tra{\sg}{\b_2}{\e_2}}
-  \ax{\cor{\v}{x}}
-	\noLine
-  \uinf{\vdots}
-  \noLine
-	\uinf{\tra{\sg, \v}{\b_3}{\e_3}}
+	\ninf{\tra{\De}{\sg}{\b_1}{\e_1}}
+	\ninf{\tra{\De}{\sg}{\b_2}{\e_2}}
+	\ninf{\tra{\De, \cor{\v}{x}}{\sg, \v}{\b_3}{\e_3}}
   \leftl{\rule{T-Case} :}
-  \tinf{\tra{\sg}{\bcase{b_1}{b_2}{b_3}}{\hcase{e_1}{e_2}{e_3}}}
+  \rightl{$(\forall \v' . \; (\cor{\v'}{x}) \notin \De)$}
+  \tinf{\tra{\De}{\sg}{\bcase{b_1}{b_2}{b_3}}{\hcase{e_1}{e_2}{e_3}}}
 \end{prooftree}
 
 % explain the need for hypothetical and parametric judgements
 % rather, rewrite with explicit environtment containing v ~> e bindings
 
-\judgement{\trav{\sg}{i}{\e}}
-
-\begin{prooftree}
-	\ninf{\cor{\v}{\e}}
-  \leftl{\rule{Tv-Here} :}
-  \uinf{\trav{\sg, \v}{\z}{\e}}
-\end{prooftree}
-
-\begin{prooftree}
-  \ninf{\trav{\sg}{i}{\e}}
-  \leftl{\rule{Tv-There} :}
-  \uinf{\trav{\sg, \v'}{\suc{i}}{\e}}
-\end{prooftree}
-
 % should really be 'e' rather than 'c' (also in hoas semantics) to support the hypothetical judgements
 
 % We define a correspondence between values and expressions in canonical form:
 
-\judgement{\cor{\v}{\e}}
+\judgement{\vcor{\De}{\v}{\e}}
 
 \begin{prooftree}
-  \leftl{\rule{C-Num} :}
-  \ax{\cor{\n{n}}{\n{n}}}
+  \leftl{\rule{C-Hyp} :}
+  \rightl{$((\cor{\v}{x}) \in \De)$}
+  \ax{\vcor{\De}{\v}{x}}
 \end{prooftree}
 
 \begin{prooftree}
-  \ninf{\tra{\sg}{\lam{}{\b}}{\lam{x}{\e}}}
+  \leftl{\rule{C-Num} :}
+  \ax{\vcor{\De}{\n{n}}{\n{n}}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\tra{\De}{\sg}{\lam{}{\b}}{\lam{x}{\e}}}
   \leftl{\rule{C-Fun} :}
-  \uinf{\cor{\cl{\sg}{\b}}{\lam{x}{\e}}}
+  \uinf{\vcor{\De}{\cl{\sg}{\b}}{\lam{x}{\e}}}
 \end{prooftree}
 
 \subsection*{Equivalence}
