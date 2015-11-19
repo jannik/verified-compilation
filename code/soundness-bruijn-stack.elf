@@ -79,6 +79,35 @@ soundness-bs-var/there : soundness-bs-var (seval-var/there DSV) (comp-bs/cons DC
 
 
 
+soundness-bs'-lemma : beval Sigma B1 V
+         -> cor-bs V W
+         -> ssteps (frames/cons Xi Tau (sprog/cons (scase P2 P3) P1)) (wstack/cons Psi W)
+               frames/nil (wstack/cons wstack/nil W')
+         -> trans-bs B2 P2
+         -> trans-bs B3 P3
+         -> comp-bs Sigma Tau
+         -> ssteps (frames/cons (frames/cons Xi Tau P1) Tau' P') Psi frames/nil (wstack/cons wstack/nil W')
+         -> trans-bs B' P'
+         -> comp-bs Sigma' Tau'
+         -> ({v'} beval Sigma' B' v' -> beval Sigma (bcase B1 B2 B3) v')
+         -> type.
+%mode soundness-bs'-lemma +DB1 +DC +DP +DT2 +DT3 +DD -DP' -DT' -DD' -DB'.
+
+soundness-bs'-lemma/z
+   : soundness-bs'-lemma DB1 cor-bs/num (ssteps/more DP sstep/case/z) DT2 DT3 DD
+                         DP DT2 DD ([v'] [db2] beval/case/z db2 DB1).
+
+soundness-bs'-lemma/s
+   : soundness-bs'-lemma DB1 DC (ssteps/more DP sstep/case/s) DT2 DT3 DD
+                         DP DT3 (comp-bs/cons DC' DD) ([v'] [db3] beval/case/s db3 DB1)
+      <- s-inj-cor-bs DC DC'.
+
+%worlds () (soundness-bs'-lemma _ _ _ _ _ _ _ _ _ _).
+%reduces DP' < DP (soundness-bs'-lemma _ _ DP _ _ _ DP' _ _ _).
+%total {} (soundness-bs'-lemma _ _ _ _ _ _ _ _ _ _).
+
+
+
 soundness-bs' : ssteps (frames/cons Xi Tau P1-P2) Psi frames/nil (wstack/cons wstack/nil W') -> trans-bs-acc B P2 P1-P2 -> comp-bs Sigma Tau
              -> beval Sigma B V -> cor-bs V W -> ssteps (frames/cons Xi Tau P2) (wstack/cons Psi W) frames/nil (wstack/cons wstack/nil W') -> type.
 %mode soundness-bs' +DP +DT +DD -DB -DC -DP'.
@@ -104,18 +133,14 @@ soundness-bs'/suc : soundness-bs' DP (trans-bs-acc/suc DT1) DD (beval/suc DB1') 
                      <- invert-cor-bs-num DC1 DQW DQV
                      <- coerce-beval DB1 DQV DB1'.
 
-soundness-bs'/case/z : soundness-bs' DP (trans-bs-acc/case DT1 DT2 DT3) DD (beval/case/z DB2 DB1) DC2 DP2'
-                        <- soundness-bs' DP DT1 DD DB1 DC1 (ssteps/more DP1' sstep/case/z)
-                        <- soundness-bs' DP1' DT2 DD DB2 DC2 (ssteps/more DP2' sstep/ret).
-
-soundness-bs'/case/s : soundness-bs' DP (trans-bs-acc/case DT1 DT2 DT3) DD (beval/case/s DB3 DB1) DC3 DP3'
-                        <- soundness-bs' DP DT1 DD DB1 DC1 (ssteps/more DP1' sstep/case/s)
-                        <- s-inj-cor-bs DC1 DC1'
-                        <- soundness-bs' DP1' DT3 (comp-bs/cons DC1' DD) DB3 DC3 (ssteps/more DP3' sstep/ret).
+soundness-bs'/case : soundness-bs' DP (trans-bs-acc/case DT1 DT2 DT3) DD (DB' _ DB2) DC2 DP2
+                      <- soundness-bs' DP DT1 DD DB1 DC1 DP1
+                      <- soundness-bs'-lemma DB1 DC1 DP1 DT2 DT3 DD DP1' DT' DD' DB'
+                      <- soundness-bs' DP1' DT' DD' DB2 DC2 (ssteps/more DP2 sstep/ret).
 
 %worlds () (soundness-bs' _ _ _ _ _ _).
 %reduces DP' < DP (soundness-bs' DP _ _ _ _ DP').
-% total {DP DT} (soundness-bs' DP DT _ _ _ _).
+%total {DP DT} (soundness-bs' DP DT _ _ _ _).
 
 
 
