@@ -79,7 +79,7 @@
 \newcommand{\tr}[2]{\ensuremath{#1 \rhd #2}}
 \newcommand{\tracc}[3]{\ensuremath{#1 \circ #2 \rhd #3}}
 \newcommand{\tra}[4]{\ensuremath{#1; #2 \vdash #3 \rhd #4}}
-\newcommand{\trm}[5]{\ensuremath{\langle #1; #2 \rangle \circ #3 \rhd \langle #4; #5 \rangle}}
+\newcommand{\trm}[6]{\ensuremath{#1 \vdash \langle #2; #3 \rangle \circ #4 \rhd \langle #5; #6 \rangle}}
 \newcommand{\ev}[2]{\ensuremath{#1 \downarrow #2}}
 \newcommand{\hev}[3]{\ensuremath{#1 \vdash #2 \Downarrow #3}}
 \newcommand{\hevv}[3]{\ensuremath{#1 \vdash #2 \Downarrow^{\mathrm{v}} #3}}
@@ -91,6 +91,8 @@
 \newcommand{\mev}[9]{\ensuremath{#1 \vdash \langle #2; #3; #4; #5 \rangle \rightarrow \langle #6; #7; #8; #9 \rangle}}
 \newcommand{\mmev}[9]{\ensuremath{#1 \vdash \langle #2; #3; #4; #5 \rangle \rightarrow^* \langle #6; #7; #8; #9 \rangle}}
 \newcommand{\mexec}[9]{\ensuremath{#1 \vdash \langle #2; #3; #4; #5 \rangle \downarrow \langle #6; #7; #8; #9 \rangle}}
+
+\newcommand{\transsm}[3]{\ensuremath{#1 \rhd \langle #2; #3 \rangle}}
 
 \newcommand{\fetch}[3]{\ensuremath{#1 \vdash #2 \uparrow #3}}
 \newcommand{\fetchdata}[4]{\ensuremath{#1 \vdash \langle #2, #3 \rangle \uparrow #4}}
@@ -1059,40 +1061,60 @@ Let now $\fram{\Phi}{\r_1}{\r_2}{\r_3}$ denote
 
 % No rule for halt!
 
-%\subsection*{Translation}
-%Let $|i|$ denote the numeric value of a de Bruijn index.
-%
-%\vspace{0.5cm}
-%
-%\noindent \judgement{\trm{\hq}{\q}{\s}{\hq'}{\q'}}
-%
-%\vspace{0.5cm}
-%\ldots
-%\vspace{0.5cm}
-%
-%\noindent \judgement{\trm{\hq}{\q}{\ss}{\hq'}{\q'}}
-%
-%\begin{prooftree}
-%\ax{\trm{\hq}{\q}{\n{n}}{\hq}{\q, \vpush \n{n}}}
-%\end{prooftree}
-%
-%\begin{prooftree}
-%\ax{\trm{\hq}{\q}{\z}{\hq}{\q, \cpeek 1}}
-%\end{prooftree}
-%
-%\begin{prooftree}
-%\ax{\trm{\hq}{\q}{\s i}{\hq}{\q, \cpeek 2, \load (|i| + 1)}}
-%\end{prooftree}
-%
-%\begin{prooftree}
-%\ninf{\trm{\hq}{\nil}{\ss}{\hq'}{\q'}}
-%\uinf{\trm{\hq}{\q}{\lam{}{\ss}}{\hq, \q', \jump}{\q, \mathbf{makeclosure}(\mathbf{length}(\hq), \mathbf{maxvar}(\ss))}}
-%\end{prooftree}
-%
-%\vspace{0.5cm}
-%(See the code for the three mentioned functions.)
-%\vspace{0.5cm}
-%
+\subsection*{Translation}
+Let $|i|$ denote the numeric value of a De Bruijn index.
+
+\vspace{0.5cm}
+
+\judgement{\transsm{\ss}{\q}{\k}}
+
+\begin{prooftree}
+  \ninf{$\trm{\z}{\nil}{\nil}{\ss}{\hq}{\q}$}
+  \rightl{$(\k = \mathtt{length} \; (\hq ; \mend))$}
+  \uinf{\transsm{\ss}{(\hq ; \q ; \mhalt ; \mend)}{\k}}
+\end{prooftree}
+
+\vspace{0.5cm}
+
+\judgement{\trm{\k}{\hq}{\q}{\ss}{\hq'}{\q'}}
+
+\begin{prooftree}
+  \ax{\trm{\k}{\hq}{\q}{\nil}{\hq}{\q}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{$\trm{\k}{\hq}{\q}{\s}{\hq''}{\q''}$}
+  \ninf{$\trm{\k}{\hq''}{\q''}{\ss}{\hq'}{\q'}$}
+  \binf{\trm{\k}{\hq}{\q}{(\s, \ss)}{\hq'}{\q'}}
+\end{prooftree}
+
+\vspace{0.5cm}
+
+\judgement{\trm{\k}{\hq}{\q}{\s}{\hq'}{\q'}}
+
+\begin{prooftree}
+  \ax{\trm{\k}{\hq}{\q}{\n{n}}{\hq}{(\q ; \mpushnum{n})}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ax{\trm{\k}{\hq}{\q}{\z}{\hq}{(\q ; \mgetarg)}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ax{\trm{\k}{\hq}{\q}{(\suc{i})}{\hq}{(\q ; \mgetenv ; \mload{(\suc i)})}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\trm{\k + 1}{\hq}{\nil}{\ss_1}{\hq'}{\q'}}
+  \ninf{$\mathtt{trans{-}copy} \; \k \; 1 \; \hq''$}
+  \rightl{$(\k' = \mathtt{length} \; (\hq' ; \mend))$}
+  \binf{\trm{\k}{\hq}{\q}{(\lam{}{\ss_1})}{(\hq' ; \q' ; \mgetret ; \mjump)}{(\q ; \mathtt{make{-}clos} \; \k \; I \; \hq'')}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ax{\trm{\k}{\hq}{\q}{\sapp}{\hq}{(\q ; \mathtt{make{-}call})}}
+\end{prooftree}
+
 %\begin{prooftree}
 %\ax{\trm{\hq}{\q}{\sapp}{\hq}{\q, \mathbf{call}}}
 %\end{prooftree}
