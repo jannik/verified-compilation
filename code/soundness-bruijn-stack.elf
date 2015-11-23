@@ -20,7 +20,7 @@ invert-ssteps-suc/ : invert-ssteps-suc (ssteps/more DP sstep/suc) eq-svalue/refl
 
 %worlds () (invert-ssteps-suc _ _ _).
 %reduces DP' < DP (invert-ssteps-suc DP _ DP').
-%total DP (invert-ssteps-suc DP _ _).
+%total {} (invert-ssteps-suc _ _ _).
 
 
 
@@ -30,7 +30,7 @@ invert-cor-bs-num : cor-bs V W -> eq-svalue W (wnum N) -> eq-value V (vnum N) ->
 invert-cor-bs-num/ : invert-cor-bs-num cor-bs/num eq-svalue/refl eq-value/refl.
 
 %worlds () (invert-cor-bs-num _ _ _).
-%total DC (invert-cor-bs-num DC _ _).
+%total {} (invert-cor-bs-num _ _ _).
 
 
 
@@ -151,7 +151,7 @@ coerce-cor-bs : sstep (frames/cons Xi Tau sprog/nil) (wstack/cons Psi W1) Xi (ws
 - : coerce-cor-bs sstep/ret DC DC.
 
 %worlds () (coerce-cor-bs _ _ _).
-%total DS (coerce-cor-bs DS _ _).
+%total {} (coerce-cor-bs _ _ _).
 
 
 
@@ -161,7 +161,7 @@ coerce-beval-num : cor-bs (vnum N1) (wnum N2) -> beval Sigma B (vnum N1) -> beva
 - : coerce-beval-num cor-bs/num DB DB.
 
 %worlds () (coerce-beval-num _ _ _).
-%total DC (coerce-beval-num DC _ _).
+%total {} (coerce-beval-num _ _ _).
 
 
 
@@ -174,4 +174,4 @@ soundness-bs/ : soundness-bs (seval/ DS*) DT DB'
                  <- coerce-beval-num DC' DB DB'.
 
 %worlds () (soundness-bs _ _ _).
-% total DP (soundness-bs DP _ _).
+%total {} (soundness-bs _ _ _).
