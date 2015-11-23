@@ -19,6 +19,7 @@ malloc : nat -> minst.
 mpeek : nat -> minst.
 mpushnum : nat -> minst.
 mpushpaddr : paddr -> minst.
+minc : minst.
 mnewframe : minst.
 mendframe : minst.
 mgetarg : minst.

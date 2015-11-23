@@ -68,8 +68,9 @@ trans-sm-acc : nat -> mprog-acc -> mprog-acc -> sexp -> mprog-acc -> mprog-acc -
 %mode trans-sm-acc +I +QQ +Q +S -QQ' -Q'.
 
 trans-sms-acc : nat -> mprog-acc -> mprog-acc -> sprog -> mprog-acc -> mprog-acc -> type.
-%mode trans-sms-acc +I +QQ +Q +S -QQ' -Q'.
+%mode trans-sms-acc +I +QQ +Q +P -QQ' -Q'.
 
+% trans-sm-acc
 trans-sm-acc/num : trans-sm-acc I QQ Q (snum N) QQ ([q] Q (mpushnum N ; q)).
 
 trans-sm-acc/svar/z : trans-sm-acc I QQ Q (svar z) QQ ([q] Q (mgetarg ; q)).
@@ -83,6 +84,13 @@ trans-sm-acc/lam : trans-sm-acc I QQ Q (slam P) ([q] QQ' (Q' (mgetret ; mjump ; 
 
 trans-sm-acc/app : trans-sm-acc I QQ Q sapp QQ ([q] Q (make-call q)).
 
+trans-sm-acc/suc : trans-sm-acc I QQ Q ssuc QQ ([q] Q (minc ; q)).
+
+% trans-sm-acc/case : trans-sm-acc I QQ Q (scase P1 P2) ([q] QQ (Q' (Q'' q))) _
+%                      <- trans-sms-acc I QQ mprog-acc/nil P1 QQ' Q'
+%                      <- trans-sms-acc (s I) QQ' mprog-acc/nil P2 QQ'' Q''.
+
+% trans-sms-acc
 trans-sms-acc/nil : trans-sms-acc I QQ Q sprog/nil QQ Q.
 
 trans-sms-acc/cons : trans-sms-acc I QQ Q (sprog/cons S P) QQ' Q'

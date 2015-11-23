@@ -85,14 +85,22 @@ block-update/there : block-update (mblock/cons R' B) (s O) R (mblock/cons R' B')
 
 
 
+heap-fetch-block : mheap -> haddr -> mblock -> type.
+%mode heap-fetch-block +H +A -B.
+
+heap-fetch-block/here : heap-fetch-block (mheap/cons B H) z B.
+
+heap-fetch-block/there : heap-fetch-block (mheap/cons B H) (s A) B
+                    <- heap-fetch-block H A B.
+
+
+
 heap-fetch : mheap -> haddr -> nat -> mvalue -> type.
 %mode heap-fetch +H +A +O -R.
 
-heap-fetch/here : heap-fetch (mheap/cons B H) z O R
-                   <- block-fetch B O R.
-
-heap-fetch/there : heap-fetch (mheap/cons B H) (s A) O R
-                    <- heap-fetch H A O R.
+heap-fetch/ : heap-fetch H A O R
+               <- heap-fetch-block H A B
+               <- block-fetch B O R.
 
 
 
@@ -143,6 +151,9 @@ mexec/pushnum : mexec (mpushnum N) H Gamma (fr Phi Env Arg Ret) K
 mexec/pushpaddr : mexec (mpushpaddr K') H Gamma (fr Phi Env Arg Ret) K
                                        H Gamma (fr (mregs/cons Phi (rpaddr K')) Env Arg Ret) (s K).
 
+mexec/inc : mexec minc H Gamma (fr (mregs/cons Phi (rnum N)) Env Arg Ret) K
+                       H Gamma (fr (mregs/cons Phi (rnum (s N))) Env Arg Ret) (s K).
+
 mexec/getarg : mexec mgetarg H Gamma (fr Phi Env Arg Ret) K
                              H Gamma (fr (mregs/cons Phi Arg) Env Arg Ret) (s K).
 
@@ -184,6 +195,10 @@ msteps/zero : msteps Q H Gamma F K H Gamma F K.
 msteps/more : msteps Q H Gamma F K H' Gamma' F' K'
                <- mstep Q H Gamma F K H'' Gamma'' F'' K''
                <- msteps Q H'' Gamma'' F'' K'' H' Gamma' F' K'.
+
+
+
+msteps/single = msteps/more msteps/zero.
 
 
 
