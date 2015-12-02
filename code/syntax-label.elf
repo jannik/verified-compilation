@@ -1,0 +1,22 @@
+%abbrev num = nat.
+%abbrev label = nat.
+
+minst : type. %name minst M.
+
+mpushnum : num -> minst.
+mpushclos : label -> minst.
+
+
+
+mblock : type. %name mblock B.
+
+; : minst -> mblock -> mblock. %infix right 5 ;.
+mcall : label -> mblock.
+mret : mblock.
+
+
+
+mprog : type. %name mprog Q.
+
+mprog/nil : mprog.
+mprog/cons : label -> mblock -> mprog -> mprog.

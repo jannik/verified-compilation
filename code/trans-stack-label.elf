@@ -1,0 +1,26 @@
+trans-sm-acc : sprog -> mprog -> label -> mblock -> mprog -> label -> type.
+%mode trans-sm-acc +P +Q +L -B -Q' -L'.
+
+trans-sm-acc/num : trans-sm-acc (sprog/cons (snum N) P) Q L
+                                (mpushnum N ; B) Q' L'
+                    <- trans-sm-acc P Q L B Q' L'.
+
+trans-sm-acc/lam : trans-sm-acc (sprog/cons (slam P') P) Q L
+                                (mpushclos L ; B) (mprog/cons L B' Q'') L''
+                    <- trans-sm-acc P Q (s L) B Q' L'
+                    <- trans-sm-acc P' Q' L' B' Q'' L''.
+
+trans-sm-acc/app : trans-sm-acc (sprog/cons sapp P) Q L
+                                (mcall L) (mprog/cons L B' Q') L'
+                    <- trans-sm-acc P Q (s L) B' Q' L'.
+
+trans-sm-acc/ret : trans-sm-acc sprog/nil Q L
+                                mret Q L.
+
+
+
+trans-sm : sprog -> mprog -> label -> type.
+%mode trans-sm +P -Q -L.
+
+trans-sm/ : trans-sm P (mprog/cons L B Q) L
+             <- trans-sm-acc P mprog/nil z B Q L.
