@@ -4,6 +4,7 @@
 minst : type. %name minst M.
 
 mpushnum : num -> minst.
+mpushvar : nat -> minst.
 mpushclos : label -> minst.
 
 

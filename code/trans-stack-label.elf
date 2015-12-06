@@ -5,6 +5,10 @@ trans-sm-acc/num : trans-sm-acc (sprog/cons (snum N) P) Q L
                                 (mpushnum N ; B) Q' L'
                     <- trans-sm-acc P Q L B Q' L'.
 
+trans-sm-acc/var : trans-sm-acc (sprog/cons (svar I) P) Q L
+                                (mpushvar I ; B) Q' L'
+                    <- trans-sm-acc P Q L B Q' L'.
+
 trans-sm-acc/lam : trans-sm-acc (sprog/cons (slam P') P) Q L
                                 (mpushclos L ; B) (mprog/cons L B' Q'') L''
                     <- trans-sm-acc P Q (s L) B Q' L'

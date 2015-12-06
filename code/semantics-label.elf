@@ -1,0 +1,92 @@
+
+mvalue : type. %name mvalue R.
+mstore : type. %name mstore Alpha.
+
+rnum : num -> mvalue.
+rclos : mstore -> label -> mvalue.
+
+mstore/nil : mstore.
+mstore/cons : mstore -> mvalue -> mstore.
+
+
+
+rstack : type. %name rstack Phi.
+
+rstack/nil : rstack.
+rstack/cons : rstack -> mvalue -> rstack.
+
+
+
+mframes : type. %name mframes Gamma.
+
+mframes/nil : mframes.
+mframes/cons : mframes -> mstore -> label -> rstack -> mframes.
+
+
+
+mvar-lookup : mstore -> nat -> mvalue -> type. %name mvar-lookup DVL.
+%mode mvar-lookup +Alpha +I -R.
+
+mvar-lookup/here : mvar-lookup (mstore/cons Alpha R) z R.
+
+mvar-lookup/there : mvar-lookup (mstore/cons Alpha R') (s I) R
+                     <- mvar-lookup Alpha I R.
+
+
+
+label-lookup : mprog -> label -> mblock -> type. %name label-lookup DLL.
+%mode label-lookup +Q +L -B.
+
+label-lookup/here : label-lookup (mprog/cons L B Q) L B.
+
+label-lookup/there : label-lookup (mprog/cons L' B' Q) L B
+                      <- label-lookup Q L B.
+
+% not deterministic etc.; problem?
+% in paper version, there should be a side condition (L' /= L).
+
+
+
+mstep : mprog -> mframes -> mblock -> mframes -> mblock -> type. %name mstep DM.
+%mode mstep +Q +Gamma +B -Gamma' -B'.
+
+mstep/pushnum : mstep Q (mframes/cons Gamma Alpha L Phi) (mpushnum N ; B)
+                        (mframes/cons Gamma Alpha L (rstack/cons Phi (rnum N))) B.
+
+mstep/pushvar : mstep Q (mframes/cons Gamma Alpha L Phi) (mpushvar I ; B)
+                        (mframes/cons Gamma Alpha L (rstack/cons Phi R)) B
+                 <- mvar-lookup Alpha I R.
+
+mstep/pushclos : mstep Q (mframes/cons Gamma Alpha L Phi) (mpushclos L' ; B)
+                         (mframes/cons Gamma Alpha L (rstack/cons Phi (rclos Alpha L'))) B.
+
+mstep/call : mstep Q (mframes/cons Gamma Alpha L (rstack/cons (rstack/cons Phi (rclos Alpha' L')) R)) (mcall L'')
+                     (mframes/cons (mframes/cons Gamma Alpha L Phi) (mstore/cons Alpha' R) L'' rstack/nil) B
+              <- label-lookup Q L' B.
+
+mstep/ret : mstep Q (mframes/cons (mframes/cons Gamma Alpha L Phi) Alpha' L' (rstack/cons rstack/nil R)) mret
+                    (mframes/cons Gamma Alpha L (rstack/cons Phi R)) B
+             <- label-lookup Q L' B.
+
+
+
+msteps : mprog -> mframes -> mblock -> mframes -> mblock -> type. %name ssteps DMM.
+%mode msteps +Q +Gamma +B -Gamma' -B'.
+
+msteps/zero : msteps Q Gamma B Gamma B.
+
+msteps/more : msteps Q Gamma B Gamma'' B''
+               <- mstep Q Gamma B Gamma' B'
+               <- msteps Q Gamma' B' Gamma'' B''.
+
+
+
+meval : mprog -> label -> mvalue -> type. %name meval DP.
+%mode meval +Q +L -R.
+
+meval/ : meval Q L R
+          <- label-lookup Q L B
+          <- msteps Q (mframes/cons mframes/nil mstore/nil z rstack/nil) B
+                      (mframes/cons mframes/nil Alpha L (rstack/cons rstack/nil R)) mret.
+
+% is z a reasonable dummy label here?
