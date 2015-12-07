@@ -1,9 +1,9 @@
-%abbrev num = nat.
+%abbrev number = nat.
 %abbrev label = nat.
 
 minst : type. %name minst M.
 
-mpushnum : num -> minst.
+mpushnum : number -> minst.
 mpushvar : nat -> minst.
 mpushclos : label -> minst.
 

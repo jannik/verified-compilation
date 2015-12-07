@@ -23,8 +23,8 @@ trans-sm-acc/ret : trans-sm-acc sprog/nil Q L
 
 
 
-trans-sm : sprog -> mprog -> label -> type.
-%mode trans-sm +P -Q -L.
+trans-sm : sprog -> mblock -> mprog -> label -> type.
+%mode trans-sm +P -B -Q -L.
 
-trans-sm/ : trans-sm P (mprog/cons L B Q) L
+trans-sm/ : trans-sm P B Q L
              <- trans-sm-acc P mprog/nil z B Q L.
