@@ -7,11 +7,13 @@
 \usepackage{bussproofs}
 \usepackage{ntheorem}
 
+\newcommand{\tup}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{\{ #1 \}}
+
 \newcommand{\alt}{\;\; | \;\;}
 \newcommand{\defi}{\Coloneqq}
 \newcommand{\nil}{\cdot}
 \newcommand{\h}[1]{\hat{#1}}
-\newcommand{\set}[1]{\{#1\}}
 \renewcommand{\rule}{\textsc}
 \newcommand{\sg}{\sigma}
 \renewcommand{\phi}{\varphi}
@@ -58,6 +60,11 @@
 \newcommand{\mhalt}{\mathtt{halt}}
 
 \newcommand{\mend}{\mathtt{end}}
+
+\newcommand{\mpushvar}[1]{\mathtt{pushvar} \; #1}
+\newcommand{\mpushclos}[1]{\mathtt{pushclos} \; #1}
+\newcommand{\mcall}[1]{\mathtt{call} \; #1}
+\newcommand{\mret}{\mathtt{ret}}
 
 \newcommand{\hsuc}[1]{\mathtt{suc} \; #1}
 \newcommand{\hcase}[3]{\mathtt{case} \; #1 \; \mathtt{of} \; \z \Rightarrow #2 \; | \; \suc{x} \Rightarrow #3}
@@ -119,6 +126,7 @@
 \newcommand{\m}{m}
 \renewcommand{\h}{h}
 \renewcommand{\o}{o}
+\renewcommand{\l}{\ell}
 
 \newcommand{\f}{f}
 \newcommand{\B}{B}
@@ -926,6 +934,88 @@ Let $\prec$ denote the standard subtree order on step sequences, i.e. $\P_1 \pre
 \begin{lemma}
 If \tracc{\b}{\ss_2}{\ss} and \ssev{\Xi, \fr{\tau}{\ss}}{\Psi}{\nil}{\nil, \w'} (by $\P$) with \cor{\sg}{\tau}, then there exists $\v$ such that \hev{\sg}{\b}{\v} with \cor{\v}{\w} and \ssev{\Xi, \fr{\tau}{\ss_2}}{\Psi, \w}{\nil}{\nil, \w'} (by $\P'$) where $\P' \prec \P$.
 \end{lemma}
+
+
+
+\section*{Label-Machine Language}
+
+\subsection*{Syntax}
+
+Let $\l$ denote labels.
+We define label-machine instructions $\m$, basic blocks $\b$, and programs $\q$:
+
+\begin{align*}
+  \m &\defi \mpushnum{n} \alt \mpushvar{i} \alt \mpushclos{\l} \\
+  \b &\defi \m, \b \alt \mcall{\l} \alt \mret \\
+  \q &\defi \nil \alt \l: \b, \q
+\end{align*}
+
+Note that the label in the instruction $\mcall{\l}$ is the return label.
+
+\subsection*{Semantics}
+
+We define values $\r$, environments $\alpha$, control stacks $\Gamma$, and value stacks $\Phi$:
+
+\begin{align*}
+  \r &\defi \n{n} \alt \set{\alpha; \l} \\
+  \alpha &\defi \nil \alt \alpha, \r \\
+  \Gamma &\defi \nil \alt \Gamma, \tup{\alpha; \l} \\
+  \Phi &\defi \nil \alt \Phi, \r
+\end{align*}
+
+We need judgements for variable and label lookup (rules as expected):
+
+\vspace{0.5cm}
+\judgement{$\alpha \vdash i \downarrow \r$}
+\vspace{0.5cm}
+\judgement{$\q \vdash \l \uparrow \b$}
+\vspace{0.5cm}
+
+And finally the step judgement:
+
+\newcommand{\mstep}[7]{\ensuremath{#1 \vdash \tup{#2; #3; #4} \rightarrow \tup{#5; #6; #7}}}
+\newcommand{\msteps}[7]{\ensuremath{#1 \vdash \tup{#2; #3; #4} \rightarrow^* \tup{#5; #6; #7}}}
+
+\vspace{0.5cm}
+\judgement{\mstep{\q}{\Gamma}{\b}{\Phi}{\Gamma'}{\b'}{\Phi'}}
+
+\begin{prooftree}
+  \ax{\mstep{\q}{\Gamma, \tup{\alpha; \l}}{\mpushnum{n}, \b}{\Phi}{\Gamma, \tup{\alpha; \l}}{\b}{\Phi, \n{n}}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{$\alpha \vdash i \downarrow \r$}
+  \uinf{\mstep{\q}{\Gamma, \tup{\alpha; \l}}{\mpushvar{i}, \b}{\Phi}{\Gamma, \tup{\alpha; \l}}{\b}{\Phi, \r}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ax{\mstep{\q}{\Gamma, \tup{\alpha; \l}}{\mpushclos{\l'}, \b}{\Phi}{\Gamma, \tup{\alpha; \l}}{\b}{\Phi, \set{\alpha; \l'}}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{$\q \vdash \l' \uparrow \b$}
+  \uinf{\mstep{\q}{\Gamma, \tup{\alpha; \l}}{\mcall{\l''}}{\Phi, \set{\alpha'; \l'}, \r}{\Gamma, \tup{\alpha; \l}, \tup{\alpha', \r; \l''}}{\b}{\Phi}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{$\q \vdash \l' \uparrow \b$}
+  \uinf{\mstep{\q}{\Gamma, \tup{\alpha; \l}, \tup{\alpha'; \l'}}{\mret}{\Phi, \r}{\Gamma, \tup{\alpha; \l}}{\b}{\Phi, \r}}
+\end{prooftree}
+
+And a multi-step version with rules as expected:
+
+\vspace{0.5cm}
+\judgement{\msteps{\q}{\Gamma}{\b}{\Phi}{\Gamma'}{\b'}{\Phi'}}
+
+\subsection*{Translation}
+
+We translate from stack programs to label-machine programs using the following judgement:
+
+\vspace{0.5cm}
+\judgement{$\ss \circ \tup{\q; \l} \rhd \tup{\b; \q'; \l'}$}
+\vspace{0.5cm}
+
+(See code for rules and an attempt at formulating the soundness lemma.)
 
 \section*{Machine Language}
 
