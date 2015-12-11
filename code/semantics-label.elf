@@ -43,13 +43,18 @@ mvar-lookup/there : mvar-lookup (mstore/cons Alpha R') (s I) R
 label-lookup : mprog -> label -> mblock -> type. %name label-lookup DLL.
 %mode label-lookup +Q +L -B.
 
-label-lookup/here : label-lookup (mprog/cons L B Q) L B.
+label-lookup/here : label-lookup (mprog/cons B Q) here B.
 
-label-lookup/there : label-lookup (mprog/cons L' B' Q) L B
-                      <- label-lookup Q L B.
+label-lookup/next : label-lookup (mprog/cons B' Q) (next L) B
+                     <- label-lookup Q L B.
 
-% not deterministic etc.; problem?
-% in paper version, there should be a side condition (L' /= L).
+label-lookup/left : label-lookup (mprog/node Q1 Q2) (left L) B
+                     <- label-lookup Q1 L B.
+
+label-lookup/right : label-lookup (mprog/node Q1 Q2) (right L) B
+                     <- label-lookup Q2 L B.
+
+label-lookup/done : label-lookup Q done mhalt.
 
 
 
@@ -70,8 +75,8 @@ mstep/call : mstep Q (mframes/cons Gamma Alpha L) (mcall L'') (rstack/cons (rsta
                      (mframes/cons (mframes/cons Gamma Alpha L) (mstore/cons Alpha' R) L'') B Phi
               <- label-lookup Q L' B.
 
-mstep/ret : mstep Q (mframes/cons (mframes/cons Gamma Alpha L) Alpha' L') mret (rstack/cons Phi R)
-                    (mframes/cons Gamma Alpha L) B (rstack/cons Phi R)
+mstep/ret : mstep Q (mframes/cons Gamma Alpha' L') mret (rstack/cons Phi R)
+                    Gamma B (rstack/cons Phi R)
              <- label-lookup Q L' B.
 
 
@@ -87,9 +92,9 @@ msteps/more : msteps Q Gamma B Phi Gamma'' B'' Phi''
 
 
 
-meval : mblock -> mprog -> label -> mvalue -> type. %name meval DQ.
-%mode meval +B +Q +L -R.
+meval : mblock -> mprog -> mvalue -> type. %name meval DQ.
+%mode meval +B +Q -R.
 
-meval/ : meval B Q L R
-          <- {l} msteps Q (mframes/final l) B rstack/nil
-                          (mframes/final l) mret (rstack/single R).
+meval/ : meval B Q R
+          <- msteps Q (mframes/final done) B rstack/nil
+                      mframes/nil mhalt (rstack/single R).

@@ -1,5 +1,84 @@
-trans-sm-acc : sprog -> mprog -> label -> mblock -> mprog -> label -> type.
-%mode trans-sm-acc +P +Q +L -B -Q' -L'.
+shift-minst : (label -> label) -> minst -> minst -> type.
+%mode shift-minst +F +M -M'.
+
+shift-minst/pushnum : shift-minst F (mpushnum N) (mpushnum N).
+
+shift-minst/pushvar : shift-minst F (mpushvar I) (mpushvar I).
+
+shift-minst/pushclos : shift-minst F (mpushclos L) (mpushclos (F L)).
+
+
+
+shift-mblock : (label -> label) -> mblock -> mblock -> type.
+%mode shift-mblock +F +B -B'.
+
+shift-mblock/ret : shift-mblock F mret mret.
+
+shift-mblock/call : shift-mblock F (mcall L) (mcall (F L)).
+
+shift-mblock/halt : shift-mblock F mhalt mhalt.
+
+shift-mblock/cons : shift-mblock F (M ; B) (M' ; B')
+                     <- shift-minst F M M'
+                     <- shift-mblock F B B'.
+
+
+
+shift-mprog : (label -> label) -> mprog -> mprog -> type.
+%mode shift-mprog +F +Q -Q'.
+
+shift-mprog/nil : shift-mprog F mprog/nil mprog/nil.
+
+shift-mprog/cons : shift-mprog F (mprog/cons B Q) (mprog/cons B' Q')
+                    <- shift-mblock F B B'
+                    <- shift-mprog F Q Q'.
+
+shift-mprog/node : shift-mprog F (mprog/node Q1 Q2) (mprog/node Q1' Q2')
+                    <- shift-mprog F Q1 Q1'
+                    <- shift-mprog F Q2 Q2'.
+
+
+
+trans-sm : sprog -> mblock -> mprog -> type.
+%mode trans-sm +P -B -Q.
+
+trans-sm-fun : sprog -> mprog -> type.
+%mode trans-sm-fun +P -Q.
+
+
+
+% trans-sm
+
+trans-sm/num : trans-sm (sprog/cons (snum N) P) (mpushnum N ; B) Q
+                    <- trans-sm P B Q.
+
+trans-sm/var : trans-sm (sprog/cons (svar I) P) (mpushvar I ; B) Q
+                <- trans-sm P B Q.
+
+trans-sm/lam : trans-sm (sprog/cons (slam PP) P) (mpushclos (right here) ; B') (mprog/node Q' QQ')
+                <- trans-sm P B Q
+                <- trans-sm-fun PP QQ
+                <- shift-mblock left B B'
+                <- shift-mprog left Q Q'
+                <- shift-mprog right QQ QQ'.
+
+trans-sm/app : trans-sm (sprog/cons sapp P) (mcall here) (mprog/cons B Q')
+                <- trans-sm P B Q
+                <- shift-mprog next Q Q'.
+
+trans-sm/ret : trans-sm sprog/nil mret mprog/nil.
+
+
+
+% trans-sm-fun
+
+trans-sm-fun/ : trans-sm-fun P (mprog/cons B' Q')
+                 <- trans-sm P B Q
+                 <- shift-mprog next Q Q'
+                 <- shift-mblock next B B'.
+
+%.
+
 
 trans-sm-acc/num : trans-sm-acc (sprog/cons (snum N) P) Q L
                                 (mpushnum N ; B) Q' L'

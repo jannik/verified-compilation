@@ -1,6 +1,11 @@
-cor-stack : mprog -> frames -> label -> mframes -> type.
+cor-stack : mprog -> frames -> mblock -> mframes -> type.
 
-cor-stack/nil : cor-stack Q frames/nil L mframes/nil.
+cor-stack/nil : cor-stack Q frames/nil mhalt mframes/nil.
+
+cor-stack/cons : cor-stack Q (frames/cons Xi Tau P) B (mframes/cons Gamma Alpha L)
+                  <- cor-stack Q Xi B' Gamma
+                  <- label-lookup Q L B'
+                  <- trans-sm P B Q.
 
 
 
@@ -26,34 +31,62 @@ cor-store/nil : cor-store Q sstore/nil mstore/nil.
 
 
 
-cor-block : mprog -> sprog -> mblock -> type.
-
-cor-block/ : cor-block Q P B
-              <- trans-sm-acc P mprog/nil L B Q L'.
-
-
-
 soundness-sm'
-   : trans-sm-acc P Q L B Q' L'
-      -> msteps Q' (mframes/cons Gamma Alpha LL) B Phi
-                   (mframes/final LL') mret (rstack/single R)
-      -> cor-stack Q' Xi LL Gamma
-      -> cor-store Q' Tau Alpha
-      -> cor-value-stack Q' Psi Phi
-      -> ssteps (frames/cons Xi Tau P) Psi Xi Psi'
-      -> label-lookup Q LL B'
-      -> cor-value-stack Q Psi' Phi'
-      -> msteps Q Gamma B' Phi'
-                  (mframes/final LL') mret (rstack/single R)
+   : msteps Q Gamma B Phi
+                  mframes/nil mhalt (rstack/single R)
+      -> cor-stack Q Xi B Gamma
+      -> cor-value-stack Q Psi Phi
+      -> ssteps Xi Psi frames/nil (wstack/single W)
+      -> cor-value Q W R
       -> type.
-%mode soundness-sm' +DT +DMM +DCS +DCE +DCV -DP -DLL -DCV' -DMM'.
+%mode soundness-sm' +DMM +DCS +DCV -DP -DC.
 
-% The label-lookup in the output is not quite right -- it cannot be fulfilled when Gamma is empty.
+soundness-sm'/halt
+   : soundness-sm' msteps/zero cor-stack/nil (cor-value-stack/cons DC cor-value-stack/nil)
+                   ssteps/zero DC.
+
+soundness-sm'/num
+   : soundness-sm' (msteps/more DMM mstep/pushnum) (cor-stack/cons (trans-sm/num DT) DLL DCS) DCV
+                   (ssteps/more DP sstep/num) DC
+      <- soundness-sm' DMM (cor-stack/cons DT DLL DCS) (cor-value-stack/cons cor-value/num DCV)
+                       DP DC.
+
+% soundness-sm'/var
+%    : soundness-sm' (msteps/more DMM mstep/var)
+
+% soundness-sm'/lam
+%    : soundness-sm' (msteps/more DMM mstep/pushclos)
+%                    (cor-stack/cons
+%                      (trans-sm/lam (DHH : shift-mprog right QQ QQ') (DH : shift-mprog left Q Q')
+%                                    (DTT : trans-sm-fun PP QQ) (DT : trans-sm P B Q))
+%                      DLL
+%                      DCS)
+%                    DCV
+%                    DP DC
+%       <- soundness-sm' DMM (cor-stack/cons DT' DLL DCS) _ _ _.
 
 
 
-soundness-sm : trans-sm P B Q L -> meval B Q L (rnum N) -> seval P (wnum N) -> type.
+soundness-sm : trans-sm P B Q -> meval B Q (rnum N) -> seval P (wnum N) -> type.
 %mode soundness-sm +DT +DQ -DP.
 
-soundness-sm/ : soundness-sm (trans-sm/ DT) (meval/ DMM) (seval/ DP)
-                 <- soundness-sm' DT (DMM z) cor-stack/nil cor-store/nil cor-value-stack/nil DP DLL DCV' DMM'.
+soundness-sm/ : soundness-sm DT (meval/ DMM) (seval/ DP)
+                 <- soundness-sm' DMM (cor-stack/cons DT label-lookup/done cor-stack/nil) cor-value-stack/nil
+                                  DP cor-value/num.
+
+
+
+% test4 : exp = app (app (app (lam [f] lam [x] app f x) (lam [x] lam [y] x)) (num 3)) (num 5).
+test4 = app (app (lam [x] lam [y] x) (num 4)) (num 5).
+
+%define btest4 = B
+%solve _ : trans-hb-pseudo-exists test4 (DT : trans-hb store/nil B test4).
+
+%define ptest4 = P
+%solve _ : trans-bs btest4 P.
+
+%define qtest4 = Q
+%define qtest4-block = B
+%solve _ : trans-sm ptest4 B Q.
+
+%query 1 1 meval qtest4-block qtest4 R.

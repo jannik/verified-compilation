@@ -1,5 +1,12 @@
 %abbrev number = nat.
-%abbrev label = nat.
+
+label : type. %name label L.
+
+here : label.
+next : label -> label.
+left : label -> label.
+right : label -> label.
+done : label.
 
 minst : type. %name minst M.
 
@@ -14,10 +21,12 @@ mblock : type. %name mblock B.
 ; : minst -> mblock -> mblock. %infix right 5 ;.
 mcall : label -> mblock.
 mret : mblock.
+mhalt : mblock.
 
 
 
 mprog : type. %name mprog Q.
 
 mprog/nil : mprog.
-mprog/cons : label -> mblock -> mprog -> mprog.
+mprog/cons : mblock -> mprog -> mprog.
+mprog/node : mprog -> mprog -> mprog.

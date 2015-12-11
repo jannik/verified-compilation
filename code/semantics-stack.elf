@@ -21,6 +21,8 @@ wstack : type. %name wstack Psi.
 wstack/nil : wstack.
 wstack/cons : wstack -> svalue -> wstack.
 
+wstack/single = wstack/cons wstack/nil.
+
 
 
 seval-var : sstore -> nat -> svalue -> type. %name seval-var DSV.
