@@ -1,17 +1,68 @@
+leq : mprog -> mprog -> (label -> label) -> type. %name leq DLE.
+
+leq/left : leq Q' (mprog/node Q1 Q2) left
+            <- shift-mprog left Q' Q1.
+
+leq/right : leq Q' (mprog/node Q1 Q2) right
+             <- shift-mprog right Q' Q2.
+
+leq/next : leq Q' (mprog/cons B Q1) next
+            <- shift-mprog next Q' Q1.
+
+leq/refl : leq Q' Q' ([l] l).
+
+leq/trans : leq Q' Q (F o G)
+             <- leq Q' Q'' F
+             <- leq Q'' Q G.
+
+
+
+shift-mblock-trans : shift-mblock F B B' -> shift-mblock G B' B'' -> shift-mblock (F o G) B B'' -> type.
+%mode shift-mblock-trans +DH +DH' -DH''.
+
+
+
+lookup-respects-leq : leq Q' Q F -> label-lookup Q' L B -> label-lookup Q (F L) B -> type.
+%mode lookup-respects-leq +DLE +DLL -DLL'.
+
+
+
+cor-value : mprog -> svalue -> mvalue -> type.
+
+cor-store : mprog -> sstore -> mstore -> type.
+
+% cor-value
+
+cor-value/num : cor-value Q (wnum N) (rnum N).
+
+cor-value/clos : cor-value Q (wclos Tau P) (rclos Alpha L)
+                  <- cor-store Q Tau Alpha
+                  <- label-lookup Q L B
+                  <- trans-sm P B' Q'
+                  <- leq Q' Q F
+                  <- shift-mblock F B' B.
+
+% cor-store
+
+cor-store/nil : cor-store Q sstore/nil mstore/nil.
+
+cor-store/cons : cor-store Q (sstore/cons Tau W) (mstore/cons Alpha R)
+                  <- cor-store Q Tau Alpha
+                  <- cor-value Q W R.
+
+
+
 cor-stack : mprog -> frames -> mblock -> mframes -> type.
 
 cor-stack/nil : cor-stack Q frames/nil mhalt mframes/nil.
 
 cor-stack/cons : cor-stack Q (frames/cons Xi Tau P) B (mframes/cons Gamma Alpha L)
                   <- cor-stack Q Xi B' Gamma
+                  <- cor-store Q Tau Alpha
                   <- label-lookup Q L B'
-                  <- trans-sm P B Q.
-
-
-
-cor-value : mprog -> svalue -> mvalue -> type.
-
-cor-value/num : cor-value Q (wnum N) (rnum N).
+                  <- trans-sm P B'' Q'
+                  <- leq Q' Q F
+                  <- shift-mblock F B'' B.
 
 
 
@@ -25,15 +76,9 @@ cor-value-stack/cons : cor-value-stack Q (wstack/cons Psi W) (rstack/cons Phi R)
 
 
 
-cor-store : mprog -> sstore -> mstore -> type.
-
-cor-store/nil : cor-store Q sstore/nil mstore/nil.
-
-
-
 soundness-sm'
    : msteps Q Gamma B Phi
-                  mframes/nil mhalt (rstack/single R)
+      mframes/nil mhalt (rstack/single R)
       -> cor-stack Q Xi B Gamma
       -> cor-value-stack Q Psi Phi
       -> ssteps Xi Psi frames/nil (wstack/single W)
@@ -46,38 +91,58 @@ soundness-sm'/halt
                    ssteps/zero DC.
 
 soundness-sm'/num
-   : soundness-sm' (msteps/more DMM mstep/pushnum) (cor-stack/cons (trans-sm/num DT) DLL DCS) DCV
+   : soundness-sm' (msteps/more DMM mstep/pushnum) (cor-stack/cons (shift-mblock/cons DH shift-minst/pushnum) DLE (trans-sm/num DT) DLL DCE DCS) DCV
                    (ssteps/more DP sstep/num) DC
-      <- soundness-sm' DMM (cor-stack/cons DT DLL DCS) (cor-value-stack/cons cor-value/num DCV)
+      <- soundness-sm' DMM (cor-stack/cons DH DLE DT DLL DCE DCS) (cor-value-stack/cons cor-value/num DCV)
                        DP DC.
 
 % soundness-sm'/var
 %    : soundness-sm' (msteps/more DMM mstep/var)
 
-% soundness-sm'/lam
-%    : soundness-sm' (msteps/more DMM mstep/pushclos)
-%                    (cor-stack/cons
-%                      (trans-sm/lam (DHH : shift-mprog right QQ QQ') (DH : shift-mprog left Q Q')
-%                                    (DTT : trans-sm-fun PP QQ) (DT : trans-sm P B Q))
-%                      DLL
-%                      DCS)
-%                    DCV
-%                    DP DC
-%       <- soundness-sm' DMM (cor-stack/cons DT' DLL DCS) _ _ _.
+
+soundness-sm'/lam
+   : soundness-sm' (msteps/more DMM mstep/pushclos)
+                   (cor-stack/cons
+                     (shift-mblock/cons DH'' shift-minst/pushclos)
+                     (DLE : leq (mprog/node Q' (mprog/cons BB' QQ')) Q1 F)
+                     (trans-sm/lam ((shift-mprog/cons DHH DBB) : shift-mprog right (mprog/cons BB QQ) (mprog/cons BB' QQ')) (DH : shift-mprog left Q Q') (DHB : shift-mblock left B B')
+                                   ((trans-sm-fun/ DH1 DH2 DTT) : trans-sm-fun PP (mprog/cons BB QQ)) (DT : trans-sm P B Q))
+                     DLL
+                     DCE 
+                     DCS)
+                   DCV
+                   DP DC
+      <- shift-mblock-trans DHB DH'' DH'''
+      <- lookup-respects-leq DLE (label-lookup/right label-lookup/here) DLLL
+      <- shift-mprog-trans DH2 DHH DH47
+      <- shift-mblock-trans DH1 DBB DHHH
+      <- soundness-sm' DMM (cor-stack/cons DH''' (leq/trans DLE (leq/left DH)) DT DLL DCE DCS)
+           (cor-value-stack/cons (cor-value/clos (DHHH') (leq/trans DLE (leq/trans (leq/right (shift-mprog/cons DHH DBB)) (leq/next DH2)) : leq Q2 Q1 (next o right o F)) DTT DLLL DCE) DCVV) DP' DC.
 
 
+%.
+
+leq/trans (leq/trans (leq/next DH2) (leq/right (shift-mprog/cons DHH DBB))) DLE
+
+
+                  <- cor-store Q Tau Alpha
+                  <- label-lookup Q L B
+                  <- trans-sm P B' Q'
+                  <- leq Q' Q F
+                  <- shift-mblock F B' B.
 
 soundness-sm : trans-sm P B Q -> meval B Q (rnum N) -> seval P (wnum N) -> type.
 %mode soundness-sm +DT +DQ -DP.
 
 soundness-sm/ : soundness-sm DT (meval/ DMM) (seval/ DP)
-                 <- soundness-sm' DMM (cor-stack/cons DT label-lookup/done cor-stack/nil) cor-value-stack/nil
+                 <- soundness-sm' DMM (cor-stack/cons <=/refl DT label-lookup/done cor-stack/nil) cor-value-stack/nil
                                   DP cor-value/num.
 
 
 
 % test4 : exp = app (app (app (lam [f] lam [x] app f x) (lam [x] lam [y] x)) (num 3)) (num 5).
-test4 = app (app (lam [x] lam [y] x) (num 4)) (num 5).
+% test4 = app (app (lam [x] lam [y] x) (num 4)) (num 5).
+test4 : exp = app (lam [x] x) (num 3).
 
 %define btest4 = B
 %solve _ : trans-hb-pseudo-exists test4 (DT : trans-hb store/nil B test4).

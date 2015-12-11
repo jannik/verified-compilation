@@ -62,8 +62,9 @@ trans-sm/lam : trans-sm (sprog/cons (slam PP) P) (mpushclos (right here) ; B') (
                 <- shift-mprog left Q Q'
                 <- shift-mprog right QQ QQ'.
 
-trans-sm/app : trans-sm (sprog/cons sapp P) (mcall here) (mprog/cons B Q')
+trans-sm/app : trans-sm (sprog/cons sapp P) (mcall here) (mprog/cons B' Q')
                 <- trans-sm P B Q
+                <- shift-mblock next B B'
                 <- shift-mprog next Q Q'.
 
 trans-sm/ret : trans-sm sprog/nil mret mprog/nil.

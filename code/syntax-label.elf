@@ -8,6 +8,9 @@ left : label -> label.
 right : label -> label.
 done : label.
 
+%abbrev o : (label -> label) -> (label -> label) -> (label -> label)
+  = [f] [g] [l] f (g l). %infix right 5 o.
+
 minst : type. %name minst M.
 
 mpushnum : number -> minst.
