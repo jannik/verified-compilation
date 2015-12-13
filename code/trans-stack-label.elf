@@ -7,6 +7,9 @@ shift-minst/pushvar : shift-minst F (mpushvar I) (mpushvar I).
 
 shift-minst/pushclos : shift-minst F (mpushclos L) (mpushclos (F L)).
 
+%worlds () (shift-minst _ _ _).
+%total {} (shift-minst _ _ _).
+
 
 
 shift-mblock : (label -> label) -> mblock -> mblock -> type.
@@ -21,6 +24,9 @@ shift-mblock/halt : shift-mblock F mhalt mhalt.
 shift-mblock/cons : shift-mblock F (M ; B) (M' ; B')
                      <- shift-minst F M M'
                      <- shift-mblock F B B'.
+
+%worlds () (shift-mblock _ _ _).
+%total B (shift-mblock _ B _).
 
 
 
@@ -37,6 +43,8 @@ shift-mprog/node : shift-mprog F (mprog/node Q1 Q2) (mprog/node Q1' Q2')
                     <- shift-mprog F Q1 Q1'
                     <- shift-mprog F Q2 Q2'.
 
+%worlds () (shift-mprog _ _ _).
+%total Q (shift-mprog _ Q _).
 
 
 trans-sm : sprog -> mblock -> mprog -> type.
@@ -77,6 +85,14 @@ trans-sm-fun/ : trans-sm-fun P (mprog/cons B' Q')
                  <- trans-sm P B Q
                  <- shift-mprog next Q Q'
                  <- shift-mblock next B B'.
+
+
+
+
+%worlds () (trans-sm _ _ _) (trans-sm-fun _ _).
+%total (P P') (trans-sm P _ _) (trans-sm-fun P' _).
+
+
 
 %.
 
