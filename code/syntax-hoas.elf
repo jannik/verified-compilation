@@ -4,8 +4,8 @@ exp : type. %name exp E x.
 num : nat -> exp.
 lam : (exp -> exp) -> exp.
 app : exp -> exp -> exp.
-suc : exp -> exp.
-case : exp -> exp -> (exp -> exp) -> exp.
+% suc : exp -> exp.
+% case : exp -> exp -> (exp -> exp) -> exp.
 
 %block bl-exp : block {e : exp}.
 %worlds (bl-exp) (exp).

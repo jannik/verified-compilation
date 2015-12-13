@@ -34,6 +34,7 @@ beval/app : beval Sigma (bapp B1 B2) V
              <- beval Sigma B2 V2
              <- beval (store/cons Sigma' V2) B0 V.
 
+%{
 beval/suc : beval Sigma (bsuc B1) (vnum (s N))
              <- beval Sigma B1 (vnum N).
 
@@ -44,3 +45,4 @@ beval/case/z : beval Sigma (bcase B1 B2 B3) V2
 beval/case/s : beval Sigma (bcase B1 B2 B3) V3
                <- beval Sigma B1 (vnum (s N))
                <- beval (store/cons Sigma (vnum N)) B3 V3.
+}%

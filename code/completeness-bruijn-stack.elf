@@ -92,6 +92,7 @@ completeness-bs'/app : completeness-bs' (trans-bs-acc/app DT1 DT2) (beval/app DB
                         <- cat-ssteps DP12 (ssteps/more DP3 sstep/app) DP123
                         <- cat-ssteps DP123 (ssteps/single sstep/ret) DP.
 
+%{
 completeness-bs'/suc : completeness-bs' (trans-bs-acc/suc DT1) (beval/suc DB1) DD DP DC
                         <- completeness-bs' DT1 DB1 DD DP1 DC1
                         <- cat-ssteps DP1 (ssteps/single sstep/suc) DP
@@ -111,6 +112,7 @@ completeness-bs'/case/s : completeness-bs' (trans-bs-acc/case DT1 DT2 DT3) (beva
                            <- completeness-bs' DT3 DB3 (comp-bs/cons DC1' DD) DP3 DC3
                            <- cat-ssteps DP1 (ssteps/more DP3 sstep/case/s) DP13
                            <- cat-ssteps DP13 (ssteps/single sstep/ret) DP.
+}%
 
 %worlds () (completeness-bs' _ _ _ _ _).
 %total DB (completeness-bs' _ DB _ _ _).

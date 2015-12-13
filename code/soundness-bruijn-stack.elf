@@ -9,7 +9,7 @@ eq-svalue : svalue -> svalue -> type.
 eq-svalue/refl : eq-svalue W W.
 
 
-
+%{
 invert-ssteps-suc : ssteps (frames/cons Xi Tau (sprog/cons ssuc P)) (wstack/cons Psi W) frames/nil Psi'
                  -> eq-svalue W (wnum N)
                  -> ssteps (frames/cons Xi Tau P) (wstack/cons Psi (wnum (s N))) frames/nil Psi'
@@ -21,7 +21,7 @@ invert-ssteps-suc/ : invert-ssteps-suc (ssteps/more DP sstep/suc) eq-svalue/refl
 %worlds () (invert-ssteps-suc _ _ _).
 %reduces DP' < DP (invert-ssteps-suc DP _ DP').
 %total {} (invert-ssteps-suc _ _ _).
-
+}%
 
 
 invert-cor-bs-num : cor-bs V W -> eq-svalue W (wnum N) -> eq-value V (vnum N) -> type.
@@ -78,7 +78,7 @@ soundness-bs-var/there : soundness-bs-var (seval-var/there DSV) (comp-bs/cons DC
 %total DSV (soundness-bs-var DSV _ _ _).
 
 
-
+%{
 soundness-bs'-lemma : beval Sigma B1 V
          -> cor-bs V W
          -> ssteps (frames/cons Xi Tau (sprog/cons (scase P2 P3) P1)) (wstack/cons Psi W)
@@ -105,7 +105,7 @@ soundness-bs'-lemma/s
 %worlds () (soundness-bs'-lemma _ _ _ _ _ _ _ _ _ _).
 %reduces DP' < DP (soundness-bs'-lemma _ _ DP _ _ _ DP' _ _ _).
 %total {} (soundness-bs'-lemma _ _ _ _ _ _ _ _ _ _).
-
+}%
 
 
 soundness-bs' : ssteps (frames/cons Xi Tau P1-P2) Psi frames/nil (wstack/cons wstack/nil W') -> trans-bs-acc B P2 P1-P2 -> comp-bs Sigma Tau
@@ -127,6 +127,7 @@ soundness-bs'/app : soundness-bs' DP (trans-bs-acc/app DT1 DT2) DD (beval/app DB
                      <- coerce-beval DB1 DQV DB1'
                      <- soundness-bs' DP3 DT3 (comp-bs/cons DC2 DD') DB3 DC (ssteps/more DP4 sstep/ret).
 
+%{
 soundness-bs'/suc : soundness-bs' DP (trans-bs-acc/suc DT1) DD (beval/suc DB1') cor-bs/num DP1'
                      <- soundness-bs' DP DT1 DD DB1 DC1 DP1
                      <- invert-ssteps-suc DP1 DQW DP1'
@@ -137,6 +138,7 @@ soundness-bs'/case : soundness-bs' DP (trans-bs-acc/case DT1 DT2 DT3) DD (DB' _ 
                       <- soundness-bs' DP DT1 DD DB1 DC1 DP1
                       <- soundness-bs'-lemma DB1 DC1 DP1 DT2 DT3 DD DP1' DT' DD' DB'
                       <- soundness-bs' DP1' DT' DD' DB2 DC2 (ssteps/more DP2 sstep/ret).
+}%
 
 %worlds () (soundness-bs' _ _ _ _ _ _).
 %reduces DP' < DP (soundness-bs' DP _ _ _ _ DP').
