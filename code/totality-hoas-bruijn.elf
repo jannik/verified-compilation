@@ -22,6 +22,7 @@ closed/app : closed Sigma (app E1 E2)
               <- closed Sigma E1
               <- closed Sigma E2.
 
+%{
 closed/suc : closed Sigma (suc E1)
               <- closed Sigma E1.
 
@@ -29,7 +30,7 @@ closed/case : closed Sigma (case E1 E2 E3)
                <- closed Sigma E1
                <- closed Sigma E2
                <- {v} {x} cor v x -> closed (store/cons Sigma v) (E3 x).
-
+}%
 
 
 closed-trans-hb-var-exists : closed-var Sigma E -> trans-hb-var Sigma I E -> type.
@@ -62,6 +63,7 @@ closed-trans-hb-exists/app : closed-trans-hb-exists (closed/app DC2 DC1) (trans-
                               <- closed-trans-hb-exists DC1 DT1
                               <- closed-trans-hb-exists DC2 DT2.
 
+%{
 closed-trans-hb-exists/suc : closed-trans-hb-exists (closed/suc DC1) (trans-hb/suc DT1)
                               <- closed-trans-hb-exists DC1 DT1.
 
@@ -69,6 +71,7 @@ closed-trans-hb-exists/case : closed-trans-hb-exists (closed/case DC3 DC2 DC1) (
                                <- closed-trans-hb-exists DC1 DT1
                                <- closed-trans-hb-exists DC2 DT2
                                <- {v} {x} {dc} closed-trans-hb-exists (DC3 v x dc) (DT3 v x dc).
+}%
 
 %worlds (bl-trans-hb) (closed-trans-hb-exists _ _).
 %total DC (closed-trans-hb-exists DC _).
@@ -119,6 +122,7 @@ closed-pseudo-exists/app : closed-pseudo-exists Sigma (app E1 E2) (closed/app DC
                             <- closed-pseudo-exists Sigma E1 DC1
                             <- closed-pseudo-exists Sigma E2 DC2.
 
+%{
 closed-pseudo-exists/suc : closed-pseudo-exists Sigma (suc E1) (closed/suc DC1)
                             <- closed-pseudo-exists Sigma E1 DC1.
 
@@ -128,6 +132,7 @@ closed-pseudo-exists/case : closed-pseudo-exists Sigma (case E1 E2 E3) (closed/c
                              <- {v} {x} {dc}
                                   cor-pseudo-exists v x dc ->
                                   closed-pseudo-exists (store/cons Sigma v) (E3 x) (DC3 v x dc).
+}%
 
 %worlds (bl-closed-exists) (closed-pseudo-exists _ _ _).
 %covers closed-pseudo-exists +Sigma +E -DC.

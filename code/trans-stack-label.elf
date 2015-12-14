@@ -47,6 +47,7 @@ shift-mprog/node : shift-mprog F (mprog/node Q1 Q2) (mprog/node Q1' Q2')
 %total Q (shift-mprog _ Q _).
 
 
+
 trans-sm : sprog -> mblock -> mprog -> type.
 %mode trans-sm +P -B -Q.
 
@@ -58,7 +59,7 @@ trans-sm-fun : sprog -> mprog -> type.
 % trans-sm
 
 trans-sm/num : trans-sm (sprog/cons (snum N) P) (mpushnum N ; B) Q
-                    <- trans-sm P B Q.
+                <- trans-sm P B Q.
 
 trans-sm/var : trans-sm (sprog/cons (svar I) P) (mpushvar I ; B) Q
                 <- trans-sm P B Q.
@@ -91,6 +92,40 @@ trans-sm-fun/ : trans-sm-fun P (mprog/cons B' Q')
 
 %worlds () (trans-sm _ _ _) (trans-sm-fun _ _).
 %total (P P') (trans-sm P _ _) (trans-sm-fun P' _).
+
+
+
+%{
+% alternative, using a single judgement:
+
+trans-sm : sprog -> mblock -> mprog -> type.
+%mode trans-sm +P -B -Q.
+
+trans-sm/num : trans-sm (sprog/cons (snum N) P) (mpushnum N ; B) Q
+                <- trans-sm P B Q.
+
+trans-sm/var : trans-sm (sprog/cons (svar I) P) (mpushvar I ; B) Q
+                <- trans-sm P B Q.
+
+trans-sm/lam : trans-sm (sprog/cons (slam PP) P) (mpushclos (right here) ; B') (mprog/node Q' QQ'')
+                <- trans-sm P B Q
+                <- trans-sm PP BB QQ
+                <- shift-mblock left B B'
+                <- shift-mprog left Q Q'
+                <- shift-mblock next BB BB'
+                <- shift-mprog next QQ QQ'
+                <- shift-mprog right (mprog/cons BB' QQ') QQ''.
+
+trans-sm/app : trans-sm (sprog/cons sapp P) (mcall here) (mprog/cons B' Q')
+                <- trans-sm P B Q
+                <- shift-mblock next B B'
+                <- shift-mprog next Q Q'.
+
+trans-sm/ret : trans-sm sprog/nil mret mprog/nil.
+
+%worlds () (trans-sm _ _ _).
+%total P (trans-sm P _ _).
+}%
 
 
 
