@@ -971,6 +971,13 @@ And the semantics judgements:
 %\end{lemma}
 
 \section*{Label-Machine Language}
+The next challenge we face is moving the program code to some external storage and referring to it indirectly.
+To illuminate this issue we consider a slight evolution of the stack language.
+Nevertheless, it still poses the problem of how to handle translations of subprograms when the evaluation is happening in the context of the full program.
+The solution is to define a subprogram relation which carries evidence of how to arrive at the subprogram from the full program.
+This evidence is used to keep track of the location of different subprogram relative to each other and to make sure that references are suitably modified to apply in a different context than they were created.
+
+In this language the evidence takes the form of a path through the program storage tree, but the technique seems equally applicable if we were to generate machine code directly where the evidence would be the base address of the subprogram in question.
 
 \subsection*{Syntax}
 
