@@ -12,7 +12,8 @@
 
 \newcommand{\alt}{\;\; | \;\;}
 \newcommand{\defi}{\Coloneqq}
-\newcommand{\nil}{\cdot}
+%\newcommand{\nil}{\cdot}
+\newcommand{\nil}{[]}
 \newcommand{\h}[1]{\hat{#1}}
 \renewcommand{\rule}{\textsc}
 \newcommand{\sg}{\sigma}
@@ -34,7 +35,8 @@
 \newcommand{\n}[1]{\overline{#1}}
 \newcommand{\lam}[2]{\lambda #1. #2}
 \newcommand{\app}{\;}
-\newcommand{\cl}[2]{\langle #1, #2 \rangle}
+%\newcommand{\cl}[2]{\langle #1, #2 \rangle}
+\newcommand{\cl}[2]{\{ #1 ; #2 \}}
 \newcommand{\sub}[3]{#1[#2/#3]}
 \newcommand{\subs}[2]{#1[#2]}
 \newcommand{\wo}{\backslash}
@@ -66,6 +68,12 @@
 \newcommand{\mcall}[1]{\mathtt{call} \; #1}
 \newcommand{\mret}{\mathtt{ret}}
 
+\newcommand{\lhere}{\mathtt{here}}
+\newcommand{\lnext}{\mathtt{next}}
+\newcommand{\lleft}{\mathtt{left}}
+\newcommand{\lright}{\mathtt{right}}
+\newcommand{\ldone}{\mathtt{done}}
+
 \newcommand{\hsuc}[1]{\mathtt{suc} \; #1}
 \newcommand{\hcase}[3]{\mathtt{case} \; #1 \; \mathtt{of} \; \z \Rightarrow #2 \; | \; \suc{x} \Rightarrow #3}
 \newcommand{\bsuc}[1]{\mathtt{suc} \; #1}
@@ -78,6 +86,8 @@
 \newcommand{\uinf}[1]{\UnaryInfC{#1}}
 \newcommand{\binf}[1]{\BinaryInfC{#1}}
 \newcommand{\tinf}[1]{\TrinaryInfC{#1}}
+\newcommand{\qinf}[1]{\QuaternaryInfC{#1}}
+\newcommand{\fiveinf}[1]{\QuinaryInfC{#1}}
 \newcommand{\ax}[1]{\ninf{} \uinf{#1}}
 \newcommand{\prem}[2]{\noLine \ninf{$#1$} \uinf{#2}}
 \newcommand{\leftl}[1]{\LeftLabel{#1\;}}
@@ -134,6 +144,22 @@
 \newcommand{\mfr}[4]{\set{\mathtt{regs}:#1, \mathtt{env}:#2, \mathtt{arg}:#3, \mathtt{ret}:#4}}
 
 
+\newcommand{\mnil}{[]}
+\newcommand{\mcons}{::}
+\newcommand{\mnode}{\wedge}
+
+\newcommand{\trasl}[3]{#1 \rhd \tup{#2 ; #3}}
+\newcommand{\snum}{\mathtt{num} \;}
+\newcommand{\svar}{\mathtt{var} \;}
+\newcommand{\slam}{\mathtt{mkclos} \;}
+\renewcommand{\sapp}{\mathtt{app}}
+
+\newcommand{\ssnil}{[]}
+
+
+
+
+
 \newcounter{statementcounter}
 \newtheorem{lemma}[statementcounter]{Lemma}
 \newtheorem{theorem}[statementcounter]{Theorem}
@@ -148,257 +174,257 @@ $\blacksquare$
 
 \begin{document}
 
-\section*{Introduction}
-
-There are several ways of ensuring the correctness of a compiler.
-One way is through extensive testing, though in practice this is never quite sufficient to be rid of all errors [citation?].
-Another way is to prove correctness through some external mechanism.
-Yet another way, which is a variation of this idea, is to develop the compiler in such a way that it is correct by construction.
-
-This last option is the subject of this inquiry.
-Using a dependently typed language it is possible to encode properties about the behaviour of the program in its types --- in particular, given the right types, the mere fact that a program type checks is a witness that it is a correct compiler with respect to the semantics of the source and target languages.
-
-We use the Twelf logic programming language, which is based on the LF logical framework [citation Pfenning].
-Twelf is dependently typed, but it is limited in other respects such as only being able to prove metatheorems of the form $\Pi \cdots \Pi \Sigma \cdots \Sigma$ [what's the proper description?].
-Hence, for a given statement it is not a priori clear whether Twelf is capable of proving (or even stating) it, even if a proof exists on paper.
-On the other hand, Twelf has higher-order abstract syntax offering advantages when dealing with binders.
-
-Our aim therefore is to investigate the feasibility of implementing a verified compiler using Twelf.
-
-\section*{Previous Work}
-
-The main work in this area is the CompCert C verified compiler, a ``high-assurance compiler for almost all of the ISO C90 / ANSI C language, generating efficient code for the PowerPC, ARM and x86 processors'' [cite http://compcert.inria.fr/].
-It targets embedded programming and is written almost entirely in Coq (exceptions being the parser and the assembly code pretty-printer).
-Notably, the compiler implements non-trivial optimisations such as inlining.
-
-The same framework has been used to make a compiler for mini-ML with progress towards verified garbage collection [cite Xavier Leroy].
-
-Another project similarly achieves verified compilation for an ML-like language using Coq [cite Adam Chlipala].
-The focus is on maintainability of the compiler, in particular using parameterised higher-order abstract syntax, while memory management is largely ignored.
-
-[maybe mention PILSNER, a compositionally verified compiler]
-
-\section*{Source Language}            
-
-[Some kind of introduction to the language.]
-
-\subsection*{Syntax}
-
-Let $n$ denote natural numbers and $x$ variable identifiers. We then define source language expressions $\e$ and canonical forms $\c$:
-\begin{align*}
-  \e &\defi \n{n} \alt x \alt \lam{x}{\e_1} \alt \e_1 \app \e_2 \alt \hsuc{\e_1} \alt (\hcase{\e_1}{\e_2}{\e_3}) \\
-  \c &\defi \n{n} \alt \lam{x}{\e} \quad (\text{with} \; FV(\e) \subseteq \set{x}) \\
-\end{align*}
-
-\subsection*{Semantics}
-
-The semantics of the source language is based on substitution.
-
-\vspace{0.5cm}
-
-\judgement{\ev{\e}{\c}} ($\e$ closed)
-
-\begin{prooftree}
-  \leftl{\rule{E-Num} :}
-  \ax{\ev{\n{n}}{\n{n}}}
-\end{prooftree}
-
-\begin{prooftree}
-  \leftl{\rule{E-Lam} :}
-  \ax{\ev{\lam{x}{\e_1}}{\lam{x}{\e_1}}}
-\end{prooftree}
-
-\begin{prooftree}
-  \ninf{\ev{\e_1}{\lam{x}{\e_0}}}
-  \ninf{\ev{\e_2}{\c_2}}
-  \ninf{\ev{\sub{\e_0}{\c_2}{x}}{\c}}
-	\leftl{\rule{E-App} :}
-  \tinf{\ev{\e_1 \app \e_2}{\c}}
-\end{prooftree}
-
-\begin{prooftree}
-  \ninf{\ev{\e_1}{\n{n}}}
-	\leftl{\rule{E-Suc} :}
-  \uinf{\ev{\hsuc{\e_1}}{\n{n+1}}}
-\end{prooftree}
-
-\begin{prooftree}
-  \ninf{\ev{\e_1}{\n{0}}}
-  \ninf{\ev{\e_2}{\c_2}}
-	\leftl{\rule{E-Case-z} :}
-  \binf{\ev{\hcase{\e_1}{\e_2}{\e_3}}{\c_2}}
-\end{prooftree}
-
-\begin{prooftree}
-  \ninf{\ev{\e_1}{\n{n}}}
-  \ninf{\ev{\sub{\e_3}{\n{n-1}}{x}}{\c_3}}
-	\leftl{\rule{E-Case-s} :}
-	\rightl{$(n > 0)$}
-  \binf{\ev{\hcase{\e_1}{\e_2}{\e_3}}{\c_3}}
-\end{prooftree}
-
-\section*{De Bruijn Language}
-
-\subsection*{Syntax}
-
-We define variable indices $i$ and De Bruijn expressions $\b$ as follows:
-\begin{align*}
-	i &\defi \z \alt \suc i \\
-	\b &\defi \n{n} \alt i \alt \lam{}{\b_1} \alt \b_1 \app \b_2 \alt \bsuc{\b_1} \alt \bcase{\b_1}{\b_2}{\b_3}
-\end{align*}
-
-\subsection*{Semantics}
-
-The semantics of the De Bruijn language is environment-based.
-We define De Bruin values $\v$ as follows, and environments $\sg$ are then ordered lists of values.
-\begin{align*}
-  \v &\defi \n{n} \alt \cl{\sg}{\b} \\
-  \sg &\defi \nil \alt \sg, \v \\
-  \De &\defi \nil \alt \De, \cor{\v}{x}
-\end{align*}
-
-\judgement{\hev{\sg}{\b}{\v}}
-
-\begin{prooftree}
-  \leftl{\rule{B-Num} :}
-  \ax{\hev{\sg}{\n{n}}{\n{n}}}
-\end{prooftree}
-
-\begin{prooftree}
-  \ninf{\hevv{\sg}{i}{\v}}
-  \leftl{\rule{B-Var} :}
-  \uinf{\hev{\sg}{i}{\v}}
-\end{prooftree}
-
-\begin{prooftree}
-  \leftl{\rule{B-Lam :}}
-  \ax{\hev{\sg}{\lam{}{\b_1}}{\cl{\sg}{\b_1}}}
-\end{prooftree}
-
-\begin{prooftree}
-  \ninf{\hev{\sg}{\b_1}{\cl{\sg'}{\b_0}}}
-  \ninf{\hev{\sg}{\b_2}{\v_2}}
-  \ninf{\hev{\sg', \v_2}{\b_0}{\v}}
-	\leftl{\rule{B-App} :}
-  \tinf{\hev{\sg}{\b_1 \app \b_2}{\v}}
-\end{prooftree}
-
-\begin{prooftree}
-  \ninf{\hev{\sg}{\b_1}{\n{n}}}
-	\leftl{\rule{B-Suc} :}
-  \uinf{\hev{\sg}{\bsuc{\b_1}}{{\n{n+1}}}}
-\end{prooftree}
-
-\begin{prooftree}
-  \ninf{\hev{\sg}{\b_1}{\n{0}}}
-  \ninf{\hev{\sg}{\b_2}{\v_2}}
-	\leftl{\rule{B-Case-z} :}
-  \binf{\hev{\sg}{\bcase{\b_1}{\b_2}{\b_3}}{\v_2}}
-\end{prooftree}
-
-\begin{prooftree}
-  \ninf{\hev{\sg}{\b_1}{\n{n}}}
-  \ninf{\hev{\sg, \n{n-1}}{b_3}{\v_3}}
-	\leftl{\rule{B-Case-s} :}
-	\rightl{$(n > 0)$}
-  \binf{\hev{\sg}{\bcase{\b_1}{\b_2}{\b_3}}{\v_3}}
-\end{prooftree}
-
-\judgement{\hevv{\sg}{i}{\v}}
-
-\begin{prooftree}
-  \leftl{\rule{Bv-Here} :}
-  \ax{\hevv{\sg, \v}{\z}{\v}}
-\end{prooftree}
-
-\begin{prooftree}
-  \ninf{\hevv{\sg}{i}{\v}}
-  \leftl{\rule{Bv-There} :}
-  \uinf{\hevv{\sg, \v'}{\suc i}{\v}}
-\end{prooftree}
-
-\subsection*{Translation}
-
-\judgement{\tra{\De}{\sg}{\b}{\e}}
-
-% explain why it is going in the 'wrong' direction
-
-\begin{prooftree}
-  \leftl{\rule{T-Num} :}
-  \ax{\tra{\De}{\sg}{\n{n}}{\n{n}}}
-\end{prooftree}
-
-\begin{prooftree}
-  \ninf{\hevv{\sg}{i}{\v}}
-  \ninf{\vcor{\De}{\v}{\e}}
-  \leftl{\rule{T-Var} :}
-  \binf{\tra{\De}{\sg}{i}{e}}
-\end{prooftree}
-
-\begin{prooftree}
-	\ninf{\tra{\De, \cor{\v}{x}}{\sg, \v}{\b_1}{\e_1}}
-  \leftl{\rule{T-Lam} :}
-  \rightl{$(\forall \v' . \; (\cor{\v'}{x}) \notin \De)$}
-  \uinf{\tra{\De}{\sg}{\lam{}{\b_1}}{\lam{x}{\e_1}}}
-\end{prooftree}
-
-\begin{prooftree}
-  \ninf{\tra{\De}{\sg}{\b_1}{\e_1}}
-  \ninf{\tra{\De}{\sg}{\b_2}{\e_2}}
-	\leftl{\rule{T-App} :}
-  \binf{\tra{\De}{\sg}{\b_1 \app \b_2}{\e_1 \app \e_2}}
-\end{prooftree}
-
-\begin{prooftree}
-  \ninf{\tra{\De}{\sg}{\b_1}{\e_1}}
-	\leftl{\rule{T-Suc} :}
-  \uinf{\tra{\De}{\sg}{\bsuc{\b_1}}{\hsuc{\e_1}}}
-\end{prooftree}
-
-\begin{prooftree}
-	\ninf{\tra{\De}{\sg}{\b_1}{\e_1}}
-	\ninf{\tra{\De}{\sg}{\b_2}{\e_2}}
-	\ninf{\tra{\De, \cor{\v}{x}}{\sg, \v}{\b_3}{\e_3}}
-  \leftl{\rule{T-Case} :}
-  \rightl{$(\forall \v' . \; (\cor{\v'}{x}) \notin \De)$}
-  \tinf{\tra{\De}{\sg}{\bcase{b_1}{b_2}{b_3}}{\hcase{e_1}{e_2}{e_3}}}
-\end{prooftree}
-
-% explain the need for hypothetical and parametric judgements
-% rather, rewrite with explicit environtment containing v ~> e bindings
-
-% should really be 'e' rather than 'c' (also in hoas semantics) to support the hypothetical judgements
-
-% We define a correspondence between values and expressions in canonical form:
-
-\judgement{\vcor{\De}{\v}{\e}}
-
-\begin{prooftree}
-  \leftl{\rule{C-Hyp} :}
-  \rightl{$((\cor{\v}{x}) \in \De)$}
-  \ax{\vcor{\De}{\v}{x}}
-\end{prooftree}
-
-\begin{prooftree}
-  \leftl{\rule{C-Num} :}
-  \ax{\vcor{\De}{\n{n}}{\n{n}}}
-\end{prooftree}
-
-\begin{prooftree}
-  \ninf{\tra{\De}{\sg}{\lam{}{\b}}{\lam{x}{\e}}}
-  \leftl{\rule{C-Fun} :}
-  \uinf{\vcor{\De}{\cl{\sg}{\b}}{\lam{x}{\e}}}
-\end{prooftree}
-
-\subsection*{Equivalence}
-
-\begin{theorem} [Equivalence source-Bruijn]
-\label{thm:equiv-hb} If \tra{\nil}{\b}{\e}, then \ev{\e}{\n{n}} if and only if \hev{\nil}{\b}{\n{n}}.
-\end{theorem}
-
-To prove this, we first generalise to the following lemmas.
-
-\ldots
+%\section*{Introduction}
+%
+%There are several ways of ensuring the correctness of a compiler.
+%One way is through extensive testing, though in practice this is never quite sufficient to be rid of all errors [citation?].
+%Another way is to prove correctness through some external mechanism.
+%Yet another way, which is a variation of this idea, is to develop the compiler in such a way that it is correct by construction.
+%
+%This last option is the subject of this inquiry.
+%Using a dependently typed language it is possible to encode properties about the behaviour of the program in its types --- in particular, given the right types, the mere fact that a program type checks is a witness that it is a correct compiler with respect to the semantics of the source and target languages.
+%
+%We use the Twelf logic programming language, which is based on the LF logical framework [citation Pfenning].
+%Twelf is dependently typed, but it is limited in other respects such as only being able to prove metatheorems of the form $\Pi \cdots \Pi \Sigma \cdots \Sigma$ [what's the proper description?].
+%Hence, for a given statement it is not a priori clear whether Twelf is capable of proving (or even stating) it, even if a proof exists on paper.
+%On the other hand, Twelf has higher-order abstract syntax offering advantages when dealing with binders.
+%
+%Our aim therefore is to investigate the feasibility of implementing a verified compiler using Twelf.
+%
+%\section*{Previous Work}
+%
+%The main work in this area is the CompCert C verified compiler, a ``high-assurance compiler for almost all of the ISO C90 / ANSI C language, generating efficient code for the PowerPC, ARM and x86 processors'' [cite http://compcert.inria.fr/].
+%It targets embedded programming and is written almost entirely in Coq (exceptions being the parser and the assembly code pretty-printer).
+%Notably, the compiler implements non-trivial optimisations such as inlining.
+%
+%The same framework has been used to make a compiler for mini-ML with progress towards verified garbage collection [cite Xavier Leroy].
+%
+%Another project similarly achieves verified compilation for an ML-like language using Coq [cite Adam Chlipala].
+%The focus is on maintainability of the compiler, in particular using parameterised higher-order abstract syntax, while memory management is largely ignored.
+%
+%[maybe mention PILSNER, a compositionally verified compiler]
+%
+%\section*{Source Language}            
+%
+%[Some kind of introduction to the language.]
+%
+%\subsection*{Syntax}
+%
+%Let $n$ denote natural numbers and $x$ variable identifiers. We then define source language expressions $\e$ and canonical forms $\c$:
+%\begin{align*}
+  %\e &\defi \n{n} \alt x \alt \lam{x}{\e_1} \alt \e_1 \app \e_2 \alt \hsuc{\e_1} \alt (\hcase{\e_1}{\e_2}{\e_3}) \\
+  %\c &\defi \n{n} \alt \lam{x}{\e} \quad (\text{with} \; FV(\e) \subseteq \set{x}) \\
+%\end{align*}
+%
+%\subsection*{Semantics}
+%
+%The semantics of the source language is based on substitution.
+%
+%\vspace{0.5cm}
+%
+%\judgement{\ev{\e}{\c}} ($\e$ closed)
+%
+%\begin{prooftree}
+  %\leftl{\rule{E-Num} :}
+  %\ax{\ev{\n{n}}{\n{n}}}
+%\end{prooftree}
+%
+%\begin{prooftree}
+  %\leftl{\rule{E-Lam} :}
+  %\ax{\ev{\lam{x}{\e_1}}{\lam{x}{\e_1}}}
+%\end{prooftree}
+%
+%\begin{prooftree}
+  %\ninf{\ev{\e_1}{\lam{x}{\e_0}}}
+  %\ninf{\ev{\e_2}{\c_2}}
+  %\ninf{\ev{\sub{\e_0}{\c_2}{x}}{\c}}
+	%\leftl{\rule{E-App} :}
+  %\tinf{\ev{\e_1 \app \e_2}{\c}}
+%\end{prooftree}
+%
+%\begin{prooftree}
+  %\ninf{\ev{\e_1}{\n{n}}}
+	%\leftl{\rule{E-Suc} :}
+  %\uinf{\ev{\hsuc{\e_1}}{\n{n+1}}}
+%\end{prooftree}
+%
+%\begin{prooftree}
+  %\ninf{\ev{\e_1}{\n{0}}}
+  %\ninf{\ev{\e_2}{\c_2}}
+	%\leftl{\rule{E-Case-z} :}
+  %\binf{\ev{\hcase{\e_1}{\e_2}{\e_3}}{\c_2}}
+%\end{prooftree}
+%
+%\begin{prooftree}
+  %\ninf{\ev{\e_1}{\n{n}}}
+  %\ninf{\ev{\sub{\e_3}{\n{n-1}}{x}}{\c_3}}
+	%\leftl{\rule{E-Case-s} :}
+	%\rightl{$(n > 0)$}
+  %\binf{\ev{\hcase{\e_1}{\e_2}{\e_3}}{\c_3}}
+%\end{prooftree}
+%
+%\section*{De Bruijn Language}
+%
+%\subsection*{Syntax}
+%
+%We define variable indices $i$ and De Bruijn expressions $\b$ as follows:
+%\begin{align*}
+	%i &\defi \z \alt \suc i \\
+	%\b &\defi \n{n} \alt i \alt \lam{}{\b_1} \alt \b_1 \app \b_2 \alt \bsuc{\b_1} \alt \bcase{\b_1}{\b_2}{\b_3}
+%\end{align*}
+%
+%\subsection*{Semantics}
+%
+%The semantics of the De Bruijn language is environment-based.
+%We define De Bruin values $\v$ as follows, and environments $\sg$ are then ordered lists of values.
+%\begin{align*}
+  %\v &\defi \n{n} \alt \cl{\sg}{\b} \\
+  %\sg &\defi \nil \alt \sg, \v \\
+  %\De &\defi \nil \alt \De, \cor{\v}{x}
+%\end{align*}
+%
+%\judgement{\hev{\sg}{\b}{\v}}
+%
+%\begin{prooftree}
+  %\leftl{\rule{B-Num} :}
+  %\ax{\hev{\sg}{\n{n}}{\n{n}}}
+%\end{prooftree}
+%
+%\begin{prooftree}
+  %\ninf{\hevv{\sg}{i}{\v}}
+  %\leftl{\rule{B-Var} :}
+  %\uinf{\hev{\sg}{i}{\v}}
+%\end{prooftree}
+%
+%\begin{prooftree}
+  %\leftl{\rule{B-Lam :}}
+  %\ax{\hev{\sg}{\lam{}{\b_1}}{\cl{\sg}{\b_1}}}
+%\end{prooftree}
+%
+%\begin{prooftree}
+  %\ninf{\hev{\sg}{\b_1}{\cl{\sg'}{\b_0}}}
+  %\ninf{\hev{\sg}{\b_2}{\v_2}}
+  %\ninf{\hev{\sg', \v_2}{\b_0}{\v}}
+	%\leftl{\rule{B-App} :}
+  %\tinf{\hev{\sg}{\b_1 \app \b_2}{\v}}
+%\end{prooftree}
+%
+%\begin{prooftree}
+  %\ninf{\hev{\sg}{\b_1}{\n{n}}}
+	%\leftl{\rule{B-Suc} :}
+  %\uinf{\hev{\sg}{\bsuc{\b_1}}{{\n{n+1}}}}
+%\end{prooftree}
+%
+%\begin{prooftree}
+  %\ninf{\hev{\sg}{\b_1}{\n{0}}}
+  %\ninf{\hev{\sg}{\b_2}{\v_2}}
+	%\leftl{\rule{B-Case-z} :}
+  %\binf{\hev{\sg}{\bcase{\b_1}{\b_2}{\b_3}}{\v_2}}
+%\end{prooftree}
+%
+%\begin{prooftree}
+  %\ninf{\hev{\sg}{\b_1}{\n{n}}}
+  %\ninf{\hev{\sg, \n{n-1}}{b_3}{\v_3}}
+	%\leftl{\rule{B-Case-s} :}
+	%\rightl{$(n > 0)$}
+  %\binf{\hev{\sg}{\bcase{\b_1}{\b_2}{\b_3}}{\v_3}}
+%\end{prooftree}
+%
+%\judgement{\hevv{\sg}{i}{\v}}
+%
+%\begin{prooftree}
+  %\leftl{\rule{Bv-Here} :}
+  %\ax{\hevv{\sg, \v}{\z}{\v}}
+%\end{prooftree}
+%
+%\begin{prooftree}
+  %\ninf{\hevv{\sg}{i}{\v}}
+  %\leftl{\rule{Bv-There} :}
+  %\uinf{\hevv{\sg, \v'}{\suc i}{\v}}
+%\end{prooftree}
+%
+%\subsection*{Translation}
+%
+%\judgement{\tra{\De}{\sg}{\b}{\e}}
+%
+%% explain why it is going in the 'wrong' direction
+%
+%\begin{prooftree}
+  %\leftl{\rule{T-Num} :}
+  %\ax{\tra{\De}{\sg}{\n{n}}{\n{n}}}
+%\end{prooftree}
+%
+%\begin{prooftree}
+  %\ninf{\hevv{\sg}{i}{\v}}
+  %\ninf{\vcor{\De}{\v}{\e}}
+  %\leftl{\rule{T-Var} :}
+  %\binf{\tra{\De}{\sg}{i}{e}}
+%\end{prooftree}
+%
+%\begin{prooftree}
+	%\ninf{\tra{\De, \cor{\v}{x}}{\sg, \v}{\b_1}{\e_1}}
+  %\leftl{\rule{T-Lam} :}
+  %\rightl{$(\forall \v' . \; (\cor{\v'}{x}) \notin \De)$}
+  %\uinf{\tra{\De}{\sg}{\lam{}{\b_1}}{\lam{x}{\e_1}}}
+%\end{prooftree}
+%
+%\begin{prooftree}
+  %\ninf{\tra{\De}{\sg}{\b_1}{\e_1}}
+  %\ninf{\tra{\De}{\sg}{\b_2}{\e_2}}
+	%\leftl{\rule{T-App} :}
+  %\binf{\tra{\De}{\sg}{\b_1 \app \b_2}{\e_1 \app \e_2}}
+%\end{prooftree}
+%
+%\begin{prooftree}
+  %\ninf{\tra{\De}{\sg}{\b_1}{\e_1}}
+	%\leftl{\rule{T-Suc} :}
+  %\uinf{\tra{\De}{\sg}{\bsuc{\b_1}}{\hsuc{\e_1}}}
+%\end{prooftree}
+%
+%\begin{prooftree}
+	%\ninf{\tra{\De}{\sg}{\b_1}{\e_1}}
+	%\ninf{\tra{\De}{\sg}{\b_2}{\e_2}}
+	%\ninf{\tra{\De, \cor{\v}{x}}{\sg, \v}{\b_3}{\e_3}}
+  %\leftl{\rule{T-Case} :}
+  %\rightl{$(\forall \v' . \; (\cor{\v'}{x}) \notin \De)$}
+  %\tinf{\tra{\De}{\sg}{\bcase{b_1}{b_2}{b_3}}{\hcase{e_1}{e_2}{e_3}}}
+%\end{prooftree}
+%
+%% explain the need for hypothetical and parametric judgements
+%% rather, rewrite with explicit environtment containing v ~> e bindings
+%
+%% should really be 'e' rather than 'c' (also in hoas semantics) to support the hypothetical judgements
+%
+%% We define a correspondence between values and expressions in canonical form:
+%
+%\judgement{\vcor{\De}{\v}{\e}}
+%
+%\begin{prooftree}
+  %\leftl{\rule{C-Hyp} :}
+  %\rightl{$((\cor{\v}{x}) \in \De)$}
+  %\ax{\vcor{\De}{\v}{x}}
+%\end{prooftree}
+%
+%\begin{prooftree}
+  %\leftl{\rule{C-Num} :}
+  %\ax{\vcor{\De}{\n{n}}{\n{n}}}
+%\end{prooftree}
+%
+%\begin{prooftree}
+  %\ninf{\tra{\De}{\sg}{\lam{}{\b}}{\lam{x}{\e}}}
+  %\leftl{\rule{C-Fun} :}
+  %\uinf{\vcor{\De}{\cl{\sg}{\b}}{\lam{x}{\e}}}
+%\end{prooftree}
+%
+%\subsection*{Equivalence}
+%
+%\begin{theorem} [Equivalence source-Bruijn]
+%\label{thm:equiv-hb} If \tra{\nil}{\b}{\e}, then \ev{\e}{\n{n}} if and only if \hev{\nil}{\b}{\n{n}}.
+%\end{theorem}
+%
+%To prove this, we first generalise to the following lemmas.
+%
+%\ldots
 
 %\begin{lemma}[Evaluation of Values]
 %\label{lem:value-eval}
@@ -738,18 +764,24 @@ To prove this, we first generalise to the following lemmas.
 
 \section*{Stack Language}
 
-We now develop the next translation target, a stack-based language.
+% temp
+\renewcommand{\lam}[2]{\slam{#2}}
+
+% We now develop the next translation target, a stack-based language.
 
 \subsection*{Syntax}
+
+We define stack-machine instructions $\s$ and programs $\ss$:
 \begin{align*}
-  \s &\defi \n{n} \alt i \alt \lam{}{\ss} \alt \sapp \alt \ssuc \alt \scase{\ss_1}{\ss_2} \\
+  \s &\defi \snum{n} \alt \svar{i} \alt \lam{}{\ss} \alt \sapp \\ % \alt \ssuc \alt \scase{\ss_1}{\ss_2} \\
   \ss &\defi \nil \alt \s, \ss
 \end{align*}
-(Note that $i$ was defined previously.)
+% (Note that $i$ was defined previously.)
 
 \subsection*{Semantics}
-The semantics of the stack language is given as follows:
+% The semantics of the stack language is given as follows:
 
+We define values $\w$, environments $\tau$, control stacks $\Xi$, and value stacks $\Psi$:
 \begin{align*}
   \w &\defi \n{n} \alt \cl{\tau}{\ss} \\
   \tau &\defi \nil \alt \tau, \w \\
@@ -757,10 +789,13 @@ The semantics of the stack language is given as follows:
   \Psi &\defi \nil \alt \Psi, \w \\
 \end{align*}
 
+And the semantics judgements:
+\vspace{0.5cm}
+
 \judgement{\ev{\ss}{\w}}
 
 \begin{prooftree}
-  \ninf{\ssev{\fr{\nil}{\ss}}{\nil}{\nil}{\w}}
+  \ninf{\ssev{\fr{\nil}{\ss}}{\nil}{\nil}{\nil, \w}}
   \uinf{\ev{\ss}{\w}}
 \end{prooftree}
 
@@ -781,13 +816,13 @@ The semantics of the stack language is given as follows:
 
 \begin{prooftree}
   \leftl{\rule{S-Num} :}
-  \ax{\sev{\Xi, \fr{\tau}{\n{n}, \ss}}{\Psi}{\Xi, \fr{\tau}{\ss}}{\Psi, \n{n}}}
+  \ax{\sev{\Xi, \fr{\tau}{\snum{n}, \ss}}{\Psi}{\Xi, \fr{\tau}{\ss}}{\Psi, \n{n}}}
 \end{prooftree}
 
 \begin{prooftree}
   \ninf{\sevv{\tau}{i}{\w}}
   \leftl{\rule{S-Var} :}
-  \uinf{\sev{\Xi, \fr{\tau}{i, \ss}}{\Psi}{\Xi, \fr{\tau}{\ss}}{\Psi, \w}}
+  \uinf{\sev{\Xi, \fr{\tau}{\svar{i}, \ss}}{\Psi}{\Xi, \fr{\tau}{\ss}}{\Psi, \w}}
 \end{prooftree}
 
 \begin{prooftree}
@@ -835,127 +870,122 @@ The semantics of the stack language is given as follows:
 \end{prooftree}
 
 
-\subsection*{Translation}
-We translate from De Bruijn expressions to stack programs using the following judgements:
-
-\vspace{0.5cm}
-
-\judgement{\tr{\b}{\ss}}
-
-\begin{prooftree}
-  \ninf{\tracc{\b}{\nil}{\ss}}
-  \uinf{\tr{\b}{\ss}}
-\end{prooftree}
-
-\judgement{\tracc{\b}{\ss}{\ss'}}
-
-\begin{prooftree}
-  \leftl{\rule{T-Num} :}
-  \ax{\tracc{\n{n}}{\ss}{\n{n}, \ss}}
-\end{prooftree}
-
-\begin{prooftree}
-  \leftl{\rule{T-Var} :}
-  \ax{\tracc{i}{\ss}{i, \ss}}
-\end{prooftree}
-
-\begin{prooftree}
-  \ninf{\tracc{\b_1}{\nil}{\ss_1}}
-  \leftl{\rule{T-Lam} :}
-  \uinf{\tracc{\lam{}{\b_1}}{\ss}{(\lam{}{\ss_1}), \ss}}
-\end{prooftree}
-
-\begin{prooftree}
-  \ninf{\tracc{\b_2}{\sapp, \ss}{\ss''}}
-  \ninf{\tracc{\b_1}{\ss''}{\ss'}}
-  \leftl{\rule{T-App} :}
-  \binf{\tracc{\b_1 \app \b_2}{\ss}{\ss'}}
-\end{prooftree}
-
-\begin{prooftree}
-  \ninf{\tracc{\b_1}{\ssuc, \ss}{\ss'}}
-  \leftl{\rule{T-Suc} :}
-  \uinf{\tracc{\bsuc{\b_1}}{\ss}{\ss'}}
-\end{prooftree}
-
-\begin{prooftree}
-	\ninf{\tracc{\b_3}{\nil}{\ss_3}}
-	\ninf{\tracc{\b_2}{\nil}{\ss_2}}
-  \ninf{\tracc{\b_1}{\scase{\ss_2}{\ss_3}, \ss}{\ss'}}
-  \leftl{\rule{T-Case} :}
-  \tinf{\tracc{\bcase{\b_1}{\b_2}{\b_3}}{\ss}{\ss'}}
-\end{prooftree}
-
-\subsection*{Equivalence}
-
-\begin{theorem} [Equivalence Bruijn-stack]
-\label{thm:equiv-bs} If \tr{\b}{\ss}, then \hev{\nil}{\b}{\n{n}} if and only if \ev{\ss}{\n{n}}.
-\end{theorem}
-
-To prove this we need two additional judgements:
-\vspace{0.5cm}
-
-\judgement{\cor{\v}{\w}}
-
-\begin{prooftree}
-  \leftl{\rule{C-Num} :}
-  \ax{\cor{\n{n}}{\n{n}}}
-\end{prooftree}
-
-\begin{prooftree}
-  \ninf{\cor{\sg}{\tau}}
-  \ninf{\tr{\b}{\ss}}
-  \leftl{\rule{C-Fun} :}
-  \binf{\cor{\cl{\sg}{\b}}{\cl{\tau}{\ss}}}
-\end{prooftree}
-
-\judgement{\scomp{\sg}{\tau}}
-
-\begin{prooftree}
-  \leftl{\rule{D-Nil} :}
-  \ax{\scomp{\nil}{\nil}}
-\end{prooftree}
-
-\begin{prooftree}
-  \ninf{\scomp{\sg}{\tau}}
-  \ninf{\cor{\v}{\w}}
-  \leftl{\rule{D-Cons} :}
-  \binf{\scomp{\sg, \v}{\tau, \w}}
-\end{prooftree}
-
-% completeness
-\begin{lemma}
-If \tracc{\b}{\ss_2}{\ss} and \hev{\sg}{\b}{\v} with \cor{\sg}{\tau}, then (for all $\Xi$ and $\Psi$) there exists $\w$ such that \ssev{\Xi, \fr{\tau}{\ss}}{\Psi}{\Xi, \fr{\tau}{\ss_2}}{\Psi, \w} with \cor{\v}{\w}.
-\end{lemma}
-
-Let $\prec$ denote the standard subtree order on step sequences, i.e. $\P_1 \prec \P_2$ if $\P_1$ is a proper suffix of $\P_2$.
-
-% soundness
-\begin{lemma}
-If \tracc{\b}{\ss_2}{\ss} and \ssev{\Xi, \fr{\tau}{\ss}}{\Psi}{\nil}{\nil, \w'} (by $\P$) with \cor{\sg}{\tau}, then there exists $\v$ such that \hev{\sg}{\b}{\v} with \cor{\v}{\w} and \ssev{\Xi, \fr{\tau}{\ss_2}}{\Psi, \w}{\nil}{\nil, \w'} (by $\P'$) where $\P' \prec \P$.
-\end{lemma}
-
-
+%\subsection*{Translation}
+%We translate from De Bruijn expressions to stack programs using the following judgements:
+%
+%\vspace{0.5cm}
+%
+%\judgement{\tr{\b}{\ss}}
+%
+%\begin{prooftree}
+  %\ninf{\tracc{\b}{\nil}{\ss}}
+  %\uinf{\tr{\b}{\ss}}
+%\end{prooftree}
+%
+%\judgement{\tracc{\b}{\ss}{\ss'}}
+%
+%\begin{prooftree}
+  %\leftl{\rule{T-Num} :}
+  %\ax{\tracc{\n{n}}{\ss}{\num{n}, \ss}}
+%\end{prooftree}
+%
+%\begin{prooftree}
+  %\leftl{\rule{T-Var} :}
+  %\ax{\tracc{i}{\ss}{\svar{i}, \ss}}
+%\end{prooftree}
+%
+%\begin{prooftree}
+  %\ninf{\tracc{\b_1}{\nil}{\ss_1}}
+  %\leftl{\rule{T-Lam} :}
+  %\uinf{\tracc{\lam{}{\b_1}}{\ss}{(\lam{}{\ss_1}), \ss}}
+%\end{prooftree}
+%
+%\begin{prooftree}
+  %\ninf{\tracc{\b_2}{\sapp, \ss}{\ss''}}
+  %\ninf{\tracc{\b_1}{\ss''}{\ss'}}
+  %\leftl{\rule{T-App} :}
+  %\binf{\tracc{\b_1 \app \b_2}{\ss}{\ss'}}
+%\end{prooftree}
+%
+%\begin{prooftree}
+  %\ninf{\tracc{\b_1}{\ssuc, \ss}{\ss'}}
+  %\leftl{\rule{T-Suc} :}
+  %\uinf{\tracc{\bsuc{\b_1}}{\ss}{\ss'}}
+%\end{prooftree}
+%
+%\begin{prooftree}
+	%\ninf{\tracc{\b_3}{\nil}{\ss_3}}
+	%\ninf{\tracc{\b_2}{\nil}{\ss_2}}
+  %\ninf{\tracc{\b_1}{\scase{\ss_2}{\ss_3}, \ss}{\ss'}}
+  %\leftl{\rule{T-Case} :}
+  %\tinf{\tracc{\bcase{\b_1}{\b_2}{\b_3}}{\ss}{\ss'}}
+%\end{prooftree}
+%
+%\subsection*{Equivalence}
+%
+%\begin{theorem} [Equivalence Bruijn-stack]
+%\label{thm:equiv-bs} If \tr{\b}{\ss}, then \hev{\nil}{\b}{\n{n}} if and only if \ev{\ss}{\n{n}}.
+%\end{theorem}
+%
+%To prove this we need two additional judgements:
+%\vspace{0.5cm}
+%
+%\judgement{\cor{\v}{\w}}
+%
+%\begin{prooftree}
+  %\leftl{\rule{C-Num} :}
+  %\ax{\cor{\n{n}}{\n{n}}}
+%\end{prooftree}
+%
+%\begin{prooftree}
+  %\ninf{\cor{\sg}{\tau}}
+  %\ninf{\tr{\b}{\ss}}
+  %\leftl{\rule{C-Fun} :}
+  %\binf{\cor{\cl{\sg}{\b}}{\cl{\tau}{\ss}}}
+%\end{prooftree}
+%
+%\judgement{\scomp{\sg}{\tau}}
+%
+%\begin{prooftree}
+  %\leftl{\rule{D-Nil} :}
+  %\ax{\scomp{\nil}{\nil}}
+%\end{prooftree}
+%
+%\begin{prooftree}
+  %\ninf{\scomp{\sg}{\tau}}
+  %\ninf{\cor{\v}{\w}}
+  %\leftl{\rule{D-Cons} :}
+  %\binf{\scomp{\sg, \v}{\tau, \w}}
+%\end{prooftree}
+%
+%% completeness
+%\begin{lemma}
+%If \tracc{\b}{\ss_2}{\ss} and \hev{\sg}{\b}{\v} with \cor{\sg}{\tau}, then (for all $\Xi$ and $\Psi$) there exists $\w$ such that \ssev{\Xi, \fr{\tau}{\ss}}{\Psi}{\Xi, \fr{\tau}{\ss_2}}{\Psi, \w} with \cor{\v}{\w}.
+%\end{lemma}
+%
+%Let $\prec$ denote the standard subtree order on step sequences, i.e. $\P_1 \prec \P_2$ if $\P_1$ is a proper suffix of $\P_2$.
+%
+%% soundness
+%\begin{lemma}
+%If \tracc{\b}{\ss_2}{\ss} and \ssev{\Xi, \fr{\tau}{\ss}}{\Psi}{\nil}{\nil, \w'} (by $\P$) with \cor{\sg}{\tau}, then there exists $\v$ such that \hev{\sg}{\b}{\v} with \cor{\v}{\w} and \ssev{\Xi, \fr{\tau}{\ss_2}}{\Psi, \w}{\nil}{\nil, \w'} (by $\P'$) where $\P' \prec \P$.
+%\end{lemma}
 
 \section*{Label-Machine Language}
 
 \subsection*{Syntax}
 
-Let $\l$ denote labels.
-We define label-machine instructions $\m$, basic blocks $\b$, and programs $\q$:
-
+We define labels $\l$, label-machine instructions $\m$, basic blocks $\b$, and programs $\q$:
 \begin{align*}
+  \l &\defi \lhere \alt \lnext \; \l \alt \lleft \; \l \alt \lright \; \l \alt \ldone \\
   \m &\defi \mpushnum{n} \alt \mpushvar{i} \alt \mpushclos{\l} \\
-  \b &\defi \m, \b \alt \mcall{\l} \alt \mret \\
-  \q &\defi \nil \alt \l: \b, \q
+  \b &\defi \m, \b \alt \mcall{\l} \alt \mret \alt \mhalt \\
+  \q &\defi \mnil \alt \b \mcons \q \alt \q_1 \mnode \q_2
 \end{align*}
-
 Note that the label in the instruction $\mcall{\l}$ is the return label.
 
 \subsection*{Semantics}
 
 We define values $\r$, environments $\alpha$, control stacks $\Gamma$, and value stacks $\Phi$:
-
 \begin{align*}
   \r &\defi \n{n} \alt \set{\alpha; \l} \\
   \alpha &\defi \nil \alt \alpha, \r \\
@@ -967,6 +997,7 @@ We need judgements for variable and label lookup (rules as expected):
 
 \vspace{0.5cm}
 \judgement{$\alpha \vdash i \downarrow \r$}
+
 \vspace{0.5cm}
 \judgement{$\q \vdash \l \uparrow \b$}
 \vspace{0.5cm}
@@ -1006,228 +1037,377 @@ And a multi-step version with rules as expected:
 
 \vspace{0.5cm}
 \judgement{\msteps{\q}{\Gamma}{\b}{\Phi}{\Gamma'}{\b'}{\Phi'}}
+\vspace{0.5cm}
+
+And a complete evaluation judgement:
+
+\vspace{0.5cm}
+\judgement{$\tup{\b ; \q} \downarrow \r$}
+
+\begin{prooftree}
+  \ninf{\mstep{\q}{\mnil, \tup{\mnil; \ldone}}{\b}{\mnil}{\mnil}{\mhalt}{\mnil, \r}}
+  \uinf{$\tup{\b ; \q} \downarrow \r$}
+\end{prooftree}
 
 \subsection*{Translation}
+
+Let $f, g$ denote functions on labels, e.g. $\lnext$.
+Let $f(\q)$ denote the label-program $\q$ with $f$ applied to each label.
 
 We translate from stack programs to label-machine programs using the following judgement:
 
 \vspace{0.5cm}
-\judgement{$\ss \circ \tup{\q; \l} \rhd \tup{\b; \q'; \l'}$}
-\vspace{0.5cm}
-
-(See code for rules and an attempt at formulating the soundness lemma.)
-
-\section*{Machine Language}
-
-\subsection*{Syntax}
-\begin{align*}
-  \o &\defi \z \alt \suc \o \\
-  \r &\defi \n{n} \alt \rpaddr{n} \alt \rhaddr{n} \alt \rundef \\
-  \m &\defi \mload{\o} \alt \mstore{\o} \alt \malloc{n} \alt \mpeek{n} \alt \mpushnum{n} \alt \mpushpaddr{k} \\
-     &\quad \quad \quad \quad \,\,\,\, \alt \mnewframe \alt \mendframe \alt \mgetarg \alt \mgetenv \alt \mgetret \\
-     &\quad \quad \quad \quad \,\,\,\, \alt \mjump \alt \mgetaddr{\o} \alt \mhalt \\
-  \q &\defi \mend \alt \m ; \q
-\end{align*}
-
-\subsection*{Semantics}
-\begin{align*}
-  (\text{register set}) \; \Phi &\defi \nil \alt \Phi, \r \\
-  (\text{frame}) \; \f &\defi \mfr{\Phi}{\r_1}{\r_2}{\r_3} \\
-  (\text{call stack}) \; \Gamma &\defi \nil \alt \Gamma, \f \\
-  (\text{memory block}) \; \B &\defi \nil \alt \r, \B \\
-  (\text{heap}) \; \H &\defi \nil \alt \B, \H
-\end{align*}
-
-[To what extent should we define these formally as judgements? Perhaps it suffices to explain their, for the most part obvious, semantics in text.]
-
-\vspace{0.5cm}
-
-\judgement{$\mathtt{reg{-}peek} \; \Phi \; n \; \r$}
-\judgement{$\mathtt{prog{-}fetch} \; \q \; \k \; \m$}
-\judgement{$\mathtt{block{-}fetch} \; \B \; \o \; \r$}
-\judgement{$\mathtt{block{-}alloc} \; n \; \B$}
-\judgement{$\mathtt{block{-}update} \; \B \; \o \; \r \; \B'$}
-\judgement{$\mathtt{heap{-}fetch} \; \H \; a \; \o \; \r$}
-\judgement{$\mathtt{heap{-}update} \; \H \; a \; \o \; \r \; \H'$}
-\judgement{$\mathtt{heap{-}alloc} \; \H \; n \; \H' \; a$}
-
-\vspace{0.5cm}
-
-\judgement{\meval{\q}{\k}{\r}}
+\judgement{$\trasl{\ss}{\b}{\q}$}
 
 \begin{prooftree}
-  \ninf{\mmev{\q}{\nil}{\nil}{\mathtt{simple{-}frame}(\nil)}{\k}{\H'}{\nil}{\mathtt{simple{-}frame}(\nil, \r)}{\k'}}
-  \ninf{$\mathtt{prog{-}fetch} \; \q \; \k' \; \mhalt$}
-  \binf{\meval{\q}{\k}{\r}}
+  \ninf{$\trasl{\ss}{\b}{\q}$}
+  \uinf{$\trasl{\snum{n}, \ss}{\mpushnum{n}, \b}{\q}$}
 \end{prooftree}
 
-where $\mathtt{simple{-}frame}(\Phi)$ denotes
-\[ \mfr{\Phi}{\rundef}{\rundef}{\rundef} \]
+\begin{prooftree}
+  \ninf{$\trasl{\ss}{\b}{\q}$}
+  \uinf{$\trasl{\svar{i}, \ss}{\mpushvar{i}, \b}{\q}$}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{$\trasl{\ss}{\b}{\q}$}
+  \ninf{$\trasl{\ss_0}{\b_0}{\q_0}$}
+  \binf{$\trasl{\slam{\ss_0}, \ss}{\mpushclos{(\lright \; \lhere)}, \lleft(\b)}{\lleft(\q) \mnode \lright(\lnext(\b_0 \mcons \q_0))}$}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{$\trasl{\ss}{\b}{\q}$}
+  \uinf{$\trasl{\sapp, \ss}{\mcall{\lhere}}{\lnext(\b \mcons \q)}$}
+\end{prooftree}
+
+\begin{prooftree}
+  \ax{$\trasl{\ssnil}{\mret}{\mnil}$}
+\end{prooftree}
+
+\subsection*{Equivalence}
+
+\begin{theorem} [Equivalence Stack-Label]
+\label{thm:equiv-sl} If $\trasl{\ss}{\b}{\q}$, then $\ev{\ss}{\n{n}}$ if and only if $\tup{\b ; \q} \downarrow \n{n}$.
+\end{theorem}
+
+To prove this, we need some correspondence judgements:
+
+\newcommand{\corvalue}[3]{#1 \vdash #2 \rightsquigarrow #3}
+\newcommand{\corstore}{\corvalue}
+\newcommand{\corvaluestack}{\corstore}
+\newcommand{\corstack}[4]{#1 \vdash #2 \rightsquigarrow \tup{#3 ; #4}}
 
 \vspace{0.5cm}
-
-\judgement{\mev{\q}{\H}{\Gamma}{\f}{\k}{\H'}{\Gamma'}{\f'}{\k'}}
+\judgement{$\q' \leq_{f} \q$}
 
 \begin{prooftree}
-  \ninf{$\mathtt{prog{-}fetch} \; \q \; \k \; \m$}
-  \ninf{\mexec{\m}{\H}{\Gamma}{\f}{\k}{\H'}{\Gamma'}{\f'}{\k'}}
-  \binf{\mev{\q}{\H}{\Gamma}{\f}{\k}{\H'}{\Gamma'}{\f'}{\k'}}
+  \leftl{\rule{Leq-Left} :}
+  \ax{$\q' \leq_{\lleft} \lleft(\q') \mnode \q_2 $}
+\end{prooftree}
+
+\begin{prooftree}
+  \leftl{\rule{Leq-Right} :}
+  \ax{$\q' \leq_{\lright} \q_1 \mnode \lright(\q') $}
+\end{prooftree}
+
+\begin{prooftree}
+  \leftl{\rule{Leq-Next} :}
+  \ax{$\q' \leq_{\lnext} \b \mcons \lnext(\q') $}
+\end{prooftree}
+
+\begin{prooftree}
+  \leftl{\rule{Leq-Refl} :}
+  \ax{$\q' \leq_{(\l \mapsto \l)} \q' $}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{$\q' \leq_{f} \q'' $}
+  \ninf{$\q'' \leq_{g} \q' $}
+  \leftl{\rule{Leq-Trans} :}
+  \binf{$\q' \leq_{(g \circ f)} \q $}
+\end{prooftree}
+%
+where $\circ$ denotes function composition.
+
+\vspace{0.5cm}
+\judgement{$\corvalue{\q}{\w}{\r}$}
+
+\begin{prooftree}
+  \leftl{\rule{C-Num} :}
+  \ax{$\corvalue{\q}{\n{n}}{\n{n}}$}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{$\corstore{\q}{\tau}{\alpha}$}
+  \ninf{$\q \vdash \l \uparrow f(\b')$}
+  \ninf{$\trasl{\ss}{\b'}{\q'}$}
+  \ninf{$\q' \leq_{f} \q$}
+  \leftl{\rule{C-Clos} :}
+  \qinf{$\corvalue{\q}{\cl{\tau}{\ss}}{\cl{\alpha}{\l}}$}
 \end{prooftree}
 
 \vspace{0.5cm}
+\judgement{$\corstore{\q}{\tau}{\alpha}$}
 
-\judgement{\mmev{\q}{\H}{\Gamma}{\f}{\k}{\H'}{\Gamma'}{\f'}{\k'}}
+\begin{prooftree}
+  \leftl{\rule{D-Nil} :}
+  \ax{$\corstore{\q}{\mnil}{\mnil}$}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{$\corstore{\q}{\tau}{\alpha}$}
+  \ninf{$\corvalue{\q}{\w}{\r}$}
+  \leftl{\rule{D-Cons} :}
+  \binf{$\corstore{\q}{\tau, \w}{\alpha, \r}$}
+\end{prooftree}
 
 \vspace{0.5cm}
-
-[defined as usual]
-
+\judgement{$\corvaluestack{\q}{\Psi}{\Phi}$}
 \vspace{0.5cm}
 
-%tmp
-\newcommand{\fram}[4]{\mathtt{fr} \; #1 \; #2 \; #3 \; #4}
-
-Let now $\fram{\Phi}{\r_1}{\r_2}{\r_3}$ denote
-\[ \mfr{\Phi}{\r_1}{\r_2}{\r_3} \]
-
-\judgement{\mexec{\m}{\H}{\Gamma}{\f}{\k}{\H'}{\Gamma'}{\f'}{\k'}}
-
-\begin{prooftree}
-  \ninf{$\mathtt{heap{-}fetch} \; \H \; a \; \o \; \r$}
-  \uinf{\mexec{\mload{\o}}{\H}{\Gamma}{\fram{(\Phi, \rhaddr{a})}{\r_1}{\r_2}{\r_3}}{\k}{\H}{\Gamma}{\fram{(\Phi, \r)}{\r_1}{\r_2}{\r_3}}{\k + 1}}
-\end{prooftree}
-
-\begin{prooftree}
-  \ninf{$\mathtt{heap{-}update} \; \H \; a \; \o \; \r \; \H'$}
-  \uinf{\mexec{\mstore{\o}}{\H}{\Gamma}{\fram{(\Phi, \rhaddr{a}, \r)}{\r_1}{\r_2}{\r_3}}{\k}{\H'}{\Gamma}{\fram{(\Phi, \rhaddr{a})}{\r_1}{\r_2}{\r_3}}{\k + 1}}
-\end{prooftree}
-
-\begin{prooftree}
-  \ninf{$\mathtt{heap{-}alloc} \; \H \; n \; \H' \; a$}
-  \uinf{\mexec{\malloc{n}}{\H}{\Gamma}{\fram{\Phi}{\r_1}{\r_2}{\r_3}}{\k}{\H'}{\Gamma}{\fram{(\Phi, \rhaddr{a})}{\r_1}{\r_2}{\r_3}}{\k + 1}}
-\end{prooftree}
-
-\begin{prooftree}
-  \ninf{$\mathtt{reg{-}peek} \; \Phi \; n \; \r$}
-  \uinf{\mexec{\mpeek{n}}{\H}{\Gamma}{\fram{\Phi}{\r_1}{\r_2}{\r_3}}{\k}{\H}{\Gamma}{\fram{(\Phi, \r)}{\r_1}{\r_2}{\r_3}}{\k + 1}}
-\end{prooftree}
-
-\begin{prooftree}
-  \ax{\mexec{\mpushnum{n}}{\H}{\Gamma}{\fram{\Phi}{\r_1}{\r_2}{\r_3}}{\k}{\H}{\Gamma}{\fram{(\Phi, \n{n})}{\r_1}{\r_2}{\r_3}}{\k + 1}}
-\end{prooftree}
-
-\begin{prooftree}
-  \ax{\mexec{\mpushpaddr{k'}}{\H}{\Gamma}{\fram{\Phi}{\r_1}{\r_2}{\r_3}}{\k}{\H}{\Gamma}{\fram{(\Phi, \rpaddr{k'})}{\r_1}{\r_2}{\r_3}}{\k + 1}}
-\end{prooftree}
-
-\begin{prooftree}
-  \ax{\mexec{\mnewframe}{\H}{\Gamma}{\fram{(\Phi, \r_1', \r_2', \r_3', \r)}{\r_1}{\r_2}{\r_3}}{\k}{\H}{(\Gamma, \fram{\Phi}{\r_1}{\r_2}{\r_3})}{\fram{(\nil, \r)}{\r_1'}{\r_2'}{\r_3'}}{\k + 1}}
-\end{prooftree}
-
-\begin{prooftree}
-  \ax{\mexec{\mendframe}{\H}{(\Gamma, \fram{\Phi}{\r_1}{\r_2}{\r_3})}{\fram{(\nil, \r)}{\r_1'}{\r_2'}{\r_3'}}{\k}{\H}{\Gamma}{\fram{(\Phi, \r)}{\r_1}{\r_2}{\r_3}}{\k + 1}}
-\end{prooftree}
-
-\begin{prooftree}
-  \ax{\mexec{\mgetenv}{\H}{\Gamma}{\fram{\Phi}{\r_1}{\r_2}{\r_3}}{\k}{\H}{\Gamma}{\fram{(\Phi, \r_1)}{\r_1}{\r_2}{\r_3}}{\k + 1}}
-\end{prooftree}
-
-\begin{prooftree}
-  \ax{\mexec{\mgetarg}{\H}{\Gamma}{\fram{\Phi}{\r_1}{\r_2}{\r_3}}{\k}{\H}{\Gamma}{\fram{(\Phi, \r_2)}{\r_1}{\r_2}{\r_3}}{\k + 1}}
-\end{prooftree}
-
-\begin{prooftree}
-  \ax{\mexec{\mgetret}{\H}{\Gamma}{\fram{\Phi}{\r_1}{\r_2}{\r_3}}{\k}{\H}{\Gamma}{\fram{(\Phi, \r_3)}{\r_1}{\r_2}{\r_3}}{\k + 1}}
-\end{prooftree}
-
-\begin{prooftree}
-  \ax{\mexec{\mjump}{\H}{\Gamma}{\fram{(\Phi, \rpaddr{\k'})}{\r_1}{\r_2}{\r_3}}{\k}{\H}{\Gamma}{\fram{\Phi}{\r_1}{\r_2}{\r_3}}{\k'}}
-\end{prooftree}
-
-\begin{prooftree}
-  \rightl{$(\k' = \k + \o)$}
-  \ax{\mexec{\mgetaddr{\o}}{\H}{\Gamma}{\fram{\Phi}{\r_1}{\r_2}{\r_3}}{\k}{\H}{\Gamma}{\fram{(\Phi, \rpaddr{\k'})}{\r_1}{\r_2}{\r_3}}{\k + 1}}
-\end{prooftree}
-
-% No rule for halt!
-
-\subsection*{Translation}
-Let $|i|$ denote the numeric value of a De Bruijn index.
+(same rules as previous judgement)
 
 \vspace{0.5cm}
-
-\judgement{\transsm{\ss}{\q}{\k}}
+\judgement{$\corstack{\q}{\Xi}{\b}{\Gamma}$}
 
 \begin{prooftree}
-  \ninf{$\trm{\z}{\nil}{\nil}{\ss}{\hq}{\q}$}
-  \rightl{$(\k = \mathtt{length} \; (\hq ; \mend))$}
-  \uinf{\transsm{\ss}{(\hq ; \q ; \mhalt ; \mend)}{\k}}
+  \ax{$\corstack{\q}{\mnil}{\mhalt}{\mnil}$}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{$\corstack{\q}{\Xi}{\b}{\Gamma}$}
+  \ninf{$\corstore{\q}{\tau}{\alpha}$}
+  \ninf{$\q \vdash \l \uparrow \b$}
+  \ninf{$\trasl{\ss}{\b'}{\q'}$}
+  \ninf{$\q' \leq_{f} \q$}
+  \fiveinf{$\corstack{\q}{\Xi, \tup{\tau ; \ss}}{f(\b')}{\Gamma, \tup{\alpha; \l}}$}
 \end{prooftree}
 
 \vspace{0.5cm}
 
-\judgement{\trm{\k}{\hq}{\q}{\ss}{\hq'}{\q'}}
+And now we are ready to generalise completeness and soundness:
 
-\begin{prooftree}
-  \ax{\trm{\k}{\hq}{\q}{\nil}{\hq}{\q}}
-\end{prooftree}
+% completeness
+\begin{lemma}
+If $\ssev{\Xi}{\Psi}{\mnil}{\mnil, \w}$, $\corstack{\q}{\Xi}{\b}{\Gamma}$ and $\corvaluestack{\q}{\Psi}{\Phi}$, then there exists $\r$ such that $\msteps{\q}{\Gamma}{\b}{\Phi}{\mnil}{\mhalt}{\mnil, \r}$ with $\corvalue{\q}{\w}{\r}$.
+\end{lemma}
 
-\begin{prooftree}
-  \ninf{$\trm{\k}{\hq}{\q}{\s}{\hq''}{\q''}$}
-  \ninf{$\trm{\k}{\hq''}{\q''}{\ss}{\hq'}{\q'}$}
-  \binf{\trm{\k}{\hq}{\q}{(\s, \ss)}{\hq'}{\q'}}
-\end{prooftree}
+% soundness
+\begin{lemma}
+If $\msteps{\q}{\Gamma}{\b}{\Phi}{\mnil}{\mhalt}{\mnil, \r}$, $\corstack{\q}{\Xi}{\b}{\Gamma}$ and $\corvaluestack{\q}{\Psi}{\Phi}$, then there exists $\w$ such that $\ssev{\Xi}{\Psi}{\mnil}{\mnil, \w}$ with $\corvalue{\q}{\w}{\r}$.
+\end{lemma}
 
-\vspace{0.5cm}
-
-\judgement{\trm{\k}{\hq}{\q}{\s}{\hq'}{\q'}}
-
-\begin{prooftree}
-  \ax{\trm{\k}{\hq}{\q}{\n{n}}{\hq}{(\q ; \mpushnum{n})}}
-\end{prooftree}
-
-\begin{prooftree}
-  \ax{\trm{\k}{\hq}{\q}{\z}{\hq}{(\q ; \mgetarg)}}
-\end{prooftree}
-
-\begin{prooftree}
-  \ax{\trm{\k}{\hq}{\q}{(\suc{i})}{\hq}{(\q ; \mgetenv ; \mload{(\suc i)})}}
-\end{prooftree}
-
-\begin{prooftree}
-  \ninf{\trm{\k + 1}{\hq}{\nil}{\ss_1}{\hq'}{\q'}}
-  \ninf{$\mathtt{trans{-}copy} \; \k \; 1 \; \hq''$}
-  \rightl{$(\k' = \mathtt{length} \; (\hq' ; \mend))$}
-  \binf{\trm{\k}{\hq}{\q}{(\lam{}{\ss_1})}{(\hq' ; \q' ; \mgetret ; \mjump)}{(\q ; \mathtt{make{-}clos} \; \k \; I \; \hq'')}}
-\end{prooftree}
-
-\begin{prooftree}
-  \ax{\trm{\k}{\hq}{\q}{\sapp}{\hq}{(\q ; \mathtt{make{-}call})}}
-\end{prooftree}
-
-%\begin{prooftree}
-%\ax{\trm{\hq}{\q}{\sapp}{\hq}{\q, \mathbf{call}}}
-%\end{prooftree}
-%where $\mathbf{call}$ is
+%\section*{Machine Language}
+%
+%\subsection*{Syntax}
 %\begin{align*}
-  %&\transfer \\
-  %&\vdup \\
-  %&\transfer \\
-  %&\getaddr 5 \\
-  %&\transfer \\
-  %&\load 0 \\
-  %&\transfer \\
-  %&\jump \\
-  %&\cpop \\
-  %&\cpop \\
+  %\o &\defi \z \alt \suc \o \\
+  %\r &\defi \n{n} \alt \rpaddr{n} \alt \rhaddr{n} \alt \rundef \\
+  %\m &\defi \mload{\o} \alt \mstore{\o} \alt \malloc{n} \alt \mpeek{n} \alt \mpushnum{n} \alt \mpushpaddr{k} \\
+     %&\quad \quad \quad \quad \,\,\,\, \alt \mnewframe \alt \mendframe \alt \mgetarg \alt \mgetenv \alt \mgetret \\
+     %&\quad \quad \quad \quad \,\,\,\, \alt \mjump \alt \mgetaddr{\o} \alt \mhalt \\
+  %\q &\defi \mend \alt \m ; \q
 %\end{align*}
-
-\section*{Conclusion}
-
-\ldots
-
-\section*{Future Work}
-
-\ldots
+%
+%\subsection*{Semantics}
+%\begin{align*}
+  %(\text{register set}) \; \Phi &\defi \nil \alt \Phi, \r \\
+  %(\text{frame}) \; \f &\defi \mfr{\Phi}{\r_1}{\r_2}{\r_3} \\
+  %(\text{call stack}) \; \Gamma &\defi \nil \alt \Gamma, \f \\
+  %(\text{memory block}) \; \B &\defi \nil \alt \r, \B \\
+  %(\text{heap}) \; \H &\defi \nil \alt \B, \H
+%\end{align*}
+%
+%[To what extent should we define these formally as judgements? Perhaps it suffices to explain their, for the most part obvious, semantics in text.]
+%
+%\vspace{0.5cm}
+%
+%\judgement{$\mathtt{reg{-}peek} \; \Phi \; n \; \r$}
+%\judgement{$\mathtt{prog{-}fetch} \; \q \; \k \; \m$}
+%\judgement{$\mathtt{block{-}fetch} \; \B \; \o \; \r$}
+%\judgement{$\mathtt{block{-}alloc} \; n \; \B$}
+%\judgement{$\mathtt{block{-}update} \; \B \; \o \; \r \; \B'$}
+%\judgement{$\mathtt{heap{-}fetch} \; \H \; a \; \o \; \r$}
+%\judgement{$\mathtt{heap{-}update} \; \H \; a \; \o \; \r \; \H'$}
+%\judgement{$\mathtt{heap{-}alloc} \; \H \; n \; \H' \; a$}
+%
+%\vspace{0.5cm}
+%
+%\judgement{\meval{\q}{\k}{\r}}
+%
+%\begin{prooftree}
+  %\ninf{\mmev{\q}{\nil}{\nil}{\mathtt{simple{-}frame}(\nil)}{\k}{\H'}{\nil}{\mathtt{simple{-}frame}(\nil, \r)}{\k'}}
+  %\ninf{$\mathtt{prog{-}fetch} \; \q \; \k' \; \mhalt$}
+  %\binf{\meval{\q}{\k}{\r}}
+%\end{prooftree}
+%
+%where $\mathtt{simple{-}frame}(\Phi)$ denotes
+%\[ \mfr{\Phi}{\rundef}{\rundef}{\rundef} \]
+%
+%\vspace{0.5cm}
+%
+%\judgement{\mev{\q}{\H}{\Gamma}{\f}{\k}{\H'}{\Gamma'}{\f'}{\k'}}
+%
+%\begin{prooftree}
+  %\ninf{$\mathtt{prog{-}fetch} \; \q \; \k \; \m$}
+  %\ninf{\mexec{\m}{\H}{\Gamma}{\f}{\k}{\H'}{\Gamma'}{\f'}{\k'}}
+  %\binf{\mev{\q}{\H}{\Gamma}{\f}{\k}{\H'}{\Gamma'}{\f'}{\k'}}
+%\end{prooftree}
+%
+%\vspace{0.5cm}
+%
+%\judgement{\mmev{\q}{\H}{\Gamma}{\f}{\k}{\H'}{\Gamma'}{\f'}{\k'}}
+%
+%\vspace{0.5cm}
+%
+%[defined as usual]
+%
+%\vspace{0.5cm}
+%
+%%tmp
+%\newcommand{\fram}[4]{\mathtt{fr} \; #1 \; #2 \; #3 \; #4}
+%
+%Let now $\fram{\Phi}{\r_1}{\r_2}{\r_3}$ denote
+%\[ \mfr{\Phi}{\r_1}{\r_2}{\r_3} \]
+%
+%\judgement{\mexec{\m}{\H}{\Gamma}{\f}{\k}{\H'}{\Gamma'}{\f'}{\k'}}
+%
+%\begin{prooftree}
+  %\ninf{$\mathtt{heap{-}fetch} \; \H \; a \; \o \; \r$}
+  %\uinf{\mexec{\mload{\o}}{\H}{\Gamma}{\fram{(\Phi, \rhaddr{a})}{\r_1}{\r_2}{\r_3}}{\k}{\H}{\Gamma}{\fram{(\Phi, \r)}{\r_1}{\r_2}{\r_3}}{\k + 1}}
+%\end{prooftree}
+%
+%\begin{prooftree}
+  %\ninf{$\mathtt{heap{-}update} \; \H \; a \; \o \; \r \; \H'$}
+  %\uinf{\mexec{\mstore{\o}}{\H}{\Gamma}{\fram{(\Phi, \rhaddr{a}, \r)}{\r_1}{\r_2}{\r_3}}{\k}{\H'}{\Gamma}{\fram{(\Phi, \rhaddr{a})}{\r_1}{\r_2}{\r_3}}{\k + 1}}
+%\end{prooftree}
+%
+%\begin{prooftree}
+  %\ninf{$\mathtt{heap{-}alloc} \; \H \; n \; \H' \; a$}
+  %\uinf{\mexec{\malloc{n}}{\H}{\Gamma}{\fram{\Phi}{\r_1}{\r_2}{\r_3}}{\k}{\H'}{\Gamma}{\fram{(\Phi, \rhaddr{a})}{\r_1}{\r_2}{\r_3}}{\k + 1}}
+%\end{prooftree}
+%
+%\begin{prooftree}
+  %\ninf{$\mathtt{reg{-}peek} \; \Phi \; n \; \r$}
+  %\uinf{\mexec{\mpeek{n}}{\H}{\Gamma}{\fram{\Phi}{\r_1}{\r_2}{\r_3}}{\k}{\H}{\Gamma}{\fram{(\Phi, \r)}{\r_1}{\r_2}{\r_3}}{\k + 1}}
+%\end{prooftree}
+%
+%\begin{prooftree}
+  %\ax{\mexec{\mpushnum{n}}{\H}{\Gamma}{\fram{\Phi}{\r_1}{\r_2}{\r_3}}{\k}{\H}{\Gamma}{\fram{(\Phi, \n{n})}{\r_1}{\r_2}{\r_3}}{\k + 1}}
+%\end{prooftree}
+%
+%\begin{prooftree}
+  %\ax{\mexec{\mpushpaddr{k'}}{\H}{\Gamma}{\fram{\Phi}{\r_1}{\r_2}{\r_3}}{\k}{\H}{\Gamma}{\fram{(\Phi, \rpaddr{k'})}{\r_1}{\r_2}{\r_3}}{\k + 1}}
+%\end{prooftree}
+%
+%\begin{prooftree}
+  %\ax{\mexec{\mnewframe}{\H}{\Gamma}{\fram{(\Phi, \r_1', \r_2', \r_3', \r)}{\r_1}{\r_2}{\r_3}}{\k}{\H}{(\Gamma, \fram{\Phi}{\r_1}{\r_2}{\r_3})}{\fram{(\nil, \r)}{\r_1'}{\r_2'}{\r_3'}}{\k + 1}}
+%\end{prooftree}
+%
+%\begin{prooftree}
+  %\ax{\mexec{\mendframe}{\H}{(\Gamma, \fram{\Phi}{\r_1}{\r_2}{\r_3})}{\fram{(\nil, \r)}{\r_1'}{\r_2'}{\r_3'}}{\k}{\H}{\Gamma}{\fram{(\Phi, \r)}{\r_1}{\r_2}{\r_3}}{\k + 1}}
+%\end{prooftree}
+%
+%\begin{prooftree}
+  %\ax{\mexec{\mgetenv}{\H}{\Gamma}{\fram{\Phi}{\r_1}{\r_2}{\r_3}}{\k}{\H}{\Gamma}{\fram{(\Phi, \r_1)}{\r_1}{\r_2}{\r_3}}{\k + 1}}
+%\end{prooftree}
+%
+%\begin{prooftree}
+  %\ax{\mexec{\mgetarg}{\H}{\Gamma}{\fram{\Phi}{\r_1}{\r_2}{\r_3}}{\k}{\H}{\Gamma}{\fram{(\Phi, \r_2)}{\r_1}{\r_2}{\r_3}}{\k + 1}}
+%\end{prooftree}
+%
+%\begin{prooftree}
+  %\ax{\mexec{\mgetret}{\H}{\Gamma}{\fram{\Phi}{\r_1}{\r_2}{\r_3}}{\k}{\H}{\Gamma}{\fram{(\Phi, \r_3)}{\r_1}{\r_2}{\r_3}}{\k + 1}}
+%\end{prooftree}
+%
+%\begin{prooftree}
+  %\ax{\mexec{\mjump}{\H}{\Gamma}{\fram{(\Phi, \rpaddr{\k'})}{\r_1}{\r_2}{\r_3}}{\k}{\H}{\Gamma}{\fram{\Phi}{\r_1}{\r_2}{\r_3}}{\k'}}
+%\end{prooftree}
+%
+%\begin{prooftree}
+  %\rightl{$(\k' = \k + \o)$}
+  %\ax{\mexec{\mgetaddr{\o}}{\H}{\Gamma}{\fram{\Phi}{\r_1}{\r_2}{\r_3}}{\k}{\H}{\Gamma}{\fram{(\Phi, \rpaddr{\k'})}{\r_1}{\r_2}{\r_3}}{\k + 1}}
+%\end{prooftree}
+%
+%% No rule for halt!
+%
+%\subsection*{Translation}
+%Let $|i|$ denote the numeric value of a De Bruijn index.
+%
+%\vspace{0.5cm}
+%
+%\judgement{\transsm{\ss}{\q}{\k}}
+%
+%\begin{prooftree}
+  %\ninf{$\trm{\z}{\nil}{\nil}{\ss}{\hq}{\q}$}
+  %\rightl{$(\k = \mathtt{length} \; (\hq ; \mend))$}
+  %\uinf{\transsm{\ss}{(\hq ; \q ; \mhalt ; \mend)}{\k}}
+%\end{prooftree}
+%
+%\vspace{0.5cm}
+%
+%\judgement{\trm{\k}{\hq}{\q}{\ss}{\hq'}{\q'}}
+%
+%\begin{prooftree}
+  %\ax{\trm{\k}{\hq}{\q}{\nil}{\hq}{\q}}
+%\end{prooftree}
+%
+%\begin{prooftree}
+  %\ninf{$\trm{\k}{\hq}{\q}{\s}{\hq''}{\q''}$}
+  %\ninf{$\trm{\k}{\hq''}{\q''}{\ss}{\hq'}{\q'}$}
+  %\binf{\trm{\k}{\hq}{\q}{(\s, \ss)}{\hq'}{\q'}}
+%\end{prooftree}
+%
+%\vspace{0.5cm}
+%
+%\judgement{\trm{\k}{\hq}{\q}{\s}{\hq'}{\q'}}
+%
+%\begin{prooftree}
+  %\ax{\trm{\k}{\hq}{\q}{\n{n}}{\hq}{(\q ; \mpushnum{n})}}
+%\end{prooftree}
+%
+%\begin{prooftree}
+  %\ax{\trm{\k}{\hq}{\q}{\z}{\hq}{(\q ; \mgetarg)}}
+%\end{prooftree}
+%
+%\begin{prooftree}
+  %\ax{\trm{\k}{\hq}{\q}{(\suc{i})}{\hq}{(\q ; \mgetenv ; \mload{(\suc i)})}}
+%\end{prooftree}
+%
+%\begin{prooftree}
+  %\ninf{\trm{\k + 1}{\hq}{\nil}{\ss_1}{\hq'}{\q'}}
+  %\ninf{$\mathtt{trans{-}copy} \; \k \; 1 \; \hq''$}
+  %\rightl{$(\k' = \mathtt{length} \; (\hq' ; \mend))$}
+  %\binf{\trm{\k}{\hq}{\q}{(\lam{}{\ss_1})}{(\hq' ; \q' ; \mgetret ; \mjump)}{(\q ; \mathtt{make{-}clos} \; \k \; I \; \hq'')}}
+%\end{prooftree}
+%
+%\begin{prooftree}
+  %\ax{\trm{\k}{\hq}{\q}{\sapp}{\hq}{(\q ; \mathtt{make{-}call})}}
+%\end{prooftree}
+%
+%%\begin{prooftree}
+%%\ax{\trm{\hq}{\q}{\sapp}{\hq}{\q, \mathbf{call}}}
+%%\end{prooftree}
+%%where $\mathbf{call}$ is
+%%\begin{align*}
+  %%&\transfer \\
+  %%&\vdup \\
+  %%&\transfer \\
+  %%&\getaddr 5 \\
+  %%&\transfer \\
+  %%&\load 0 \\
+  %%&\transfer \\
+  %%&\jump \\
+  %%&\cpop \\
+  %%&\cpop \\
+%%\end{align*}
+%
+%\section*{Conclusion}
+%
+%\ldots
+%
+%\section*{Future Work}
+%
+%\ldots
 
 \end{document}
