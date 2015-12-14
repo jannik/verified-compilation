@@ -89,7 +89,6 @@ trans-sm-fun/ : trans-sm-fun P (mprog/cons B' Q')
 
 
 
-
 %worlds () (trans-sm _ _ _) (trans-sm-fun _ _).
 %total (P P') (trans-sm P _ _) (trans-sm-fun P' _).
 
@@ -126,36 +125,3 @@ trans-sm/ret : trans-sm sprog/nil mret mprog/nil.
 %worlds () (trans-sm _ _ _).
 %total P (trans-sm P _ _).
 }%
-
-
-
-%.
-
-
-trans-sm-acc/num : trans-sm-acc (sprog/cons (snum N) P) Q L
-                                (mpushnum N ; B) Q' L'
-                    <- trans-sm-acc P Q L B Q' L'.
-
-trans-sm-acc/var : trans-sm-acc (sprog/cons (svar I) P) Q L
-                                (mpushvar I ; B) Q' L'
-                    <- trans-sm-acc P Q L B Q' L'.
-
-trans-sm-acc/lam : trans-sm-acc (sprog/cons (slam P') P) Q L
-                                (mpushclos L ; B) (mprog/cons L B' Q'') L''
-                    <- trans-sm-acc P Q (s L) B Q' L'
-                    <- trans-sm-acc P' Q' L' B' Q'' L''.
-
-trans-sm-acc/app : trans-sm-acc (sprog/cons sapp P) Q L
-                                (mcall L) (mprog/cons L B' Q') L'
-                    <- trans-sm-acc P Q (s L) B' Q' L'.
-
-trans-sm-acc/ret : trans-sm-acc sprog/nil Q L
-                                mret Q L.
-
-
-
-trans-sm : sprog -> mblock -> mprog -> label -> type.
-%mode trans-sm +P -B -Q -L.
-
-trans-sm/ : trans-sm P B Q L
-             <- trans-sm-acc P mprog/nil z B Q L.

@@ -33,3 +33,9 @@ mprog : type. %name mprog Q.
 mprog/nil : mprog.
 mprog/cons : mblock -> mprog -> mprog.
 mprog/node : mprog -> mprog -> mprog.
+
+
+
+eq-mblock : mblock -> mblock -> type.
+
+eq-mblock/refl : eq-mblock B B.
