@@ -63,7 +63,6 @@ mstep : mprog -> mframes -> mblock -> rstack -> mframes -> mblock -> rstack -> t
 
 mstep/pushnum : mstep Q (mframes/cons Gamma Alpha L) (mpushnum N ; B) Phi
                         (mframes/cons Gamma Alpha L) B (rstack/cons Phi (rnum N)).
-
 mstep/pushvar : mstep Q (mframes/cons Gamma Alpha L) (mpushvar I ; B) Phi
                         (mframes/cons Gamma Alpha L) B (rstack/cons Phi R)
                  <- mvar-lookup Alpha I R.
@@ -78,7 +77,6 @@ mstep/call : mstep Q (mframes/cons Gamma Alpha L) (mcall L'') (rstack/cons (rsta
 mstep/ret : mstep Q (mframes/cons Gamma Alpha' L') mret (rstack/cons Phi R)
                     Gamma B (rstack/cons Phi R)
              <- label-lookup Q L' B.
-
 
 
 msteps : mprog -> mframes -> mblock -> rstack -> mframes -> mblock -> rstack -> type. %name ssteps DMM.
