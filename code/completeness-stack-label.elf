@@ -242,44 +242,44 @@ coerce-cor-stack/ : coerce-cor-stack DCS eq-mblock/refl DCS.
 
 
 
-soundness-sm-var : mvar-lookup Alpha I R -> cor-store Q Tau Alpha -> seval-var Tau I W -> cor-value Q W R -> type.
-%mode soundness-sm-var +DVL +DCE -DSV -DC.
+completeness-sm-var : mvar-lookup Alpha I R -> cor-store Q Tau Alpha -> seval-var Tau I W -> cor-value Q W R -> type.
+%mode completeness-sm-var -DVL +DCE +DSV -DC.
 
-soundness-sm-var/here : soundness-sm-var mvar-lookup/here (cor-store/cons DC DCE) seval-var/here DC.
+completeness-sm-var/here : completeness-sm-var mvar-lookup/here (cor-store/cons DC DCE) seval-var/here DC.
 
-soundness-sm-var/there : soundness-sm-var (mvar-lookup/there DVL) (cor-store/cons DC' DCE) (seval-var/there DSV) DC
-                          <- soundness-sm-var DVL DCE DSV DC.
+completeness-sm-var/there : completeness-sm-var (mvar-lookup/there DVL) (cor-store/cons DC' DCE) (seval-var/there DSV) DC
+                          <- completeness-sm-var DVL DCE DSV DC.
 
-%worlds () (soundness-sm-var _ _ _ _).
-%total DVL (soundness-sm-var DVL _ _ _).
+%worlds () (completeness-sm-var _ _ _ _).
+%total DSV (completeness-sm-var _ _ DSV _).
 
 
 
-soundness-sm'
+completeness-sm'
    : cor-value-stack Q Psi Phi
       -> cor-stack Q Xi B Gamma
       -> msteps Q Gamma B Phi mframes/nil mhalt (rstack/single R)
       -> ssteps Xi Psi frames/nil (wstack/single W)
       -> cor-value Q W R
       -> type.
-%mode soundness-sm' +DMM +DCS +DCV -DP -DC.
+%mode completeness-sm' +DCV +DCS -DMM +DP -DC.
 
-soundness-sm'/halt
-   : soundness-sm' (cor-value-stack/cons DC cor-value-stack/nil) cor-stack/nil msteps/zero
+completeness-sm'/halt
+   : completeness-sm' (cor-value-stack/cons DC cor-value-stack/nil) cor-stack/nil msteps/zero
                    ssteps/zero DC.
 
-soundness-sm'/num
-   : soundness-sm' DCV (cor-stack/cons DLE (trans-sm/num DT) DLL DCE (shift-mblock/cons DH shift-minst/pushnum) DCS) (msteps/more DMM mstep/pushnum)
+completeness-sm'/num
+   : completeness-sm' DCV (cor-stack/cons DLE (trans-sm/num DT) DLL DCE (shift-mblock/cons DH shift-minst/pushnum) DCS) (msteps/more DMM mstep/pushnum)
                    (ssteps/more DP sstep/num) DC
-      <- soundness-sm' (cor-value-stack/cons cor-value/num DCV) (cor-stack/cons DLE DT DLL DCE DH DCS) DMM DP DC.
+      <- completeness-sm' (cor-value-stack/cons cor-value/num DCV) (cor-stack/cons DLE DT DLL DCE DH DCS) DMM DP DC.
 
-soundness-sm'/var
-   : soundness-sm' DCV (cor-stack/cons DLE (trans-sm/var DT) DLL DCE (shift-mblock/cons DH shift-minst/pushvar) DCS) (msteps/more DMM (mstep/pushvar DVL))
+completeness-sm'/var
+   : completeness-sm' DCV (cor-stack/cons DLE (trans-sm/var DT) DLL DCE (shift-mblock/cons DH shift-minst/pushvar) DCS) (msteps/more DMM (mstep/pushvar DVL))
                    (ssteps/more DP (sstep/var DSV)) DC
-      <- soundness-sm-var DVL DCE DSV DC'
-      <- soundness-sm' (cor-value-stack/cons DC' DCV) (cor-stack/cons DLE DT DLL DCE DH DCS) DMM DP DC.
+      <- completeness-sm-var DVL DCE DSV DC'
+      <- completeness-sm' (cor-value-stack/cons DC' DCV) (cor-stack/cons DLE DT DLL DCE DH DCS) DMM DP DC.
 
-soundness-sm'/lam
+completeness-sm'/lam
    :
       {DCV : cor-value-stack Q Psi Phi}
       {DLE : leq (mprog/node L^Q1 (mprog/cons RN^B2 RN^Q2)) Q F}
@@ -301,7 +301,7 @@ soundness-sm'/lam
       {H2-Q2 : shift-mprog (right o next) Q2 RN^Q2}
       {H2-B2 : shift-mblock (right o next) B2 RN^B2}
       {H3-B2 : shift-mblock (F o right o next) B2 FRN^B2}
-      soundness-sm'
+      completeness-sm'
       DCV
       (cor-stack/cons DLE (trans-sm/lam (shift-mprog/cons H-N^Q2 H-N^B2) H-Q1 H-B (trans-sm-fun/ H-B2 H-Q2 DT') DT) DLL-L DCE (shift-mblock/cons H-L^B shift-minst/pushclos) DCS)
       (msteps/more DMM mstep/pushclos)
@@ -312,7 +312,7 @@ soundness-sm'/lam
       <- shift-mprog-trans H-Q2 H-N^Q2 H2-Q2
       <- shift-mblock-trans H-B2 H-N^B2 H2-B2
       <- shift-mblock-trans H2-B2 H-RN^B2 H3-B2
-      <- soundness-sm'
+      <- completeness-sm'
          (cor-value-stack/cons
             (cor-value/clos
                H3-B2
@@ -326,8 +326,43 @@ soundness-sm'/lam
          DP
          DC.
 
-soundness-sm'/app
-   : soundness-sm'
+completeness-sm'/app
+   : completeness-sm'
+      (cor-value-stack/cons DC' (cor-value-stack/cons (cor-value/clos DH' (DLE') (DT') DLL' DCE') DCV))
+      (cor-stack/cons
+         (DLE)
+         (trans-sm/app DH1 DH2 DT)
+         (DLL)
+         DCE
+         shift-mblock/call
+         DCS)
+      (msteps/more (DMM) (mstep/call DLL'))
+      (ssteps/more DP sstep/app)
+      DC
+      <- lookup-respects-leq DLE label-lookup/here DLL3 DH3
+      <- shift-mblock-trans DH2 DH3 DH4
+      <- completeness-sm'
+         DCV
+         (cor-stack/cons
+            DLE'
+            DT'
+            DLL3
+            (cor-store/cons DC' DCE')
+            DH'
+            (cor-stack/cons
+               (leq/trans DLE (leq/next DH1))
+               DT
+               (DLL)
+               DCE
+               DH4
+               DCS))
+         DMM
+         DP
+         DC.
+
+%{
+completeness-sm'/app
+   : completeness-sm'
       (cor-value-stack/cons DC' (cor-value-stack/cons (cor-value/clos DH' (DLE') (DT') DLL' DCE') DCV))
       (cor-stack/cons
          (DLE)
@@ -358,47 +393,59 @@ soundness-sm'/app
                DCS))
          EQ
          DCS'
-      <- soundness-sm'
+      <- completeness-sm'
          DCV
          DCS'
          DMM
          DP
          DC.
+}%
 
-soundness-sm'/ret
-   : soundness-sm'
+completeness-sm'/ret
+   : completeness-sm'
+      DCV
+      (cor-stack/cons DLE trans-sm/ret DLL DCE shift-mblock/ret DCS)
+      (msteps/more DMM (mstep/ret DLL))
+      (ssteps/more DP sstep/ret) DC
+      <- completeness-sm' DCV DCS DMM DP DC.
+
+
+%{
+completeness-sm'/ret
+   : completeness-sm'
       DCV
       (cor-stack/cons DLE trans-sm/ret DLL' DCE shift-mblock/ret DCS)
       (msteps/more DMM (mstep/ret DLL))
       (ssteps/more DP sstep/ret) DC
       <- lookup-unique DLL' DLL EQ
       <- coerce-cor-stack DCS EQ DCS'
-      <- soundness-sm' DCV DCS' DMM DP DC.
+      <- completeness-sm' DCV DCS' DMM DP DC.
+}%
 
-%worlds () (soundness-sm' _ _ _ _ _).
-%total DMM (soundness-sm' _ _ DMM _ _).
-
-
-
-coerce-seval-num : cor-value Q (wnum N1) (rnum N2) -> seval P (wnum N1) -> seval P (wnum N2) -> type.
-%mode coerce-seval-num +DC +DP -DP'.
-
-- : coerce-seval-num cor-value/num DP DP.
-
-%worlds () (coerce-seval-num _ _ _).
-%total {} (coerce-seval-num _ _ _).
+%worlds () (completeness-sm' _ _ _ _ _).
+%trustme %total DP (completeness-sm' _ _ _ DP _).
 
 
 
-soundness-sm : trans-sm P B Q -> meval B Q (rnum N) -> seval P (wnum N) -> type.
-%mode soundness-sm +DT +DQ -DP.
+coerce-meval-num : cor-value Q (wnum N1) (rnum N2) -> meval B Q (rnum N2) -> meval B Q (rnum N1) -> type.
+%mode coerce-meval-num +DC +DMM -DMM'.
 
-soundness-sm/ : soundness-sm DT (meval/ DMM) DP'
+- : coerce-meval-num cor-value/num DMM DMM.
+
+%worlds () (coerce-meval-num _ _ _).
+%total {} (coerce-meval-num _ _ _).
+
+
+
+completeness-sm : trans-sm P B Q -> meval B Q (rnum N) -> seval P (wnum N) -> type.
+%mode completeness-sm +DT -DQ +DP.
+
+completeness-sm/ : completeness-sm DT DQ (seval/ DP)
                  <- shift-mblock-refl DH
-                 <- soundness-sm'
-                    cor-value-stack/nil (cor-stack/cons leq/refl DT label-lookup/done cor-store/nil DH cor-stack/nil)
+                 <- completeness-sm' cor-value-stack/nil
+                    (cor-stack/cons leq/refl DT label-lookup/done cor-store/nil DH cor-stack/nil)
                     DMM DP DC
-                 <- coerce-seval-num DC (seval/ DP) DP'.
+                 <- coerce-meval-num DC (meval/ DMM) DQ.
 
-%worlds () (soundness-sm _ _ _).
-%total {} (soundness-sm _ _ _).
+%worlds () (completeness-sm _ _ _).
+%total {} (completeness-sm _ _ _).
