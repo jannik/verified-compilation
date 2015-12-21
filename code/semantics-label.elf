@@ -74,8 +74,8 @@ mstep/call : mstep Q (mframes/cons Gamma Alpha L) (mcall L'') (rstack/cons (rsta
                      (mframes/cons (mframes/cons Gamma Alpha L) (mstore/cons Alpha' R) L'') B Phi
               <- label-lookup Q L' B.
 
-mstep/ret : mstep Q (mframes/cons Gamma Alpha' L') mret (rstack/cons Phi R)
-                    Gamma B (rstack/cons Phi R)
+mstep/ret : mstep Q (mframes/cons Gamma Alpha' L') mret Phi
+                    Gamma B Phi
              <- label-lookup Q L' B.
 
 

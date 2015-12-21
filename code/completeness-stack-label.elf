@@ -360,47 +360,6 @@ completeness-sm'/app
          DP
          DC.
 
-%{
-completeness-sm'/app
-   : completeness-sm'
-      (cor-value-stack/cons DC' (cor-value-stack/cons (cor-value/clos DH' (DLE') (DT') DLL' DCE') DCV))
-      (cor-stack/cons
-         (DLE)
-         (trans-sm/app DH1 DH2 DT)
-         (DLL)
-         DCE
-         shift-mblock/call
-         DCS)
-      (msteps/more (DMM) (mstep/call DLL2))
-      (ssteps/more DP sstep/app)
-      DC
-      <- lookup-respects-leq DLE label-lookup/here DLL3 DH3
-      <- shift-mblock-trans DH2 DH3 DH4
-      <- lookup-unique DLL' DLL2 EQ
-      <- coerce-cor-stack
-         (cor-stack/cons
-            DLE'
-            DT'
-            DLL3
-            (cor-store/cons DC' DCE')
-            DH'
-            (cor-stack/cons
-               (leq/trans DLE (leq/next DH1))
-               DT
-               (DLL)
-               DCE
-               DH4
-               DCS))
-         EQ
-         DCS'
-      <- completeness-sm'
-         DCV
-         DCS'
-         DMM
-         DP
-         DC.
-}%
-
 completeness-sm'/ret
    : completeness-sm'
       DCV
@@ -409,21 +368,8 @@ completeness-sm'/ret
       (ssteps/more DP sstep/ret) DC
       <- completeness-sm' DCV DCS DMM DP DC.
 
-
-%{
-completeness-sm'/ret
-   : completeness-sm'
-      DCV
-      (cor-stack/cons DLE trans-sm/ret DLL' DCE shift-mblock/ret DCS)
-      (msteps/more DMM (mstep/ret DLL))
-      (ssteps/more DP sstep/ret) DC
-      <- lookup-unique DLL' DLL EQ
-      <- coerce-cor-stack DCS EQ DCS'
-      <- completeness-sm' DCV DCS' DMM DP DC.
-}%
-
 %worlds () (completeness-sm' _ _ _ _ _).
-%trustme %total DP (completeness-sm' _ _ _ DP _).
+%total DP (completeness-sm' _ _ _ DP _).
 
 
 
