@@ -1,127 +1,84 @@
-shift-minst : (label -> label) -> minst -> minst -> type.
-%mode shift-minst +F +M -M'.
+mprog-length : mprog -> nat -> type.
+%mode mprog-length +Q -N.
 
-shift-minst/pushnum : shift-minst F (mpushnum N) (mpushnum N).
+mprog-length/nil : mprog-length mprog/nil z.
 
-shift-minst/pushvar : shift-minst F (mpushvar I) (mpushvar I).
+mprog-length/cons : mprog-length (mprog/cons M Q) (s N)
+                     <- mprog-length Q N.
 
-shift-minst/pushclos : shift-minst F (mpushclos L) (mpushclos (F L)).
+%worlds () (mprog-length _ _).
+%total Q (mprog-length Q _).
+
+
+
+shift-minst : nat -> minst -> minst -> type.
+%mode shift-minst +S +M -M'.
+
+shift-minst/pushnum : shift-minst S (mpushnum N) (mpushnum N).
+
+shift-minst/pushvar : shift-minst S (mpushvar I) (mpushvar I).
+
+shift-minst/pushclos : shift-minst S (mpushclos L) (mpushclos L^S)
+                        <- add S L L^S.
+
+shift-minst/call : shift-minst S (mcall L) (mcall L^S)
+                    <- add S L L^S.
+
+shift-minst/ret : shift-minst S mret mret.
+
+shift-minst/halt : shift-minst S mhalt mhalt.
 
 %worlds () (shift-minst _ _ _).
 %total {} (shift-minst _ _ _).
 
 
 
-shift-mblock : (label -> label) -> mblock -> mblock -> type.
-%mode shift-mblock +F +B -B'.
+shift-mprog : nat -> mprog -> mprog -> type.
+%mode shift-mprog +S +Q -Q'.
 
-shift-mblock/ret : shift-mblock F mret mret.
+shift-mprog/nil : shift-mprog S mprog/nil mprog/nil.
 
-shift-mblock/call : shift-mblock F (mcall L) (mcall (F L)).
-
-shift-mblock/halt : shift-mblock F mhalt mhalt.
-
-shift-mblock/cons : shift-mblock F (M ; B) (M' ; B')
-                     <- shift-minst F M M'
-                     <- shift-mblock F B B'.
-
-%worlds () (shift-mblock _ _ _).
-%total B (shift-mblock _ B _).
-
-
-
-shift-mprog : (label -> label) -> mprog -> mprog -> type.
-%mode shift-mprog +F +Q -Q'.
-
-shift-mprog/nil : shift-mprog F mprog/nil mprog/nil.
-
-shift-mprog/cons : shift-mprog F (mprog/cons B Q) (mprog/cons B' Q')
-                    <- shift-mblock F B B'
-                    <- shift-mprog F Q Q'.
-
-shift-mprog/node : shift-mprog F (mprog/node Q1 Q2) (mprog/node Q1' Q2')
-                    <- shift-mprog F Q1 Q1'
-                    <- shift-mprog F Q2 Q2'.
+shift-mprog/cons : shift-mprog S (M ; Q) (M^S ; Q^S)
+                    <- shift-minst S M M^S
+                    <- shift-mprog S Q Q^S.
 
 %worlds () (shift-mprog _ _ _).
 %total Q (shift-mprog _ Q _).
 
 
 
-trans-sm : sprog -> mblock -> mprog -> type.
-%mode trans-sm +P -B -Q.
+trans-sm' : sprog -> mprog -> type.
+%mode trans-sm' +P -Q.
 
-trans-sm-fun : sprog -> mprog -> type.
-%mode trans-sm-fun +P -Q.
+trans-sm'/num : trans-sm' (sprog/cons (snum N) P) (mpushnum N ; Q^1)
+                <- trans-sm' P Q
+                <- shift-mprog 1 Q Q^1.
 
+trans-sm'/var : trans-sm' (sprog/cons (svar I) P) (mpushvar I ; Q^1)
+                <- trans-sm' P Q
+                <- shift-mprog 1 Q Q^1.
 
+trans-sm'/lam : trans-sm' (sprog/cons (slam P') P) (mpushclos (s Q#) ; Q^1 ;; Q'^1+Q#)
+                <- trans-sm' P Q
+                <- shift-mprog 1 Q Q^1
+                <- mprog-length Q^1 Q#
+                <- trans-sm' P' Q'
+                <- shift-mprog (s Q#) Q' Q'^1+Q#.
 
-% trans-sm
+trans-sm'/app : trans-sm' (sprog/cons sapp P) (mcall 1 ; Q^1)
+                <- trans-sm' P Q
+                <- shift-mprog 1 Q Q^1.
 
-trans-sm/num : trans-sm (sprog/cons (snum N) P) (mpushnum N ; B) Q
-                <- trans-sm P B Q.
+trans-sm'/ret : trans-sm' sprog/nil (mret ; mprog/nil).
 
-trans-sm/var : trans-sm (sprog/cons (svar I) P) (mpushvar I ; B) Q
-                <- trans-sm P B Q.
-
-trans-sm/lam : trans-sm (sprog/cons (slam PP) P) (mpushclos (right here) ; B') (mprog/node Q' QQ')
-                <- trans-sm P B Q
-                <- trans-sm-fun PP QQ
-                <- shift-mblock left B B'
-                <- shift-mprog left Q Q'
-                <- shift-mprog right QQ QQ'.
-
-trans-sm/app : trans-sm (sprog/cons sapp P) (mcall here) (mprog/cons B' Q')
-                <- trans-sm P B Q
-                <- shift-mblock next B B'
-                <- shift-mprog next Q Q'.
-
-trans-sm/ret : trans-sm sprog/nil mret mprog/nil.
+%worlds () (trans-sm' _ _).
+%total P (trans-sm' P _).
 
 
 
-% trans-sm-fun
+trans-sm : sprog -> mprog -> label -> type.
+%mode trans-sm +P -Q -L.
 
-trans-sm-fun/ : trans-sm-fun P (mprog/cons B' Q')
-                 <- trans-sm P B Q
-                 <- shift-mprog next Q Q'
-                 <- shift-mblock next B B'.
-
-
-
-%worlds () (trans-sm _ _ _) (trans-sm-fun _ _).
-%total (P P') (trans-sm P _ _) (trans-sm-fun P' _).
-
-
-
-%{
-% alternative, using a single judgement:
-
-trans-sm : sprog -> mblock -> mprog -> type.
-%mode trans-sm +P -B -Q.
-
-trans-sm/num : trans-sm (sprog/cons (snum N) P) (mpushnum N ; B) Q
-                <- trans-sm P B Q.
-
-trans-sm/var : trans-sm (sprog/cons (svar I) P) (mpushvar I ; B) Q
-                <- trans-sm P B Q.
-
-trans-sm/lam : trans-sm (sprog/cons (slam PP) P) (mpushclos (right here) ; B') (mprog/node Q' QQ'')
-                <- trans-sm P B Q
-                <- trans-sm PP BB QQ
-                <- shift-mblock left B B'
-                <- shift-mprog left Q Q'
-                <- shift-mblock next BB BB'
-                <- shift-mprog next QQ QQ'
-                <- shift-mprog right (mprog/cons BB' QQ') QQ''.
-
-trans-sm/app : trans-sm (sprog/cons sapp P) (mcall here) (mprog/cons B' Q')
-                <- trans-sm P B Q
-                <- shift-mblock next B B'
-                <- shift-mprog next Q Q'.
-
-trans-sm/ret : trans-sm sprog/nil mret mprog/nil.
-
-%worlds () (trans-sm _ _ _).
-%total P (trans-sm P _ _).
-}%
+trans-sm/ : trans-sm P (mhalt ; Q^1) 1
+             <- trans-sm' P Q
+             <- shift-mprog 1 Q Q^1.

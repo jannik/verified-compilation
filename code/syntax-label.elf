@@ -1,41 +1,30 @@
 %abbrev number = nat.
 
-label : type. %name label L.
+%abbrev label = nat.
 
-here : label.
-next : label -> label.
-left : label -> label.
-right : label -> label.
-done : label.
-
-%abbrev o : (label -> label) -> (label -> label) -> (label -> label)
-  = [f] [g] [l] f (g l). %infix right 5 o.
+% %abbrev o : (label -> label) -> (label -> label) -> (label -> label)
+%   = [f] [g] [l] f (g l). %infix right 5 o.
 
 minst : type. %name minst M.
 
 mpushnum : number -> minst.
 mpushvar : nat -> minst.
 mpushclos : label -> minst.
+mcall : label -> minst.
+mret : minst.
+mhalt : minst.
 
 
 
-mblock : type. %name mblock B.
+mprog' : type.
 
-; : minst -> mblock -> mblock. %infix right 5 ;.
-mcall : label -> mblock.
-mret : mblock.
-mhalt : mblock.
+mprog'/cons : minst -> mprog' -> mprog'.
 
+%abbrev mprog : type = mprog' -> mprog'. %name mprog Q.
 
+%abbrev mprog/nil : mprog = [nil] nil.
+%abbrev mprog/cons : minst -> mprog -> mprog = [m] [q] [nil] mprog'/cons m (q nil).
+%abbrev mprog/append : mprog -> mprog -> mprog = [q1] [q2] [nil] q1 (q2 nil).
 
-mprog : type. %name mprog Q.
-
-mprog/nil : mprog.
-mprog/cons : mblock -> mprog -> mprog.
-mprog/node : mprog -> mprog -> mprog.
-
-
-
-eq-mblock : mblock -> mblock -> type.
-
-eq-mblock/refl : eq-mblock B B.
+%abbrev ; = mprog/cons. %infix right 5 ;.
+%abbrev ;; = mprog/append. %infix right 5 ;;.

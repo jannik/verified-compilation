@@ -1,4 +1,3 @@
-
 mvalue : type. %name mvalue R.
 mstore : type. %name mstore Alpha.
 
@@ -40,59 +39,65 @@ mvar-lookup/there : mvar-lookup (mstore/cons Alpha R') (s I) R
 
 
 
-label-lookup : mprog -> label -> mblock -> type. %name label-lookup DLL.
-%mode label-lookup +Q +L -B.
+label-lookup : mprog -> label -> minst -> type. %name label-lookup DLL.
+%mode label-lookup +Q +L -M.
 
-label-lookup/here : label-lookup (mprog/cons B Q) here B.
+label-lookup/here : label-lookup (M ; Q) z M.
 
-label-lookup/next : label-lookup (mprog/cons B' Q) (next L) B
-                     <- label-lookup Q L B.
-
-label-lookup/left : label-lookup (mprog/node Q1 Q2) (left L) B
-                     <- label-lookup Q1 L B.
-
-label-lookup/right : label-lookup (mprog/node Q1 Q2) (right L) B
-                     <- label-lookup Q2 L B.
-
-label-lookup/done : label-lookup Q done mhalt.
+label-lookup/there : label-lookup (M' ; Q) (s L) M
+                      <- label-lookup Q L M.
 
 
 
-mstep : mprog -> mframes -> mblock -> rstack -> mframes -> mblock -> rstack -> type. %name mstep DM.
-%mode mstep +Q +Gamma +B +Phi -Gamma' -B' -Phi'.
+mstep : mprog -> mframes -> label -> rstack -> mframes -> label -> rstack -> type. %name mstep DM.
+%mode mstep +Q +Gamma +L +Phi -Gamma' -L' -Phi'.
 
-mstep/pushnum : mstep Q (mframes/cons Gamma Alpha L) (mpushnum N ; B) Phi
-                        (mframes/cons Gamma Alpha L) B (rstack/cons Phi (rnum N)).
-mstep/pushvar : mstep Q (mframes/cons Gamma Alpha L) (mpushvar I ; B) Phi
-                        (mframes/cons Gamma Alpha L) B (rstack/cons Phi R)
+mstep/pushnum : mstep Q (mframes/cons Gamma Alpha L-Ret) L Phi
+                        (mframes/cons Gamma Alpha L-Ret) (s L) (rstack/cons Phi (rnum N))
+                 <- label-lookup Q L (mpushnum N).
+
+mstep/pushvar : mstep Q (mframes/cons Gamma Alpha L-Ret) L Phi
+                        (mframes/cons Gamma Alpha L-Ret) (s L) (rstack/cons Phi R)
+                 <- label-lookup Q L (mpushvar I)
                  <- mvar-lookup Alpha I R.
 
-mstep/pushclos : mstep Q (mframes/cons Gamma Alpha L) (mpushclos L' ; B) Phi
-                         (mframes/cons Gamma Alpha L) B (rstack/cons Phi (rclos Alpha L')).
+mstep/pushclos : mstep Q (mframes/cons Gamma Alpha L-Ret) L Phi
+                         (mframes/cons Gamma Alpha L-Ret) (s L) (rstack/cons Phi (rclos Alpha L'))
+                  <- label-lookup Q L (mpushclos L').
 
-mstep/call : mstep Q (mframes/cons Gamma Alpha L) (mcall L'') (rstack/cons (rstack/cons Phi (rclos Alpha' L')) R)
-                     (mframes/cons (mframes/cons Gamma Alpha L) (mstore/cons Alpha' R) L'') B Phi
-              <- label-lookup Q L' B.
+mstep/call : mstep Q (mframes/cons Gamma Alpha L-Ret) L (rstack/cons (rstack/cons Phi (rclos Alpha' L')) R)
+                     (mframes/cons (mframes/cons Gamma Alpha L-Ret) (mstore/cons Alpha' R) L-Cont) L' Phi
+              <- label-lookup Q L (mcall L-Cont).
 
-mstep/ret : mstep Q (mframes/cons Gamma Alpha' L') mret Phi
-                    Gamma B Phi
-             <- label-lookup Q L' B.
-
-
-msteps : mprog -> mframes -> mblock -> rstack -> mframes -> mblock -> rstack -> type. %name ssteps DMM.
-%mode msteps +Q +Gamma +B +Phi -Gamma' -B' -Phi'.
-
-msteps/zero : msteps Q Gamma B Phi Gamma B Phi.
-
-msteps/more : msteps Q Gamma B Phi Gamma'' B'' Phi''
-               <- mstep Q Gamma B Phi Gamma' B' Phi'
-               <- msteps Q Gamma' B' Phi' Gamma'' B'' Phi''.
+mstep/ret : mstep Q (mframes/cons Gamma Alpha' L-Ret) L Phi
+                    Gamma L-Ret Phi
+             <- label-lookup Q L mret.
 
 
+msteps : mprog -> mframes -> label -> rstack -> mframes -> label -> rstack -> type. %name ssteps DMM.
+%mode msteps +Q +Gamma +L +Phi -Gamma' -L' -Phi'.
 
-meval : mblock -> mprog -> mvalue -> type. %name meval DQ.
-%mode meval +B +Q -R.
+msteps/zero : msteps Q Gamma L Phi Gamma L Phi.
 
-meval/ : meval B Q R
-          <- msteps Q (mframes/final done) B rstack/nil
-                      mframes/nil mhalt (rstack/single R).
+msteps/more : msteps Q Gamma L Phi Gamma'' L'' Phi''
+               <- mstep Q Gamma L Phi Gamma' L' Phi'
+               <- msteps Q Gamma' L' Phi' Gamma'' L'' Phi''.
+
+
+
+meval : mprog -> label -> mvalue -> type. %name meval DQ.
+%mode meval +Q +L -R.
+
+meval/ : meval Q L R
+          <- msteps Q (mframes/final z) L rstack/nil
+                      mframes/nil L' (rstack/single R)
+          <- label-lookup Q L' mhalt.
+
+
+
+meval' : mprog -> label -> mframes -> label -> rstack -> type. %name meval DQ.
+%mode meval +Q +L -R.
+
+meval'/ : meval' Q L Gamma L' Phi
+          <- msteps Q (mframes/final z) L rstack/nil
+                      Gamma L' Phi.

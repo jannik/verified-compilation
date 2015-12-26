@@ -1,3 +1,4 @@
+%.
 leq : mprog -> mprog -> (label -> label) -> type. %name leq DLE.
 
 leq/left : leq Q' (mprog/node Q1 Q2) left
