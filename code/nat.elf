@@ -26,3 +26,10 @@ add/s : add (s N1) N2 (s N)
 %worlds () (add _ _ _).
 %total N (add N _ _).
 
+
+
+add-comm : add N1 N2 N -> add N2 N1 N -> type.
+%mode add-comm +DA -DA'.
+
+%worlds () (add-comm _ _).
+%trustme %total {} (add-comm _ _).

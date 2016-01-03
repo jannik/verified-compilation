@@ -92,12 +92,3 @@ meval/ : meval Q L R
           <- msteps Q (mframes/final z) L rstack/nil
                       mframes/nil L' (rstack/single R)
           <- label-lookup Q L' mhalt.
-
-
-
-meval' : mprog -> label -> mframes -> label -> rstack -> type. %name meval DQ.
-%mode meval +Q +L -R.
-
-meval'/ : meval' Q L Gamma L' Phi
-          <- msteps Q (mframes/final z) L rstack/nil
-                      Gamma L' Phi.
