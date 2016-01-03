@@ -28,6 +28,19 @@ add/s : add (s N1) N2 (s N)
 
 
 
+add-exists : {N1} {N2} add N1 N2 N -> type.
+%mode add-exists +N1 +N2 -DA.
+
+add-exists/z : add-exists z N2 add/z.
+
+add-exists/s : add-exists (s N1) N2 (add/s DA)
+                <- add-exists N1 N2 DA.
+
+%worlds () (add-exists _ _ _).
+%total N1 (add-exists N1 _ _).
+
+
+
 add-comm : add N1 N2 N -> add N2 N1 N -> type.
 %mode add-comm +DA -DA'.
 
