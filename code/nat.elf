@@ -28,8 +28,41 @@ add/s : add (s N1) N2 (s N)
 
 
 
+add-right-z : {N : nat} add N z N -> type.
+%mode add-right-z +N -DA.
+
+add-right-z/z : add-right-z z add/z.
+
+add-right-z/s : add-right-z (s N) (add/s DA)
+                 <- add-right-z N DA.
+
+%worlds () (add-right-z _ _).
+%total N (add-right-z N _).
+
+
+
+add-right-s : add N1 N2 N -> add N1 (s N2) (s N) -> type.
+%mode add-right-s +DA -DA'.
+
+add-right-s/z : add-right-s add/z add/z.
+
+add-right-s/s : add-right-s (add/s DA) (add/s DA')
+                  <- add-right-s DA DA'.
+
+%worlds () (add-right-s _ _).
+%total DA (add-right-s DA _).
+
+
+
 add-comm : add N1 N2 N -> add N2 N1 N -> type.
 %mode add-comm +DA -DA'.
 
+add-comm/z : add-comm add/z DA
+              <- add-right-z _ DA.
+
+add-comm/s : add-comm (add/s DA) DA''
+              <- add-comm DA DA'
+              <- add-right-s DA' DA''.
+
 %worlds () (add-comm _ _).
-%trustme %total {} (add-comm _ _).
+%total DA (add-comm DA _).
