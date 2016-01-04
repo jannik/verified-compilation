@@ -47,6 +47,9 @@ label-lookup/here : label-lookup (M ; Q) z M.
 label-lookup/there : label-lookup (M' ; Q) (s L) M
                       <- label-lookup Q L M.
 
+%worlds () (label-lookup _ _ _).
+%unique label-lookup +Q +L -1M.
+
 
 
 mstep : mprog -> mframes -> label -> rstack -> mframes -> label -> rstack -> type. %name mstep DM.
@@ -72,6 +75,7 @@ mstep/call : mstep Q (mframes/cons Gamma Alpha L-Ret) L (rstack/cons (rstack/con
 mstep/ret : mstep Q (mframes/cons Gamma Alpha' L-Ret) L Phi
                     Gamma L-Ret Phi
              <- label-lookup Q L mret.
+
 
 
 msteps : mprog -> mframes -> label -> rstack -> mframes -> label -> rstack -> type. %name ssteps DMM.

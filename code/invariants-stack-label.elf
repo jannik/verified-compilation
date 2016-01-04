@@ -1,0 +1,75 @@
+leq : mprog -> mprog -> nat -> type. %name leq DLE.
+
+leq/ : {Q1} {Q2} leq Q (Q1 ;; Q^S ;; Q2) S
+        <- mprog-length Q1 S
+        <- shift-mprog S Q Q^S.
+
+
+
+leq-trans : leq Q1 Q2 M -> leq Q2 Q3 N -> add M N M+N -> leq Q1 Q3 M+N -> type.
+%mode leq-trans +Q1<Q2 +Q2<Q3 +DA -Q1<Q3.
+
+%worlds () (leq-trans _ _ _ _).
+%trustme %total {} (leq-trans _ _ _ _).
+
+
+
+leq-cons : shift-mprog 1 Q1 Q1^1 -> leq (M ; Q1^1) Q S -> leq Q1 Q (s S) -> type.
+%mode leq-cons +H +DLE -DLE'.
+
+%worlds () (leq-cons _ _ _).
+%trustme %total {} (leq-cons _ _ _).
+
+
+
+leq-lookup : shift-minst S M M^S -> leq (M ; Q1) Q S -> label-lookup Q S M^S -> type.
+%mode leq-lookup +H +DLE -DLL.
+
+%worlds () (leq-lookup _ _ _).
+%trustme %total {} (leq-lookup _ _ _).
+
+
+
+cor-value : mprog -> svalue -> mvalue -> type.
+
+cor-store : mprog -> sstore -> mstore -> type.
+
+% cor-value
+
+cor-value/num : cor-value Q (wnum N) (rnum N).
+
+cor-value/clos : cor-value Q (wclos Tau P) (rclos Alpha L)
+                  <- cor-store Q Tau Alpha
+                  <- trans-sm' P Q'
+                  <- leq Q' Q L.
+
+% cor-store
+
+cor-store/nil : cor-store Q sstore/nil mstore/nil.
+
+cor-store/cons : cor-store Q (sstore/cons Tau W) (mstore/cons Alpha R)
+                  <- cor-store Q Tau Alpha
+                  <- cor-value Q W R.
+
+
+
+cor-stack : mprog -> frames -> label -> mframes -> type.
+
+cor-stack/nil : cor-stack Q frames/nil L mframes/nil
+                 <- label-lookup Q L mhalt.
+
+cor-stack/cons : cor-stack Q (frames/cons Xi Tau P) L (mframes/cons Gamma Alpha L')
+                  <- cor-stack Q Xi L' Gamma
+                  <- cor-store Q Tau Alpha
+                  <- trans-sm' P Q'
+                  <- leq Q' Q L.
+
+
+
+cor-value-stack : mprog -> wstack -> rstack -> type.
+
+cor-value-stack/nil : cor-value-stack Q wstack/nil rstack/nil.
+
+cor-value-stack/cons : cor-value-stack Q (wstack/cons Psi W) (rstack/cons Phi R)
+                        <- cor-value-stack Q Psi Phi
+                        <- cor-value Q W R.

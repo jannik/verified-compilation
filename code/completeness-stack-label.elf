@@ -1,240 +1,3 @@
-leq : mprog -> mprog -> nat -> type. %name leq DLE.
-
-leq/ : {Q1} {Q2} leq Q (Q1 ;; Q^S ;; Q2) S
-        <- mprog-length Q1 S
-        <- shift-mprog S Q Q^S.
-
-
-
-leq-trans : leq Q1 Q2 M -> leq Q2 Q3 N -> add M N M+N -> leq Q1 Q3 M+N -> type.
-%mode leq-trans +Q1<Q2 +Q2<Q3 +DA -Q1<Q3.
-
-%worlds () (leq-trans _ _ _ _).
-%trustme %total {} (leq-trans _ _ _ _).
-
-
-
-leq-prepend : shift-mprog S Q Q^1 -> mprog-length Q' S -> leq Q (Q' ;; Q^1) S -> type.
-%mode leq-prepend +H +DLen -DLE.
-
-%worlds () (leq-prepend _ _ _).
-
-
-
-leq-cons : shift-mprog 1 Q1 Q1^1 -> leq (M ; Q1^1) Q S -> leq Q1 Q (s S) -> type.
-%mode leq-cons +H +DLE -DLE'.
-
-%worlds () (leq-cons _ _ _).
-%trustme %total {} (leq-cons _ _ _).
-
-
-
-leq-lookup : leq (M^S ; Q1) Q S -> label-lookup Q S M -> shift-minst S M M^S -> type.
-%mode leq-lookup +DLE -DLL -H.
-
-%worlds () (leq-lookup _ _ _).
-%trustme %total {} (leq-lookup _ _ _).
-
-
-
-leq-lookup' : shift-minst S M M^S -> leq (M ; Q1) Q S -> label-lookup Q S M^S -> type.
-%mode leq-lookup' +H +DLE -DLL.
-
-%worlds () (leq-lookup' _ _ _).
-%trustme %total {} (leq-lookup' _ _ _).
-
-%{
-shift-minst-refl : shift-minst ([l] l) M M -> type.
-%mode +{M : minst} -{DH : shift-minst ([l] l) M M} shift-minst-refl DH.
-
-shift-minst-refl/pushnum : shift-minst-refl shift-minst/pushnum.
-
-shift-minst-refl/pushvar : shift-minst-refl shift-minst/pushvar.
-
-shift-minst-refl/pushclos : shift-minst-refl shift-minst/pushclos.
-
-%worlds () (shift-minst-refl _).
-%total {} (shift-minst-refl _).
-
-
-
-shift-mblock-refl' : {B} shift-mblock ([l] l) B B -> type.
-%mode shift-mblock-refl' +B -DH.
-
-shift-mblock-refl'/cons : shift-mblock-refl' (M ; B) (shift-mblock/cons DHB DHM)
-                           <- shift-minst-refl DHM
-                           <- shift-mblock-refl' B DHB.
-
-shift-mblock-refl'/call : shift-mblock-refl' (mcall L) shift-mblock/call.
-
-shift-mblock-refl'/ret : shift-mblock-refl' mret shift-mblock/ret.
-
-shift-mblock-refl'/halt : shift-mblock-refl' mhalt shift-mblock/halt.
-
-%worlds () (shift-mblock-refl' _ _).
-%total B (shift-mblock-refl' B _).
-
-
-
-shift-mblock-refl : shift-mblock ([l] l) B B -> type.
-%mode +{B : mblock} -{DH : shift-mblock ([l] l) B B} shift-mblock-refl DH.
-
-shift-mblock-refl/ : shift-mblock-refl DH
-                      <- shift-mblock-refl' _ DH.
-
-%worlds () (shift-mblock-refl _).
-%total {} (shift-mblock-refl _).
-
-
-
-shift-minst-trans : shift-minst F M M' -> shift-minst G M' M'' -> shift-minst (G o F) M M'' -> type.
-%mode shift-minst-trans +DH +DH' -DH''.
-
-shift-minst-trans/pushnum : shift-minst-trans shift-minst/pushnum shift-minst/pushnum shift-minst/pushnum.
-
-shift-minst-trans/pushvar : shift-minst-trans shift-minst/pushvar shift-minst/pushvar shift-minst/pushvar.
-
-shift-minst-trans/pushclos : shift-minst-trans shift-minst/pushclos shift-minst/pushclos shift-minst/pushclos.
-
-%worlds () (shift-minst-trans _ _ _).
-%total {} (shift-minst-trans _ _ _).
-
-
-
-shift-mblock-trans : shift-mblock F B B' -> shift-mblock G B' B'' -> shift-mblock (G o F) B B'' -> type.
-%mode shift-mblock-trans +DH +DH' -DH''.
-
-shift-mblock-trans/cons : shift-mblock-trans (shift-mblock/cons DHB DHM) (shift-mblock/cons DHB' DHM') (shift-mblock/cons DHB'' DHM'')
-                           <- shift-mblock-trans DHB DHB' DHB''
-                           <- shift-minst-trans DHM DHM' DHM''.
-
-shift-mblock-trans/ret : shift-mblock-trans shift-mblock/ret shift-mblock/ret shift-mblock/ret.
-
-shift-mblock-trans/call : shift-mblock-trans shift-mblock/call shift-mblock/call shift-mblock/call.
-
-shift-mblock-trans/halt : shift-mblock-trans shift-mblock/halt shift-mblock/halt shift-mblock/halt.
-
-%worlds () (shift-mblock-trans _ _ _).
-%total DH (shift-mblock-trans DH _ _).
-
-
-
-shift-mprog-trans : shift-mprog F Q Q' -> shift-mprog G Q' Q'' -> shift-mprog (G o F) Q Q'' -> type.
-%mode shift-mprog-trans +DH +DH' -DH''.
-
-shift-mprog-trans/nil : shift-mprog-trans shift-mprog/nil shift-mprog/nil shift-mprog/nil.
-
-shift-mprog-trans/cons : shift-mprog-trans (shift-mprog/cons DHQ DHB) (shift-mprog/cons DHQ' DHB') (shift-mprog/cons DHQ'' DHB'')
-                          <- shift-mprog-trans DHQ DHQ' DHQ''
-                          <- shift-mblock-trans DHB DHB' DHB''.
-
-shift-mprog-trans/node : shift-mprog-trans (shift-mprog/node DHQ2 DHQ1) (shift-mprog/node DHQ2' DHQ1') (shift-mprog/node DHQ2'' DHQ1'')
-                          <- shift-mprog-trans DHQ1 DHQ1' DHQ1''
-                          <- shift-mprog-trans DHQ2 DHQ2' DHQ2''.
-
-%worlds () (shift-mprog-trans _ _ _).
-%total DH (shift-mprog-trans DH _ _).
-
-
-
-lookup-respects-shift : label-lookup Q' L B' -> shift-mprog F Q' Q -> label-lookup Q L B -> shift-mblock F B' B -> type.
-%mode lookup-respects-shift +DLL +DH -DLL' -DH'.
-
-lookup-respects-shift/here : lookup-respects-shift label-lookup/here (shift-mprog/cons DHQ DHB) label-lookup/here DHB.
-
-lookup-respects-shift/next : lookup-respects-shift (label-lookup/next DLL) (shift-mprog/cons DHQ DHB) (label-lookup/next DLL') DH'
-                              <- lookup-respects-shift DLL DHQ DLL' DH'.
-
-lookup-respects-shift/left : lookup-respects-shift (label-lookup/left DLL) (shift-mprog/node DHQ2 DHQ1) (label-lookup/left DLL') DH'
-                              <- lookup-respects-shift DLL DHQ1 DLL' DH'.
-
-lookup-respects-shift/right : lookup-respects-shift (label-lookup/right DLL) (shift-mprog/node DHQ2 DHQ1) (label-lookup/right DLL') DH'
-                              <- lookup-respects-shift DLL DHQ2 DLL' DH'.
-
-lookup-respects-shift/done : lookup-respects-shift label-lookup/done DH label-lookup/done shift-mblock/halt.
-
-%worlds () (lookup-respects-shift _ _ _ _).
-%total DLL (lookup-respects-shift DLL _ _ _).
-
-
-
-lookup-respects-leq : leq Q' Q F -> label-lookup Q' L B' -> label-lookup Q (F L) B -> shift-mblock F B' B -> type.
-%mode lookup-respects-leq +DLE +DLL -DLL' -DH'.
-
-lookup-respects-leq/left
-   : lookup-respects-leq (leq/left DH : leq Q' (mprog/node Q1 Q2) left) (DLL : label-lookup Q' L B')
-                         (label-lookup/left (DLL' : label-lookup Q1 L B)) DH'
-      <- lookup-respects-shift DLL DH DLL' DH'.
-
-lookup-respects-leq/right
-   : lookup-respects-leq (leq/right DH) DLL (label-lookup/right DLL') DH'
-      <- lookup-respects-shift DLL DH DLL' DH'.
-
-lookup-respects-leq/next
-   : lookup-respects-leq (leq/next DH) DLL (label-lookup/next DLL') DH'
-      <- lookup-respects-shift DLL DH DLL' DH'.
-
-lookup-respects-leq/refl
-   : lookup-respects-leq leq/refl DLL DLL DH
-      <- shift-mblock-refl DH.
-
-lookup-respects-leq/trans
-   : lookup-respects-leq (leq/trans DLE2 DLE1) DLL DLL' DH
-      <- lookup-respects-leq DLE1 DLL DLL'' DH''
-      <- lookup-respects-leq DLE2 DLL'' DLL' DH'
-      <- shift-mblock-trans DH'' DH' DH.
-
-%worlds () (lookup-respects-leq _ _ _ _).
-%total DLE (lookup-respects-leq DLE _ _ _).
-}%
-
-
-cor-value : mprog -> svalue -> mvalue -> type.
-
-cor-store : mprog -> sstore -> mstore -> type.
-
-% cor-value
-
-cor-value/num : cor-value Q (wnum N) (rnum N).
-
-cor-value/clos : cor-value Q (wclos Tau P) (rclos Alpha L)
-                  <- cor-store Q Tau Alpha
-                  <- trans-sm' P Q'
-                  <- leq Q' Q L.
-
-% cor-store
-
-cor-store/nil : cor-store Q sstore/nil mstore/nil.
-
-cor-store/cons : cor-store Q (sstore/cons Tau W) (mstore/cons Alpha R)
-                  <- cor-store Q Tau Alpha
-                  <- cor-value Q W R.
-
-
-
-cor-stack : mprog -> frames -> label -> mframes -> type.
-
-cor-stack/nil : cor-stack Q frames/nil L mframes/nil
-                 <- label-lookup Q L mhalt.
-
-cor-stack/cons : cor-stack Q (frames/cons Xi Tau P) L (mframes/cons Gamma Alpha L')
-                  <- cor-stack Q Xi L' Gamma
-                  <- cor-store Q Tau Alpha
-                  <- trans-sm' P Q'
-                  <- leq Q' Q L.
-
-
-
-cor-value-stack : mprog -> wstack -> rstack -> type.
-
-cor-value-stack/nil : cor-value-stack Q wstack/nil rstack/nil.
-
-cor-value-stack/cons : cor-value-stack Q (wstack/cons Psi W) (rstack/cons Phi R)
-                        <- cor-value-stack Q Psi Phi
-                        <- cor-value Q W R.
-
-
-
 completeness-sm-var : mvar-lookup Alpha I R -> cor-store Q Tau Alpha -> seval-var Tau I W -> cor-value Q W R -> type.
 %mode completeness-sm-var -DVL +DCE +DSV -DC.
 
@@ -265,14 +28,14 @@ completeness-sm'/halt
 completeness-sm'/num
    : completeness-sm' DCV (cor-stack/cons Pushnum;Q1^1<Q (trans-sm'/num H DT) DCE DCS) (msteps/more DMM (mstep/pushnum DLL-Pushnum)) DLL-Halt (ssteps/more DP sstep/num) DC
       <- leq-cons H Pushnum;Q1^1<Q Q1<Q
-      <- leq-lookup' shift-minst/pushnum Pushnum;Q1^1<Q DLL-Pushnum
+      <- leq-lookup shift-minst/pushnum Pushnum;Q1^1<Q DLL-Pushnum
       <- completeness-sm' (cor-value-stack/cons cor-value/num DCV) (cor-stack/cons Q1<Q DT DCE DCS) DMM DLL-Halt DP DC.
 
 completeness-sm'/var
    : completeness-sm' DCV (cor-stack/cons Pushvar;Q1^1<Q (trans-sm'/var H DT) DCE DCS) (msteps/more DMM (mstep/pushvar DVL DLL-Pushvar)) DLL-Halt (ssteps/more DP (sstep/var DSV)) DC
       <- completeness-sm-var DVL DCE DSV DC'
       <- leq-cons H Pushvar;Q1^1<Q Q1<Q
-      <- leq-lookup' shift-minst/pushvar Pushvar;Q1^1<Q DLL-Pushvar
+      <- leq-lookup shift-minst/pushvar Pushvar;Q1^1<Q DLL-Pushvar
       <- completeness-sm' (cor-value-stack/cons DC' DCV) (cor-stack/cons Q1<Q DT DCE DCS) DMM DLL-Halt DP DC.
 
 completeness-sm'/lam
@@ -281,7 +44,7 @@ completeness-sm'/lam
       <- add-comm DA DA'
       <- leq-trans (leq/ (mpushclos (s Q1#) ; Q1^1) mprog/nil Q2->Q2^1+Q1# (mprog-length/cons Q1Len)) Pushclos;Q1^1;;Q2^1+Q1#<Q DA Q2<Q
       <- leq-trans (leq/ (mpushclos (s Q1#) ; mprog/nil) Q2^1+Q1# Q1->Q1^1 (mprog-length/cons mprog-length/nil)) Pushclos;Q1^1;;Q2^1+Q1#<Q (add/s add/z) Q1<Q
-      <- leq-lookup' (shift-minst/pushclos DA') Pushclos;Q1^1;;Q2^1+Q1#<Q DLL-Pushclos
+      <- leq-lookup (shift-minst/pushclos DA') Pushclos;Q1^1;;Q2^1+Q1#<Q DLL-Pushclos
       <- completeness-sm'
          (cor-value-stack/cons (cor-value/clos Q2<Q DT2 DCE) DCV)
          (cor-stack/cons Q1<Q DT1 DCE DCS)
@@ -291,14 +54,14 @@ completeness-sm'/app
    : completeness-sm' (cor-value-stack/cons DC-Arg (cor-value-stack/cons (cor-value/clos Q'<Q DT' DCE') DCV)) (cor-stack/cons Call;Q1^1<Q (trans-sm'/app H DT) DCE DCS) (msteps/more DMM (mstep/call DLL-Call)) DLL-Halt (ssteps/more DP sstep/app) DC
       <- leq-cons H Call;Q1^1<Q Q1<Q
       <- add-comm (add/s add/z) DA
-      <- leq-lookup' (shift-minst/call DA) Call;Q1^1<Q DLL-Call
+      <- leq-lookup (shift-minst/call DA) Call;Q1^1<Q DLL-Call
       <- completeness-sm' DCV
          (cor-stack/cons Q'<Q DT' (cor-store/cons DC-Arg DCE') (cor-stack/cons Q1<Q DT DCE DCS))
          DMM DLL-Halt DP DC.
 
 completeness-sm'/ret
    : completeness-sm' DCV (cor-stack/cons Ret<Q trans-sm'/ret DCE DCS) (msteps/more DMM (mstep/ret DLL-Ret)) DLL-Halt (ssteps/more DP sstep/ret) DC
-      <- leq-lookup' shift-minst/ret Ret<Q DLL-Ret
+      <- leq-lookup shift-minst/ret Ret<Q DLL-Ret
       <- completeness-sm' DCV DCS DMM DLL-Halt DP DC.
 
 %worlds () (completeness-sm' _ _ _ _ _ _).

@@ -47,6 +47,22 @@ shift-mprog/cons : shift-mprog S (M ; Q) (M^S ; Q^S)
 
 
 
+shift-minst-exists : {S} {M} shift-minst S M M^S -> type.
+%mode shift-minst-exists +S +M -M->M^S.
+
+%worlds () (shift-minst-exists _ _ _).
+%trustme %total {} (shift-minst-exists _ _ _).
+
+
+
+shift-mprog-exists : {S} {Q} shift-mprog S Q Q^S -> type.
+%mode shift-mprog-exists +S +Q -Q->Q^S.
+
+%worlds () (shift-mprog-exists _ _ _).
+%trustme %total {} (shift-mprog-exists _ _ _).
+
+
+
 trans-sm' : sprog -> mprog -> type.
 %mode trans-sm' +P -Q.
 
@@ -72,7 +88,7 @@ trans-sm'/app : trans-sm' (sprog/cons sapp P) (mcall 1 ; Q^1)
 trans-sm'/ret : trans-sm' sprog/nil (mret ; mprog/nil).
 
 %worlds () (trans-sm' _ _).
-%total P (trans-sm' P _).
+%trustme %total P (trans-sm' P _).
 
 
 
