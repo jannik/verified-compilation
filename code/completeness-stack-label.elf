@@ -7,7 +7,7 @@ leq/ : {Q1} {Q2} leq Q (Q1 ;; Q^S ;; Q2) S
 
 
 leq-trans : leq Q1 Q2 M -> leq Q2 Q3 N -> add M N M+N -> leq Q1 Q3 M+N -> type.
-%mode leq-trans +Q1<Q2 +Q2<Q3 -DA -Q1<Q3.
+%mode leq-trans +Q1<Q2 +Q2<Q3 +DA -Q1<Q3.
 
 %worlds () (leq-trans _ _ _ _).
 %trustme %total {} (leq-trans _ _ _ _).
@@ -235,39 +235,6 @@ cor-value-stack/cons : cor-value-stack Q (wstack/cons Psi W) (rstack/cons Phi R)
 
 
 
-%{
-lookup-unique : label-lookup Q L B -> label-lookup Q L B' -> eq-mblock B B' -> type.
-%mode lookup-unique +DLL +DLL' -EQ.
-
-lookup-unique/here : lookup-unique label-lookup/here label-lookup/here eq-mblock/refl.
-
-lookup-unique/next : lookup-unique (label-lookup/next DLL) (label-lookup/next DLL') EQ
-                      <- lookup-unique DLL DLL' EQ.
-
-lookup-unique/left : lookup-unique (label-lookup/left DLL) (label-lookup/left DLL') EQ
-                      <- lookup-unique DLL DLL' EQ.
-
-lookup-unique/right : lookup-unique (label-lookup/right DLL) (label-lookup/right DLL') EQ
-                      <- lookup-unique DLL DLL' EQ.
-
-lookup-unique/done : lookup-unique label-lookup/done label-lookup/done eq-mblock/refl.
-
-%worlds () (lookup-unique _ _ _).
-%total DLL (lookup-unique DLL _ _).
-
-
-
-coerce-cor-stack : cor-stack Q Xi B Gamma -> eq-mblock B B' -> cor-stack Q Xi B' Gamma -> type.
-%mode coerce-cor-stack +DCS +EQ -DCS'.
-
-coerce-cor-stack/ : coerce-cor-stack DCS eq-mblock/refl DCS.
-
-%worlds () (coerce-cor-stack _ _ _).
-%total {} (coerce-cor-stack _ _ _).
-}%
-
-
-
 completeness-sm-var : mvar-lookup Alpha I R -> cor-store Q Tau Alpha -> seval-var Tau I W -> cor-value Q W R -> type.
 %mode completeness-sm-var -DVL +DCE +DSV -DC.
 
@@ -310,10 +277,11 @@ completeness-sm'/var
 
 completeness-sm'/lam
    : completeness-sm' DCV (cor-stack/cons Pushclos;Q1^1;;Q2^1+Q1#<Q (trans-sm'/lam Q2->Q2^1+Q1# DT2 Q1Len Q1->Q1^1 DT1) DCE DCS) (msteps/more DMM (mstep/pushclos DLL-Pushclos)) DLL-Halt (ssteps/more DP sstep/lam) DC
-      <- leq-trans (leq/ (mpushclos (s Q1#) ; Q1^1) mprog/nil Q2->Q2^1+Q1# (mprog-length/cons Q1Len)) Pushclos;Q1^1;;Q2^1+Q1#<Q (Add-1+Q1#-S : add (s Q1#) S Q1+1#+S) Q2<Q
+      <- add-exists (s Q1#) S DA
+      <- add-comm DA DA'
+      <- leq-trans (leq/ (mpushclos (s Q1#) ; Q1^1) mprog/nil Q2->Q2^1+Q1# (mprog-length/cons Q1Len)) Pushclos;Q1^1;;Q2^1+Q1#<Q DA Q2<Q
       <- leq-trans (leq/ (mpushclos (s Q1#) ; mprog/nil) Q2^1+Q1# Q1->Q1^1 (mprog-length/cons mprog-length/nil)) Pushclos;Q1^1;;Q2^1+Q1#<Q (add/s add/z) Q1<Q
-      <- add-comm Add-1+Q1#-S Add-S-1+Q1#
-      <- leq-lookup' (shift-minst/pushclos Add-S-1+Q1#) Pushclos;Q1^1;;Q2^1+Q1#<Q DLL-Pushclos
+      <- leq-lookup' (shift-minst/pushclos DA') Pushclos;Q1^1;;Q2^1+Q1#<Q DLL-Pushclos
       <- completeness-sm'
          (cor-value-stack/cons (cor-value/clos Q2<Q DT2 DCE) DCV)
          (cor-stack/cons Q1<Q DT1 DCE DCS)
@@ -322,18 +290,19 @@ completeness-sm'/lam
 completeness-sm'/app
    : completeness-sm' (cor-value-stack/cons DC-Arg (cor-value-stack/cons (cor-value/clos Q'<Q DT' DCE') DCV)) (cor-stack/cons Call;Q1^1<Q (trans-sm'/app H DT) DCE DCS) (msteps/more DMM (mstep/call DLL-Call)) DLL-Halt (ssteps/more DP sstep/app) DC
       <- leq-cons H Call;Q1^1<Q Q1<Q
-      <- leq-lookup Call;Q1^1<Q DLL-Call (shift-minst/call DA)
+      <- add-comm (add/s add/z) DA
+      <- leq-lookup' (shift-minst/call DA) Call;Q1^1<Q DLL-Call
       <- completeness-sm' DCV
          (cor-stack/cons Q'<Q DT' (cor-store/cons DC-Arg DCE') (cor-stack/cons Q1<Q DT DCE DCS))
          DMM DLL-Halt DP DC.
 
 completeness-sm'/ret
    : completeness-sm' DCV (cor-stack/cons Ret<Q trans-sm'/ret DCE DCS) (msteps/more DMM (mstep/ret DLL-Ret)) DLL-Halt (ssteps/more DP sstep/ret) DC
-      <- leq-lookup Ret<Q DLL-Ret shift-minst/ret
+      <- leq-lookup' shift-minst/ret Ret<Q DLL-Ret
       <- completeness-sm' DCV DCS DMM DLL-Halt DP DC.
 
 %worlds () (completeness-sm' _ _ _ _ _ _).
-%%total DP (completeness-sm' _ _ _ _ DP _).
+%total DP (completeness-sm' _ _ _ _ DP _).
 
 
 
@@ -347,17 +316,14 @@ coerce-meval-num : cor-value Q (wnum N1) (rnum N2) -> meval Q L (rnum N2) -> mev
 
 
 
-%{
 completeness-sm : trans-sm P B Q -> meval B Q (rnum N) -> seval P (wnum N) -> type.
 %mode completeness-sm +DT -DQ +DP.
 
-completeness-sm/ : completeness-sm DT DQ (seval/ DP)
-                 <- shift-mblock-refl DH
-                 <- completeness-sm' cor-value-stack/nil
-                    (cor-stack/cons leq/refl DT label-lookup/done cor-store/nil DH cor-stack/nil)
-                    DMM DP DC
-                 <- coerce-meval-num DC (meval/ DMM) DQ.
+completeness-sm/ : completeness-sm (trans-sm/ Q->Q^1 DT) DQ (seval/ DP)
+                  <- completeness-sm' cor-value-stack/nil
+                     (cor-stack/cons (leq/ (mhalt ; mprog/nil) mprog/nil Q->Q^1 (mprog-length/cons mprog-length/nil)) DT cor-store/nil (cor-stack/nil label-lookup/here))
+                     DMM DLL-Halt DP DC
+                  <- coerce-meval-num DC (meval/ DLL-Halt DMM) DQ.
 
 %worlds () (completeness-sm _ _ _).
 %total {} (completeness-sm _ _ _).
-}%
