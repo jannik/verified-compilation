@@ -42,8 +42,10 @@ completeness-sm'/lam
    : completeness-sm' DCV (cor-stack/cons Pushclos;Q1^1;;Q2^1+Q1#<Q (trans-sm'/lam Q2->Q2^1+Q1# DT2 Q1Len Q1->Q1^1 DT1) DCE DCS) (msteps/more DMM (mstep/pushclos DLL-Pushclos)) DLL-Halt (ssteps/more DP sstep/lam) DC
       <- add-exists (s Q1#) S DA
       <- add-comm DA DA'
-      <- leq-trans (leq/ (mpushclos (s Q1#) ; Q1^1) mprog/nil Q2->Q2^1+Q1# (mprog-length/cons Q1Len)) Pushclos;Q1^1;;Q2^1+Q1#<Q DA Q2<Q
-      <- leq-trans (leq/ (mpushclos (s Q1#) ; mprog/nil) Q2^1+Q1# Q1->Q1^1 (mprog-length/cons mprog-length/nil)) Pushclos;Q1^1;;Q2^1+Q1#<Q (add/s add/z) Q1<Q
+      <- leq-infix (mpushclos (s Q1#) ; Q1^1) mprog/nil Q2->Q2^1+Q1# (mprog-length/cons Q1Len) Q2<Pushclos;Q1^1;;Q2^1+Q1#
+      <- leq-infix (mpushclos (s Q1#) ; mprog/nil) Q2^1+Q1# Q1->Q1^1 (mprog-length/cons mprog-length/nil) Q1<Pushclos;Q1^1;;Q2^1+Q1#
+      <- leq-trans Q2<Pushclos;Q1^1;;Q2^1+Q1# Pushclos;Q1^1;;Q2^1+Q1#<Q DA Q2<Q
+      <- leq-trans Q1<Pushclos;Q1^1;;Q2^1+Q1# Pushclos;Q1^1;;Q2^1+Q1#<Q (add/s add/z) Q1<Q
       <- leq-lookup (shift-minst/pushclos DA') Pushclos;Q1^1;;Q2^1+Q1#<Q DLL-Pushclos
       <- completeness-sm'
          (cor-value-stack/cons (cor-value/clos Q2<Q DT2 DCE) DCV)
@@ -83,10 +85,11 @@ completeness-sm : trans-sm P B Q -> meval B Q (rnum N) -> seval P (wnum N) -> ty
 %mode completeness-sm +DT -DQ +DP.
 
 completeness-sm/ : completeness-sm (trans-sm/ Q->Q^1 DT) DQ (seval/ DP)
-                  <- completeness-sm' cor-value-stack/nil
-                     (cor-stack/cons (leq/ (mhalt ; mprog/nil) mprog/nil Q->Q^1 (mprog-length/cons mprog-length/nil)) DT cor-store/nil (cor-stack/nil label-lookup/here))
-                     DMM DLL-Halt DP DC
-                  <- coerce-meval-num DC (meval/ DLL-Halt DMM) DQ.
+                    <- leq-infix (mhalt ; mprog/nil) mprog/nil Q->Q^1 (mprog-length/cons mprog-length/nil) DLE
+                    <- completeness-sm' cor-value-stack/nil
+                       (cor-stack/cons DLE DT cor-store/nil (cor-stack/nil label-lookup/here))
+                       DMM DLL-Halt DP DC
+                    <- coerce-meval-num DC (meval/ DLL-Halt DMM) DQ.
 
 %worlds () (completeness-sm _ _ _).
 %total {} (completeness-sm _ _ _).

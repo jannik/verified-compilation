@@ -1,8 +1,27 @@
+prefix : mprog -> mprog -> type.
+
+prefix/keep : prefix (M ; Q1) (M ; Q2)
+               <- prefix Q1 Q2.
+
+prefix/stop : prefix mprog/nil Q.
+
+
+
 leq : mprog -> mprog -> nat -> type. %name leq DLE.
 
-leq/ : {Q1} {Q2} leq Q (Q1 ;; Q^S ;; Q2) S
-        <- mprog-length Q1 S
-        <- shift-mprog S Q Q^S.
+leq/here : leq Q1 Q z
+            <- prefix Q1 Q.
+
+leq/there : leq Q1 (M ; Q) (s S)
+             <- leq Q1 Q S.
+
+
+
+leq-infix : {Q1} {Q2} shift-mprog S Q Q^S -> mprog-length Q1 S -> leq Q (Q1 ;; Q^S ;; Q2) S -> type.
+%mode leq-infix +Q1 +Q2 +Q->Q^S +Q1Len -DLE.
+
+%worlds () (leq-infix _ _ _ _ _).
+%trustme %total {} (leq-infix _ _ _ _ _).
 
 
 
