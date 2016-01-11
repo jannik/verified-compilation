@@ -1112,31 +1112,25 @@ And an execution judgement:
 \judgement{\mexec{q}{m}{\D}{\l}{\Ps}{\D'}{\l'}{\Ps'}}
 
 \begin{prooftree}
-  \ax{\mexec{q}{\mpushnum{n}}{\D \cons \cl{\c, \lret}}{\l}{\Ps}{\D \cons \cl{\c}{\l}}{\l}{\Ps, \n{n}}}
+  \ax{\mexec{q}{\mpushnum{n}}{\D}{\l}{\Ps}{\D}{\l + 1}{\Ps \cons \n{n}}}
 \end{prooftree}
 
-%\begin{prooftree}
-%  \ninf{\mlook{\c}{i}{\hm}$}
-%  \uinf{\mstep{\q}{\Gamma, \tup{\alpha; \l}}{\mpushvar{i}, \b}{\Phi}{\Gamma, \tup{\alpha; \l}}{\b}{\Phi, \r}}
-%\end{prooftree}
+\begin{prooftree}
+  \ninf{\mlook{\c}{i}{\hm}}
+  \uinf{\mexec{q}{\mpushvar{i}}{\D}{\l}{\Ps}{\D}{\l + 1}{\Ps \cons \hm}}
+\end{prooftree}
 
+\begin{prooftree}
+  \ax{\mexec{q}{\mpushclos{\l'}}{\D \cons \cl{\c}{\lret}}{\l}{\Ps}{\D \cons \cl{\c}{\lret}}{\l + 1}{\Ps \cons \cl{\c}{\l'}}}
+\end{prooftree}
 
-%\begin{prooftree}
-  %\ax{\mstep{\q}{\Gamma, \tup{\alpha; \l}}{\mpushclos{\l'}, \b}{\Phi}{\Gamma, \tup{\alpha; \l}}{\b}{\Phi, \set{\alpha; \l'}}}
-%\end{prooftree}
-%
-%\begin{prooftree}
-  %\ninf{$\q \vdash \l' \uparrow \b$}
-  %\uinf{\mstep{\q}{\Gamma, \tup{\alpha; \l}}{\mcall{\l''}}{\Phi, \set{\alpha'; \l'}, \r}{\Gamma, \tup{\alpha; \l}, \tup{\alpha', \r; \l''}}{\b}{\Phi}}
-%\end{prooftree}
-%
-%\begin{prooftree}
-  %\ninf{$\q \vdash \l' \uparrow \b$}
-  %\uinf{\mstep{\q}{\Gamma, \tup{\alpha; \l}, \tup{\alpha'; \l'}}{\mret}{\Phi, \r}{\Gamma, \tup{\alpha; \l}}{\b}{\Phi, \r}}
-%\end{prooftree}
+\begin{prooftree}
+  \ax{\mexec{q}{\mcall{\lret}}{\D}{\l}{\Ps \cons \cl{\c'}{\l'} \cons \hm}{\D \cons \cl{\c' \cons \hm}{\lret}}{\l'}{\Ps}}
+\end{prooftree}
 
-
-
+\begin{prooftree}
+  \ax{\mexec{q}{\mret}{\D \cons \cl{\c}{\lret}}{\l}{\Ps}{\D}{\lret}{\Ps}}
+\end{prooftree}
 
 And finally the multi-step judgement:
 
