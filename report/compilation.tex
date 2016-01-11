@@ -37,8 +37,7 @@
 \newcommand{\n}[1]{\overline{#1}}
 \newcommand{\lam}[2]{\lambda #1. #2}
 \newcommand{\app}{\;}
-%\newcommand{\cl}[2]{\langle #1, #2 \rangle}
-\newcommand{\cl}[2]{\{ #1 ; #2 \}}
+\newcommand{\cl}[2]{\{ #1 , #2 \}}
 \newcommand{\sub}[3]{#1[#2/#3]}
 \newcommand{\subs}[2]{#1[#2]}
 \newcommand{\wo}{\backslash}
@@ -156,6 +155,9 @@
 \renewcommand{\sapp}{\mathtt{app}}
 
 \newcommand{\ssnil}{[]}
+\renewcommand{\a}{\alpha}
+\renewcommand{\b}{\beta}
+\renewcommand{\c}{\gamma}
 
 
 
@@ -291,10 +293,10 @@ We define variable indices $i$ and De Bruijn expressions $b$ as follows:
 \subsection*{Semantics}
 
 The semantics of the De Bruijn language is environment-based.
-We define De-Bruijn values $\h{b}$ as follows, and environments $\alpha$ are then ordered lists of values.
+We define De-Bruijn values $\h{b}$ as follows, and environments $\a$ are then ordered lists of values.
 \begin{align*}
   \h{b} &\defi \n{n} \alt \cl{\sg}{\b} \\
-  \alpha &\defi \nil \alt \alpha, \h{b} \\
+  \a &\defi \nil \alt \a, \h{b} \\
 \end{align*}
 
 We introduce an auxiliary judgement for variable lookup.
@@ -302,11 +304,11 @@ We introduce an auxiliary judgement for variable lookup.
 \vspace{0.5cm}
 
 \ensurecommand{\hlook}[3]{\ensuremath{#1 \vdash #2 \uparrow #3}}
-\judgement{\hlook{\alpha}{i}{\h{b}}}
+\judgement{\hlook{\a}{i}{\h{b}}}
 
 \begin{prooftree}
   \leftl{\rule{Bv-Here} :}
-  \ax{\hlook{\alpha, \h{b}}{\z}{\h{b}}}
+  \ax{\hlook{\a, \h{b}}{\z}{\h{b}}}
 \end{prooftree}
 
 \begin{prooftree}
@@ -316,51 +318,51 @@ We introduce an auxiliary judgement for variable lookup.
 \end{prooftree}
 
 \ensurecommand{\bev}[3]{\ensuremath{#1 \vdash #2 \downarrow #3}}
-\judgement{\bev{\alpha}{b}{\h{b}}}
+\judgement{\bev{\a}{b}{\h{b}}}
 
 \begin{prooftree}
   \leftl{\rule{B-Num} :}
-  \ax{\bev{\alpha}{\n{n}}{\n{n}}}
+  \ax{\bev{\a}{\n{n}}{\n{n}}}
 \end{prooftree}
 
 \begin{prooftree}
-  \ninf{\hlook{\alpha}{i}{\h{b}}}
+  \ninf{\hlook{\a}{i}{\h{b}}}
   \leftl{\rule{B-Var} :}
-  \uinf{\bev{\alpha}{i}{\h{b}}}
+  \uinf{\bev{\a}{i}{\h{b}}}
 \end{prooftree}
 
 \begin{prooftree}
   \leftl{\rule{B-Lam :}}
-  \ax{\bev{\alpha}{\blam{b_1}}{\cl{\alpha}{b_1}}}
+  \ax{\bev{\a}{\blam{b_1}}{\cl{\a}{b_1}}}
 \end{prooftree}
 
 \begin{prooftree}
-  \ninf{\bev{\alpha}{b_1}{\cl{\alpha'}{b_0}}}
-  \ninf{\bev{\alpha}{b_2}{\h{b}_2}}
-  \ninf{\bev{\alpha', \h{b}_2}{b_0}{\h{b}}}
+  \ninf{\bev{\a}{b_1}{\cl{\a'}{b_0}}}
+  \ninf{\bev{\a}{b_2}{\h{b}_2}}
+  \ninf{\bev{\a', \h{b}_2}{b_0}{\h{b}}}
 	\leftl{\rule{B-App} :}
-  \tinf{\bev{\alpha}{b_1 \app b_2}{\h{b}}}
+  \tinf{\bev{\a}{b_1 \app b_2}{\h{b}}}
 \end{prooftree}
 
 \begin{prooftree}
-  \ninf{\bev{\alpha}{b_1}{\n{n}}}
+  \ninf{\bev{\a}{b_1}{\n{n}}}
 	\leftl{\rule{B-Suc} :}
-  \uinf{\bev{\alpha}{\bsuc{b_1}}{{\n{n+1}}}}
+  \uinf{\bev{\a}{\bsuc{b_1}}{{\n{n+1}}}}
 \end{prooftree}
 
 %% \begin{prooftree}
-%%   \ninf{\hev{\alpha}{\b_1}{\n{0}}}
-%%   \ninf{\hev{\alpha}{\b_2}{\v_2}}
+%%   \ninf{\hev{\a}{\b_1}{\n{0}}}
+%%   \ninf{\hev{\a}{\b_2}{\v_2}}
 %% 	\leftl{\rule{B-Case-z} :}
-%%   \binf{\hev{\alpha}{\bcase{\b_1}{\b_2}{\b_3}}{\v_2}}
+%%   \binf{\hev{\a}{\bcase{\b_1}{\b_2}{\b_3}}{\v_2}}
 %% \end{prooftree}
 
 %% \begin{prooftree}
-%%   \ninf{\hev{\alpha}{\b_1}{\n{n}}}
-%%   \ninf{\hev{\alpha, \n{n-1}}{b_3}{\v_3}}
+%%   \ninf{\hev{\a}{\b_1}{\n{n}}}
+%%   \ninf{\hev{\a, \n{n-1}}{b_3}{\v_3}}
 %% 	\leftl{\rule{B-Case-s} :}
 %% 	\rightl{$(n > 0)$}
-%%   \binf{\hev{\alpha}{\bcase{\b_1}{\b_2}{\b_3}}{\v_3}}
+%%   \binf{\hev{\a}{\bcase{\b_1}{\b_2}{\b_3}}{\v_3}}
 %% \end{prooftree}
 
 
@@ -376,50 +378,50 @@ We define the type of correspondence contexts.
 %\ensurecommand{\cor}[2]{\ensuremath{#1 \rightsquiqarrow #2}}
 \ensurecommand{\corhb}[3]{\ensuremath{#1 \vdash #2 \rightsquigarrow #3}}
 
-\judgement{\trahb{\Theta}{\alpha}{b}{e}}
+\judgement{\trahb{\Theta}{\a}{b}{e}}
 
 % explain why it is going in the 'wrong' direction
 
 \begin{prooftree}
   \leftl{\rule{T-Num} :}
-  \ax{\trahb{\Theta}{\alpha}{\n{n}}{\n{n}}}
+  \ax{\trahb{\Theta}{\a}{\n{n}}{\n{n}}}
 \end{prooftree}
 
 \begin{prooftree}
-  \ninf{\hevv{\alpha}{i}{\h{b}}}
+  \ninf{\hevv{\a}{i}{\h{b}}}
   \ninf{\corhb{\Theta}{\h{b}}{e}}
   \leftl{\rule{T-Var} :}
-  \binf{\tra{\Theta}{\alpha}{i}{e}}
+  \binf{\tra{\Theta}{\a}{i}{e}}
 \end{prooftree}
 
 [In the following rule, should $\h{b}$ really be existentially quantified? Would we not want to require the premise to hold for all possible choices for $\h{b}$?]
 \begin{prooftree}
-	\ninf{\trahb{\Theta :: \cor{\h{b}}{x}}{\alpha :: \h{b}}{b_1}{e_1}}
+	\ninf{\trahb{\Theta :: \cor{\h{b}}{x}}{\a :: \h{b}}{b_1}{e_1}}
   \leftl{\rule{T-Lam} :}
   \rightl{$(\forall \h{b}' . \; (\cor{\h{b}'}{x}) \notin \Theta)$}
-  \uinf{\trahb{\Theta}{\alpha}{\lam{}{\h{b}_1}}{\lam{x}{e_1}}}
+  \uinf{\trahb{\Theta}{\a}{\lam{}{\h{b}_1}}{\lam{x}{e_1}}}
 \end{prooftree}
 
 \begin{prooftree}
-  \ninf{\trahb{\Theta}{\alpha}{b_1}{e_1}}
-  \ninf{\trahb{\Theta}{\alpha}{b_2}{e_2}}
+  \ninf{\trahb{\Theta}{\a}{b_1}{e_1}}
+  \ninf{\trahb{\Theta}{\a}{b_2}{e_2}}
 	\leftl{\rule{T-App} :}
-  \binf{\trahb{\Theta}{\alpha}{b_1 \app b_2}{e_1 \app e_2}}
+  \binf{\trahb{\Theta}{\a}{b_1 \app b_2}{e_1 \app e_2}}
 \end{prooftree}
 
 \begin{prooftree}
-  \ninf{\trahb{\Theta}{\alpha}{b_1}{e_1}}
+  \ninf{\trahb{\Theta}{\a}{b_1}{e_1}}
 	\leftl{\rule{T-Suc} :}
-  \uinf{\trahb{\Theta}{\alpha}{\bsuc{b_1}}{\hsuc{e_1}}}
+  \uinf{\trahb{\Theta}{\a}{\bsuc{b_1}}{\hsuc{e_1}}}
 \end{prooftree}
 
 %% \begin{prooftree}
-%% 	\ninf{\trahb{\Theta}{\alpha}{b_1}{e_1}}
-%% 	\ninf{\trahb{\Theta}{\alpha}{b_2}{e_2}}
-%% 	\ninf{\trahb{\Theta, \cor{\h{b}}{x}}{\alpha, \h{b}}{b_3}{e_3}}
+%% 	\ninf{\trahb{\Theta}{\a}{b_1}{e_1}}
+%% 	\ninf{\trahb{\Theta}{\a}{b_2}{e_2}}
+%% 	\ninf{\trahb{\Theta, \cor{\h{b}}{x}}{\a, \h{b}}{b_3}{e_3}}
 %%   \leftl{\rule{T-Case} :}
 %%   \rightl{$(\forall \h{b}' . \; (\cor{\h{b}'}{x}) \notin \Theta)$}
-%%   \tinf{\trahb{\Theta}{\alpha}{\bcase{b_1}{b_2}{b_3}}{\hcase{e_1}{e_2}{e_3}}}
+%%   \tinf{\trahb{\Theta}{\a}{\bcase{b_1}{b_2}{b_3}}{\hcase{e_1}{e_2}{e_3}}}
 %% \end{prooftree}
 
 We define a correspondence between values and expressions in canonical form:
@@ -440,21 +442,21 @@ We define a correspondence between values and expressions in canonical form:
 \end{prooftree}
 
 \begin{prooftree}
-  \ninf{\trahb{\Theta}{\alpha}{\blam{b}}{\lam{x}{e}}}
+  \ninf{\trahb{\Theta}{\a}{\blam{b}}{\lam{x}{e}}}
   \leftl{\rule{C-Fun} :}
-  \uinf{\corhb{\Theta}{\cl{\alpha}{b}}{\lam{x}{e}}}
+  \uinf{\corhb{\Theta}{\cl{\a}{b}}{\lam{x}{e}}}
 \end{prooftree}
 
 
 \subsection*{Equivalence}
 \begin{lemma}[Soundness]
 \label{lem:soundness-hb}
-If \trahb{\Theta}{\alpha}{e}{b} (by $\T$) and \bev{\alpha}{\b}{\h{b}} (by $\B$), then there exists $\h{e}$ such that \hev{e}{\c} (by some $\E$) and \corhb{\Theta}{\h{b}}{\h{e}} (by some $\C$).
+If \trahb{\Theta}{\a}{e}{b} (by $\T$) and \bev{\a}{\b}{\h{b}} (by $\B$), then there exists $\h{e}$ such that \hev{e}{\c} (by some $\E$) and \corhb{\Theta}{\h{b}}{\h{e}} (by some $\C$).
 \end{lemma}
 
 \begin{lemma}[Completeness]
 \label{lem:completeness-hb}
-If \trahb{\Theta}{\alpha}{e}{b} (by $\T$) and \hev{e}{\h{e}} (by $\E$), then there exists $\h{b}$ such that \bev{\alpha}{\b}{\h{b}} (by some $\B$) and \corhb{\Theta}{\h{b}}{\h{e}} (by some $\C$).
+If \trahb{\Theta}{\a}{e}{b} (by $\T$) and \hev{e}{\h{e}} (by $\E$), then there exists $\h{b}$ such that \bev{\a}{\b}{\h{b}} (by some $\B$) and \corhb{\Theta}{\h{b}}{\h{e}} (by some $\C$).
 \end{lemma}
 
 
@@ -870,7 +872,7 @@ And the semantics judgements:
 \judgement{\sev{p}{\hs}}
 
 \begin{prooftree}
-  \ninf{\sstep{\cl{\nil}{p}}{\nil}{\nil}{[\hs]}}
+  \ninf{\sstep{[\cl{\nil}{p}]}{\nil}{\nil}{[\hs]}}
   \uinf{\sev{p}{\hs}}
 \end{prooftree}
 
@@ -946,105 +948,103 @@ And the semantics judgements:
 \end{prooftree}
 
 
-%\subsection*{Translation}
-%We translate from De Bruijn expressions to stack programs using the following judgements:
-%
-%\vspace{0.5cm}
-%
-%\judgement{\tr{\b}{\ss}}
-%
-%\begin{prooftree}
-  %\ninf{\tracc{\b}{\nil}{\ss}}
-  %\uinf{\tr{\b}{\ss}}
-%\end{prooftree}
-%
-%\judgement{\tracc{\b}{\ss}{\ss'}}
-%
-%\begin{prooftree}
-  %\leftl{\rule{T-Num} :}
-  %\ax{\tracc{\n{n}}{\ss}{\num{n}, \ss}}
-%\end{prooftree}
-%
-%\begin{prooftree}
-  %\leftl{\rule{T-Var} :}
-  %\ax{\tracc{i}{\ss}{\svar{i}, \ss}}
-%\end{prooftree}
-%
-%\begin{prooftree}
-  %\ninf{\tracc{\b_1}{\nil}{\ss_1}}
-  %\leftl{\rule{T-Lam} :}
-  %\uinf{\tracc{\lam{}{\b_1}}{\ss}{(\lam{}{\ss_1}), \ss}}
-%\end{prooftree}
-%
-%\begin{prooftree}
-  %\ninf{\tracc{\b_2}{\sapp, \ss}{\ss''}}
-  %\ninf{\tracc{\b_1}{\ss''}{\ss'}}
-  %\leftl{\rule{T-App} :}
-  %\binf{\tracc{\b_1 \app \b_2}{\ss}{\ss'}}
-%\end{prooftree}
-%
-%\begin{prooftree}
-  %\ninf{\tracc{\b_1}{\ssuc, \ss}{\ss'}}
-  %\leftl{\rule{T-Suc} :}
-  %\uinf{\tracc{\bsuc{\b_1}}{\ss}{\ss'}}
-%\end{prooftree}
-%
-%\begin{prooftree}
-	%\ninf{\tracc{\b_3}{\nil}{\ss_3}}
-	%\ninf{\tracc{\b_2}{\nil}{\ss_2}}
-  %\ninf{\tracc{\b_1}{\scase{\ss_2}{\ss_3}, \ss}{\ss'}}
-  %\leftl{\rule{T-Case} :}
-  %\tinf{\tracc{\bcase{\b_1}{\b_2}{\b_3}}{\ss}{\ss'}}
-%\end{prooftree}
-%
-%\subsection*{Equivalence}
-%
-%\begin{theorem} [Equivalence Bruijn-stack]
-%\label{thm:equiv-bs} If \tr{\b}{\ss}, then \hev{\nil}{\b}{\n{n}} if and only if \ev{\ss}{\n{n}}.
-%\end{theorem}
-%
-%To prove this we need two additional judgements:
-%\vspace{0.5cm}
-%
-%\judgement{\cor{\v}{\w}}
-%
-%\begin{prooftree}
-  %\leftl{\rule{C-Num} :}
-  %\ax{\cor{\n{n}}{\n{n}}}
-%\end{prooftree}
-%
-%\begin{prooftree}
-  %\ninf{\cor{\sg}{\tau}}
-  %\ninf{\tr{\b}{\ss}}
-  %\leftl{\rule{C-Fun} :}
-  %\binf{\cor{\cl{\sg}{\b}}{\cl{\tau}{\ss}}}
-%\end{prooftree}
-%
-%\judgement{\scomp{\sg}{\tau}}
-%
-%\begin{prooftree}
-  %\leftl{\rule{D-Nil} :}
-  %\ax{\scomp{\nil}{\nil}}
-%\end{prooftree}
-%
-%\begin{prooftree}
-  %\ninf{\scomp{\sg}{\tau}}
-  %\ninf{\cor{\v}{\w}}
-  %\leftl{\rule{D-Cons} :}
-  %\binf{\scomp{\sg, \v}{\tau, \w}}
-%\end{prooftree}
-%
+\subsection*{Translation}
+\ensurecommand{\trabs}[3]{\ensuremath{#1 \circ #2 \rhd #3}}
+\ensurecommand{\trabsfinal}[2]{\ensuremath{#1 \rhd #2}}
+
+We translate from De Bruijn expressions to stack programs using the following judgements.
+As a shorthand \trabsfinal{b}{p} denotes \trabs{b}{[]}{p}.
+
+\vspace{0.5cm}
+
+\judgement{\tracc{b}{p}{p'}}
+
+\begin{prooftree}
+  \leftl{\rule{T-Num} :}
+  \ax{\trabs{\n{n}}{p}{\n{n}; p}}
+\end{prooftree}
+
+\begin{prooftree}
+  \leftl{\rule{T-Var} :}
+  \ax{\trabs{i}{p}{\svar{i}; p}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\trabsfinal{b_1}{p_1}}
+  \leftl{\rule{T-Lam} :}
+  \uinf{\trabs{\blam{b_1}}{p}{(\slam{p_1}); p}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\trabs{b_2}{\sapp; p}{p''}}
+  \ninf{\trabs{b_1}{p''}{p'}}
+  \leftl{\rule{T-App} :}
+  \binf{\trabs{b_1 \app b_2}{p}{p'}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\trabs{b_1}{\ssuc; p}{p'}}
+  \leftl{\rule{T-Suc} :}
+  \uinf{\trabs{\bsuc{b_1}}{p}{p'}}
+\end{prooftree}
+
+%% \begin{prooftree}
+%% 	\ninf{\trabs{\b_3}{\nil}{p_3}}
+%% 	\ninf{\trabs{\b_2}{\nil}{p_2}}
+%%   \ninf{\trabs{\b_1}{\scase{p_2}{p_3}, p}{p'}}
+%%   \leftl{\rule{T-Case} :}
+%%   \tinf{\trabs{\bcase{\b_1}{\b_2}{\b_3}}{p}{p'}}
+%% \end{prooftree}
+
+\subsection*{Equivalence}
+
+%% \begin{theorem} [Equivalence Bruijn-stack]
+%% \label{thm:equiv-bs} If \tr{\b}{\ss}, then \hev{\nil}{\b}{\n{n}} if and only if \ev{\ss}{\n{n}}.
+%% \end{theorem}
+
+To prove this we need two additional judgements:
+\vspace{0.5cm}
+
+\judgement{\cor{\h{b}}{\h{s}}}
+
+\begin{prooftree}
+  \leftl{\rule{C-Num} :}
+  \ax{\cor{\n{n}}{\n{n}}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\cor{\a}{\b}}
+  \ninf{\trabsfinal{b}{p}}
+  \leftl{\rule{C-Fun} :}
+  \binf{\cor{\cl{\a}{b}}{\cl{\b}{p}}}
+\end{prooftree}
+
+\judgement{\scomp{\sg}{\tau}}
+
+\begin{prooftree}
+  \leftl{\rule{D-Nil} :}
+  \ax{\scomp{\nil}{\nil}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\cor{\a}{\b}}
+  \ninf{\cor{\h{b}}{\h{s}}}
+  \leftl{\rule{D-Cons} :}
+  \binf{\cor{\a :: \h{b}}{\b :: \h{s}}}
+\end{prooftree}
+
 %% completeness
-%\begin{lemma}
-%If \tracc{\b}{\ss_2}{\ss} and \hev{\sg}{\b}{\v} with \cor{\sg}{\tau}, then (for all $\Xi$ and $\Psi$) there exists $\w$ such that \ssev{\Xi, \fr{\tau}{\ss}}{\Psi}{\Xi, \fr{\tau}{\ss_2}}{\Psi, \w} with \cor{\v}{\w}.
-%\end{lemma}
-%
-%Let $\prec$ denote the standard subtree order on step sequences, i.e. $\P_1 \prec \P_2$ if $\P_1$ is a proper suffix of $\P_2$.
-%
+%% \begin{lemma}
+%% If \tracc{\b}{\ss_2}{\ss} and \hev{\sg}{\b}{\v} with \cor{\sg}{\tau}, then (for all $\Xi$ and $\Psi$) there exists $\w$ such that \ssev{\Xi, \fr{\tau}{\ss}}{\Psi}{\Xi, \fr{\tau}{\ss_2}}{\Psi, \w} with \cor{\v}{\w}.
+%% \end{lemma}
+
+%% Let $\prec$ denote the standard subtree order on step sequences, i.e. $\P_1 \prec \P_2$ if $\P_1$ is a proper suffix of $\P_2$.
+
 %% soundness
-%\begin{lemma}
-%If \tracc{\b}{\ss_2}{\ss} and \ssev{\Xi, \fr{\tau}{\ss}}{\Psi}{\nil}{\nil, \w'} (by $\P$) with \cor{\sg}{\tau}, then there exists $\v$ such that \hev{\sg}{\b}{\v} with \cor{\v}{\w} and \ssev{\Xi, \fr{\tau}{\ss_2}}{\Psi, \w}{\nil}{\nil, \w'} (by $\P'$) where $\P' \prec \P$.
-%\end{lemma}
+%% \begin{lemma}
+%% If \tracc{\b}{\ss_2}{\ss} and \ssev{\Xi, \fr{\tau}{\ss}}{\Psi}{\nil}{\nil, \w'} (by $\P$) with \cor{\sg}{\tau}, then there exists $\v$ such that \hev{\sg}{\b}{\v} with \cor{\v}{\w} and \ssev{\Xi, \fr{\tau}{\ss_2}}{\Psi, \w}{\nil}{\nil, \w'} (by $\P'$) where $\P' \prec \P$.
+%% \end{lemma}
+
 
 
 \section*{Machine Language}
@@ -1076,7 +1076,6 @@ Note that the address in the instruction $\mcall{\l}$ is the return address.
 \subsection*{Semantics}
 
 \newcommand{\hm}{\hat{m}}
-\renewcommand{\c}{\gamma}%
 \renewcommand{\D}{\Delta}%
 
 \renewcommand{\Ps}{\Psi}%
@@ -1261,16 +1260,16 @@ where $q(\l)$ denotes the $\l$'th instruction of the program $q$.
 %\end{prooftree}
 %
 %\begin{prooftree}
-  %\ninf{$\corstore{\q}{\tau}{\alpha}$}
+  %\ninf{$\corstore{\q}{\tau}{\a}$}
   %\ninf{$\q \vdash \l \uparrow f(\b')$}
   %\ninf{$\trasl{\ss}{\b'}{\q'}$}
   %\ninf{$\q' \leq_{f} \q$}
   %\leftl{\rule{C-Clos} :}
-  %\qinf{$\corvalue{\q}{\cl{\tau}{\ss}}{\cl{\alpha}{\l}}$}
+  %\qinf{$\corvalue{\q}{\cl{\tau}{\ss}}{\cl{\a}{\l}}$}
 %\end{prooftree}
 %
 %\vspace{0.5cm}
-%\judgement{$\corstore{\q}{\tau}{\alpha}$}
+%\judgement{$\corstore{\q}{\tau}{\a}$}
 %
 %\begin{prooftree}
   %\leftl{\rule{D-Nil} :}
@@ -1278,10 +1277,10 @@ where $q(\l)$ denotes the $\l$'th instruction of the program $q$.
 %\end{prooftree}
 %
 %\begin{prooftree}
-  %\ninf{$\corstore{\q}{\tau}{\alpha}$}
+  %\ninf{$\corstore{\q}{\tau}{\a}$}
   %\ninf{$\corvalue{\q}{\w}{\r}$}
   %\leftl{\rule{D-Cons} :}
-  %\binf{$\corstore{\q}{\tau, \w}{\alpha, \r}$}
+  %\binf{$\corstore{\q}{\tau, \w}{\a, \r}$}
 %\end{prooftree}
 %
 %\vspace{0.5cm}
@@ -1299,11 +1298,11 @@ where $q(\l)$ denotes the $\l$'th instruction of the program $q$.
 %
 %\begin{prooftree}
   %\ninf{$\corstack{\q}{\Xi}{\b}{\Gamma}$}
-  %\ninf{$\corstore{\q}{\tau}{\alpha}$}
+  %\ninf{$\corstore{\q}{\tau}{\a}$}
   %\ninf{$\q \vdash \l \uparrow \b$}
   %\ninf{$\trasl{\ss}{\b'}{\q'}$}
   %\ninf{$\q' \leq_{f} \q$}
-  %\fiveinf{$\corstack{\q}{\Xi, \tup{\tau ; \ss}}{f(\b')}{\Gamma, \tup{\alpha; \l}}$}
+  %\fiveinf{$\corstack{\q}{\Xi, \tup{\tau ; \ss}}{f(\b')}{\Gamma, \tup{\a; \l}}$}
 %\end{prooftree}
 %
 %\vspace{0.5cm}
