@@ -78,7 +78,6 @@
 \newcommand{\hcase}[3]{\mathtt{case} \; #1 \; \mathtt{of} \; \z \Rightarrow #2 \; | \; \suc{x} \Rightarrow #3}
 \newcommand{\bsuc}[1]{\mathtt{suc} \; #1}
 \newcommand{\bcase}[3]{\mathtt{case} \; #1 \; #2 \; #3}
-\newcommand{\ssuc}{\mathtt{suc}}
 \newcommand{\scase}[2]{\mathtt{case} \; #1 \; #2}
 
 \newcommand{\judgement}[1]{\noindent \framebox{#1}}
@@ -762,111 +761,145 @@ $\blacksquare$
 %The other direction is analogous, using Lemma~\ref{lem:soundness-hb} instead.
 %\end{proof}
 
+\renewcommand{\nil}{[]}%
+\newcommand{\cons}{::}
+
+\newcommand{\seq}{\mathbin{;}}
+
+\renewcommand{\cl}[2]{\{ #1 , #2 \}}%
+
+\renewcommand{\tup}[1]{\langle #1 \rangle}%
+
+\renewcommand{\h}{\hat}%
+
+
+
+
 \section*{Stack Language}
 
-% temp
-\renewcommand{\lam}[2]{\slam{#2}}
+\renewcommand{\snum}[1]{\mathtt{num} \; #1}%
+\renewcommand{\svar}[1]{\mathtt{var} \; #1}%
+\renewcommand{\slam}[1]{\mathtt{mkclos} \; #1}%
+\renewcommand{\sapp}{\mathtt{app}}%
+\newcommand{\ssuc}{\mathtt{suc}}
 
-% We now develop the next translation target, a stack-based language.
+
+\renewcommand{\b}{\beta}
+\newcommand{\G}{\Gamma}
+\newcommand{\Ph}{\Phi}
+\newcommand{\Ps}{\Psi}
+
+\newcommand{\hs}{\hat{s}}
+
+
+\renewcommand{\sev}[2]{\ensuremath{#1 \downarrow #2}}%
+\newcommand{\sstep}[4]{\ensuremath{\tup{#1, #2} \rightarrow \tup{#3, #4}}}
+\newcommand{\ssteps}[4]{\ensuremath{\tup{#1, #2} \rightarrow^* \tup{#3, #4}}}
+\renewcommand{\sevv}[3]{\ensuremath{#1 \vdash #2 \uparrow #3}}%
+
+
+We now develop the next translation target, a stack-based language.
+% some text about its purpose, major changes, etc.
 
 \subsection*{Syntax}
 
-We define stack-machine instructions $\s$ and programs $\ss$:
+We define stack-machine instructions $s$ and programs $p$:
 \begin{align*}
-  \s &\defi \snum{n} \alt \svar{i} \alt \lam{}{\ss} \alt \sapp \\ % \alt \ssuc \alt \scase{\ss_1}{\ss_2} \\
-  \ss &\defi \nil \alt \s, \ss
+  s &\defi \snum{n} \alt \svar{i} \alt \slam{p} \alt \sapp \alt \ssuc \\
+  p &\defi \nil \alt s \seq p
 \end{align*}
 % (Note that $i$ was defined previously.)
 
 \subsection*{Semantics}
 % The semantics of the stack language is given as follows:
 
-We define values $\w$, environments $\tau$, control stacks $\Xi$, and value stacks $\Psi$:
+We define values $\h{s}$, environments $\b$, control stacks $\G$, and value stacks $\Ph$:
 \begin{align*}
-  \w &\defi \n{n} \alt \cl{\tau}{\ss} \\
-  \tau &\defi \nil \alt \tau, \w \\
-  \Xi &\defi \nil \alt \Xi, \fr{\tau}{\ss} \\
-  \Psi &\defi \nil \alt \Psi, \w \\
+  \hs &\defi \n{n} \alt \cl{\b}{p} \\
+  \b &\defi \nil \alt \b \cons \hs \\
+  \G &\defi \nil \alt \G \cons \cl{\b}{p} \\
+  \Ph &\defi \nil \alt \Ph \cons \hs \\
 \end{align*}
 
 And the semantics judgements:
 \vspace{0.5cm}
 
-\judgement{\ev{\ss}{\w}}
+\judgement{\sev{p}{\hs}}
 
 \begin{prooftree}
-  \ninf{\ssev{\fr{\nil}{\ss}}{\nil}{\nil}{\nil, \w}}
-  \uinf{\ev{\ss}{\w}}
+  \ninf{\sstep{\cl{\nil}{p}}{\nil}{\nil}{[\hs]}}
+  \uinf{\sev{p}{\hs}}
 \end{prooftree}
 
-\judgement{\sevv{\tau}{i}{\w}}
+\judgement{\sevv{\b}{i}{\hs}}
 
 \begin{prooftree}
   \leftl{\rule{Sv-Here} :}
-  \ax{\sevv{\tau, \w}{\z}{\w}}
+  \ax{\sevv{\b \cons \hs}{\z}{\hs}}
 \end{prooftree}
 
 \begin{prooftree}
-  \ninf{\sevv{\tau}{i}{\w}}
+  \ninf{\sevv{\b}{i}{\hs}}
   \leftl{\rule{Sv-There} :}
-  \uinf{\sevv{\tau, \w'}{\suc i}{\w}}
+  \uinf{\sevv{\b \cons \hs'}{\suc i}{\hs}}
 \end{prooftree}
 
-\judgement{\sev{\Xi}{\Psi}{\Xi'}{\Psi'}}
+\judgement{\sstep{\G}{\Ph}{\G'}{\Ph'}}
 
 \begin{prooftree}
   \leftl{\rule{S-Num} :}
-  \ax{\sev{\Xi, \fr{\tau}{\snum{n}, \ss}}{\Psi}{\Xi, \fr{\tau}{\ss}}{\Psi, \n{n}}}
+  \ax{\sstep{\G \cons \cl{\b}{\snum{n} \seq p}}{\Ph}{\G \cons \cl{\b}{p}}{\Ph \cons \n{n}}}
 \end{prooftree}
 
 \begin{prooftree}
-  \ninf{\sevv{\tau}{i}{\w}}
+  \ninf{\sevv{\b}{i}{\hs}}
   \leftl{\rule{S-Var} :}
-  \uinf{\sev{\Xi, \fr{\tau}{\svar{i}, \ss}}{\Psi}{\Xi, \fr{\tau}{\ss}}{\Psi, \w}}
+  \uinf{\sstep{\G \cons \cl{\b}{\svar{i} \seq p}}{\Ph}{\G \cons \cl{\b}{p}}{\Ph \cons \hs}}
 \end{prooftree}
 
 \begin{prooftree}
   \leftl{\rule{S-Lam} :}
-  \ax{\sev{\Xi, \fr{\tau}{(\lam{}{\ss_1}), \ss}}{\Psi}{\Xi, \fr{\tau}{\ss}}{\Psi, \cl{\tau}{\ss_1}}}
+  \ax{\sstep{\G \cons \cl{\b}{\slam{p_1} \seq p}}{\Ph}{\G \cons \cl{\b}{p}}{\Ph \cons \cl{\b}{p_1}}}
 \end{prooftree}
 
 \begin{prooftree}
   \leftl{\rule{S-App} :}
-  \ax{\sev{\Xi, \fr{\tau}{\sapp, \ss}}{\Psi, \cl{\tau'}{\ss_1}, \w_2}{\Xi, \fr{\tau}{\ss}, \fr{\tau', \w_2}{\ss_1}}{\Psi}}
+  \ax{\sstep{\G \cons \cl{\b}{\sapp \seq p}}{\Ph \cons \cl{\b'}{p_1} \cons \hs_2}{\G \cons \cl{\b}{p} \cons \cl{\b' \cons \hs_2}{p_1}}{\Ph}}
 \end{prooftree}
 
 \begin{prooftree}
   \leftl{\rule{S-Suc} :}
-  \ax{\sev{\Xi, \fr{\tau}{\ssuc, \ss}}{\Psi, \n{n}}{\Xi, \fr{\tau}{\ss}}{\Psi, \n{\suc{n}}}}
+  \ax{\sstep{\G \cons \cl{\b}{\ssuc \seq p}}{\Ph \cons \n{n}}{\G \cons \cl{\b}{p}}{\Ph \cons \n{n + 1}}}
 \end{prooftree}
 
-\begin{prooftree}
-  \leftl{\rule{S-Case-z} :}
-  \ax{\sev{\Xi, \fr{\tau}{\scase{\ss_1}{\ss_2}, \ss}}{\Psi, \n{\z}}{\Xi, \fr{\tau}{\ss}, \fr{\tau}{\ss_1}}{\Psi}}
-\end{prooftree}
-
-\begin{prooftree}
-  \leftl{\rule{S-Case-s} :}
-  \ax{\sev{\Xi, \fr{\tau}{\scase{\ss_1}{\ss_2}, \ss}}{\Psi, \n{\suc{n}}}{\Xi, \fr{\tau}{\ss}, \fr{\tau, \n{n}}{\ss_2}}{\Psi}}
-\end{prooftree}
+%\begin{prooftree}
+  %\leftl{\rule{S-Case-z} :}
+  %\ax{\sev{\Xi, \fr{\tau}{\scase{\ss_1}{\ss_2}, \ss}}{\Psi, \n{\z}}{\Xi, \fr{\tau}{\ss}, \fr{\tau}{\ss_1}}{\Psi}}
+%\end{prooftree}
+%
+%\begin{prooftree}
+  %\leftl{\rule{S-Case-s} :}
+  %\ax{\sev{\Xi, \fr{\tau}{\scase{\ss_1}{\ss_2}, \ss}}{\Psi, \n{\suc{n}}}{\Xi, \fr{\tau}{\ss}, \fr{\tau, \n{n}}{\ss_2}}{\Psi}}
+%\end{prooftree}
+%
 
 \begin{prooftree}
   \leftl{\rule{S-Ret} :}
-  \ax{\sev{\Xi, \fr{\tau}{\nil}}{\Psi}{\Xi}{\Psi}}
+  \ax{\sstep{\G \cons \cl{\b}{\nil}}{\Ph}{\G}{\Ph}}
 \end{prooftree}
 
-\judgement{\ssev{\Xi}{\Psi}{\Xi'}{\Psi'}}
+\judgement{\ssteps{\G}{\Ph}{\G'}{\Ph'}}
 
 \begin{prooftree}
   \leftl{\rule{SS-Zero} :}
-  \ax{\ssev{\Xi}{\Psi}{\Xi}{\Psi}}
+  \ax{\ssteps{\G}{\Ph}{\G}{\Ph}}
 \end{prooftree}
 
 \begin{prooftree}
-  \ninf{\sev{\Xi}{\Psi}{\Xi''}{\Psi''}}
-  \ninf{\ssev{\Xi''}{\Psi''}{\Xi'}{\Psi'}}
+  \ninf{\sstep{\G}{\Ph}{\G''}{\Ph''}}
+  \ninf{\ssteps{\G''}{\Ph''}{\G'}{\Ph'}}
   \leftl{\rule{SS-More} :}
-  \binf{\ssev{\Xi}{\Psi}{\Xi'}{\Psi'}}
+  \binf{\ssteps{\G}{\Ph}{\G'}{\Ph'}}
 \end{prooftree}
 
 
@@ -970,239 +1003,302 @@ And the semantics judgements:
 %If \tracc{\b}{\ss_2}{\ss} and \ssev{\Xi, \fr{\tau}{\ss}}{\Psi}{\nil}{\nil, \w'} (by $\P$) with \cor{\sg}{\tau}, then there exists $\v$ such that \hev{\sg}{\b}{\v} with \cor{\v}{\w} and \ssev{\Xi, \fr{\tau}{\ss_2}}{\Psi, \w}{\nil}{\nil, \w'} (by $\P'$) where $\P' \prec \P$.
 %\end{lemma}
 
-\section*{Label-Machine Language}
-The next challenge we face is moving the program code to some external storage and referring to it indirectly.
-To illuminate this issue we consider a slight evolution of the stack language.
-Nevertheless, it still poses the problem of how to handle translations of subprograms when the evaluation is happening in the context of the full program.
-The solution is to define a subprogram relation which carries evidence of how to arrive at the subprogram from the full program.
-This evidence is used to keep track of the location of different subprogram relative to each other and to make sure that references are suitably modified to apply in a different context than they were created.
 
-In this language the evidence takes the form of a path through the program storage tree, but the technique seems equally applicable if we were to generate machine code directly where the evidence would be the base address of the subprogram in question.
+\section*{Machine Language}
+The next challenge we face is moving the program code to some external storage and referring to it indirectly.
+% To illuminate this issue we consider a slight evolution of the stack language.
+% Nevertheless, it still poses the problem of how to handle translations of subprograms when the evaluation is happening in the context of the full program.
+The solution is to define a subprogram relation which carries evidence of how to arrive at the subprogram from the full program.
+This evidence is used to keep track of the location of different subprograms relative to each other and to make sure that references are suitably modified to apply in a different context than they were created.
+
+%In this language the evidence takes the form of a path through the program storage tree, but the technique seems equally applicable if we were to generate machine code directly where the evidence would be the base address of the subprogram in question.
 
 \subsection*{Syntax}
 
-We define labels $\l$, label-machine instructions $\m$, basic blocks $\b$, and programs $\q$:
+\renewcommand{\mpushnum}[1]{\mathtt{pushnum} \; #1}%
+\renewcommand{\mpushvar}[1]{\mathtt{pushvar} \; #1}%
+\renewcommand{\mpushclos}[1]{\mathtt{pushclos} \; #1}%
+\renewcommand{\mcall}[1]{\mathtt{call} \; #1}%
+\renewcommand{\mret}{\mathtt{ret}}%
+\renewcommand{\mhalt}{\mathtt{halt}}%
+
+Let $\l$ denote program addresses (natural numbers).
+We define labels machine instructions $m$ and programs $q$:
 \begin{align*}
-  \l &\defi \lhere \alt \lnext \; \l \alt \lleft \; \l \alt \lright \; \l \alt \ldone \\
-  \m &\defi \mpushnum{n} \alt \mpushvar{i} \alt \mpushclos{\l} \\
-  \b &\defi \m, \b \alt \mcall{\l} \alt \mret \alt \mhalt \\
-  \q &\defi \mnil \alt \b \mcons \q \alt \q_1 \mnode \q_2
+  m &\defi \mpushnum{n} \alt \mpushvar{i} \alt \mpushclos{\l} \alt \mcall{\l} \alt \mret \alt \mhalt \\
+  q &\defi \nil \alt m \seq q
 \end{align*}
-Note that the label in the instruction $\mcall{\l}$ is the return label.
+Note that the address in the instruction $\mcall{\l}$ is the return address.
 
 \subsection*{Semantics}
 
-We define values $\r$, environments $\alpha$, control stacks $\Gamma$, and value stacks $\Phi$:
+\newcommand{\hm}{\hat{m}}
+\renewcommand{\c}{\gamma}%
+\renewcommand{\D}{\Delta}%
+
+\renewcommand{\Ps}{\Psi}%
+
+We define values $\hm$, environments $\c$, control stacks $\D$, and value stacks $\Ps$:
 \begin{align*}
-  \r &\defi \n{n} \alt \set{\alpha; \l} \\
-  \alpha &\defi \nil \alt \alpha, \r \\
-  \Gamma &\defi \nil \alt \Gamma, \tup{\alpha; \l} \\
-  \Phi &\defi \nil \alt \Phi, \r
+  \hm &\defi \n{n} \alt \cl{\c}{\l} \\
+  \c &\defi \nil \alt \c \cons \hm \\
+  \D &\defi \nil \alt \D \cons \cl{\c}{\l} \\
+  \Ps &\defi \nil \alt \Ps \cons \hm
 \end{align*}
 
-We need judgements for variable and label lookup (rules as expected):
+We need a judgement for variable lookup (rules as expected):
+
+\newcommand{\mlook}[3]{\ensuremath{#1 \vdash #2 \uparrow #3}}
 
 \vspace{0.5cm}
-\judgement{$\alpha \vdash i \downarrow \r$}
+\judgement{\mlook{\c}{i}{\hm}}
+
+% write the rules here
+
+%\vspace{0.5cm}
+%\judgement{$\q \vdash \l \uparrow \b$}
+%\vspace{0.5cm}
+
+And an execution judgement:
+
+\renewcommand{\mexec}[8]{\ensuremath{#1, #2 \vdash \tup{#3, #4, #5} \rightarrow \tup{#6, #7, #8}}}%
+
+\newcommand{\lret}{\l_{\mathrm{ret}}}
 
 \vspace{0.5cm}
-\judgement{$\q \vdash \l \uparrow \b$}
-\vspace{0.5cm}
-
-And finally the step judgement:
-
-\newcommand{\mstep}[7]{\ensuremath{#1 \vdash \tup{#2; #3; #4} \rightarrow \tup{#5; #6; #7}}}
-\newcommand{\msteps}[7]{\ensuremath{#1 \vdash \tup{#2; #3; #4} \rightarrow^* \tup{#5; #6; #7}}}
-
-\vspace{0.5cm}
-\judgement{\mstep{\q}{\Gamma}{\b}{\Phi}{\Gamma'}{\b'}{\Phi'}}
+\judgement{\mexec{q}{m}{\D}{\l}{\Ps}{\D'}{\l'}{\Ps'}}
 
 \begin{prooftree}
-  \ax{\mstep{\q}{\Gamma, \tup{\alpha; \l}}{\mpushnum{n}, \b}{\Phi}{\Gamma, \tup{\alpha; \l}}{\b}{\Phi, \n{n}}}
+  \ax{\mexec{q}{\mpushnum{n}}{\D \cons \cl{\c, \lret}}{\l}{\Ps}{\D \cons \cl{\c}{\l}}{\l}{\Ps, \n{n}}}
 \end{prooftree}
 
-\begin{prooftree}
-  \ninf{$\alpha \vdash i \downarrow \r$}
-  \uinf{\mstep{\q}{\Gamma, \tup{\alpha; \l}}{\mpushvar{i}, \b}{\Phi}{\Gamma, \tup{\alpha; \l}}{\b}{\Phi, \r}}
-\end{prooftree}
+%\begin{prooftree}
+%  \ninf{\mlook{\c}{i}{\hm}$}
+%  \uinf{\mstep{\q}{\Gamma, \tup{\alpha; \l}}{\mpushvar{i}, \b}{\Phi}{\Gamma, \tup{\alpha; \l}}{\b}{\Phi, \r}}
+%\end{prooftree}
 
-\begin{prooftree}
-  \ax{\mstep{\q}{\Gamma, \tup{\alpha; \l}}{\mpushclos{\l'}, \b}{\Phi}{\Gamma, \tup{\alpha; \l}}{\b}{\Phi, \set{\alpha; \l'}}}
-\end{prooftree}
 
-\begin{prooftree}
-  \ninf{$\q \vdash \l' \uparrow \b$}
-  \uinf{\mstep{\q}{\Gamma, \tup{\alpha; \l}}{\mcall{\l''}}{\Phi, \set{\alpha'; \l'}, \r}{\Gamma, \tup{\alpha; \l}, \tup{\alpha', \r; \l''}}{\b}{\Phi}}
-\end{prooftree}
-
-\begin{prooftree}
-  \ninf{$\q \vdash \l' \uparrow \b$}
-  \uinf{\mstep{\q}{\Gamma, \tup{\alpha; \l}, \tup{\alpha'; \l'}}{\mret}{\Phi, \r}{\Gamma, \tup{\alpha; \l}}{\b}{\Phi, \r}}
-\end{prooftree}
-
-And a multi-step version with rules as expected:
-
-\vspace{0.5cm}
-\judgement{\msteps{\q}{\Gamma}{\b}{\Phi}{\Gamma'}{\b'}{\Phi'}}
-\vspace{0.5cm}
-
-And a complete evaluation judgement:
-
-\vspace{0.5cm}
-\judgement{$\tup{\b ; \q} \downarrow \r$}
-
-\begin{prooftree}
-  \ninf{\mstep{\q}{\mnil, \tup{\mnil; \ldone}}{\b}{\mnil}{\mnil}{\mhalt}{\mnil, \r}}
-  \uinf{$\tup{\b ; \q} \downarrow \r$}
-\end{prooftree}
-
-\subsection*{Translation}
-
-Let $f, g$ denote functions on labels, e.g. $\lnext$.
-Let $f(\q)$ denote the label-program $\q$ with $f$ applied to each label.
-
-We translate from stack programs to label-machine programs using the following judgement:
-
-\vspace{0.5cm}
-\judgement{$\trasl{\ss}{\b}{\q}$}
-
-\begin{prooftree}
-  \ninf{$\trasl{\ss}{\b}{\q}$}
-  \uinf{$\trasl{\snum{n}, \ss}{\mpushnum{n}, \b}{\q}$}
-\end{prooftree}
-
-\begin{prooftree}
-  \ninf{$\trasl{\ss}{\b}{\q}$}
-  \uinf{$\trasl{\svar{i}, \ss}{\mpushvar{i}, \b}{\q}$}
-\end{prooftree}
-
-\begin{prooftree}
-  \ninf{$\trasl{\ss}{\b}{\q}$}
-  \ninf{$\trasl{\ss_0}{\b_0}{\q_0}$}
-  \binf{$\trasl{\slam{\ss_0}, \ss}{\mpushclos{(\lright \; \lhere)}, \lleft(\b)}{\lleft(\q) \mnode \lright(\lnext(\b_0 \mcons \q_0))}$}
-\end{prooftree}
-
-\begin{prooftree}
-  \ninf{$\trasl{\ss}{\b}{\q}$}
-  \uinf{$\trasl{\sapp, \ss}{\mcall{\lhere}}{\lnext(\b \mcons \q)}$}
-\end{prooftree}
-
-\begin{prooftree}
-  \ax{$\trasl{\ssnil}{\mret}{\mnil}$}
-\end{prooftree}
-
-\subsection*{Equivalence}
-
-\begin{theorem} [Equivalence Stack-Label]
-\label{thm:equiv-sl} If $\trasl{\ss}{\b}{\q}$, then $\ev{\ss}{\n{n}}$ if and only if $\tup{\b ; \q} \downarrow \n{n}$.
-\end{theorem}
-
-To prove this, we need some correspondence judgements:
-
-\newcommand{\corvalue}[3]{#1 \vdash #2 \rightsquigarrow #3}
-\newcommand{\corstore}{\corvalue}
-\newcommand{\corvaluestack}{\corstore}
-\newcommand{\corstack}[4]{#1 \vdash #2 \rightsquigarrow \tup{#3 ; #4}}
-
-\vspace{0.5cm}
-\judgement{$\q' \leq_{f} \q$}
-
-\begin{prooftree}
-  \leftl{\rule{Leq-Left} :}
-  \ax{$\q' \leq_{\lleft} \lleft(\q') \mnode \q_2 $}
-\end{prooftree}
-
-\begin{prooftree}
-  \leftl{\rule{Leq-Right} :}
-  \ax{$\q' \leq_{\lright} \q_1 \mnode \lright(\q') $}
-\end{prooftree}
-
-\begin{prooftree}
-  \leftl{\rule{Leq-Next} :}
-  \ax{$\q' \leq_{\lnext} \b \mcons \lnext(\q') $}
-\end{prooftree}
-
-\begin{prooftree}
-  \leftl{\rule{Leq-Refl} :}
-  \ax{$\q' \leq_{(\l \mapsto \l)} \q' $}
-\end{prooftree}
-
-\begin{prooftree}
-  \ninf{$\q' \leq_{f} \q'' $}
-  \ninf{$\q'' \leq_{g} \q' $}
-  \leftl{\rule{Leq-Trans} :}
-  \binf{$\q' \leq_{(g \circ f)} \q $}
-\end{prooftree}
+%\begin{prooftree}
+  %\ax{\mstep{\q}{\Gamma, \tup{\alpha; \l}}{\mpushclos{\l'}, \b}{\Phi}{\Gamma, \tup{\alpha; \l}}{\b}{\Phi, \set{\alpha; \l'}}}
+%\end{prooftree}
 %
-where $\circ$ denotes function composition.
+%\begin{prooftree}
+  %\ninf{$\q \vdash \l' \uparrow \b$}
+  %\uinf{\mstep{\q}{\Gamma, \tup{\alpha; \l}}{\mcall{\l''}}{\Phi, \set{\alpha'; \l'}, \r}{\Gamma, \tup{\alpha; \l}, \tup{\alpha', \r; \l''}}{\b}{\Phi}}
+%\end{prooftree}
+%
+%\begin{prooftree}
+  %\ninf{$\q \vdash \l' \uparrow \b$}
+  %\uinf{\mstep{\q}{\Gamma, \tup{\alpha; \l}, \tup{\alpha'; \l'}}{\mret}{\Phi, \r}{\Gamma, \tup{\alpha; \l}}{\b}{\Phi, \r}}
+%\end{prooftree}
+
+
+
+
+And finally the multi-step judgement:
+
+\newcommand{\msteps}[7]{\ensuremath{#1 \vdash \tup{#2, #3, #4} \rightarrow^* \tup{#5, #6, #7}}}
 
 \vspace{0.5cm}
-\judgement{$\corvalue{\q}{\w}{\r}$}
+\judgement{\msteps{q}{\D}{\l}{\Ps}{\D'}{\l'}{\Ps'}}
+\vspace{0.5cm}
 
 \begin{prooftree}
-  \leftl{\rule{C-Num} :}
-  \ax{$\corvalue{\q}{\n{n}}{\n{n}}$}
+  \leftl{\rule{MS-Zero} :}
+  \ax{\msteps{q}{\D}{\l}{\Ps}{\D}{\l}{\Ps}}
 \end{prooftree}
 
 \begin{prooftree}
-  \ninf{$\corstore{\q}{\tau}{\alpha}$}
-  \ninf{$\q \vdash \l \uparrow f(\b')$}
-  \ninf{$\trasl{\ss}{\b'}{\q'}$}
-  \ninf{$\q' \leq_{f} \q$}
-  \leftl{\rule{C-Clos} :}
-  \qinf{$\corvalue{\q}{\cl{\tau}{\ss}}{\cl{\alpha}{\l}}$}
+  \ninf{\mexec{q}{m}{\D}{\l}{\Ps}{\D''}{\l''}{\Ps''}}
+  \ninf{\msteps{q}{\D''}{\l''}{\Ps''}{\D'}{\l'}{\Ps'}}
+  \leftl{\rule{MS-More} :}
+	\rightl{$(q(\l) = m)$}
+  \binf{\msteps{q}{\D}{\l}{\Ps}{\D'}{\l'}{\Ps'}}
 \end{prooftree}
+where $q(\l)$ denotes the $\l$'th instruction of the program $q$.
 
-\vspace{0.5cm}
-\judgement{$\corstore{\q}{\tau}{\alpha}$}
 
-\begin{prooftree}
-  \leftl{\rule{D-Nil} :}
-  \ax{$\corstore{\q}{\mnil}{\mnil}$}
-\end{prooftree}
 
-\begin{prooftree}
-  \ninf{$\corstore{\q}{\tau}{\alpha}$}
-  \ninf{$\corvalue{\q}{\w}{\r}$}
-  \leftl{\rule{D-Cons} :}
-  \binf{$\corstore{\q}{\tau, \w}{\alpha, \r}$}
-\end{prooftree}
 
-\vspace{0.5cm}
-\judgement{$\corvaluestack{\q}{\Psi}{\Phi}$}
-\vspace{0.5cm}
+%
+%
+%And a complete evaluation judgement:
+%
+%\vspace{0.5cm}
+%\judgement{$\tup{\b ; \q} \downarrow \r$}
+%
+%\begin{prooftree}
+  %\ninf{\mstep{\q}{\mnil, \tup{\mnil; \ldone}}{\b}{\mnil}{\mnil}{\mhalt}{\mnil, \r}}
+  %\uinf{$\tup{\b ; \q} \downarrow \r$}
+%\end{prooftree}
+%
+%\subsection*{Translation}
 
-(same rules as previous judgement)
+\newcommand{\trasm}[3]{#1 \rhd \tup{#2 ; #3}}
 
-\vspace{0.5cm}
-\judgement{$\corstack{\q}{\Xi}{\b}{\Gamma}$}
+%
+%Let $f, g$ denote functions on labels, e.g. $\lnext$.
+%Let $f(\q)$ denote the label-program $\q$ with $f$ applied to each label.
+%
+%We translate from stack programs to label-machine programs using the following judgement:
+%
+%\vspace{0.5cm}
+%\judgement{$\trasl{\ss}{\b}{\q}$}
+%
+%\begin{prooftree}
+  %\ninf{$\trasl{\ss}{\b}{\q}$}
+  %\uinf{$\trasl{\snum{n}, \ss}{\mpushnum{n}, \b}{\q}$}
+%\end{prooftree}
+%
+%\begin{prooftree}
+  %\ninf{$\trasl{\ss}{\b}{\q}$}
+  %\uinf{$\trasl{\svar{i}, \ss}{\mpushvar{i}, \b}{\q}$}
+%\end{prooftree}
+%
+%\begin{prooftree}
+  %\ninf{$\trasl{\ss}{\b}{\q}$}
+  %\ninf{$\trasl{\ss_0}{\b_0}{\q_0}$}
+  %\binf{$\trasl{\slam{\ss_0}, \ss}{\mpushclos{(\lright \; \lhere)}, \lleft(\b)}{\lleft(\q) \mnode \lright(\lnext(\b_0 \mcons \q_0))}$}
+%\end{prooftree}
+%
+%\begin{prooftree}
+  %\ninf{$\trasl{\ss}{\b}{\q}$}
+  %\uinf{$\trasl{\sapp, \ss}{\mcall{\lhere}}{\lnext(\b \mcons \q)}$}
+%\end{prooftree}
+%
+%\begin{prooftree}
+  %\ax{$\trasl{\ssnil}{\mret}{\mnil}$}
+%\end{prooftree}
+%
+%\subsection*{Equivalence}
+%
+%\begin{theorem} [Equivalence Stack-Label]
+%\label{thm:equiv-sl} If $\trasl{\ss}{\b}{\q}$, then $\ev{\ss}{\n{n}}$ if and only if $\tup{\b ; \q} \downarrow \n{n}$.
+%\end{theorem}
+%
+%To prove this, we need some correspondence judgements:
+%
+%\newcommand{\corvalue}[3]{#1 \vdash #2 \rightsquigarrow #3}
+%\newcommand{\corstore}{\corvalue}
+%\newcommand{\corvaluestack}{\corstore}
+%\newcommand{\corstack}[4]{#1 \vdash #2 \rightsquigarrow \tup{#3 ; #4}}
+%
+%\vspace{0.5cm}
+%\judgement{$\q' \leq_{f} \q$}
+%
+%\begin{prooftree}
+  %\leftl{\rule{Leq-Left} :}
+  %\ax{$\q' \leq_{\lleft} \lleft(\q') \mnode \q_2 $}
+%\end{prooftree}
+%
+%\begin{prooftree}
+  %\leftl{\rule{Leq-Right} :}
+  %\ax{$\q' \leq_{\lright} \q_1 \mnode \lright(\q') $}
+%\end{prooftree}
+%
+%\begin{prooftree}
+  %\leftl{\rule{Leq-Next} :}
+  %\ax{$\q' \leq_{\lnext} \b \mcons \lnext(\q') $}
+%\end{prooftree}
+%
+%\begin{prooftree}
+  %\leftl{\rule{Leq-Refl} :}
+  %\ax{$\q' \leq_{(\l \mapsto \l)} \q' $}
+%\end{prooftree}
+%
+%\begin{prooftree}
+  %\ninf{$\q' \leq_{f} \q'' $}
+  %\ninf{$\q'' \leq_{g} \q' $}
+  %\leftl{\rule{Leq-Trans} :}
+  %\binf{$\q' \leq_{(g \circ f)} \q $}
+%\end{prooftree}
+%%
+%where $\circ$ denotes function composition.
+%
+%\vspace{0.5cm}
+%\judgement{$\corvalue{\q}{\w}{\r}$}
+%
+%\begin{prooftree}
+  %\leftl{\rule{C-Num} :}
+  %\ax{$\corvalue{\q}{\n{n}}{\n{n}}$}
+%\end{prooftree}
+%
+%\begin{prooftree}
+  %\ninf{$\corstore{\q}{\tau}{\alpha}$}
+  %\ninf{$\q \vdash \l \uparrow f(\b')$}
+  %\ninf{$\trasl{\ss}{\b'}{\q'}$}
+  %\ninf{$\q' \leq_{f} \q$}
+  %\leftl{\rule{C-Clos} :}
+  %\qinf{$\corvalue{\q}{\cl{\tau}{\ss}}{\cl{\alpha}{\l}}$}
+%\end{prooftree}
+%
+%\vspace{0.5cm}
+%\judgement{$\corstore{\q}{\tau}{\alpha}$}
+%
+%\begin{prooftree}
+  %\leftl{\rule{D-Nil} :}
+  %\ax{$\corstore{\q}{\mnil}{\mnil}$}
+%\end{prooftree}
+%
+%\begin{prooftree}
+  %\ninf{$\corstore{\q}{\tau}{\alpha}$}
+  %\ninf{$\corvalue{\q}{\w}{\r}$}
+  %\leftl{\rule{D-Cons} :}
+  %\binf{$\corstore{\q}{\tau, \w}{\alpha, \r}$}
+%\end{prooftree}
+%
+%\vspace{0.5cm}
+%\judgement{$\corvaluestack{\q}{\Psi}{\Phi}$}
+%\vspace{0.5cm}
+%
+%(same rules as previous judgement)
+%
+%\vspace{0.5cm}
+%\judgement{$\corstack{\q}{\Xi}{\b}{\Gamma}$}
+%
+%\begin{prooftree}
+  %\ax{$\corstack{\q}{\mnil}{\mhalt}{\mnil}$}
+%\end{prooftree}
+%
+%\begin{prooftree}
+  %\ninf{$\corstack{\q}{\Xi}{\b}{\Gamma}$}
+  %\ninf{$\corstore{\q}{\tau}{\alpha}$}
+  %\ninf{$\q \vdash \l \uparrow \b$}
+  %\ninf{$\trasl{\ss}{\b'}{\q'}$}
+  %\ninf{$\q' \leq_{f} \q$}
+  %\fiveinf{$\corstack{\q}{\Xi, \tup{\tau ; \ss}}{f(\b')}{\Gamma, \tup{\alpha; \l}}$}
+%\end{prooftree}
+%
+%\vspace{0.5cm}
+%
+%And now we are ready to generalise completeness and soundness:
+%
+%% completeness
+%\begin{lemma}
+%If $\ssev{\Xi}{\Psi}{\mnil}{\mnil, \w}$, $\corstack{\q}{\Xi}{\b}{\Gamma}$ and $\corvaluestack{\q}{\Psi}{\Phi}$, then there exists $\r$ such that $\msteps{\q}{\Gamma}{\b}{\Phi}{\mnil}{\mhalt}{\mnil, \r}$ with $\corvalue{\q}{\w}{\r}$.
+%\end{lemma}
+%
+%% soundness
+%\begin{lemma}
+%If $\msteps{\q}{\Gamma}{\b}{\Phi}{\mnil}{\mhalt}{\mnil, \r}$, $\corstack{\q}{\Xi}{\b}{\Gamma}$ and $\corvaluestack{\q}{\Psi}{\Phi}$, then there exists $\w$ such that $\ssev{\Xi}{\Psi}{\mnil}{\mnil, \w}$ with $\corvalue{\q}{\w}{\r}$.
+%\end{lemma}
 
-\begin{prooftree}
-  \ax{$\corstack{\q}{\mnil}{\mhalt}{\mnil}$}
-\end{prooftree}
 
-\begin{prooftree}
-  \ninf{$\corstack{\q}{\Xi}{\b}{\Gamma}$}
-  \ninf{$\corstore{\q}{\tau}{\alpha}$}
-  \ninf{$\q \vdash \l \uparrow \b$}
-  \ninf{$\trasl{\ss}{\b'}{\q'}$}
-  \ninf{$\q' \leq_{f} \q$}
-  \fiveinf{$\corstack{\q}{\Xi, \tup{\tau ; \ss}}{f(\b')}{\Gamma, \tup{\alpha; \l}}$}
-\end{prooftree}
 
-\vspace{0.5cm}
 
-And now we are ready to generalise completeness and soundness:
 
-% completeness
-\begin{lemma}
-If $\ssev{\Xi}{\Psi}{\mnil}{\mnil, \w}$, $\corstack{\q}{\Xi}{\b}{\Gamma}$ and $\corvaluestack{\q}{\Psi}{\Phi}$, then there exists $\r$ such that $\msteps{\q}{\Gamma}{\b}{\Phi}{\mnil}{\mhalt}{\mnil, \r}$ with $\corvalue{\q}{\w}{\r}$.
-\end{lemma}
 
-% soundness
-\begin{lemma}
-If $\msteps{\q}{\Gamma}{\b}{\Phi}{\mnil}{\mhalt}{\mnil, \r}$, $\corstack{\q}{\Xi}{\b}{\Gamma}$ and $\corvaluestack{\q}{\Psi}{\Phi}$, then there exists $\w$ such that $\ssev{\Xi}{\Psi}{\mnil}{\mnil, \w}$ with $\corvalue{\q}{\w}{\r}$.
-\end{lemma}
+
+
+
+
+
+
+
+
+
+
+
 
 %\section*{Machine Language}
 %
