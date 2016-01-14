@@ -150,7 +150,7 @@ soundness-sm'-aux/lam
       <- shift-minst-pushclos-inv H' DA
       <- add-comm DA DA'
       <- leq-infix (mpushclos (s Q1#) ; Q1^1) mprog/nil Q2->Q2^1+Q1# (mprog-length/cons Q1Len) Q2<Pushclos;Q1^1;;Q2^1+Q1#
-      <- leq-infix (mpushclos (s Q1#) ; mprog/nil) Q2^1+Q1# Q1->Q1^1 (mprog-length/cons mprog-length/nil) Q1<Pushclos;Q1^1;;Q2^1+Q1#
+      <- leq-infix (mpushclos (s Q1#) ; mprog/nil) Q2^1+Q1# (shift-mprog/s shift-mprog/z Q1->Q1^1) (mprog-length/cons mprog-length/nil) Q1<Pushclos;Q1^1;;Q2^1+Q1#
       <- leq-trans Q2<Pushclos;Q1^1;;Q2^1+Q1# Pushclos;Q1^1;;Q2^1+Q1#<Q DA' Q2<Q
       <- leq-trans Q1<Pushclos;Q1^1;;Q2^1+Q1# Pushclos;Q1^1;;Q2^1+Q1#<Q (add/s add/z) Q1<Q
       <- soundness-sm'
@@ -206,7 +206,7 @@ soundness-sm : trans-sm P B Q -> meval B Q (rnum N) -> seval P (wnum N) -> type.
 %mode soundness-sm +DT +DQ -DP.
 
 soundness-sm/ : soundness-sm (trans-sm/ Q->Q^1 DT) (meval/ DLL-Halt DMM) DP'
-                 <- leq-infix (mhalt ; mprog/nil) mprog/nil Q->Q^1 (mprog-length/cons mprog-length/nil) DLE
+                 <- leq-infix (mhalt ; mprog/nil) mprog/nil (shift-mprog/s shift-mprog/z Q->Q^1) (mprog-length/cons mprog-length/nil) DLE
                  <- soundness-sm' cor-value-stack/nil (cor-stack/cons DLE DT cor-store/nil (cor-stack/nil label-lookup/here)) DMM DLL-Halt DP DC
    <- coerce-seval-num DC (seval/ DP) DP'.
 

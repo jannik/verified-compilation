@@ -169,13 +169,13 @@ leq-trans/there : leq-trans (leq/there (Q1<Q2 : leq Q1 Q2 _) H) (M2;Q2<M3;Q3 : l
 
 
 
-leq-cons : shift-mprog 1 Q1 Q1^1 -> leq (M ; Q1^1) Q S -> leq Q1 Q (s S) -> type.
+leq-cons : shift1-mprog Q1 Q1^1 -> leq (M ; Q1^1) Q S -> leq Q1 Q (s S) -> type.
 %mode leq-cons +H +DLE -DLE'.
 
-leq-cons/here : leq-cons (shift-mprog/s shift-mprog/z H) (leq/here (prefix/keep DPre)) (leq/there (leq/here DPre) H).
+leq-cons/here : leq-cons H (leq/here (prefix/keep DPre)) (leq/there (leq/here DPre) H).
 
-leq-cons/there : leq-cons (shift-mprog/s shift-mprog/z H) (leq/there DLE (shift1-mprog/cons HQ HM)) (leq/there DLE' H)
-                  <- leq-cons (shift-mprog/s shift-mprog/z HQ) DLE DLE'.
+leq-cons/there : leq-cons H (leq/there DLE (shift1-mprog/cons HQ HM)) (leq/there DLE' H)
+                  <- leq-cons HQ DLE DLE'.
 
 %worlds () (leq-cons _ _ _).
 %total D (leq-cons _ D _).

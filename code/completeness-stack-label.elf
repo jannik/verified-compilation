@@ -45,7 +45,7 @@ completeness-sm'/lam
       <- add-exists (s Q1#) S DA
       <- add-comm DA DA'
       <- leq-infix (mpushclos (s Q1#) ; Q1^1) mprog/nil Q2->Q2^1+Q1# (mprog-length/cons Q1Len) Q2<Pushclos;Q1^1;;Q2^1+Q1#
-      <- leq-infix (mpushclos (s Q1#) ; mprog/nil) Q2^1+Q1# Q1->Q1^1 (mprog-length/cons mprog-length/nil) Q1<Pushclos;Q1^1;;Q2^1+Q1#
+      <- leq-infix (mpushclos (s Q1#) ; mprog/nil) Q2^1+Q1# (shift-mprog/s shift-mprog/z Q1->Q1^1) (mprog-length/cons mprog-length/nil) Q1<Pushclos;Q1^1;;Q2^1+Q1#
       <- leq-trans Q2<Pushclos;Q1^1;;Q2^1+Q1# Pushclos;Q1^1;;Q2^1+Q1#<Q DA Q2<Q
       <- leq-trans Q1<Pushclos;Q1^1;;Q2^1+Q1# Pushclos;Q1^1;;Q2^1+Q1#<Q (add/s add/z) Q1<Q
       <- shift-minst-inc DA' ([l] shift1-minst/pushclos : shift1-minst (mpushclos l) (mpushclos (s l))) H'
@@ -90,7 +90,7 @@ completeness-sm : trans-sm P B Q -> meval B Q (rnum N) -> seval P (wnum N) -> ty
 %mode completeness-sm +DT -DQ +DP.
 
 completeness-sm/ : completeness-sm (trans-sm/ Q->Q^1 DT) DQ (seval/ DP)
-                    <- leq-infix (mhalt ; mprog/nil) mprog/nil Q->Q^1 (mprog-length/cons mprog-length/nil) DLE
+                    <- leq-infix (mhalt ; mprog/nil) mprog/nil (shift-mprog/s shift-mprog/z Q->Q^1) (mprog-length/cons mprog-length/nil) DLE
                     <- completeness-sm' cor-value-stack/nil
                        (cor-stack/cons DLE DT cor-store/nil (cor-stack/nil label-lookup/here))
                        DMM DLL-Halt DP DC

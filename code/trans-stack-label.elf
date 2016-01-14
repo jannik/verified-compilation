@@ -126,22 +126,22 @@ trans-sm' : sprog -> mprog -> type.
 
 trans-sm'/num : trans-sm' (sprog/cons (snum N) P) (mpushnum N ; Q^1)
                 <- trans-sm' P Q
-                <- shift-mprog 1 Q Q^1.
+                <- shift1-mprog Q Q^1.
 
 trans-sm'/var : trans-sm' (sprog/cons (svar I) P) (mpushvar I ; Q^1)
                 <- trans-sm' P Q
-                <- shift-mprog 1 Q Q^1.
+                <- shift1-mprog Q Q^1.
 
 trans-sm'/lam : trans-sm' (sprog/cons (slam P') P) (mpushclos (s Q#) ; Q^1 ;; Q'^1+Q#)
                 <- trans-sm' P Q
-                <- shift-mprog 1 Q Q^1
+                <- shift1-mprog Q Q^1
                 <- mprog-length Q^1 Q#
                 <- trans-sm' P' Q'
                 <- shift-mprog (s Q#) Q' Q'^1+Q#.
 
 trans-sm'/app : trans-sm' (sprog/cons sapp P) (mcall 1 ; Q^1)
                 <- trans-sm' P Q
-                <- shift-mprog 1 Q Q^1.
+                <- shift1-mprog Q Q^1.
 
 trans-sm'/ret : trans-sm' sprog/nil (mret ; mprog/nil).
 
@@ -155,4 +155,4 @@ trans-sm : sprog -> mprog -> label -> type.
 
 trans-sm/ : trans-sm P (mhalt ; Q^1) 1
              <- trans-sm' P Q
-             <- shift-mprog 1 Q Q^1.
+             <- shift1-mprog Q Q^1.
