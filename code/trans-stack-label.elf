@@ -11,55 +11,113 @@ mprog-length/cons : mprog-length (mprog/cons M Q) (s N)
 
 
 
+shift1-minst : minst -> minst -> type.
+%mode shift1-minst +M -M'.
+
+shift1-minst/pushnum : shift1-minst (mpushnum N) (mpushnum N).
+
+shift1-minst/pushvar : shift1-minst (mpushvar I) (mpushvar I).
+
+shift1-minst/pushclos : shift1-minst (mpushclos L) (mpushclos (s L)).
+
+shift1-minst/call : shift1-minst (mcall L) (mcall (s L)).
+
+shift1-minst/ret : shift1-minst mret mret.
+
+shift1-minst/halt : shift1-minst mhalt mhalt.
+
+%worlds () (shift1-minst _ _).
+%total {} (shift1-minst _ _).
+
+
+
+shift1-mprog : mprog -> mprog -> type.
+%mode shift1-mprog +Q -Q'.
+
+shift1-mprog/nil : shift1-mprog mprog/nil mprog/nil.
+
+shift1-mprog/cons : shift1-mprog (M ; Q) (M' ; Q')
+                     <- shift1-minst M M'
+                     <- shift1-mprog Q Q'.
+
+%worlds () (shift1-mprog _ _).
+%total Q (shift1-mprog Q _).
+
+
+
 shift-minst : nat -> minst -> minst -> type.
 %mode shift-minst +S +M -M'.
 
-shift-minst/pushnum : shift-minst S (mpushnum N) (mpushnum N).
+shift-minst/z : shift-minst z M M.
 
-shift-minst/pushvar : shift-minst S (mpushvar I) (mpushvar I).
-
-shift-minst/pushclos : shift-minst S (mpushclos L) (mpushclos L^S)
-                        <- add S L L^S.
-
-shift-minst/call : shift-minst S (mcall L) (mcall L^S)
-                    <- add S L L^S.
-
-shift-minst/ret : shift-minst S mret mret.
-
-shift-minst/halt : shift-minst S mhalt mhalt.
+shift-minst/s : shift-minst (s S) M M''
+                 <- shift1-minst M M'
+                 <- shift-minst S M' M''.
 
 %worlds () (shift-minst _ _ _).
-%total {} (shift-minst _ _ _).
+%total S (shift-minst S _ _).
 
 
 
 shift-mprog : nat -> mprog -> mprog -> type.
 %mode shift-mprog +S +Q -Q'.
 
-shift-mprog/nil : shift-mprog S mprog/nil mprog/nil.
+shift-mprog/z : shift-mprog z Q Q.
 
-shift-mprog/cons : shift-mprog S (M ; Q) (M^S ; Q^S)
-                    <- shift-minst S M M^S
-                    <- shift-mprog S Q Q^S.
+shift-mprog/s : shift-mprog (s S) Q Q''
+                 <- shift1-mprog Q Q'
+                 <- shift-mprog S Q' Q''.
 
 %worlds () (shift-mprog _ _ _).
-%total Q (shift-mprog _ Q _).
+%total S (shift-mprog S _ _).
 
 
 
-shift-minst-exists : {S} {M} shift-minst S M M^S -> type.
-%mode shift-minst-exists +S +M -M->M^S.
+shift1-minst-exists : shift1-minst M M^1 -> type.
+%mode +{M} -{M^1} -{M->M^1 : shift1-minst M M^1} shift1-minst-exists M->M^1.
 
-%worlds () (shift-minst-exists _ _ _).
-%trustme %total {} (shift-minst-exists _ _ _).
+shift1-minst-exists/pushnum : shift1-minst-exists shift1-minst/pushnum.
+
+shift1-minst-exists/pushvar : shift1-minst-exists shift1-minst/pushvar.
+
+shift1-minst-exists/pushclos : shift1-minst-exists shift1-minst/pushclos.
+
+shift1-minst-exists/call : shift1-minst-exists shift1-minst/call.
+
+shift1-minst-exists/ret : shift1-minst-exists shift1-minst/ret.
+
+shift1-minst-exists/halt : shift1-minst-exists shift1-minst/halt.
+
+%worlds () (shift1-minst-exists _).
+%total {} (shift1-minst-exists _).
 
 
 
-shift-mprog-exists : {S} {Q} shift-mprog S Q Q^S -> type.
-%mode shift-mprog-exists +S +Q -Q->Q^S.
+shift1-mprog-exists : {M} shift1-mprog M M^1 -> type.
+%mode shift1-mprog-exists +M -M->M^1.
 
-%worlds () (shift-mprog-exists _ _ _).
-%trustme %total {} (shift-mprog-exists _ _ _).
+shift1-mprog-exists/nil : shift1-mprog-exists _ shift1-mprog/nil.
+
+shift1-mprog-exists/cons : shift1-mprog-exists _ (shift1-mprog/cons HQ HM)
+                            <- shift1-mprog-exists _ HQ
+                            <- shift1-minst-exists HM.
+
+%worlds () (shift1-mprog-exists _ _).
+%total M (shift1-mprog-exists M _).
+
+
+
+shift-minst-exists : {S} shift-minst S M M^S -> type.
+%mode +{S} +{M} -{M^S} -{M->M^S : shift-minst S M M^S} shift-minst-exists S M->M^S.
+
+shift-minst-exists/z : shift-minst-exists z shift-minst/z.
+
+shift-minst-exists/s : shift-minst-exists (s S) (shift-minst/s HH H)
+                        <- shift1-minst-exists H
+                        <- shift-minst-exists S HH.
+
+%worlds () (shift-minst-exists _ _).
+%total S (shift-minst-exists S _).
 
 
 
@@ -88,7 +146,7 @@ trans-sm'/app : trans-sm' (sprog/cons sapp P) (mcall 1 ; Q^1)
 trans-sm'/ret : trans-sm' sprog/nil (mret ; mprog/nil).
 
 %worlds () (trans-sm' _ _).
-%trustme %total P (trans-sm' P _).
+%total P (trans-sm' P _).
 
 
 

@@ -79,3 +79,16 @@ add-comm/s : add-comm (add/s DA) DA''
 
 %worlds () (add-comm _ _).
 %total DA (add-comm DA _).
+
+
+
+add-move-s : add N1 (s N2) N -> add (s N1) N2 N -> type.
+%mode add-move-s +DA -DA'.
+
+add-move-s/z : add-move-s add/z (add/s add/z).
+
+add-move-s/s : add-move-s (add/s DA) (add/s DA')
+                <- add-move-s DA DA'.
+
+%worlds () (add-move-s _ _).
+%total DA (add-move-s DA _).

@@ -28,3 +28,15 @@ mprog'/cons : minst -> mprog' -> mprog'.
 
 %abbrev ; = mprog/cons. %infix right 5 ;.
 %abbrev ;; = mprog/append. %infix right 5 ;;.
+
+
+
+eq-minst : minst -> minst -> type.
+
+eq-minst/refl : eq-minst M M.
+
+
+
+eq-mprog : mprog -> mprog -> type.
+
+eq-mprog/refl : eq-mprog Q Q.

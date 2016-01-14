@@ -13,39 +13,185 @@ leq/here : leq Q1 Q z
             <- prefix Q1 Q.
 
 leq/there : leq Q1 (M ; Q) (s S)
-             <- leq Q1 Q S.
+             <- shift1-mprog Q1 Q1^1
+             <- leq Q1^1 Q S.
+
+
+
+prefix-prefix : {Q1} {Q2} prefix Q1 (Q1 ;; Q2) -> type.
+%mode prefix-prefix +Q1 +Q2 -DPre.
+
+prefix-prefix/nil : prefix-prefix mprog/nil Q2 prefix/stop.
+
+prefix-prefix/cons : prefix-prefix (M ; Q1) Q2 (prefix/keep DPre)
+                      <- prefix-prefix Q1 Q2 DPre.
+
+%worlds () (prefix-prefix _ _ _).
+%total Q1 (prefix-prefix Q1 _ _).
+
+
+
+shift-minst-id : {S} shift1-minst M M -> shift-minst S M M -> type.
+%mode shift-minst-id +S +H1 -H.
+
+shift-minst-id/z : shift-minst-id z H1 shift-minst/z.
+
+shift-minst-id/s : shift-minst-id (s S) H1 (shift-minst/s H H1)
+                         <- shift-minst-id S H1 H.
+
+%worlds () (shift-minst-id _ _ _).
+%total S (shift-minst-id S _ _).
+
+
+
+shift-minst-inc : add S L L' -> ({l} shift1-minst (M l) (M (s l))) -> shift-minst S (M L) (M L') -> type.
+%mode shift-minst-inc +DA +H1 -H.
+
+shift-minst-inc/z : shift-minst-inc add/z H shift-minst/z.
+
+shift-minst-inc/s : shift-minst-inc (add/s DA) (H : {l} shift1-minst (M l) (M (s l))) (shift-minst/s H' (H L))
+                     <- shift-minst-inc DA ([l] H (s l)) H'.
+
+%worlds () (shift-minst-inc _ _ _).
+%total DA (shift-minst-inc DA _ _).
+
+
+
+shift-minst-pushclos-inv : shift-minst S (mpushclos L) (mpushclos L') -> add S L L' -> type.
+%mode shift-minst-pushclos-inv +H -DA.
+
+shift-minst-pushclos-inv/z : shift-minst-pushclos-inv shift-minst/z add/z.
+
+shift-minst-pushclos-inv/s : shift-minst-pushclos-inv (shift-minst/s H shift1-minst/pushclos) DA
+                              <- shift-minst-pushclos-inv H DA'
+                              <- add-move-s DA' DA.
+
+%worlds () (shift-minst-pushclos-inv _ _).
+%total H (shift-minst-pushclos-inv H _).
+
+
+
+shift-minst-call-inv : shift-minst S (mcall L) (mcall L') -> add S L L' -> type.
+%mode shift-minst-call-inv +H -DA.
+
+shift-minst-call-inv/z : shift-minst-call-inv shift-minst/z add/z.
+
+shift-minst-call-inv/s : shift-minst-call-inv (shift-minst/s H shift1-minst/call) DA
+                              <- shift-minst-call-inv H DA'
+                              <- add-move-s DA' DA.
+
+%worlds () (shift-minst-call-inv _ _).
+%total H (shift-minst-call-inv H _).
 
 
 
 leq-infix : {Q1} {Q2} shift-mprog S Q Q^S -> mprog-length Q1 S -> leq Q (Q1 ;; Q^S ;; Q2) S -> type.
 %mode leq-infix +Q1 +Q2 +Q->Q^S +Q1Len -DLE.
 
+leq-infix/z : leq-infix mprog/nil Q2 shift-mprog/z mprog-length/nil (leq/here DPre)
+               <- prefix-prefix _ Q2 DPre.
+
+leq-infix/s : leq-infix (M ; Q1) Q2 (shift-mprog/s H H1) (mprog-length/cons Q1Len) (leq/there DLE H1)
+               <- leq-infix Q1 Q2 H Q1Len DLE.
+
 %worlds () (leq-infix _ _ _ _ _).
-%trustme %total {} (leq-infix _ _ _ _ _).
+%total Q1 (leq-infix Q1 _ _ _ _).
+
+
+
+prefix-trans : prefix Q1 Q2 -> prefix Q2 Q3 -> prefix Q1 Q3 -> type.
+%mode prefix-trans +Q1-Pre-Q2 +Q2-Pre-Q3 -Q1-Pre-Q3.
+
+prefix-trans/stop : prefix-trans prefix/stop DPre prefix/stop.
+
+prefix-trans/keep : prefix-trans (prefix/keep DPre1) (prefix/keep DPre2) (prefix/keep DPre)
+                     <- prefix-trans DPre1 DPre2 DPre.
+
+%worlds () (prefix-trans _ _ _).
+%total D (prefix-trans D _ _).
+
+
+
+prefix-shift : prefix Q1 Q2 -> shift1-mprog Q1 Q1^1 -> shift1-mprog Q2 Q2^1 -> prefix Q1^1 Q2^1 -> type.
+%mode prefix-shift +Q1-Pre-Q2 +Q1->Q1^1 +Q2->Q2^1 -Q1^1-Pre-Q2^1.
+
+prefix-shift/stop : prefix-shift prefix/stop shift1-mprog/nil H2 prefix/stop.
+
+prefix-shift/keep : prefix-shift (prefix/keep DPre) (shift1-mprog/cons H1 H1') (shift1-mprog/cons H2 H2') (prefix/keep DPre')
+                     <- prefix-shift DPre H1 H2 DPre'.
+
+%worlds () (prefix-shift _ _ _ _).
+%total Pre (prefix-shift Pre _ _ _).
+
+
+
+prefix-leq-combine : prefix Q1 Q2 -> leq Q2 Q3 N -> leq Q1 Q3 N -> type.
+%mode prefix-leq-combine +Q1-Pre-Q2 +Q2<Q3 -Q1<Q3.
+
+prefix-leq-combine/nil : prefix-leq-combine Q1-Pre-Q2 (leq/here Q2-Pre-Q3) (leq/here Q1-Pre-Q3)
+                          <- prefix-trans Q1-Pre-Q2 Q2-Pre-Q3 Q1-Pre-Q3.
+
+prefix-leq-combine/cons : prefix-leq-combine (Q1-Pre-Q2 : prefix Q1 Q2) (leq/there (Q2<Q3 : leq Q2^1 Q3 N) (Q2->Q2^1 : shift1-mprog Q2 Q2^1)) (leq/there Q1<Q3 Q1->Q1^1)
+                           <- shift1-mprog-exists _ (Q1->Q1^1 : shift1-mprog Q1 Q1^1)
+                           <- prefix-shift Q1-Pre-Q2 Q1->Q1^1 Q2->Q2^1 Q1^1-Pre-Q2^1
+                           <- prefix-leq-combine Q1^1-Pre-Q2^1 Q2<Q3 Q1<Q3.
+
+%worlds () (prefix-leq-combine _ _ _).
+%total D (prefix-leq-combine _ D _).
+
+
+
+leq-discard : leq (M1 ; Q1) (M2 ; Q2) N -> leq Q1 Q2 N -> type.
+%mode leq-discard +DLE -DLE'.
+
+leq-discard/here : leq-discard (leq/here (prefix/keep DPre)) (leq/here DPre).
+
+leq-discard/there : leq-discard (leq/there DLE (shift1-mprog/cons H H')) (leq/there DLE' H)
+                     <- leq-discard DLE DLE'.
+
+%worlds () (leq-discard _ _).
+%total D (leq-discard D _).
 
 
 
 leq-trans : leq Q1 Q2 M -> leq Q2 Q3 N -> add M N M+N -> leq Q1 Q3 M+N -> type.
 %mode leq-trans +Q1<Q2 +Q2<Q3 +DA -Q1<Q3.
 
+leq-trans/here : leq-trans (leq/here Q1-Pre-Q2) Q2<Q3 add/z Q1<Q3
+                  <- prefix-leq-combine Q1-Pre-Q2 Q2<Q3 Q1<Q3.
+
+leq-trans/there : leq-trans (leq/there (Q1<Q2 : leq Q1 Q2 _) H) (M2;Q2<M3;Q3 : leq (M2 ; Q2) (M3 ; Q3) _) (add/s DA) (leq/there Q1<Q3 H)
+                   <- leq-discard M2;Q2<M3;Q3 Q2<Q3
+                   <- leq-trans Q1<Q2 Q2<Q3 DA Q1<Q3.
+
 %worlds () (leq-trans _ _ _ _).
-%trustme %total {} (leq-trans _ _ _ _).
+%total D (leq-trans D _ _ _).
 
 
 
 leq-cons : shift-mprog 1 Q1 Q1^1 -> leq (M ; Q1^1) Q S -> leq Q1 Q (s S) -> type.
 %mode leq-cons +H +DLE -DLE'.
 
+leq-cons/here : leq-cons (shift-mprog/s shift-mprog/z H) (leq/here (prefix/keep DPre)) (leq/there (leq/here DPre) H).
+
+leq-cons/there : leq-cons (shift-mprog/s shift-mprog/z H) (leq/there DLE (shift1-mprog/cons HQ HM)) (leq/there DLE' H)
+                  <- leq-cons (shift-mprog/s shift-mprog/z HQ) DLE DLE'.
+
 %worlds () (leq-cons _ _ _).
-%trustme %total {} (leq-cons _ _ _).
+%total D (leq-cons _ D _).
 
 
 
 leq-lookup : shift-minst S M M^S -> leq (M ; Q1) Q S -> label-lookup Q S M^S -> type.
 %mode leq-lookup +H +DLE -DLL.
 
+leq-lookup/z : leq-lookup shift-minst/z (leq/here (prefix/keep DPre)) label-lookup/here.
+
+leq-lookup/s : leq-lookup (shift-minst/s H H1) (leq/there DLE (shift1-mprog/cons HQ HM)) (label-lookup/there DLL)
+                <- leq-lookup H DLE DLL.
+
 %worlds () (leq-lookup _ _ _).
-%trustme %total {} (leq-lookup _ _ _).
+%total H (leq-lookup H _ _).
 
 
 
