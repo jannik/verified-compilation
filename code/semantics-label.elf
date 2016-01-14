@@ -52,29 +52,24 @@ label-lookup/there : label-lookup (M' ; Q) (s L) M
 
 
 
-mstep : mprog -> mframes -> label -> rstack -> mframes -> label -> rstack -> type. %name mstep DM.
-%mode mstep +Q +Gamma +L +Phi -Gamma' -L' -Phi'.
+mstep : minst -> mframes -> label -> rstack -> mframes -> label -> rstack -> type. %name mstep DM.
+%mode mstep +M +Gamma +L +Phi -Gamma' -L' -Phi'.
 
-mstep/pushnum : mstep Q (mframes/cons Gamma Alpha L-Ret) L Phi
-                        (mframes/cons Gamma Alpha L-Ret) (s L) (rstack/cons Phi (rnum N))
-                 <- label-lookup Q L (mpushnum N).
+mstep/pushnum : mstep (mpushnum N) (mframes/cons Gamma Alpha L-Ret) L Phi
+                        (mframes/cons Gamma Alpha L-Ret) (s L) (rstack/cons Phi (rnum N)).
 
-mstep/pushvar : mstep Q (mframes/cons Gamma Alpha L-Ret) L Phi
+mstep/pushvar : mstep (mpushvar I) (mframes/cons Gamma Alpha L-Ret) L Phi
                         (mframes/cons Gamma Alpha L-Ret) (s L) (rstack/cons Phi R)
-                 <- label-lookup Q L (mpushvar I)
                  <- mvar-lookup Alpha I R.
 
-mstep/pushclos : mstep Q (mframes/cons Gamma Alpha L-Ret) L Phi
-                         (mframes/cons Gamma Alpha L-Ret) (s L) (rstack/cons Phi (rclos Alpha L'))
-                  <- label-lookup Q L (mpushclos L').
+mstep/pushclos : mstep (mpushclos L') (mframes/cons Gamma Alpha L-Ret) L Phi
+                         (mframes/cons Gamma Alpha L-Ret) (s L) (rstack/cons Phi (rclos Alpha L')).
 
-mstep/call : mstep Q (mframes/cons Gamma Alpha L-Ret) L (rstack/cons (rstack/cons Phi (rclos Alpha' L')) R)
-                     (mframes/cons (mframes/cons Gamma Alpha L-Ret) (mstore/cons Alpha' R) L-Cont) L' Phi
-              <- label-lookup Q L (mcall L-Cont).
+mstep/call : mstep (mcall L-Cont) (mframes/cons Gamma Alpha L-Ret) L (rstack/cons (rstack/cons Phi (rclos Alpha' L')) R)
+                     (mframes/cons (mframes/cons Gamma Alpha L-Ret) (mstore/cons Alpha' R) L-Cont) L' Phi.
 
-mstep/ret : mstep Q (mframes/cons Gamma Alpha' L-Ret) L Phi
-                    Gamma L-Ret Phi
-             <- label-lookup Q L mret.
+mstep/ret : mstep mret (mframes/cons Gamma Alpha' L-Ret) L Phi
+                    Gamma L-Ret Phi.
 
 
 
@@ -84,7 +79,8 @@ msteps : mprog -> mframes -> label -> rstack -> mframes -> label -> rstack -> ty
 msteps/zero : msteps Q Gamma L Phi Gamma L Phi.
 
 msteps/more : msteps Q Gamma L Phi Gamma'' L'' Phi''
-               <- mstep Q Gamma L Phi Gamma' L' Phi'
+               <- label-lookup Q L M
+               <- mstep M Gamma L Phi Gamma' L' Phi'
                <- msteps Q Gamma' L' Phi' Gamma'' L'' Phi''.
 
 
