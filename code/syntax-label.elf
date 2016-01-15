@@ -2,15 +2,13 @@
 
 %abbrev label = nat.
 
-% %abbrev o : (label -> label) -> (label -> label) -> (label -> label)
-%   = [f] [g] [l] f (g l). %infix right 5 o.
-
 minst : type. %name minst M.
 
 mpushnum : number -> minst.
 mpushvar : nat -> minst.
 mpushclos : label -> minst.
 mcall : label -> minst.
+minc : minst.
 mret : minst.
 mhalt : minst.
 

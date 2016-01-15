@@ -92,12 +92,12 @@ completeness-bs'/app : completeness-bs' (trans-bs-acc/app DT1 DT2) (beval/app DB
                         <- cat-ssteps DP12 (ssteps/more DP3 sstep/app) DP123
                         <- cat-ssteps DP123 (ssteps/single sstep/ret) DP.
 
-%{
 completeness-bs'/suc : completeness-bs' (trans-bs-acc/suc DT1) (beval/suc DB1) DD DP DC
                         <- completeness-bs' DT1 DB1 DD DP1 DC1
                         <- cat-ssteps DP1 (ssteps/single sstep/suc) DP
                         <- s-compat-cor-bs DC1 DC.
 
+%{
 completeness-bs'/case/z : completeness-bs' (trans-bs-acc/case DT1 DT2 DT3) (beval/case/z DB2 DB1) DD
                                            DP DC2
                            <- completeness-bs' DT1 DB1 DD DP1 cor-bs/num

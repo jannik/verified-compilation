@@ -22,6 +22,8 @@ shift1-minst/pushclos : shift1-minst (mpushclos L) (mpushclos (s L)).
 
 shift1-minst/call : shift1-minst (mcall L) (mcall (s L)).
 
+shift1-minst/inc : shift1-minst minc minc.
+
 shift1-minst/ret : shift1-minst mret mret.
 
 shift1-minst/halt : shift1-minst mhalt mhalt.
@@ -84,6 +86,8 @@ shift1-minst-exists/pushclos : shift1-minst-exists shift1-minst/pushclos.
 
 shift1-minst-exists/call : shift1-minst-exists shift1-minst/call.
 
+shift1-minst-exists/inc : shift1-minst-exists shift1-minst/inc.
+
 shift1-minst-exists/ret : shift1-minst-exists shift1-minst/ret.
 
 shift1-minst-exists/halt : shift1-minst-exists shift1-minst/halt.
@@ -142,6 +146,10 @@ trans-sm'/lam : trans-sm' (sprog/cons (slam P') P) (mpushclos (s Q#) ; Q^1 ;; Q'
 trans-sm'/app : trans-sm' (sprog/cons sapp P) (mcall 1 ; Q^1)
                 <- trans-sm' P Q
                 <- shift1-mprog Q Q^1.
+
+trans-sm'/suc : trans-sm' (sprog/cons ssuc P) (minc ; Q^1)
+                 <- trans-sm' P Q
+                 <- shift1-mprog Q Q^1.
 
 trans-sm'/ret : trans-sm' sprog/nil (mret ; mprog/nil).
 

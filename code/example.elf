@@ -75,3 +75,43 @@ test4 : exp = app (app (app (lam [f] lam [x] app f x) (lam [x] lam [y] x)) (num 
 %solve _ : trans-sm ptest4 Q K.
 
 %query 1 1 meval qtest4 qtest4-start R.
+
+
+
+rec : exp = lam [f] app (lam [x] app f (app x x)) (lam [x] app f (app x x)).
+
+reify : exp -> exp = [a] app (app a (lam suc)) (num 0).
+
+#0 : exp = lam [f] lam [x] x.
+#suc : exp -> exp = [a] lam [f] lam [x] app f (app (app a f) x).
+#1 : exp = #suc #0.
+#2 : exp = #suc #1.
+#3 : exp = #suc #2.
+#4 : exp = #suc #3.
+#5 : exp = #suc #4.
+
+add : exp -> exp -> exp = [a] [b] lam [f] lam [x] app (app a f) (app (app b f) x).
+
+mul : exp -> exp -> exp = [a] [b] lam [f] app a (app b f).
+
+
+
+test5 : exp = reify (add #2 #3).
+
+%query 1 1 eval test5 C.
+%define qtest5 = Q
+%define qtest5-start = K
+%solve _ : trans-hm test5 Q K.
+
+%query 1 1 meval qtest5 qtest5-start R.
+
+
+
+test6 : exp = reify (mul #2 #3).
+
+%query 1 1 eval test6 C.
+%define qtest6 = Q
+%define qtest6-start = K
+%solve _ : trans-hm test6 Q K.
+
+%query 1 1 meval qtest6 qtest6-start R.

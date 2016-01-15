@@ -56,20 +56,23 @@ mstep : minst -> mframes -> label -> rstack -> mframes -> label -> rstack -> typ
 %mode mstep +M +Gamma +L +Phi -Gamma' -L' -Phi'.
 
 mstep/pushnum : mstep (mpushnum N) (mframes/cons Gamma Alpha L-Ret) L Phi
-                        (mframes/cons Gamma Alpha L-Ret) (s L) (rstack/cons Phi (rnum N)).
+                                   (mframes/cons Gamma Alpha L-Ret) (s L) (rstack/cons Phi (rnum N)).
 
 mstep/pushvar : mstep (mpushvar I) (mframes/cons Gamma Alpha L-Ret) L Phi
-                        (mframes/cons Gamma Alpha L-Ret) (s L) (rstack/cons Phi R)
+                                   (mframes/cons Gamma Alpha L-Ret) (s L) (rstack/cons Phi R)
                  <- mvar-lookup Alpha I R.
 
 mstep/pushclos : mstep (mpushclos L') (mframes/cons Gamma Alpha L-Ret) L Phi
-                         (mframes/cons Gamma Alpha L-Ret) (s L) (rstack/cons Phi (rclos Alpha L')).
+                                      (mframes/cons Gamma Alpha L-Ret) (s L) (rstack/cons Phi (rclos Alpha L')).
 
 mstep/call : mstep (mcall L-Cont) (mframes/cons Gamma Alpha L-Ret) L (rstack/cons (rstack/cons Phi (rclos Alpha' L')) R)
-                     (mframes/cons (mframes/cons Gamma Alpha L-Ret) (mstore/cons Alpha' R) L-Cont) L' Phi.
+                                  (mframes/cons (mframes/cons Gamma Alpha L-Ret) (mstore/cons Alpha' R) L-Cont) L' Phi.
+
+mstep/inc : mstep minc Gamma L (rstack/cons Phi (rnum N))
+                       Gamma (s L) (rstack/cons Phi (rnum (s N))).
 
 mstep/ret : mstep mret (mframes/cons Gamma Alpha' L-Ret) L Phi
-                    Gamma L-Ret Phi.
+                       Gamma L-Ret Phi.
 
 
 

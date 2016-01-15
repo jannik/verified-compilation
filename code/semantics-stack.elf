@@ -53,10 +53,10 @@ sstep/app : sstep (frames/cons Xi Tau (sprog/cons sapp P))
                   (frames/cons (frames/cons Xi Tau P) (sstore/cons Tau' W) P')
                   Psi.
 
-%{
 sstep/suc : sstep (frames/cons Xi Tau (sprog/cons ssuc P)) (wstack/cons Psi (wnum N))
                   (frames/cons Xi Tau P) (wstack/cons Psi (wnum (s N))).
 
+%{
 sstep/case/z : sstep (frames/cons Xi Tau (sprog/cons (scase P1 P2) P))
                      (wstack/cons Psi (wnum z))
                      (frames/cons (frames/cons Xi Tau P) Tau P1)

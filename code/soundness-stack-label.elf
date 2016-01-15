@@ -34,6 +34,8 @@ minst-equiv/pushclos : minst-equiv (mpushclos L) (mpushclos L').
 
 minst-equiv/call : minst-equiv (mcall L) (mcall L').
 
+minst-equiv/inc : minst-equiv minc minc.
+
 minst-equiv/ret : minst-equiv mret mret.
 
 minst-equiv/halt : minst-equiv mhalt mhalt.
@@ -50,6 +52,8 @@ minst-equiv-trans/pushvar : minst-equiv-trans minst-equiv/pushvar minst-equiv/pu
 minst-equiv-trans/pushclos : minst-equiv-trans minst-equiv/pushclos minst-equiv/pushclos minst-equiv/pushclos.
 
 minst-equiv-trans/call : minst-equiv-trans minst-equiv/call minst-equiv/call minst-equiv/call.
+
+minst-equiv-trans/inc : minst-equiv-trans minst-equiv/inc minst-equiv/inc minst-equiv/inc.
 
 minst-equiv-trans/ret : minst-equiv-trans minst-equiv/ret minst-equiv/ret minst-equiv/ret.
 
@@ -71,6 +75,8 @@ shift-minst-equiv/z/pushclos : shift-minst-equiv shift-minst/z minst-equiv/pushc
 
 shift-minst-equiv/z/call : shift-minst-equiv shift-minst/z minst-equiv/call.
 
+shift-minst-equiv/z/inc : shift-minst-equiv shift-minst/z minst-equiv/inc.
+
 shift-minst-equiv/z/ret : shift-minst-equiv shift-minst/z minst-equiv/ret.
 
 shift-minst-equiv/z/halt : shift-minst-equiv shift-minst/z minst-equiv/halt.
@@ -88,6 +94,9 @@ shift-minst-equiv/s/pushclos : shift-minst-equiv (shift-minst/s H shift1-minst/p
 shift-minst-equiv/s/call : shift-minst-equiv (shift-minst/s H shift1-minst/call) MQ
                             <- shift-minst-equiv H MQ'
                             <- minst-equiv-trans minst-equiv/call MQ' MQ.
+
+shift-minst-equiv/s/inc : shift-minst-equiv (shift-minst/s H shift1-minst/inc) MQ
+                           <- shift-minst-equiv H MQ.
 
 shift-minst-equiv/s/ret : shift-minst-equiv (shift-minst/s H shift1-minst/ret) MQ
                                <- shift-minst-equiv H MQ.
@@ -165,6 +174,11 @@ soundness-sm'-aux/app
       <- coerce-msteps DMM DA' DMM'
       <- leq-cons H Call;Q1^1<Q Q1<Q
       <- soundness-sm' DCV (cor-stack/cons Q'<Q DT' (cor-store/cons DC-Arg DCE') (cor-stack/cons Q1<Q DT DCE DCS)) DMM' DLL-Halt DP DC.
+
+soundness-sm'-aux/inc
+   : soundness-sm'-aux (cor-value-stack/cons cor-value/num DCV) (cor-stack/cons Inc;Q1^1<Q (trans-sm'/suc H DT) DCE DCS) (good-stack/ DLL-Inc' MQ H') (msteps/more DMM mstep/inc DLL-Inc) DLL-Halt (ssteps/more DP sstep/suc) DC
+      <- leq-cons H Inc;Q1^1<Q Q1<Q
+      <- soundness-sm' (cor-value-stack/cons cor-value/num DCV) (cor-stack/cons Q1<Q DT DCE DCS) DMM DLL-Halt DP DC.
 
 soundness-sm'-aux/ret
    : soundness-sm'-aux DCV (cor-stack/cons Ret<Q trans-sm'/ret DCE DCS) (good-stack/ DLL-Ret' MQ H') (msteps/more DMM mstep/ret DLL-Ret) DLL-Halt (ssteps/more DP sstep/ret) DC

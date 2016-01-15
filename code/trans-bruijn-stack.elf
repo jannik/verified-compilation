@@ -14,10 +14,10 @@ trans-bs-acc/app : trans-bs-acc (bapp B1 B2) P P'
                     <- trans-bs-acc B2 (sprog/cons sapp P) P''
                     <- trans-bs-acc B1 P'' P'.
 
-%{
 trans-bs-acc/suc : trans-bs-acc (bsuc B1) P P'
                     <- trans-bs-acc B1 (sprog/cons ssuc P) P'.
 
+%{
 trans-bs-acc/case : trans-bs-acc (bcase B1 B2 B3) P P'
                      <- trans-bs B3 P3
                      <- trans-bs B2 P2

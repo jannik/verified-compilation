@@ -1,0 +1,10 @@
+soundness-hm : meval Q L (rnum N) -> trans-hm E Q L -> eval E (num N) -> type.
+%mode soundness-hm +DM +DT -DE.
+
+soundness-hm/ : soundness-hm DM (trans-hm/ DT-SM DT-BS (_ : trans-hb-pseudo-exists _ DT-HB)) DE
+                 <- soundness-sm DT-SM DM DP
+                 <- soundness-bs DP DT-BS DB
+                 <- soundness-hb DB DT-HB DE.
+
+%worlds () (soundness-hm _ _ _).
+%total {} (soundness-hm _ _ _).

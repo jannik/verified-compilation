@@ -65,6 +65,13 @@ completeness-sm'/app
          (cor-stack/cons Q'<Q DT' (cor-store/cons DC-Arg DCE') (cor-stack/cons Q1<Q DT DCE DCS))
          DMM DLL-Halt DP DC.
 
+completeness-sm'/suc
+   : completeness-sm' (cor-value-stack/cons cor-value/num DCV) (cor-stack/cons Inc;Q1^1<Q (trans-sm'/suc H DT) DCE DCS) (msteps/more DMM mstep/inc DLL-Inc) DLL-Halt (ssteps/more DP sstep/suc) DC
+      <- leq-cons H Inc;Q1^1<Q Q1<Q
+      <- shift-minst-id _ shift1-minst/inc H'
+      <- leq-lookup H' Inc;Q1^1<Q DLL-Inc
+      <- completeness-sm' (cor-value-stack/cons cor-value/num DCV) (cor-stack/cons Q1<Q DT DCE DCS) DMM DLL-Halt DP DC.
+
 completeness-sm'/ret
    : completeness-sm' DCV (cor-stack/cons Ret<Q trans-sm'/ret DCE DCS) (msteps/more DMM mstep/ret DLL-Ret) DLL-Halt (ssteps/more DP sstep/ret) DC
       <- shift-minst-id _ shift1-minst/ret H'

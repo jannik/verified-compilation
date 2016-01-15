@@ -5,7 +5,7 @@ snum : nat -> sexp.
 svar : nat -> sexp.
 slam : sprog -> sexp.
 sapp : sexp.
-% ssuc : sexp.
+ssuc : sexp.
 % scase : sprog -> sprog -> sexp.
 
 sprog/nil : sprog.

@@ -48,11 +48,11 @@ completeness-hb'/app : completeness-hb' (eval/app DE3 DE2 DE1) (trans-hb/app DT2
                         <- completeness-hb' DE2 DT2 DB2 (DC2 : cor V2 C2)
                         <- completeness-hb' DE3 (DT V2 C2 DC2) DB3 DC3.
 
-%{
 completeness-hb'/suc : completeness-hb' (eval/suc DE1) (trans-hb/suc DT1) (beval/suc DB1) DC
                         <- completeness-hb' DE1 DT1 DB1 DC1
                         <- s-compat-cor DC1 DC.
 
+%{
 completeness-hb'/case/z : completeness-hb' (eval/case/z DE2 DE1) (trans-hb/case DT3 DT2 DT1) (beval/case/z DB2 DB1) DC2
                            <- completeness-hb' DE1 DT1 DB1 cor/num
                            <- completeness-hb' DE2 DT2 DB2 DC2.

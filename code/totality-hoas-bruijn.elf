@@ -22,10 +22,10 @@ closed/app : closed Sigma (app E1 E2)
               <- closed Sigma E1
               <- closed Sigma E2.
 
-%{
 closed/suc : closed Sigma (suc E1)
               <- closed Sigma E1.
 
+%{
 closed/case : closed Sigma (case E1 E2 E3)
                <- closed Sigma E1
                <- closed Sigma E2
@@ -63,10 +63,10 @@ closed-trans-hb-exists/app : closed-trans-hb-exists (closed/app DC2 DC1) (trans-
                               <- closed-trans-hb-exists DC1 DT1
                               <- closed-trans-hb-exists DC2 DT2.
 
-%{
 closed-trans-hb-exists/suc : closed-trans-hb-exists (closed/suc DC1) (trans-hb/suc DT1)
                               <- closed-trans-hb-exists DC1 DT1.
 
+%{
 closed-trans-hb-exists/case : closed-trans-hb-exists (closed/case DC3 DC2 DC1) (trans-hb/case DT3 DT2 DT1)
                                <- closed-trans-hb-exists DC1 DT1
                                <- closed-trans-hb-exists DC2 DT2
@@ -122,10 +122,10 @@ closed-pseudo-exists/app : closed-pseudo-exists Sigma (app E1 E2) (closed/app DC
                             <- closed-pseudo-exists Sigma E1 DC1
                             <- closed-pseudo-exists Sigma E2 DC2.
 
-%{
 closed-pseudo-exists/suc : closed-pseudo-exists Sigma (suc E1) (closed/suc DC1)
                             <- closed-pseudo-exists Sigma E1 DC1.
 
+%{
 closed-pseudo-exists/case : closed-pseudo-exists Sigma (case E1 E2 E3) (closed/case DC3 DC2 DC1)
                              <- closed-pseudo-exists Sigma E1 DC1
                              <- closed-pseudo-exists Sigma E2 DC2

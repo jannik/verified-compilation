@@ -46,10 +46,10 @@ trans-hb/app : trans-hb Sigma (bapp B1 B2) (app E1 E2)
                 <- trans-hb Sigma B1 E1
                 <- trans-hb Sigma B2 E2.
 
-%{
 trans-hb/suc : trans-hb Sigma (bsuc B1) (suc E1)
                 <- trans-hb Sigma B1 E1.
 
+%{
 trans-hb/case : trans-hb Sigma (bcase B1 B2 B3) (case E1 E2 E3)
                  <- trans-hb Sigma B1 E1
                  <- trans-hb Sigma B2 E2
