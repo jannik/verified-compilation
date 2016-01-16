@@ -1,0 +1,126 @@
+\section*{Machine Language}
+
+%The next challenge we face is moving the program code to some external storage and referring to it indirectly.
+%To illuminate this issue we consider a slight evolution of the stack language.
+%Nevertheless, it still poses the problem of how to handle translations of subprograms when the evaluation is happening in the context of the full program.
+%The solution is to define a subprogram relation which carries evidence of how to arrive at the subprogram from the full program.
+%This evidence is used to keep track of the location of different subprograms relative to each other and to make sure that references are suitably modified to apply in a different context than they were created.
+
+%In this language the evidence takes the form of a path through the program storage tree, but the technique seems equally applicable if we were to generate machine code directly where the evidence would be the base address of the subprogram in question.
+
+\subsection*{Syntax}
+
+\ensurecommand{\addr}{\ell}
+\ensurecommand{\addrret}{\addr_{\mathrm{ret}}}
+
+\ensurecommand{\minst}{m}
+\ensurecommand{\mprog}{q}
+
+\ensurecommand{\mpushnum}[1]{\mathtt{pushnum} \; #1}
+\ensurecommand{\mpushvar}[1]{\mathtt{pushvar} \; #1}
+\ensurecommand{\mpushclos}[1]{\mathtt{pushclos} \; #1}
+\ensurecommand{\mcall}[1]{\mathtt{call} \; #1}
+\ensurecommand{\mret}{\mathtt{ret}}
+\ensurecommand{\mhalt}{\mathtt{halt}}
+
+\ensurecommand{\mend}{\mathtt{[]}}
+\ensurecommand{\mseq}{\mathbin{;}}
+
+Let $\addr$ denote program addresses (natural numbers).
+We define machine instructions $\minst$ and programs $\mprog$:
+\begin{align*}
+  \minst &\defi \mpushnum{\nat} \alt \mpushvar{\bvar} \alt \mpushclos{\addr} \alt \mcall{\addr} \alt \mret \alt \mhalt \\
+  \mprog &\defi \mend \alt \minst \mseq \mprog_1
+\end{align*}
+Note that the address in the instruction $\mcall{\addr}$ is the return address.
+
+% some text justifying the need for both ret, halt and mend.
+
+\subsection*{Semantics}
+
+\ensurecommand{\mval}{\hat{m}}
+\ensurecommand{\menv}{\gamma}
+\ensurecommand{\mctrl}{\Delta}
+\ensurecommand{\mvals}{\Psi}
+
+\ensurecommand{\mexec}[7]{\ensuremath{#1 : \tup{#2 \tupsep #3 \tupsep #4} \rightarrow \tup{#5 \tupsep #6 \tupsep #7}}}
+\ensurecommand{\msteps}[7]{\ensuremath{#1 \vdash \tup{#2 \tupsep #3 \tupsep #4} \rightarrow^* \tup{#5 \tupsep #6 \tupsep #7}}}
+\ensurecommand{\mlook}[3]{\ensuremath{#1 \vdash #2 \uparrow #3}}%
+
+We define values $\mval$, environments $\menv$, control stacks $\mctrl$, and value stacks $\mvals$:
+\begin{align*}
+  \mval &\defi \n{\nat} \alt \cl{\menv}{\addr} \\
+  \menv &\defi \envnil \alt \menv \envcons \mval \\
+  \mctrl &\defi \stknil \alt \mctrl \stkcons \fr{\menv}{\addr} \\
+  \mvals &\defi \stknil \alt \mvals \stkcons \mval
+\end{align*}
+
+We need a judgement for variable lookup (rules as expected):
+
+\vspace{0.5cm}
+
+\judgement{\mlook{\menv}{\bvar}{\mval}}
+
+% write the rules here
+
+\vspace{0.5cm}
+
+And an execution judgement:
+
+\vspace{0.5cm}
+\judgement{\mexec{\minst}{\mctrl}{\addr}{\mvals}{\mctrl'}{\addr'}{\mvals'}}
+
+\begin{prooftree}
+  \ax{\mexec{\mpushnum{\nat}}{\mctrl}{\addr}{\mvals}{\mctrl}{\addr + 1}{\mvals \stkcons \n{\nat}}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\mlook{\mend}{\bvar}{\mval}}
+  \uinf{\mexec{\mpushvar{\bvar}}{\mctrl}{\addr}{\mvals}{\mctrl}{\addr + 1}{\mvals \stkcons \mval}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ax{\mexec{\mpushclos{\addr'}}{\mctrl \stkcons \fr{\menv}{\addrret}}{\addr}{\mvals}{\mctrl \stkcons \fr{\menv}{\addrret}}{\addr + 1}{\mvals \stkcons \cl{\menv}{\addr'}}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ax{\mexec{\mcall{\addrret}}{\mctrl}{\addr}{\mvals \stkcons \cl{\menv'}{\addr'} \stkcons \mval}{\mctrl \stkcons \fr{\menv' \envcons \mval}{\addrret}}{\addr'}{\mvals}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ax{\mexec{\mret}{\mctrl \stkcons \fr{\menv}{\addrret}}{\addr}{\mvals}{\mctrl}{\addrret}{\mvals}}
+\end{prooftree}
+
+% mention: no rule for halt
+
+% And finally the multi-step judgement:
+
+\vspace{0.5cm}
+\judgement{\msteps{\mprog}{\mctrl}{\addr}{\mvals}{\mctrl'}{\addr'}{\mvals'}}
+\vspace{0.5cm}
+
+\begin{prooftree}
+  \leftl{\rule{MS-Zero} :}
+  \ax{\msteps{\mprog}{\mctrl}{\addr}{\mvals}{\mctrl}{\addr}{\mvals}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\mexec{\minst}{\mctrl}{\addr}{\mvals}{\mctrl''}{\addr''}{\mvals''}}
+  \ninf{\msteps{\mprog}{\mctrl''}{\addr''}{\mvals''}{\mctrl'}{\addr'}{\mvals'}}
+  \leftl{\rule{MS-More} :}
+	\rightl{$(\mprog(\addr) = \minst)$}
+  \binf{\msteps{\mprog}{\mctrl}{\addr}{\mvals}{\mctrl'}{\addr'}{\mvals'}}
+\end{prooftree}
+where $\mprog(\addr)$ denotes the $\addr$'th instruction of the program $\mprog$.
+
+%
+%
+%And a complete evaluation judgement:
+%
+%\vspace{0.5cm}
+%\judgement{$\tup{\b ; \q} \downarrow \r$}
+%
+%\begin{prooftree}
+  %\ninf{\mstep{\q}{\mnil, \tup{\mnil; \ldone}}{\b}{\mnil}{\mnil}{\mhalt}{\mnil, \r}}
+  %\uinf{$\tup{\b ; \q} \downarrow \r$}
+%\end{prooftree}

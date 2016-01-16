@@ -1,0 +1,37 @@
+\subsection*{Translation}
+
+\ensurecommand{\trasm}[3]{#1 \rhd \tup{#2 \tupsep #3}}
+
+%
+%Let $f, g$ denote functions on labels, e.g. $\lnext$.
+%Let $f(\q)$ denote the label-program $\q$ with $f$ applied to each label.
+%
+%We translate from stack programs to label-machine programs using the following judgement:
+%
+%\vspace{0.5cm}
+%\judgement{$\trasl{\ss}{\b}{\q}$}
+%
+%\begin{prooftree}
+  %\ninf{$\trasl{\ss}{\b}{\q}$}
+  %\uinf{$\trasl{\snum{\nat}, \ss}{\mpushnum{\nat}, \b}{\q}$}
+%\end{prooftree}
+%
+%\begin{prooftree}
+  %\ninf{$\trasl{\ss}{\b}{\q}$}
+  %\uinf{$\trasl{\svar{i}, \ss}{\mpushvar{i}, \b}{\q}$}
+%\end{prooftree}
+%
+%\begin{prooftree}
+  %\ninf{$\trasl{\ss}{\b}{\q}$}
+  %\ninf{$\trasl{\ss_0}{\b_0}{\q_0}$}
+  %\binf{$\trasl{\slam{\ss_0}, \ss}{\mpushclos{(\lright \; \lhere)}, \lleft(\b)}{\lleft(\q) \mnode \lright(\lnext(\b_0 \mcons \q_0))}$}
+%\end{prooftree}
+%
+%\begin{prooftree}
+  %\ninf{$\trasl{\ss}{\b}{\q}$}
+  %\uinf{$\trasl{\sapp, \ss}{\mcall{\lhere}}{\lnext(\b \mcons \q)}$}
+%\end{prooftree}
+%
+%\begin{prooftree}
+  %\ax{$\trasl{\ssnil}{\mret}{\mnil}$}
+%\end{prooftree}

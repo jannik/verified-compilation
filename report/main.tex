@@ -1,0 +1,97 @@
+\documentclass[12pt]{article}
+\usepackage[english]{babel}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{stmaryrd}
+\usepackage{mathtools}
+\usepackage{bussproofs}
+\usepackage{ntheorem}
+
+\newcommand{\ensurecommand}[1]{\providecommand{#1}{}\renewcommand{#1}}
+
+\ensurecommand{\judgement}[1]{\noindent \framebox{#1}}
+\ensurecommand{\ninf}[1]{\AxiomC{#1}}
+\ensurecommand{\uinf}[1]{\UnaryInfC{#1}}
+\ensurecommand{\binf}[1]{\BinaryInfC{#1}}
+\ensurecommand{\tinf}[1]{\TrinaryInfC{#1}}
+\ensurecommand{\qinf}[1]{\QuaternaryInfC{#1}} % needed now?
+\ensurecommand{\fiveinf}[1]{\QuinaryInfC{#1}} % needed now?
+\ensurecommand{\ax}[1]{\ninf{} \uinf{#1}}
+\ensurecommand{\prem}[2]{\noLine \ninf{$#1$} \uinf{#2}}
+\ensurecommand{\leftl}[1]{\LeftLabel{#1 \;}}
+\ensurecommand{\rightl}[1]{\RightLabel{#1}}
+
+\ensurecommand{\ctxsep}{\, | \,}
+\ensurecommand{\tupsep}{,}
+
+\ensurecommand{\h}{\hat} % may not be necessary
+\ensurecommand{\n}{\overline}
+
+\ensurecommand{\set}[1]{\{ #1 \}}
+\ensurecommand{\tup}[1]{\langle #1 \rangle}
+\ensurecommand{\cl}[2]{\{ #1 \tupsep #2 \}}
+\ensurecommand{\fr}[2]{\langle #1 \tupsep #2 \rangle}
+
+\ensurecommand{\alt}{\;\; | \;\;}
+
+\ensurecommand{\rule}{\textsc}
+\ensurecommand{\defi}{\Coloneqq}
+
+\ensurecommand{\envnil}{[]}
+\ensurecommand{\envcons}{::}
+
+\ensurecommand{\ctxnil}{[]}
+\ensurecommand{\ctxcons}{::}
+
+\ensurecommand{\stknil}{[]}
+\ensurecommand{\stkcons}{::}
+
+% hmmm
+\ensurecommand{\E}{\mathcal{E}}
+\ensurecommand{\B}{\mathcal{B}}
+\ensurecommand{\Bv}{\mathcal{B}^{\mathrm{v}}}
+\ensurecommand{\C}{\mathcal{C}}
+\ensurecommand{\D}{\mathcal{D}}
+\ensurecommand{\T}{\mathcal{T}}
+\ensurecommand{\Tv}{\mathcal{T}^{\mathrm{v}}}
+\ensurecommand{\P}{\mathcal{P}}
+
+\newcounter{statementcounter}
+\newtheorem{lemma}[statementcounter]{Lemma}
+\newtheorem{theorem}[statementcounter]{Theorem}
+
+\newenvironment{proof}[1][Proof]{
+\paragraph{#1}
+}{
+\begin{flushright}
+$\blacksquare$
+\end{flushright}
+}
+
+\begin{document}
+
+\input{introduction.tex}
+
+\input{h-language.tex}
+
+\input{b-language.tex}
+
+\input{hb-trans.tex}
+
+\input{hb-equiv.tex}
+
+\input{s-language.tex}
+
+\input{bs-trans.tex}
+
+\input{bs-equiv.tex}
+
+\input{m-language.tex}
+
+\input{sm-trans.tex}
+
+\input{sm-equiv.tex}
+
+\input{conclusion.tex}
+
+\end{document}

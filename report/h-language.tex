@@ -1,0 +1,75 @@
+\section*{Source Language}
+The source language represents the abstract syntax tree of the program text.
+% is a simple functional language
+
+\subsection*{Syntax}
+
+\ensurecommand{\hexp}{e}
+\ensurecommand{\hval}{\h{e}}
+
+\ensurecommand{\nat}{n}
+\ensurecommand{\var}{x}
+\ensurecommand{\lam}[2]{\lambda #1. #2}
+\ensurecommand{\app}[2]{#1 \; #2}
+\ensurecommand{\hsuc}[1]{\mathtt{suc} \; #1}
+% \ensurecommand{\hcase}[3]{\mathtt{case} \; #1 \; \mathtt{of} \; \z \Rightarrow #2 \; | \; \suc{x} \Rightarrow #3}
+
+Let $\nat$ denote natural numbers and $\var$ variable identifiers. We then define source language expressions $\hexp$ and canonical forms $\hval$:
+\begin{align*}
+  \hexp &\defi \n{\nat} \alt \var \alt \lam{\var}{\hexp_1} \alt \app{\hexp_1}{\hexp_2} \alt \hsuc{\hexp_1} \\
+  \hval &\defi \n{\nat} \alt \lam{\var}{\hexp} \quad (\text{with} \; FV(\hexp) \subseteq \set{\var}) \\
+\end{align*}
+
+% consider moving values to Semantics section
+% filinski note: explain why suc but no case. allows conversion from church numerals in order to observe results.
+
+\subsection*{Semantics}
+
+\ensurecommand{\sub}[3]{#1[#2/#3]}
+
+\ensurecommand{\hev}[2]{\ensuremath{#1 \downarrow #2}}
+
+The source language has a completely standard substitution-based semantics.
+
+\vspace{0.5cm}
+
+\judgement{\hev{\hexp}{\hval}} ($\hexp$ closed)
+
+\begin{prooftree}
+  \leftl{\rule{E-Num} :}
+  \ax{\hev{\n{\nat}}{\n{\nat}}}
+\end{prooftree}
+
+\begin{prooftree}
+  \leftl{\rule{E-Lam} :}
+  \ax{\hev{\lam{\var}{\hexp_1}}{\lam{\var}{\hexp_1}}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\hev{\hexp_1}{\lam{\var}{\hexp_0}}}
+  \ninf{\hev{\hexp_2}{\hval_2}}
+  \ninf{\hev{\sub{\hexp_0}{\hval_2}{\var}}{\hval}}
+	\leftl{\rule{E-App} :}
+  \tinf{\hev{\app{\hexp_1}{\hexp_2}}{\hval}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\hev{\hexp_1}{\n{\nat}}}
+	\leftl{\rule{E-Suc} :}
+  \uinf{\hev{\hsuc{\hexp_1}}{\n{\nat + 1}}}
+\end{prooftree}
+
+% \begin{prooftree}
+%   \ninf{\hev{\e_1}{\n{0}}}
+%   \ninf{\hev{\e_2}{\c_2}}
+% 	\leftl{\rule{E-Case-z} :}
+%   \binf{\hev{\hcase{\e_1}{\e_2}{\e_3}}{\c_2}}
+% \end{prooftree}
+
+% \begin{prooftree}
+%   \ninf{\hev{\e_1}{\n{n}}}
+%   \ninf{\hev{\sub{\e_3}{\n{n-1}}{x}}{\c_3}}
+% 	\leftl{\rule{E-Case-s} :}
+% 	\rightl{$(n > 0)$}
+%   \binf{\hev{\hcase{\e_1}{\e_2}{\e_3}}{\c_3}}
+% \end{prooftree}

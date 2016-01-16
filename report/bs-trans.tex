@@ -1,0 +1,48 @@
+\subsection*{Translation}
+
+\ensurecommand{\trabs}[3]{\ensuremath{#1 \circ #2 \rhd #3}}
+\ensurecommand{\trabsfinal}[2]{\ensuremath{#1 \rhd #2}}
+
+We translate from De Bruijn expressions to stack programs using the following judgements.
+As a shorthand, \trabsfinal{\bexp}{\sprog} denotes \trabs{\bexp}{\send}{\sprog}. % filinski: worth it?
+
+\vspace{0.5cm}
+
+\judgement{\trabs{\bexp}{\sprog}{\sprog'}}
+
+\begin{prooftree}
+  \leftl{\rule{T-Num} :}
+  \ax{\trabs{\n{\nat}}{\sprog}{\n{\nat} \sseq \sprog}}
+\end{prooftree}
+
+\begin{prooftree}
+  \leftl{\rule{T-Var} :}
+  \ax{\trabs{\bvar}{\sprog}{\svar{\bvar} \sseq \sprog}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\trabsfinal{\bexp_1}{\sprog_1}}
+  \leftl{\rule{T-Lam} :}
+  \uinf{\trabs{\blam{\bexp_1}}{\sprog}{\slam{\sprog_1} \sseq \sprog}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\trabs{\bexp_2}{\sapp \sseq \sprog}{\sprog''}}
+  \ninf{\trabs{\bexp_1}{\sprog''}{\sprog'}}
+  \leftl{\rule{T-App} :}
+  \binf{\trabs{\bapp{\bexp_1}{\bexp_2}}{\sprog}{\sprog'}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\trabs{\bexp_1}{\ssuc \sseq \sprog}{\sprog'}}
+  \leftl{\rule{T-Suc} :}
+  \uinf{\trabs{\bsuc{\bexp_1}}{\sprog}{\sprog'}}
+\end{prooftree}
+
+% \begin{prooftree}
+% 	\ninf{\trabs{\b_3}{\nil}{p_3}}
+% 	\ninf{\trabs{\b_2}{\nil}{p_2}}
+%   \ninf{\trabs{\b_1}{\scase{p_2}{p_3}, p}{p'}}
+%   \leftl{\rule{T-Case} :}
+%   \tinf{\trabs{\bcase{\b_1}{\b_2}{\b_3}}{p}{p'}}
+% \end{prooftree}

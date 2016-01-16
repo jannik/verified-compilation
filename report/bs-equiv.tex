@@ -1,0 +1,49 @@
+\subsection*{Equivalence}
+
+% \begin{theorem} [Equivalence Bruijn-stack]
+% \label{thm:equiv-bs} If \tr{\b}{\ss}, then \hev{\nil}{\b}{\n{\nat}} if and only if \ev{\ss}{\n{\nat}}.
+% \end{theorem}
+
+To prove this we need two additional judgements:
+
+\vspace{0.5cm}
+
+\judgement{\cor{\bval}{\sval}}
+
+\begin{prooftree}
+  \leftl{\rule{C-Num} :}
+  \ax{\cor{\n{\nat}}{\n{\nat}}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\cor{\benv}{\senv}}
+  \ninf{\trabsfinal{\bexp}{\sprog}}
+  \leftl{\rule{C-Fun} :}
+  \binf{\cor{\cl{\benv}{\bexp}}{\cl{\senv}{\sprog}}}
+\end{prooftree}
+
+\judgement{\cor{\benv}{\senv}}
+
+\begin{prooftree}
+  \leftl{\rule{D-Nil} :}
+  \ax{\cor{\envnil}{\envnil}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\cor{\benv}{\senv}}
+  \ninf{\cor{\bval}{\sval}}
+  \leftl{\rule{D-Cons} :}
+  \binf{\cor{\benv \envcons \bval}{\senv \envcons \sval}}
+\end{prooftree}
+
+%% completeness
+%% \begin{lemma}
+%% If \tracc{\b}{\ss_2}{\ss} and \hev{\sg}{\b}{\v} with \cor{\sg}{\tau}, then (for all $\Xi$ and $\mvalsi$) there exists $\w$ such that \ssev{\Xi, \fr{\tau}{\ss}}{\mvalsi}{\Xi, \fr{\tau}{\ss_2}}{\mvalsi, \w} with \cor{\v}{\w}.
+%% \end{lemma}
+
+%% Let $\prec$ denote the standard subtree order on step sequences, i.e. $\P_1 \prec \P_2$ if $\P_1$ is a proper suffix of $\P_2$.
+
+%% soundness
+%% \begin{lemma}
+%% If \tracc{\b}{\ss_2}{\ss} and \ssev{\Xi, \fr{\tau}{\ss}}{\mvalsi}{\nil}{\nil, \w'} (by $\P$) with \cor{\sg}{\tau}, then there exists $\v$ such that \hev{\sg}{\b}{\v} with \cor{\v}{\w} and \ssev{\Xi, \fr{\tau}{\ss_2}}{\mvalsi, \w}{\nil}{\nil, \w'} (by $\P'$) where $\P' \prec \P$.
+%% \end{lemma}

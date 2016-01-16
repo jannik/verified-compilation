@@ -1,0 +1,106 @@
+\section*{De Bruijn Language}
+
+The De Bruijn language differs from the source language in two important ways: variables are represented by De Bruijn indices, and closures are managed explicitly instead of substituting arguments.
+
+\ensurecommand{\z}{\mathtt{z}}
+\ensurecommand{\suc}{\mathtt{s} \;}
+
+\ensurecommand{\bexp}{b}
+\ensurecommand{\bval}{\h{b}}
+
+% perhaps make macros less dependent on earlier ones?
+\ensurecommand{\bvar}{i}
+\ensurecommand{\blam}{\lam{}}
+\ensurecommand{\bapp}{\app}
+\ensurecommand{\bsuc}{\hsuc}
+
+\subsection*{Syntax}
+
+We define variable indices $\bvar$ and De Bruijn expressions $\bexp$ as follows:
+\begin{align*}
+	\bvar &\defi \z \alt \suc{i} \\
+	\bexp &\defi \n{\nat} \alt \bvar \alt \blam{\bexp_1} \alt \bapp{\bexp_1}{\bexp_2} \alt \bsuc{\bexp_1} \\
+\end{align*}
+
+\subsection*{Semantics}
+
+\ensurecommand{\benv}{\alpha}
+
+The semantics of the De Bruijn language is environment-based.
+We define De Bruijn values $\bval$ as follows, and environments $\benv$ are then ordered lists of values.
+\begin{align*}
+  \bval &\defi \n{\nat} \alt \cl{\benv}{\bexp} \alt \var \\
+  \benv &\defi \envnil \alt \benv_1 \envcons \bval \\
+\end{align*}
+
+% note about the need for variables as values
+
+We introduce an auxiliary judgement for variable lookup.
+
+\vspace{0.5cm}
+
+\ensurecommand{\blook}[3]{\ensuremath{#1 \vdash #2 \uparrow #3}}
+
+% note: filinski doesn't like uparrow..
+% and we should consider making all lookups functions instead of judgements
+\judgement{\blook{\benv}{\bvar}{\bval}}
+
+\begin{prooftree}
+  \leftl{\rule{Bv-Here} :}
+  \ax{\blook{\benv \envcons \bval}{\z}{\bval}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\blook{\benv}{\bvar}{\bval}}
+  \leftl{\rule{Bv-There} :}
+  \uinf{\blook{\benv \envcons \bval'}{\suc{\bvar}}{\bval}}
+\end{prooftree}
+
+\ensurecommand{\bev}[3]{\ensuremath{#1 \vdash #2 \downarrow #3}}
+
+\judgement{\bev{\benv}{\bexp}{\bval}}
+
+\begin{prooftree}
+  \leftl{\rule{B-Num} :}
+  \ax{\bev{\benv}{\n{\nat}}{\n{\nat}}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\blook{\benv}{\bvar}{\bval}}
+  \leftl{\rule{B-Var} :}
+  \uinf{\bev{\benv}{\bvar}{\bval}}
+\end{prooftree}
+
+\begin{prooftree}
+  \leftl{\rule{B-Lam :}}
+  \ax{\bev{\benv}{\blam{\bexp_1}}{\cl{\benv}{\bexp_1}}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\bev{\benv}{\bexp_1}{\cl{\benv'}{\bexp_0}}}
+  \ninf{\bev{\benv}{\bexp_2}{\bval_2}}
+  \ninf{\bev{\benv' \envcons \bval_2}{\bexp_0}{\bval}}
+	\leftl{\rule{B-App} :}
+  \tinf{\bev{\benv}{\bapp{\bexp_1}{\bexp_2}}{\bval}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\bev{\benv}{\bexp_1}{\n{\nat}}}
+	\leftl{\rule{B-Suc} :}
+  \uinf{\bev{\benv}{\bsuc{\bexp_1}}{\n{\nat + 1}}}
+\end{prooftree}
+
+% \begin{prooftree}
+%   \ninf{\hev{\a}{\b_1}{\n{0}}}
+%   \ninf{\hev{\a}{\b_2}{\v_2}}
+% 	\leftl{\rule{B-Case-z} :}
+%   \binf{\hev{\a}{\bcase{\b_1}{\b_2}{\b_3}}{\v_2}}
+% \end{prooftree}
+
+% \begin{prooftree}
+%   \ninf{\hev{\a}{\b_1}{\n{n}}}
+%   \ninf{\hev{\a, \n{n-1}}{b_3}{\v_3}}
+% 	\leftl{\rule{B-Case-s} :}
+% 	\rightl{$(n > 0)$}
+%   \binf{\hev{\a}{\bcase{\b_1}{\b_2}{\b_3}}{\v_3}}
+% \end{prooftree}

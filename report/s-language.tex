@@ -1,0 +1,126 @@
+\section*{Stack Language}
+
+We now develop the next translation target, a stack-based language.
+% some text about its purpose, major changes, etc.
+
+\subsection*{Syntax}
+
+\ensurecommand{\sinst}{s}
+\ensurecommand{\sprog}{p}
+
+\ensurecommand{\snum}[1]{\mathtt{num} \; #1}
+\ensurecommand{\svar}[1]{\mathtt{var} \; #1}
+\ensurecommand{\slam}[1]{\mathtt{mkclos} \; #1}
+\ensurecommand{\sapp}{\mathtt{app}}
+\ensurecommand{\ssuc}{\mathtt{suc}}
+
+\ensurecommand{\send}{\mathtt{end}}
+\ensurecommand{\sseq}{\mathbin{;}}
+
+We define stack-machine instructions $\sinst$ and programs $\sprog$:
+\begin{align*}
+  \sinst &\defi \snum{\nat} \alt \svar{\bvar} \alt \slam{\sprog} \alt \sapp \alt \ssuc \\
+  \sprog &\defi \send \alt \sinst \sseq \sprog_1
+\end{align*}
+(Note that $\bvar$ was defined previously.)
+
+\subsection*{Semantics}
+
+\ensurecommand{\sval}{\hat{s}}
+\ensurecommand{\senv}{\beta}
+\ensurecommand{\sctrl}{\Gamma}
+\ensurecommand{\svals}{\Phi}
+
+\ensurecommand{\sev}[2]{\ensuremath{#1 \downarrow #2}}%
+\ensurecommand{\sstep}[4]{\ensuremath{\tup{#1 \tupsep #2} \rightarrow \tup{#3 \tupsep #4}}}
+\ensurecommand{\ssteps}[4]{\ensuremath{\tup{#1 \tupsep #2} \rightarrow^* \tup{#3 \tupsep #4}}}
+\ensurecommand{\slook}[3]{\ensuremath{#1 \vdash #2 \uparrow #3}}%
+
+We define values $\sval$, environments $\senv$, control stacks $\sctrl$, and value stacks $\svals$:
+\begin{align*}
+  \sval &\defi \n{\nat} \alt \cl{\senv}{\sprog} \\
+  \senv &\defi \envnil \alt \senv_1 \envcons \sval \\
+  \sctrl &\defi \stknil \alt \sctrl_1 \stkcons \fr{\senv}{\sprog} \\
+  \svals &\defi \stknil \alt \svals_1 \stkcons \sval \\
+\end{align*}
+
+And the semantics judgements:
+\vspace{0.5cm}
+
+\judgement{\sev{\sprog}{\sval}}
+
+\begin{prooftree}
+  \ninf{\ssteps{[\fr{\envnil}{\sprog}]}{\stknil}{\stknil}{[\sval]}}
+  \uinf{\sev{\sprog}{\sval}}
+\end{prooftree}
+
+\judgement{\slook{\senv}{\bvar}{\sval}}
+
+\begin{prooftree}
+  \leftl{\rule{Sv-Here} :}
+  \ax{\slook{\senv \envcons \sval}{\z}{\sval}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\slook{\senv}{\bvar}{\sval}}
+  \leftl{\rule{Sv-There} :}
+  \uinf{\slook{\senv \envcons \sval'}{\suc{\bvar}}{\sval}}
+\end{prooftree}
+
+\judgement{\sstep{\sctrl}{\svals}{\sctrl'}{\svals'}}
+
+\begin{prooftree}
+  \leftl{\rule{S-Num} :}
+  \ax{\sstep{\sctrl \stkcons \fr{\senv}{\snum{\nat} \sseq \sprog}}{\svals}{\sctrl \stkcons \fr{\senv}{\sprog}}{\svals \stkcons \n{\nat}}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\slook{\senv}{\bvar}{\sval}}
+  \leftl{\rule{S-Var} :}
+  \uinf{\sstep{\sctrl \stkcons \fr{\senv}{\svar{\bvar} \sseq \sprog}}{\svals}{\sctrl \stkcons \fr{\senv}{\sprog}}{\svals \stkcons \sval}}
+\end{prooftree}
+
+\begin{prooftree}
+  \leftl{\rule{S-Lam} :}
+  \ax{\sstep{\sctrl \stkcons \fr{\senv}{\slam{\sprog_1} \sseq \sprog}}{\svals}{\sctrl \stkcons \fr{\senv}{\sprog}}{\svals \stkcons \cl{\senv}{\sprog_1}}}
+\end{prooftree}
+
+\begin{prooftree}
+  \leftl{\rule{S-App} :}
+  \ax{\sstep{\sctrl \stkcons \fr{\senv}{\sapp \sseq \sprog}}{\svals \stkcons \cl{\senv'}{\sprog_1} \stkcons \sval_2}{\sctrl \stkcons \fr{\senv}{\sprog} \stkcons \fr{\senv' \stkcons \sval_2}{\sprog_1}}{\svals}}
+\end{prooftree}
+
+\begin{prooftree}
+  \leftl{\rule{S-Suc} :}
+  \ax{\sstep{\sctrl \stkcons \fr{\senv}{\ssuc \sseq \sprog}}{\svals \stkcons \n{\nat}}{\sctrl \stkcons \fr{\senv}{\sprog}}{\svals \stkcons \n{\nat + 1}}}
+\end{prooftree}
+
+%\begin{prooftree}
+  %\leftl{\rule{S-Case-z} :}
+  %\ax{\sev{\Xi, \fr{\tau}{\scase{\ss_1}{\ss_2}, \ss}}{\mvalsi, \n{\z}}{\Xi, \fr{\tau}{\ss}, \fr{\tau}{\ss_1}}{\mvalsi}}
+%\end{prooftree}
+%
+%\begin{prooftree}
+  %\leftl{\rule{S-Case-s} :}
+  %\ax{\sev{\Xi, \fr{\tau}{\scase{\ss_1}{\ss_2}, \ss}}{\mvalsi, \n{\suc{\nat}}}{\Xi, \fr{\tau}{\ss}, \fr{\tau, \n{\nat}}{\ss_2}}{\mvalsi}}
+%\end{prooftree}
+%
+
+\begin{prooftree}
+  \leftl{\rule{S-Ret} :}
+  \ax{\sstep{\sctrl \stkcons \fr{\senv}{\send}}{\svals}{\sctrl}{\svals}}
+\end{prooftree}
+
+\judgement{\ssteps{\sctrl}{\svals}{\sctrl'}{\svals'}}
+
+\begin{prooftree}
+  \leftl{\rule{SS-Zero} :}
+  \ax{\ssteps{\sctrl}{\svals}{\sctrl}{\svals}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\sstep{\sctrl}{\svals}{\sctrl''}{\svals''}}
+  \ninf{\ssteps{\sctrl''}{\svals''}{\sctrl'}{\svals'}}
+  \leftl{\rule{SS-More} :}
+  \binf{\ssteps{\sctrl}{\svals}{\sctrl'}{\svals'}}
+\end{prooftree}

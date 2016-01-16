@@ -1,0 +1,416 @@
+\subsection*{Equivalence}
+\begin{lemma}[Substitution]
+\label{lem:substitution}
+Given a variable $\var$, if \trahb{\hbctx}{\benv}{\bexp}{\bval} and \corhb{\hbctx}{\bval'}{\hval'} then \trahb{\hbctx}{\sub{\benv}{\bval'}{\var}}{\bexp}{\sub{\hexp}{\hval'}{\var}}.
+\end{lemma}
+% something about 'for all e'?
+
+
+\begin{lemma}[Soundness]
+\label{lem:soundness-hb}
+If \trahb{\hbctx}{\benv}{\hexp}{\bexp} (by $\T$) and \bev{\benv}{\bexp}{\bval} (by $\B$), then there exists $\hval$ such that \hev{\hexp}{\hval} (by some $\E$) and \corhb{\hbctx}{\bval}{\hval} (by some $\C$).
+\end{lemma}
+
+\begin{proof}
+
+By induction on $\B$. We proceed by case analysis on $\T$.
+
+% other cases trivial, we show only lam and app
+
+\paragraph{Case \textnormal{\rule{T-Lam}}}
+$\T$ has the form
+\begin{prooftree}
+	\prem{\T_1}{\trahb{\hbctx}{\benv \ctxcons \var}{\bexp_1}{\hexp_1}}
+  \uinf{\trahb{\Theta}{\benv}{\blam{\bexp_1}}{\lam{\var}{\hexp_1}}}
+\end{prooftree}
+Hence, $\B$ must be
+\begin{prooftree}
+  \ax{\bev{\benv}{\blam{\bexp_1}}{\cl{\benv}{\bexp_1}}}
+\end{prooftree}
+Using \rule{E-Lam} we get \hev{\lam{\var}{\hexp_1}}{\lam{\var}{\hexp_1}} and construct the required correspondence as follows:
+\begin{prooftree}
+  \prem{\T}{\trahb{\hbctx}{\benv}{\blam{\bexp_1}}{\lam{\var}{\hexp_1}}}
+  \uinf{\corhb{\hbctx}{\cl{\benv}{\bexp_1}}{\lam{\var}{\hexp_1}}}
+\end{prooftree}
+
+
+\paragraph{Case \textnormal{\rule{T-App}}}
+$\T$ has the form
+\begin{prooftree}
+  \prem{\T_1}{\trahb{\hbctx}{\benv}{\bexp_1}{\hexp_1}}
+  \prem{\T_2}{\trahb{\hbctx}{\benv}{\bexp_2}{\hexp_2}}
+  \binf{\trahb{\hbctx}{\benv}{\bapp{\bexp_1}{\bexp_2}}{\app{\hexp_1}{\hexp_2}}}
+\end{prooftree}
+Hence, $\B$ must be
+\begin{prooftree}
+  \prem{\B_1}{\bev{\benv}{\bexp_1}{\cl{\benv'}{\bexp_0}}}
+  \prem{\B_2}{\bev{\benv}{\bexp_2}{\bval_2}}
+  \prem{\B_3}{\bev{\benv' \ctxcons \bval_2}{\bexp_0}{\bval}}
+  \tinf{\bev{\benv}{\bapp{\bexp_1}{\bexp_2}}{\bval}}
+\end{prooftree}
+
+By IH on $\B_1$ with $\T_1$ we get \hev{\hexp_1}{\hval_1} by some $\E_1$ and \corhb{\hbctx}{\cl{\benv'}{\bexp_0}}{\hval_1} by some $\C_1$ which must have the shape
+\begin{prooftree}
+	\prem{\T_3}{\trahb{\hbctx}{\benv \envcons \var}{\bexp_0}{\hexp_0}}
+  \uinf{\trahb{\hbctx}{\benv}{\blam{\bexp_0}}{\lam{\var}{\hexp_0}}}
+  \uinf{\corhb{\hbctx}{\cl{\benv'}{\bexp_0}}{\lam{\var}{\hexp_0}}}
+\end{prooftree}
+so $\hval_1 = \lam{\var}{\hexp_0}$.
+
+By IH on $\B_2$ with $\T_2$ we get \hev{\hexp_2}{\hval_2} by some $\E_2$ and \corhb{\hbctx}{\hexp_2}{\hval_2} by some $\C_2$.
+Using Lemma~\ref{lem:substitution} on $\T_3$ with $\C_2$ we get \trahb{\hbctx}{\benv \envcons \hval_2}{\bexp_0}{\sub{\hexp_0}{\hexp_2}{\var}} (by some $\T_3'$).
+By IH on $\B_3$ with $\T_3'$ we get \hev{\sub{\hexp_0}{\hval_2}{\var}}{\hval} by some $\E_3$ and $\corhb{\hbctx}{\bval}{\hval}$ by some $\C_3$.
+The case is finished using \rule{E-App} with $\E_1$, $\E_2$ and $\E_3$; the required correspondence is provided by $\C_3$.
+
+\end{proof}
+
+\begin{lemma}[Completeness]
+\label{lem:completeness-hb}
+If \trahb{\hbctx}{\benv}{\hexp}{\bexp} (by $\T$) and \hev{\hexp}{\hval} (by $\E$), then there exists $\bval$ such that \bev{\benv}{\bexp}{\bval} (by some $\B$) and \corhb{\hbctx}{\bval}{\hval} (by some $\C$).
+\end{lemma}
+
+% \subsection*{Equivalence}
+
+% \begin{theorem} [Equivalence source-Bruijn]
+% \label{thm:equiv-hb} If \tra{\nil}{\b}{\e}, then \ev{\e}{\n{n}} if and only if \hev{\nil}{\b}{\n{n}}.
+% \end{theorem}
+
+% To prove this, we first generalise to the following lemmas.
+
+% \ldots
+
+% \begin{lemma}[Evaluation of Values]
+% \label{lem:value-eval}
+% For all $\c$, \ev{\c}{\c}.
+% \end{lemma}
+
+% \begin{lemma}[Determinism]
+% \label{lem:determ}
+% If \ev{\e}{\c} and \ev{\e}{c'}, then $\c = \c'$.
+% \end{lemma}
+
+% \begin{lemma}
+% \label{lem:left-to-right-var}
+% If \trav{\De}{x}{i} (by $\Tv$) and \comp{\sg}{\De}{\svalsi} (by $\D$), then there exists $\v$ such that \hevv{\sg}{i}{\v} (by some $\Bv$), $x \in \dom(\svalsi)$ and \cor{\v}{\svalsi(x)} (by some $\C$).
+% \end{lemma}
+
+% \begin{proof}
+% By induction on $\Tv$.
+
+% \paragraph{Case \textnormal{\rule{Tv-Here}}}
+
+% \begin{prooftree}
+%   \leftl{$\Tv =$}
+%   \ax{\trav{\De', x}{x}{\z}}
+% \end{prooftree}
+% So $\De = \De', x$ and $i = \z$.
+% Then $\D$ must have the form
+% \begin{prooftree}
+%   \prem{\D_1}{\comp{\sg'}{\De'}{\svalsi'}}
+%   \prem{\C'}{\cor{\v}{\c}}
+%   \binf{\comp{\sg', \v}{\De', x}{\svalsi'[x \mapsto \c]}}
+% \end{prooftree}
+% So $\sg = \sg', \v$ and $\svalsi = \svalsi'[x \mapsto \c]$.
+% We now get the required derivation $\Bv$ of $\hevv{\sg', \v}{\z}{\v}$ directly by rule \rule{Bv-Here}.
+% And since $\svalsi(x) = \svalsi'[x \mapsto \c](x) = \c$, we can take $\C = \C'$.
+
+% \paragraph{Case \textnormal{\rule{Tv-There}}}
+
+% \begin{prooftree}
+%   \prem{\Tv_1}{\trav{\De}{x}{i'}}
+%   \leftl{$\Tv =$}
+% 	\rightl{$(x \neq y)$}
+%   \uinf{\trav{\De', y}{x}{\suc i'}}
+% \end{prooftree}
+% So $\De = \De', y$ and $i = \suc i'$.
+% Then $\D$ must have the form
+% \begin{prooftree}
+%   \prem{\D_1}{\comp{\sg'}{\De'}{\svalsi'}}
+%   \prem{\C'}{\cor{\v'}{\c'}}
+%   \binf{\comp{\sg', \v'}{\De', y}{\svalsi'[y \mapsto \c']}}
+% \end{prooftree}
+% So $\sg = \sg', \v'$ and $\svalsi = \svalsi'[y \mapsto \c']$.
+
+% Now by IH on $\Tv_1$ with $\D_1$, we get derivations $\Bv_1$ of $\hevv{\sg'}{i'}{\v}$ and $\C_1$ of $\cor{\v}{\svalsi'(x)}$.
+% We construct the required derivation $\Bv$ as follows:
+% \begin{prooftree}
+%   \prem{\Bv_1}{\hevv{\sg'}{i'}{\v}}
+%   \uinf{\hevv{\sg', \v'}{\suc i'}{\v}}
+% \end{prooftree}
+% And since $\svalsi(x) = \svalsi'[y \mapsto \c'](x) = \svalsi'(x)$ (because $x \neq y$), we can take $\C = \C_1$.
+
+% \end{proof}
+
+% \begin{lemma}
+% \label{lem:completeness-hb}
+% If \tra{\De}{\e}{\b} (by $\T$), \ev{\subs{\e}{\svalsi}}{\c} (by $\E$) and \comp{\sg}{\De}{\svalsi} (by $\D$), then there exists $\v$ such that \hev{\sg}{\b}{\v} (by some $\B$) and \cor{\v}{\c} (by some $\C$).
+% \end{lemma}
+
+% \begin{proof}
+% By induction on $\E$. We proceed by case analysis on $\e$.
+
+% \paragraph{Case $\e = \n{n}$}
+
+% $\T$ must end in \rule{T-Num} and so $\b = \n{n}$.
+% We have $\subs{\e}{\svalsi} = \n{n}$, so $\E$ must end in \rule{E-Num} and $v = \n{n}$.
+% Taking $\v = \n{n}$, by rule \rule{B-Num} we get a derivation $\B$ of $\hev{\sg}{\n{n}}{\n{n}}$ as required.
+% And $\cor{\n{n}}{\n{n}}$ by rule \rule{C-Num}.
+
+% \paragraph{Case $\e = x$}
+
+% $\T$ must have the form
+% \begin{prooftree}
+%   \prem{\Tv}{\trav{\De}{x}{i}}
+%   \uinf{\tra{\De}{x}{i}}
+% \end{prooftree}
+% So $\b = i$.
+% We have $\subs{\e}{\svalsi} = \svalsi(x)$ and $\E$ shows \ev{\svalsi(x)}{\c}.
+% By Lemma~\ref{lem:value-eval} and Lemma~\ref{lem:determ} combined we get $\c = \svalsi(x)$.
+% Now by Lemma~\ref{lem:left-to-right-var} on $\Tv$ and $\D$, we get derivations $\Bv$ of \hevv{\sg}{i}{\v'} and $\C'$ of $\cor{\v'}{\svalsi(x)}$ (for some $\v'$).
+
+% Taking $\v = \v'$, we construct the required $\B$ as follows and take $\C = \C'$:
+% \begin{prooftree}
+%   \prem{\Bv}{\hevv{\sg}{i}{\v'}}
+%   \uinf{\hev{\sg}{i}{\v'}}
+% \end{prooftree}
+
+% \paragraph{Case $\e = \lam{x}{\e_1}$}
+
+% $\T$ must have the form
+% \begin{prooftree}
+% 	\prem{\T_1}{\tra{\De, x}{\e_1}{\b_1}}
+%   \uinf{\tra{\De}{\lam{x}{\e_1}}{\lam{}{\b_1}}}
+% \end{prooftree}
+% So $\b = \lam{}{\b_1}$. We have $\subs{\e}{\svalsi} = \subs{(\lam{x}{\e_1})}{\svalsi} = \lam{x}{\subs{\e_1}{\svalsi \wo x}}$, so $\E$ must end in \rule{E-Lam} and $v = \lam{x}{\subs{\e_1}{\svalsi \wo x}}$.
+% Taking $\v = \cl{\sg}{\b_1}$, we get the required $\B$ showing $\hev{\sg}{\lam{}{\b_1}}{\cl{\sg}{\b_1}}$ by rule \rule{B-Lam}.
+% And we construct the required derivation $\C$ as follows:
+% \begin{prooftree}
+%   \prem{\D}{\comp{\sg}{\De}{\svalsi}}
+%   \prem{\T_1}{\tra{\De, x}{\e_1}{\b_1}}
+%   \binf{\cor{\cl{\sg}{\b_1}}{\lam{x}{\subs{\e_1}{\svalsi \wo x}}}}
+% \end{prooftree}
+
+% \paragraph{Case $\e = \e_1 \app \e_2$}
+
+% $\T$ must have the form
+% \begin{prooftree}
+%   \prem{\T_1}{\tra{\De}{\e_1}{\b_1}}
+%   \prem{\T_2}{\tra{\De}{\e_2}{\b_2}}
+%   \binf{\tra{\De}{\e_1 \app \e_2}{\b_1 \app \b_2}}
+% \end{prooftree}
+% So $\b = \b_1 \app \b_2$.
+
+% We have $\subs{\e}{\svalsi} = \subs{\e_1}{\svalsi} \app \subs{\e_2}{\svalsi}$, so $\E$ must end in \rule{E-App} and have the form
+% \begin{prooftree}
+%   \prem{\E_1}{\ev{\subs{\e_1}{\svalsi}}{\lam{x}{\e_0}}}
+%   \prem{\E_2}{\ev{\subs{\e_2}{\svalsi}}{\c_2}}
+%   \prem{\E_3}{\ev{\sub{\e_0}{\c_2}{x}}{\c}}
+%   \tinf{\ev{\subs{\e_1}{\svalsi} \app \subs{\e_2}{\svalsi}}{\c}}
+% \end{prooftree}
+
+% By IH on $\E_1$ with $\T_1$ and $\D$, we get derivations $\B_1$ of \hev{\sg}{\b_1}{\v_1} and $\C_1$ of \cor{\v_1}{\lam{x}{\e_0}} (for some $\v_1$).
+% $\C_1$ must have the form
+% \begin{prooftree}
+%   \prem{\D_1'}{\comp{\sg'}{\De'}{\svalsi'}}
+%   \prem{\T_1'}{\tra{\De', x}{\e_0'}{\b_0}}
+%   \binf{\cor{\cl{\sg'}{\b_0}}{\lam{x}{\subs{\e_0'}{\svalsi' \wo x}}}}
+% \end{prooftree}
+% So $\e_0 = \subs{\e_0'}{\svalsi' \wo x}$ and $\v_1 = \cl{\sg'}{\b_0}$.
+
+% By IH on $\E_2$ with $\T_2$ and $\D$, we get derivations $\B_2$ of \hev{\sg}{\b_2}{\v_2} and $\C_2$ of \cor{\v_2}{\c_2}.
+% We have $\sub{\subs{\e_0'}{\svalsi' \wo x}}{\c_2}{x} = \subs{\e_0'}{\svalsi'[x \mapsto \c_2]}$.
+% In particular, $\E_3$ shows \ev{\subs{\e_0'}{\svalsi'[x \mapsto \c_2]}}{\c}.
+% We construct the following derivation $\D'$ of $\comp{\sg', \v_2}{\De', x}{\svalsi'[x \mapsto \c_2]}$:
+% \begin{prooftree}
+%   \prem{\D_1'}{\comp{\sg'}{\De'}{\svalsi'}}
+%   \prem{\C_2}{\cor{\v_2}{\c_2}}
+%   \binf{\comp{\sg', \v_2}{\De', x}{\svalsi'[x \mapsto \c_2]}}
+% \end{prooftree}
+
+% Then by IH on $\E_3$ with $\T_1'$ and $\D'$, we get a derivation $\B_3$ of \hev{\sg', \v_2}{\b_0}{\v} along with the required $\C$ showing \cor{\v}{\c}.
+% And finally we construct the required derivation $\B$ as follows:
+% \begin{prooftree}
+%   \prem{\B_1}{\hev{\sg}{\b_1}{\cl{\sg'}{\b_0}}}
+%   \prem{\B_2}{\hev{\sg}{\b_2}{\v_2}}
+%   \prem{\B_3}{\hev{\sg', \v_2}{\b_0}{\v}}
+%   \tinf{\hev{\sg}{\b_1 \app \b_2}{\v}}
+% \end{prooftree}
+
+% \end{proof}
+
+% \begin{lemma}
+% \label{lem:right-to-left-var}
+% If \trav{\De}{x}{i} (by $\Tv$), \hevv{\sg}{i}{\v} (by $\Bv$) and \comp{\sg}{\De}{\svalsi} (by $\D$), then $x \in \dom(\svalsi)$ and \cor{\v}{\svalsi(x)} (by some $\C$).
+% \end{lemma}
+
+% \begin{proof}
+% By induction on $\Tv$.
+
+% \paragraph{Case \textnormal{\rule{Tv-Here}}}
+
+% \begin{prooftree}
+%   \leftl{$\Tv =$}
+%   \ax{\trav{\De', x}{x}{\z}}
+% \end{prooftree}
+% So $\De = \De', x$ and $i = \z$.
+% Thus, $\Bv$ has the form
+% \begin{prooftree}
+%   \ax{\hevv{\sg', \v}{\z}{\v}}
+% \end{prooftree}
+% Hence $\sg = \sg', v$.
+% Now, given the shape of $\sg$ and $\De$, $\D$ must have the form
+% \begin{prooftree}
+%   \prem{\D_1}{\comp{\sg'}{\De'}{\svalsi'}}
+%   \prem{\C'}{\cor{\v}{\c}}
+%   \binf{\comp{\sg', \v}{\De', x}{\svalsi'[x \mapsto \c]}}
+% \end{prooftree}
+% So $\svalsi = \svalsi'[x \mapsto \c]$ and consequently $\svalsi(x) = c$.
+% In particular, $x \in \dom(\svalsi)$ and \cor{\v}{c} (taking $\C = \C'$) as required.
+
+% \paragraph{Case \textnormal{\rule{Tv-There}}}
+
+% \begin{prooftree}
+%   \prem{\Tv_1}{\trav{\De}{x}{i'}}
+%   \leftl{$\Tv =$}
+% 	\rightl{$(x \neq y)$}
+%   \uinf{\trav{\De', y}{x}{\suc i'}}
+% \end{prooftree}
+% So $\De = \De', y$ and $i = \suc i'$.
+% Thus, $\Bv$ has the form
+% \begin{prooftree}
+%   \prem{\Bv_1}{\hevv{\sg'}{i}{\v}}
+%   \uinf{\hevv{\sg', \v'}{\suc i}{\v}}
+% \end{prooftree}
+% Hence $\sg = \sg', v'$.
+
+% Now, given the shape of $\sg$ and $\De$, $\D$ must have the form
+% \begin{prooftree}
+%   \prem{\D_1}{\comp{\sg'}{\De'}{\svalsi'}}
+%   \prem{\C'}{\cor{\v'}{\c'}}
+%   \binf{\comp{\sg', \v'}{\De', y}{\svalsi'[y \mapsto \c']}}
+% \end{prooftree}
+% So $\svalsi = \svalsi'[y \mapsto \c']$.
+
+% Now by IH on $\Tv_1$ with $\Bv_1$ and $\D_1$, we get $x \in \dom(\svalsi')$ and a derivation $\C_1$ of $\cor{\v}{\svalsi'(x)}$.
+% Since $x \neq y$ we have $\svalsi(x) = \svalsi'(x)$.
+% Thus, $x \in \dom(\svalsi')$ and we can take $\C = \C_1$ to complete the proof.
+
+% \end{proof}
+
+% \begin{lemma}
+% \label{lem:soundness-hb}
+% If \tra{\De}{\e}{\b} (by $\T$), \hev{\sg}{\b}{\v} (by $\B$) and \comp{\sg}{\De}{\svalsi} (by $\D$), then there exists $\c$ such that \ev{\subs{\e}{\svalsi}}{\c} (by some $\E$) and \cor{\v}{\c} (by some $\C$).
+% \end{lemma}
+
+% \begin{proof}
+% By induction on $\B$.
+
+% \paragraph{Case \textnormal{\rule{B-Num}}}
+
+% \begin{prooftree}
+%   \leftl{$\B =$}
+%   \ax{\hev{\sg}{\n{n}}{\n{n}}}
+% \end{prooftree}
+% So $\b = \v = \n{n}$.
+
+% $\T$ must end in \rule{T-Num} and so $\e = \n{n}$.
+% Since $\subs{\e}{\svalsi} = \n{n}$, we can take $\c = \n{n}$ and get the required derivation $\E$ of $\ev{\n{n}}{\n{n}}$ by rule \rule{E-Num}.
+% And $\cor{\n{n}}{\n{n}}$ by rule \rule{C-Num}.
+
+% \paragraph{Case \textnormal{\rule{B-Var}}}
+
+% \begin{prooftree}
+%   \prem{\Bv}{\hevv{\sg}{i}{\v}}
+%   \leftl{$\B =$}
+%   \uinf{\hev{\sg}{i}{\v}}
+% \end{prooftree}
+% So $\b = i$, and $\T$ must have the form
+% \begin{prooftree}
+%   \prem{\Tv}{\trav{\De}{x}{i}}
+%   \uinf{\tra{\De}{x}{i}}
+% \end{prooftree}
+% So $\e = x$.
+% By Lemma~\ref{lem:right-to-left-var} on $\Tv$, $\Bv$ and $\D$, we get $x \in \dom(\svalsi)$ and a derivation $\C'$ of $\cor{\v}{\svalsi(x)}$.
+% We then have $\subs{\e}{\svalsi} = \svalsi(x)$, which by definition is a canonical form.
+% Taking $\c = \svalsi(x)$, we get a suitable derivation $\E$ of $\ev{\svalsi(x)}{\svalsi(x)}$ by Lemma~\ref{lem:value-eval}.
+% And we can take $\C = \C'$.
+
+% \paragraph{Case \textnormal{\rule{B-Lam}}}
+
+% \begin{prooftree}
+%   \leftl{$\B =$}
+%   \ax{\hev{\sg}{\lam{}{\b_1}}{\cl{\sg}{\b_1}}}
+% \end{prooftree}
+% So $\b = \lam{}{\b_1}$ and $\v = \cl{\sg}{\b_1}$.
+% $\T$ must have the form
+% \begin{prooftree}
+% 	\prem{\T_1}{\tra{\De, x}{\e_1}{\b_1}}
+%   \uinf{\tra{\De}{\lam{x}{\e_1}}{\lam{}{\b_1}}}
+% \end{prooftree}
+% So $\e = \lam{x}{\e_1}$.
+% We have $\subs{\e}{\svalsi} = \subs{(\lam{x}{\e_1})}{\svalsi} = \lam{x}{\subs{\e_1}{\svalsi \wo x}}$, and taking $\c = \lam{x}{\subs{\e_1}{\svalsi \wo x}}$ we get the required $\E$ showing $\ev{\lam{x}{\subs{\e_1}{\svalsi \wo x}}}{\lam{x}{\subs{\e_1}{\svalsi \wo x}}}$ by rule \rule{E-Lam}.
+% We then construct the required $\C$ using rule \rule{C-Fun} as follows:
+% \begin{prooftree}
+%   \prem{\D}{\comp{\sg}{\De}{\svalsi}}
+%   \prem{\T_1}{\tra{\De, x}{\e_1}{\b_1}}
+%   \binf{\cor{\cl{\sg}{\b_1}}{\lam{x}{\subs{\e_1}{\svalsi \wo x}}}}
+% \end{prooftree}
+
+% \paragraph{Case \textnormal{\rule{B-App}}}
+
+% \begin{prooftree}
+%   \prem{\B_1}{\hev{\sg}{\b_1}{\cl{\sg'}{\b_0}}}
+%   \prem{\B_2}{\hev{\sg}{\b_2}{\v_2}}
+%   \prem{\B_3}{\hev{\sg', \v_2}{\b_0}{\v}}
+%   \leftl{$\B =$}
+%   \tinf{\hev{\sg}{\b_1 \app \b_2}{\v}}
+% \end{prooftree}
+% So $\b = \b_1 \app \b_2$.
+% $\T$ must have the form
+% \begin{prooftree}
+%   \prem{\T_1}{\tra{\De}{\e_1}{\b_1}}
+%   \prem{\T_2}{\tra{\De}{\e_2}{\b_2}}
+%   \binf{\tra{\De}{\e_1 \app \e_2}{\b_1 \app \b_2}}
+% \end{prooftree}
+% So $\e = \e_1 \app \e_2$.
+
+% By IH on $\B_1$ with $\T_1$ and $\D$, we get derivations $\E_1$ of \ev{\subs{\e_1}{\svalsi}}{\c_1} and $\C_1$ of \cor{\cl{\sg'}{\b_0}}{\c_1} (for some $\c_1$).
+% $\C_1$ must have the form
+% \begin{prooftree}
+%   \prem{\D_1'}{\comp{\sg'}{\De'}{\svalsi'}}
+%   \prem{\T_1'}{\tra{\De', x}{\e_0'}{\b_0}}
+%   \binf{\cor{\cl{\sg'}{\b_0}}{\lam{x}{\subs{\e_0'}{\svalsi' \wo x}}}}
+% \end{prooftree}
+% So $\c_1 = \lam{x}{\subs{\e_0'}{\svalsi' \wo x}}$.
+
+% By IH on $\B_2$ with $\T_2$ and $\D$, we get derivations $\E_2$ of \ev{\subs{\e_2}{\svalsi}}{\c_2} and $\C_2$ of \cor{\v_2}{\c_2}.
+% We construct the following derivation $\D'$ of $\comp{\sg', \v_2}{\De', x}{\svalsi'[x \mapsto \c_2]}$:
+% \begin{prooftree}
+%   \prem{\D_1'}{\comp{\sg'}{\De'}{\svalsi'}}
+%   \prem{\C_2}{\cor{\v_2}{\c_2}}
+%   \binf{\comp{\sg', \v_2}{\De', x}{\svalsi'[x \mapsto \c_2]}}
+% \end{prooftree}
+
+% Then by IH on $\B_3$ with $\T_1'$ and $\D'$, we get a derivation $\E_3$ of \mbox{\ev{\subs{\e_0'}{\svalsi'[x \mapsto \c_2]}}{\c}} along with the required $\C$ showing \cor{\v}{\c}.
+% We have $\subs{\e_0'}{\svalsi'[x \mapsto \c_2]} = \sub{\subs{\e_0'}{\svalsi' \wo x}}{\c_2}{x}$, in particular $\E_3$ shows \ev{\sub{\subs{\e_0'}{\svalsi' \wo x}}{\c_2}{x}}{\c}.
+% And finally, noting $\subs{\e}{\svalsi} = \subs{\e_1}{\svalsi} \app \subs{\e_2}{\svalsi}$, we construct the required derivation $\E$ as follows:
+% \begin{prooftree}
+%   \prem{\E_1}{\ev{\subs{\e_1}{\svalsi}}{\lam{x}{\subs{\e_0'}{\svalsi' \wo x}}}}
+%   \prem{\E_2}{\ev{\subs{\e_2}{\svalsi}}{\c_2}}
+%   \prem{\E_3}{\ev{\sub{\subs{\e_0'}{\svalsi' \wo x}}{\c_2}{x}}{\c}}
+%   \tinf{\ev{\subs{\e_1}{\svalsi} \app \subs{\e_2}{\svalsi}}{\c}}
+% \end{prooftree}
+
+% \end{proof}
+
+% We can now establish the main theorem.
+
+% \begin{proof}[Proof of Theorem~\ref{thm:equiv-hb}]
+% Supposing \tra{\nil}{\e}{\b} (by $\T$), we show the bi-implication.
+% For the left-to-right direction, assume \ev{\e}{\n{n}} (by $\E$) and note $\e = \subs{\e}{\nil}$.
+% Rule \rule{D-Nil} provides $\D$ showing the compatibility of empty contexts.
+% Then use Lemma~\ref{lem:completeness-hb} on $\T$, $\E$ and $\D$ to get \hev{\nil}{\b}{\v} for some $\v$ satisfying \cor{\v}{\n{n}}.
+% But since numbers correspond only to themselves, we must have $\v = \n{n}$ as required.
+
+% The other direction is analogous, using Lemma~\ref{lem:soundness-hb} instead.
+% \end{proof}

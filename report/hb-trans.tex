@@ -1,0 +1,83 @@
+\subsection*{Translation}
+
+% filinski: will need more textual explaination
+
+\ensurecommand{\hbctx}{\Theta}%
+\ensurecommand{\cor}[2]{\ensuremath{#1 \rightsquigarrow #2}}
+
+% We define the type of correspondence contexts $\hbctx$.
+
+% \begin{align*}
+%   \hbctx &\defi \ctxnil \alt \hbctx_1 \ctxcons \cor{\bval}{\var}
+% \end{align*}
+
+\ensurecommand{\trahb}[4]{\ensuremath{#2 \vdash #3 \rhd #4}} % a bit of a hack
+\ensurecommand{\corhb}[3]{\ensuremath{#2 \rightsquigarrow #3}}
+
+\judgement{\trahb{\hbctx}{\benv}{\bexp}{\hexp}}
+
+% explain why it is going in the 'wrong' direction
+
+\begin{prooftree}
+  \leftl{\rule{T-Num} :}
+  \ax{\trahb{\hbctx}{\benv}{\n{\nat}}{\n{\nat}}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\blook{\benv}{\bvar}{\bval}}
+  \ninf{\corhb{\hbctx}{\bval}{\hexp}}
+  \leftl{\rule{T-Var} :}
+  \binf{\trahb{\hbctx}{\benv}{\bvar}{\hexp}}
+\end{prooftree}
+
+% [In the following rule, should $\bval$ really be existentially quantified? Would we not want to require the premise to hold for all possible choices for $\bval$?]
+
+\begin{prooftree}
+	\ninf{\trahb{\hbctx}{\benv \envcons \bval}{\bexp_1}{\hexp_1}}
+  \leftl{\rule{T-Lam} :}
+  \uinf{\trahb{\hbctx}{\benv}{\blam{\bexp_1}}{\lam{\var}{\hexp_1}}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\trahb{\hbctx}{\benv}{\bexp_1}{\hexp_1}}
+  \ninf{\trahb{\hbctx}{\benv}{\bexp_2}{\hexp_2}}
+	\leftl{\rule{T-App} :}
+  \binf{\trahb{\hbctx}{\benv}{\bapp{\bexp_1}{\bexp_2}}{\app{\hexp_1}{\hexp_2}}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\trahb{\hbctx}{\benv}{\bexp_1}{\hexp_1}}
+	\leftl{\rule{T-Suc} :}
+  \uinf{\trahb{\hbctx}{\benv}{\bsuc{\bexp_1}}{\hsuc{\hexp_1}}}
+\end{prooftree}
+
+% \begin{prooftree}
+% 	\ninf{\trahb{\hbctx}{\benv}{b_1}{e_1}}
+% 	\ninf{\trahb{\hbctx}{\benv}{b_2}{e_2}}
+% 	\ninf{\trahb{\hbctx, \cor{\bval}{x}}{\benv, \bval}{b_3}{e_3}}
+%   \leftl{\rule{T-Case} :}
+%   \rightl{$(\forall \bval' . \; (\cor{\bval'}{x}) \notin \hbctx)$}
+%   \tinf{\trahb{\hbctx}{\benv}{\bcase{b_1}{b_2}{b_3}}{\hcase{e_1}{e_2}{e_3}}}
+% \end{prooftree}
+
+We define a correspondence between values and expressions in canonical form:
+
+\vspace{0.5cm}
+
+\judgement{\corhb{\hbctx}{\bval}{\hexp}}
+
+\begin{prooftree}
+  \leftl{\rule{C-Var} :}
+  \ax{\corhb{\Theta}{\var}{\var}}
+\end{prooftree}
+
+\begin{prooftree}
+  \leftl{\rule{C-Num} :}
+  \ax{\corhb{\hbctx}{\n{\nat}}{\n{\nat}}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\trahb{\hbctx}{\benv}{\blam{\bexp}}{\lam{\var}{\hexp}}}
+  \leftl{\rule{C-Fun} :}
+  \uinf{\corhb{\hbctx}{\cl{\benv}{\bexp}}{\lam{\var}{\hexp}}}
+\end{prooftree}
