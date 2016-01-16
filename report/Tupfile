@@ -1,1 +1,1 @@
-: compilation.tex |> latexmk -pdf compilation.tex |> compilation.pdf compilation.log compilation.aux compilation.thm compilation.fdb_latexmk compilation.fls
+: main.tex |> latexmk -pdf main.tex |> main.pdf main.log main.aux main.thm main.fdb_latexmk main.fls
