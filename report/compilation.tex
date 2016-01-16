@@ -295,7 +295,7 @@ We define variable indices $i$ and De Bruijn expressions $b$ as follows:
 The semantics of the De Bruijn language is environment-based.
 We define De-Bruijn values $\h{b}$ as follows, and environments $\a$ are then ordered lists of values.
 \begin{align*}
-  \h{b} &\defi \n{n} \alt \cl{\sg}{\b} \\
+  \h{b} &\defi \n{n} \alt \cl{\sg}{\b} \alt x \\
   \a &\defi \nil \alt \a, \h{b} \\
 \end{align*}
 
@@ -339,7 +339,7 @@ We introduce an auxiliary judgement for variable lookup.
 \begin{prooftree}
   \ninf{\bev{\a}{b_1}{\cl{\a'}{b_0}}}
   \ninf{\bev{\a}{b_2}{\h{b}_2}}
-  \ninf{\bev{\a', \h{b}_2}{b_0}{\h{b}}}
+  \ninf{\bev{\a' :: \h{b}_2}{b_0}{\h{b}}}
 	\leftl{\rule{B-App} :}
   \tinf{\bev{\a}{b_1 \app b_2}{\h{b}}}
 \end{prooftree}
@@ -374,9 +374,9 @@ We define the type of correspondence contexts.
   \Theta &\defi \nil \alt \Theta :: \cor{\v}{x}
 \end{align*}
 
-\ensurecommand{\trahb}[4]{\ensuremath{#1, #2 \vdash #3 \rhd #4}}
+\ensurecommand{\trahb}[4]{\ensuremath{#2 \vdash #3 \rhd #4}}
 %\ensurecommand{\cor}[2]{\ensuremath{#1 \rightsquiqarrow #2}}
-\ensurecommand{\corhb}[3]{\ensuremath{#1 \vdash #2 \rightsquigarrow #3}}
+\ensurecommand{\corhb}[3]{\ensuremath{#2 \rightsquigarrow #3}}
 
 \judgement{\trahb{\Theta}{\a}{b}{e}}
 
@@ -391,15 +391,14 @@ We define the type of correspondence contexts.
   \ninf{\hevv{\a}{i}{\h{b}}}
   \ninf{\corhb{\Theta}{\h{b}}{e}}
   \leftl{\rule{T-Var} :}
-  \binf{\tra{\Theta}{\a}{i}{e}}
+  \binf{\trahb{\Theta}{\a}{i}{e}}
 \end{prooftree}
 
 [In the following rule, should $\h{b}$ really be existentially quantified? Would we not want to require the premise to hold for all possible choices for $\h{b}$?]
 \begin{prooftree}
-	\ninf{\trahb{\Theta :: \cor{\h{b}}{x}}{\a :: \h{b}}{b_1}{e_1}}
+	\ninf{\trahb{\Theta}{\a :: x}{b_1}{e_1}}
   \leftl{\rule{T-Lam} :}
-  \rightl{$(\forall \h{b}' . \; (\cor{\h{b}'}{x}) \notin \Theta)$}
-  \uinf{\trahb{\Theta}{\a}{\lam{}{\h{b}_1}}{\lam{x}{e_1}}}
+  \uinf{\trahb{\Theta}{\a}{\blam{b_1}}{\lam{x}{e_1}}}
 \end{prooftree}
 
 \begin{prooftree}
@@ -431,9 +430,8 @@ We define a correspondence between values and expressions in canonical form:
 \judgement{\corhb{\Theta}{\h{b}}{e}}
 
 \begin{prooftree}
-  \leftl{\rule{C-Hyp} :}
-  \rightl{$((\cor{\h{b}}{x}) \in \Theta)$}
-  \ax{\vcor{\Theta}{\h{b}}{x}}
+  \leftl{\rule{C-Var} :}
+  \ax{\vcor{\Theta}{x}{x}}
 \end{prooftree}
 
 \begin{prooftree}
@@ -449,14 +447,71 @@ We define a correspondence between values and expressions in canonical form:
 
 
 \subsection*{Equivalence}
+\begin{lemma}[Substitution]
+\label{lem:substitution}
+Given a variable $x$, if \trahb{\Theta}{\a}{b}{e} and \corhb{\Theta}{\h{b}'}{\h{e}'} then \trahb{\Theta}{\a[\h{b}'/x]}{b}{e[\h{e}'/x]}.
+\end{lemma}
+
+
 \begin{lemma}[Soundness]
 \label{lem:soundness-hb}
-If \trahb{\Theta}{\a}{e}{b} (by $\T$) and \bev{\a}{\b}{\h{b}} (by $\B$), then there exists $\h{e}$ such that \hev{e}{\c} (by some $\E$) and \corhb{\Theta}{\h{b}}{\h{e}} (by some $\C$).
+If \trahb{\Theta}{\a}{b}{e} (by $\T$) and \bev{\a}{b}{\h{b}} (by $\B$), then there exists $\h{e}$ such that \hev{e}{\h{e}} (by some $\E$) and \corhb{\Theta}{\h{b}}{\h{e}} (by some $\C$).
 \end{lemma}
+
+\begin{proof}
+
+By induction on $\B$. We proceed by case analysis on $\T$.
+
+\paragraph{Case \textnormal{\rule{T-Lam}}}
+$\T$ has the form
+\begin{prooftree}
+	\prem{\T_1}{\trahb{\Theta}{\a :: x}{b_1}{e_1}}
+  \uinf{\trahb{\Theta}{\a}{\blam{b_1}}{\lam{x}{e_1}}}
+\end{prooftree}
+Hence, $\B$ must be
+\begin{prooftree}
+  \ax{\bev{\a}{\blam{b_1}}{\cl{\a}{b_1}}}
+\end{prooftree}
+Using \rule{E-Lam} we get \hev{\lam{x}{e_1}}{\lam{x}{e_1}} and construct the required correspondence as follows:
+\begin{prooftree}
+  \prem{\T}{\trahb{\Theta}{\a}{\blam{b_1}}{\lam{x}{e_1}}}
+  \uinf{\corhb{\Theta}{\cl{\a}{b_1}}{\lam{x}{e_1}}}
+\end{prooftree}
+
+
+\paragraph{Case \textnormal{\rule{T-App}}}
+$\T$ has the form
+\begin{prooftree}
+  \prem{\T_1}{\trahb{\Theta}{\a}{b_1}{e_1}}
+  \prem{\T_2}{\trahb{\Theta}{\a}{b_2}{e_2}}
+  \binf{\trahb{\Theta}{\a}{b_1 \app b_2}{e_1 \app e_2}}
+\end{prooftree}
+Hence, $\B$ must be
+\begin{prooftree}
+  \prem{\B_1}{\bev{\a}{b_1}{\cl{\a'}{b_0}}}
+  \prem{\B_2}{\bev{\a}{b_2}{\h{b}_2}}
+  \prem{\B_3}{\bev{\a' :: \h{b}_2}{b_0}{\h{b}}}
+  \tinf{\bev{\a}{b_1 \app b_2}{\h{b}}}
+\end{prooftree}
+
+By IH on $\B_1$ with $\T_1$ we get \hev{e_1}{\h{e}_1} by some $\E_1$ and \corhb{\Theta}{\cl{\a'}{b_0}}{\h{e}_1} by some $\C_1$ which must have the shape
+\begin{prooftree}
+	\prem{T_3}{\trahb{\Theta}{\a :: x}{b_0}{e_0}}
+  \uinf{\trahb{\Theta}{\a}{\blam{b_0}}{\lam{x}{e_0}}}
+  \uinf{\corhb{\Theta}{\cl{\a'}{b_0}}{\lam{x}{e_0}}}
+\end{prooftree}
+so $\h{e}_1 = \lam{x}{e_0}$.
+
+By IH on $\B_2$ with $\T_2$ we get \hev{e_2}{\h{e}_2} by some $\E_2$ and \corhb{\Theta}{\h{b}_2}{\h{e}_2} by some $\C_2$.
+Using Lemma~\ref{lem:substitution} on $\T_3$ with $\C_2$ we get \trahb{\Theta}{\a :: \h{b}_2}{b_0}{e_0[\h{e_2}/x]} (by some $\T_3'$).
+By IH on $\B_3$ with $\T_3'$ we get \hev{e_0[\h{e}_2/x]}{\h{e}} by some $\E_3$ and $\corhb{\Theta}{\h{b}}{\h{e}}$ by some $\C_3$.
+The case is finished using \rule{E-App} with $\E_1$, $\E_2$ and $\E_3$; the required correspondence is provided by $\C_3$.
+
+\end{proof}
 
 \begin{lemma}[Completeness]
 \label{lem:completeness-hb}
-If \trahb{\Theta}{\a}{e}{b} (by $\T$) and \hev{e}{\h{e}} (by $\E$), then there exists $\h{b}$ such that \bev{\a}{\b}{\h{b}} (by some $\B$) and \corhb{\Theta}{\h{b}}{\h{e}} (by some $\C$).
+If \trahb{\Theta}{\a}{b}{e} (by $\T$) and \hev{e}{\h{e}} (by $\E$), then there exists $\h{b}$ such that \bev{\a}{b}{\h{b}} (by some $\B$) and \corhb{\Theta}{\h{b}}{\h{e}} (by some $\C$).
 \end{lemma}
 
 
