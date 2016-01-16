@@ -222,6 +222,8 @@ We define De Bruijn values $\bval$ as follows, and environments $\benv$ are then
   \benv &\defi \envnil \alt \benv_1 \envcons \bval \\
 \end{align*}
 
+% note about the need for variables as values
+
 We introduce an auxiliary judgement for variable lookup.
 
 \vspace{0.5cm}
@@ -296,16 +298,16 @@ We introduce an auxiliary judgement for variable lookup.
 
 % filinski: will need more textual explaination
 
-\ensurecommand{\hbctx}{\Theta}
+\ensurecommand{\hbctx}{\Theta}%
 \ensurecommand{\cor}[2]{\ensuremath{#1 \rightsquigarrow #2}}
 
-We define the type of correspondence contexts $\hbctx$.
+% We define the type of correspondence contexts $\hbctx$.
 
-\begin{align*}
-  \hbctx &\defi \ctxnil \alt \hbctx_1 \ctxcons \cor{\bval}{\var}
-\end{align*}
+% \begin{align*}
+%   \hbctx &\defi \ctxnil \alt \hbctx_1 \ctxcons \cor{\bval}{\var}
+% \end{align*}
 
-\ensurecommand{\trahb}[4]{\ensuremath{#2 \vdash #3 \rhd #4}}
+\ensurecommand{\trahb}[4]{\ensuremath{#2 \vdash #3 \rhd #4}} % a bit of a hack
 \ensurecommand{\corhb}[3]{\ensuremath{#2 \rightsquigarrow #3}}
 
 \judgement{\trahb{\hbctx}{\benv}{\bexp}{\hexp}}
@@ -380,8 +382,9 @@ We define a correspondence between values and expressions in canonical form:
 \subsection*{Equivalence}
 \begin{lemma}[Substitution]
 \label{lem:substitution}
-Given a variable $\var$, if \trahb{\hbctx}{\benv}{\bexp}{\bval} and \corhb{\hbctx}{\bval'}{\hval'} then \trahb{\hbctx}{\benv[\bval'/\var]}{\bexp}{\hexp[\bval'/\var]}.
+Given a variable $\var$, if \trahb{\hbctx}{\benv}{\bexp}{\bval} and \corhb{\hbctx}{\bval'}{\hval'} then \trahb{\hbctx}{\sub{\benv}{\bval'}{\var}}{\bexp}{\sub{\hexp}{\hval'}{\var}}.
 \end{lemma}
+% something about 'for all e'?
 
 
 \begin{lemma}[Soundness]
@@ -393,11 +396,13 @@ If \trahb{\hbctx}{\benv}{\hexp}{\bexp} (by $\T$) and \bev{\benv}{\bexp}{\bval} (
 
 By induction on $\B$. We proceed by case analysis on $\T$.
 
+% other cases trivial, we show only lam and app
+
 \paragraph{Case \textnormal{\rule{T-Lam}}}
 $\T$ has the form
 \begin{prooftree}
 	\prem{\T_1}{\trahb{\hbctx}{\benv \ctxcons \var}{\bexp_1}{\hexp_1}}
-  \uinf{\trahb{\Theta}{\benv}{\blam{\bexp_1}}{\lam{x}{\hexp_1}}}
+  \uinf{\trahb{\Theta}{\benv}{\blam{\bexp_1}}{\lam{\var}{\hexp_1}}}
 \end{prooftree}
 Hence, $\B$ must be
 \begin{prooftree}
@@ -415,27 +420,27 @@ $\T$ has the form
 \begin{prooftree}
   \prem{\T_1}{\trahb{\hbctx}{\benv}{\bexp_1}{\hexp_1}}
   \prem{\T_2}{\trahb{\hbctx}{\benv}{\bexp_2}{\hexp_2}}
-  \binf{\trahb{\hbctx}{\benv}{\bexp_1 \app \bexp_2}{\hexp_1 \app \hexp_2}}
+  \binf{\trahb{\hbctx}{\benv}{\bapp{\bexp_1}{\bexp_2}}{\app{\hexp_1}{\hexp_2}}}
 \end{prooftree}
 Hence, $\B$ must be
 \begin{prooftree}
   \prem{\B_1}{\bev{\benv}{\bexp_1}{\cl{\benv'}{\bexp_0}}}
   \prem{\B_2}{\bev{\benv}{\bexp_2}{\bval_2}}
   \prem{\B_3}{\bev{\benv' \ctxcons \bval_2}{\bexp_0}{\bval}}
-  \tinf{\bev{\benv}{\bexp_1 \app \bexp_2}{\bval}}
+  \tinf{\bev{\benv}{\bapp{\bexp_1}{\bexp_2}}{\bval}}
 \end{prooftree}
 
 By IH on $\B_1$ with $\T_1$ we get \hev{\hexp_1}{\hval_1} by some $\E_1$ and \corhb{\hbctx}{\cl{\benv'}{\bexp_0}}{\hval_1} by some $\C_1$ which must have the shape
 \begin{prooftree}
-	\prem{T_3}{\trahb{\hbctx}{\benv :: \var}{\bexp_0}{\hexp_0}}
+	\prem{\T_3}{\trahb{\hbctx}{\benv \envcons \var}{\bexp_0}{\hexp_0}}
   \uinf{\trahb{\hbctx}{\benv}{\blam{\bexp_0}}{\lam{\var}{\hexp_0}}}
   \uinf{\corhb{\hbctx}{\cl{\benv'}{\bexp_0}}{\lam{\var}{\hexp_0}}}
 \end{prooftree}
-so $\hval_1 = \lam{x}{\hexp_0}$.
+so $\hval_1 = \lam{\var}{\hexp_0}$.
 
 By IH on $\B_2$ with $\T_2$ we get \hev{\hexp_2}{\hval_2} by some $\E_2$ and \corhb{\hbctx}{\hexp_2}{\hval_2} by some $\C_2$.
-Using Lemma~\ref{lem:substitution} on $\T_3$ with $\C_2$ we get \trahb{\hbctx}{\benv :: \hval_2}{\bexp_0}{\hexp_0[\hexp_2/x]} (by some $\T_3'$).
-By IH on $\B_3$ with $\T_3'$ we get \hev{\hexp_0[\hval_2/\var]}{\hval} by some $\E_3$ and $\corhb{\hbctx}{\bval}{\hval}$ by some $\C_3$.
+Using Lemma~\ref{lem:substitution} on $\T_3$ with $\C_2$ we get \trahb{\hbctx}{\benv \envcons \hval_2}{\bexp_0}{\sub{\hexp_0}{\hexp_2}{\var}} (by some $\T_3'$).
+By IH on $\B_3$ with $\T_3'$ we get \hev{\sub{\hexp_0}{\hval_2}{\var}}{\hval} by some $\E_3$ and $\corhb{\hbctx}{\bval}{\hval}$ by some $\C_3$.
 The case is finished using \rule{E-App} with $\E_1$, $\E_2$ and $\E_3$; the required correspondence is provided by $\C_3$.
 
 \end{proof}
