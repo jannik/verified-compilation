@@ -20,19 +20,22 @@
 \ensurecommand{\mpushvar}[1]{\mathtt{pushvar} \; #1}
 \ensurecommand{\mpushclos}[1]{\mathtt{pushclos} \; #1}
 \ensurecommand{\mcall}[1]{\mathtt{call} \; #1}
+\ensurecommand{\minc}{\mathtt{inc}}
 \ensurecommand{\mret}{\mathtt{ret}}
 \ensurecommand{\mhalt}{\mathtt{halt}}
 
 \ensurecommand{\mend}{\mathtt{[]}}
 \ensurecommand{\mseq}{\mathbin{;}}
+\ensurecommand{\mconcat}{\mathbin{;\!;}} % or perhaps double semicolon isn't ideal notation
 
 Let $\addr$ denote program addresses (natural numbers).
 We define machine instructions $\minst$ and programs $\mprog$:
 \begin{align*}
-  \minst &\defi \mpushnum{\nat} \alt \mpushvar{\bvar} \alt \mpushclos{\addr} \alt \mcall{\addr} \alt \mret \alt \mhalt \\
+  \minst &\defi \mpushnum{\nat} \alt \mpushvar{\bvar} \alt \mpushclos{\addr} \alt \mcall{\addr} \alt \minc \alt \mret \alt \mhalt \\
   \mprog &\defi \mend \alt \minst \mseq \mprog_1
 \end{align*}
 Note that the address in the instruction $\mcall{\addr}$ is the return address.
+And let $\mprog_1 \mconcat \mprog_2$ denote the concatenation of programs $\mprog_1$ and $\mprog_2$.
 
 % some text justifying the need for both ret, halt and mend.
 
@@ -45,6 +48,7 @@ Note that the address in the instruction $\mcall{\addr}$ is the return address.
 
 \ensurecommand{\mexec}[7]{\ensuremath{#1 : \tup{#2 \tupsep #3 \tupsep #4} \rightarrow \tup{#5 \tupsep #6 \tupsep #7}}}
 \ensurecommand{\msteps}[7]{\ensuremath{#1 \vdash \tup{#2 \tupsep #3 \tupsep #4} \rightarrow^* \tup{#5 \tupsep #6 \tupsep #7}}}
+\ensurecommand{\meval}[3]{\ensuremath{\tup{#1 \tupsep #2} \downarrow #3}}
 \ensurecommand{\mlook}[3]{\ensuremath{#1 \vdash #2 \uparrow #3}}%
 
 We define values $\mval$, environments $\menv$, control stacks $\mctrl$, and value stacks $\mvals$:
@@ -88,6 +92,10 @@ And an execution judgement:
 \end{prooftree}
 
 \begin{prooftree}
+  \ax{\mexec{\minc}{\mctrl}{\addr}{\mvals \stkcons \n{\nat}}{\mctrl}{\addr + 1}{\mvals \stkcons \n{\nat + 1}}}
+\end{prooftree}
+
+\begin{prooftree}
   \ax{\mexec{\mret}{\mctrl \stkcons \fr{\menv}{\addrret}}{\addr}{\mvals}{\mctrl}{\addrret}{\mvals}}
 \end{prooftree}
 
@@ -113,14 +121,14 @@ And an execution judgement:
 \end{prooftree}
 where $\mprog(\addr)$ denotes the $\addr$'th instruction of the program $\mprog$.
 
-%
-%
-%And a complete evaluation judgement:
-%
-%\vspace{0.5cm}
-%\judgement{$\tup{\b ; \q} \downarrow \r$}
-%
-%\begin{prooftree}
-  %\ninf{\mstep{\q}{\mnil, \tup{\mnil; \ldone}}{\b}{\mnil}{\mnil}{\mhalt}{\mnil, \r}}
-  %\uinf{$\tup{\b ; \q} \downarrow \r$}
-%\end{prooftree}
+And a complete evaluation judgement:
+
+\vspace{0.5cm}
+\judgement{\meval{\mprog}{\addr}{\mval}}
+\vspace{0.5cm}
+
+\begin{prooftree}
+  \ninf{\msteps{\mprog}{[\fr{\envnil}{0}]}{\addr}{\stknil}{\stknil}{\addr'}{[\mval]}}
+  \rightl{$(\mprog(\addr') = \mhalt)$}
+  \uinf{\meval{\mprog}{\addr}{\mval}}
+\end{prooftree}
