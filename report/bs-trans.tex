@@ -1,7 +1,7 @@
 \subsection*{Translation}
 
-\ensurecommand{\trabs}[3]{\ensuremath{#1 \circ #2 \rhd #3}}
-\ensurecommand{\trabsfinal}[2]{\ensuremath{#1 \rhd #2}}
+\ensurecommand{\trabs}[3]{\ensuremath{#1 \circ #2 \mathrel{\rhd} #3}}
+\ensurecommand{\trabsfinal}[2]{\ensuremath{#1 \mathrel{\rhd} #2}}
 
 We translate from De Bruijn expressions to stack programs using the following judgements.
 As a shorthand, \trabsfinal{\bexp}{\sprog} denotes \trabs{\bexp}{\send}{\sprog}. % filinski: worth it?

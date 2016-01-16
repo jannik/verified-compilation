@@ -11,7 +11,7 @@
 %   \hbctx &\defi \ctxnil \alt \hbctx_1 \ctxcons \cor{\bval}{\var}
 % \end{align*}
 
-\ensurecommand{\trahb}[4]{\ensuremath{#2 \vdash #3 \rhd #4}} % a bit of a hack
+\ensurecommand{\trahb}[4]{\ensuremath{#2 \vdash #3 \mathrel{\rhd} #4}} % a bit of a hack
 \ensurecommand{\corhb}[3]{\ensuremath{#2 \rightsquigarrow #3}}
 
 \judgement{\trahb{\hbctx}{\benv}{\bexp}{\hexp}}
@@ -33,7 +33,7 @@
 % [In the following rule, should $\bval$ really be existentially quantified? Would we not want to require the premise to hold for all possible choices for $\bval$?]
 
 \begin{prooftree}
-	\ninf{\trahb{\hbctx}{\benv \envcons \bval}{\bexp_1}{\hexp_1}}
+	\ninf{\trahb{\hbctx}{\benv \envcons \var}{\bexp_1}{\hexp_1}}
   \leftl{\rule{T-Lam} :}
   \uinf{\trahb{\hbctx}{\benv}{\blam{\bexp_1}}{\lam{\var}{\hexp_1}}}
 \end{prooftree}
