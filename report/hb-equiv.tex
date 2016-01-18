@@ -1,10 +1,54 @@
 \subsection*{Equivalence}
-\begin{lemma}[Substitution]
-\label{lem:substitution}
-Given a variable $\var$, if \trahb{\hbctx}{\benv}{\bexp}{\bval} and \corhb{\hbctx}{\bval'}{\hval'} then \trahb{\hbctx}{\sub{\benv}{\bval'}{\var}}{\bexp}{\sub{\hexp}{\hval'}{\var}}.
+\begin{lemma}
+\label{lem:substitution-cor}
+If \corhb{\hbxtx}{\bval}{\hexp} and \corhb{\hbctx}{\bval'}{\hexp'} then \corhb{\hbctx}{\sub{\bval}{\bval'}{\var}}{\sub{\hexp}{\hexp'}{\var}}
 \end{lemma}
-% something about 'for all e'?
 
+\begin{lemma}
+\label{lem:substitution-lookup}
+Given $\var$ and $\bval$, if \blook{\benv}{\bvar}{\bval'} then \blook{\sub{\benv}{\bval}{\var}}{\bvar}{\sub{\bval'}{\bval}{\var}}.
+\end{lemma}
+
+\begin{lemma}
+\label{lem:substitution-trans}
+Given a variable $\var$, if \trahb{\hbctx}{\benv}{\bexp}{\hexp} (by $\T$) and \corhb{\hbctx}{\bval}{\hval} (by $\C$) then \trahb{\hbctx}{\sub{\benv}{\bval}{\var}}{\bexp}{\sub{\hexp}{\hval}{\var}} (by some $\T'$).
+\end{lemma}
+
+\begin{proof}
+By induction on $\T$.
+
+\paragraph{Case \textnormal{\rule{T-Var}}}
+
+$\T$ has the form
+\begin{prooftree}
+  \prem{\Tv}{\blook{\benv}{\bvar}{\bval'}}
+  \prem{\C_1}{\corhb{\hbctx}{\bval'}{\hexp}}
+  \binf{\trahb{\hbctx}{\benv}{\bvar}{\hexp}}
+\end{prooftree}
+
+By Lemma~\ref{lem:substitution-lookup} on $\Tv$ we get \blook{\sub{\benv}{\bval}{\var}}{\bvar}{\sub{\bval'}{\bval}{\var}} (by $\Tv'$).
+By Lemma~\ref{lem:substitution-cor} on $\C_1$ and $\C$ we get \corhb{\hbctx}{\sub{\bval'}{\bval}{\var}}{\sub{\hexp'}{\hexp}{\var}} (by $\C_1'$).
+We then take $\T'$ to be
+\begin{prooftree}
+  \prem{\Tv_1}{\blook{\sub{\benv}{\bval}{\var}}{\bvar}{\sub{\bval'}{\bval}{\var}}}
+  \prem{\C_1'}{\corhb{\hbctx}{\sub{\bval'}{\bval}{\var}}{\sub{\hexp'}{\hexp}{\var}}}
+  \binf{\trahb{\hbctx}{\sub{\benv}{\bval}{\var}}{\bexp}{\sub{\hexp}{\hval}{\var}}}
+\end{prooftree}
+
+\paragraph{Case \textnormal{\rule{T-Lam}}}
+$\T$ has the form
+\begin{prooftree}
+	\prem{\T_1}{\trahb{\hbctx}{\benv \envcons \othervar}{\bexp_1}{\hexp_1}}
+  \rightl{($\othervar \notin \benv$)}
+  \uinf{\trahb{\hbctx}{\benv}{\blam{\bexp_1}}{\lam{\othervar}{\hexp_1}}}
+\end{prooftree}
+If $\var = \othervar$ then (using the side condition) $\sub{\benv}{\bval}{\var} = \benv$ and also $\sub{(\lam{\othervar}{\hexp_1})}{\hval}{\var} = \lam{\othervar}{\hexp_1}$.
+Therefore we can take $\T' = \T$.
+
+Otherwise $x \neq y$ so $\sub{(\benv \envcons \othervar)}{\bval}{\var} = \sub{\benv}{\bval}{\var} \envcons \othervar$ and $\sub{(\lam{\othervar}{\hexp_1})}{\hval}{\var} = \lam{\othervar}{\sub{\hexp_1}{\hval}{\var}}$.
+By IH on $\T_1$ with $\C$ we get \trahb{\hbctx}{\sub{\benv}{\bval}{\var} \envcons \othervar}{\bexp_1}{\sub{\hexp_1}{\hval}{\var}} (by $\T_1'$) which has the right shape to finish the case with \rule{T-Lam}.
+
+\end{proof}
 
 \begin{lemma}[Soundness]
 \label{lem:soundness-hb}
@@ -57,8 +101,8 @@ By IH on $\B_1$ with $\T_1$ we get \hev{\hexp_1}{\hval_1} by some $\E_1$ and \co
 \end{prooftree}
 so $\hval_1 = \lam{\var}{\hexp_0}$.
 
-By IH on $\B_2$ with $\T_2$ we get \hev{\hexp_2}{\hval_2} by some $\E_2$ and \corhb{\hbctx}{\hexp_2}{\hval_2} by some $\C_2$.
-Using Lemma~\ref{lem:substitution} on $\T_3$ with $\C_2$ we get \trahb{\hbctx}{\benv \envcons \hval_2}{\bexp_0}{\sub{\hexp_0}{\hexp_2}{\var}} (by some $\T_3'$).
+By IH on $\B_2$ with $\T_2$ we get \hev{\hexp_2}{\hval_2} by some $\E_2$ and \corhb{\hbctx}{\bval_2}{\hval_2} by some $\C_2$.
+Using Lemma~\ref{lem:substitution-trans} on $\T_3$ with $\C_2$ we get \trahb{\hbctx}{\benv \envcons \hval_2}{\bexp_0}{\sub{\hexp_0}{\hexp_2}{\var}} (by some $\T_3'$).
 By IH on $\B_3$ with $\T_3'$ we get \hev{\sub{\hexp_0}{\hval_2}{\var}}{\hval} by some $\E_3$ and $\corhb{\hbctx}{\bval}{\hval}$ by some $\C_3$.
 The case is finished using \rule{E-App} with $\E_1$, $\E_2$ and $\E_3$; the required correspondence is provided by $\C_3$.
 
@@ -68,6 +112,61 @@ The case is finished using \rule{E-App} with $\E_1$, $\E_2$ and $\E_3$; the requ
 \label{lem:completeness-hb}
 If \trahb{\hbctx}{\benv}{\hexp}{\bexp} (by $\T$) and \hev{\hexp}{\hval} (by $\E$), then there exists $\bval$ such that \bev{\benv}{\bexp}{\bval} (by some $\B$) and \corhb{\hbctx}{\bval}{\hval} (by some $\C$).
 \end{lemma}
+
+\begin{lemma}[Totality]
+For any $\hexp$ and $\benv$ with free variables $\var_1, \ldots, \var_n$ together with indices $\bvar_1, \ldots, \bvar_n$ and derivations $\Tv_1, \ldots, \Tv_n$ of respectively $\blook{\benv}{\bvar_1}{\var_1}, \ldots, \blook{\benv}{\bvar_n}{\var_n}$ there exists an alpha-equivalent $\hexp'$ such that \trahb{\hbctx}{\benv}{\bexp}{\hexp'} (by some $\T$) for some $\bexp$.
+\end{lemma}
+
+\begin{proof}
+By induction on $\hexp$ modulo renaming, i.e. if $\hexp_1$ is a subterm of $\hexp$ then $\sub{\hexp_1}{\var}{\othervar}$ is also considered a subterm.
+Since in any case the size of the term decreases the induction is well-founded.
+
+\paragraph{Case $\hexp = \var$}
+Since $\var$ is free we must have $\var = \var_k$ for some $k$.
+Take $\hexp' = \hexp$ and let $\T$ be
+\begin{prooftree}
+  \prem{\Tv_k}{\blook{\benv}{\bvar_k}{\var_k}}
+  \ax{\corhb{\hbctx}{\var_k}{\var_k}}
+  \binf{\trahb{\hbctx}{\benv}{\bvar_k}{\var_k}}
+\end{prooftree}
+
+\paragraph{Case $\hexp = \lam{\var}{\hexp_1}$}
+\paragraph{Subcase \textnormal{$\var = \var_k$ for some $k$}}
+Let $\othervar$ be a variable that does not occur free in $\hexp_1$ and let $\hexp_1' = \sub{\hexp_1}{\othervar}{\var}$.
+We want to invoke the IH with $\hexp_1'$ and $\benv \envcons \othervar$, which requires suitable derivations.
+Let $\Tv_k'$ be
+\begin{prooftree}
+  \ax{\blook{\benv \envcons \othervar}{\z}{\othervar}}
+\end{prooftree}
+and for any $j \neq k$ let $\Tv_j'$ be
+\begin{prooftree}
+  \prem{\Tv_j}{\blook{\benv}{\bvar_j}{\var_j}}
+  \uinf{\blook{\benv \envcons \othervar}{\suc{\bvar_j}}{\var_j}}
+\end{prooftree}
+By IH on $\hexp_1'$ with $\benv \envcons \othervar$ and $\Tv_1', \ldots, \Tv_n'$ we get \trahb{\hbctx}{\benv \envcons \othervar}{\bexp_1}{\hexp_1''} (by some $\T_1$) for some $\bexp_1$ and $\hexp_1''$.
+Observing that $\lam{\var}{\hexp_1}$ is alpha-equivalent to $\lam{\othervar}{\sub{\hexp_1}{\othervar}{\var}}$ which is again alpha-equivalent to $\lam{\othervar}{\hexp_1''}$ we can take $\T$ to be
+
+\begin{prooftree}
+	\prem{\T_1}{\trahb{\hbctx}{\benv \envcons \othervar}{\bexp_1}{\hexp_1''}}
+  \rightl{($\othervar \notin \benv$)}
+  \uinf{\trahb{\hbctx}{\benv}{\blam{\bexp_1}}{\lam{\othervar}{\hexp_1''}}}
+\end{prooftree}
+
+\paragraph{Subcase \textnormal{$\var \neq \var_k$ for all $k$}}
+For all $j$ let $\Tv_j'$ be
+\begin{prooftree}
+  \prem{\Tv_j}{\blook{\benv}{\bvar_j}{\var_j}}
+  \uinf{\blook{\benv \envcons \var}{\suc{\bvar_j}}{\var_j}}
+\end{prooftree}
+By IH on $\hexp_1$ with $\benv \envcons \var$ and $\Tv_1', \ldots, \Tv_n'$ we get \trahb{\hbctx}{\benv \envcons \var}{\bexp_1}{\hexp_1'} (by some $\T_1$) for some $\bexp_1$ and $\hexp_1'$.
+Since $\lam{\var}{\hexp_1}$ is alpha-equivalent to $\lam{\var}{\hexp_1'}$ we can $\T$ to be
+\begin{prooftree}
+	\prem{\T_1}{\trahb{\hbctx}{\benv \envcons \var}{\bexp_1}{\hexp_1'}}
+  \rightl{($\var \notin \benv$)}
+  \uinf{\trahb{\hbctx}{\benv}{\blam{\bexp_1}}{\lam{\othervar}{\hexp_1'}}}
+\end{prooftree}
+
+\end{proof}
 
 % \subsection*{Equivalence}
 

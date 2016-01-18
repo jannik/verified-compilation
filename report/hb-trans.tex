@@ -30,10 +30,9 @@
   \binf{\trahb{\hbctx}{\benv}{\bvar}{\hexp}}
 \end{prooftree}
 
-% [In the following rule, should $\bval$ really be existentially quantified? Would we not want to require the premise to hold for all possible choices for $\bval$?]
-
 \begin{prooftree}
 	\ninf{\trahb{\hbctx}{\benv \envcons \var}{\bexp_1}{\hexp_1}}
+  \rightl{($\var \notin \benv$)}
   \leftl{\rule{T-Lam} :}
   \uinf{\trahb{\hbctx}{\benv}{\blam{\bexp_1}}{\lam{\var}{\hexp_1}}}
 \end{prooftree}
