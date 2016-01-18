@@ -164,3 +164,6 @@ trans-sm : sprog -> mprog -> label -> type.
 trans-sm/ : trans-sm P (mhalt ; Q^1) 1
              <- trans-sm' P Q
              <- shift1-mprog Q Q^1.
+
+%worlds () (trans-sm _ _ _).
+%total {} (trans-sm _ _ _).
