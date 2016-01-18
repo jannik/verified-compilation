@@ -2,6 +2,9 @@ trans-hm : exp -> mprog -> label -> type.
 %mode trans-hm +E -Q -L.
 
 trans-hm/ : trans-hm E Q L
-             <- trans-hb-pseudo-exists E (_ : trans-hb store/nil B E)
+             <- trans-hb-exists E (_ : trans-hb store/nil B E)
              <- trans-bs B P
              <- trans-sm P Q L.
+
+%worlds () (trans-hm _ _ _).
+%total {} (trans-hm _ _ _).

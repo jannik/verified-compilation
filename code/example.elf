@@ -1,7 +1,7 @@
 test1 : exp =  app (lam [x] x) (num 3).
 
 %define btest1 = B
-%solve _ : trans-hb-pseudo-exists test1 (DT : trans-hb store/nil B test1).
+%solve _ : trans-hb-exists test1 (DT : trans-hb store/nil B test1).
 
 %define ptest1 = P
 %solve _ : trans-bs btest1 P.
@@ -21,7 +21,7 @@ test1 : exp =  app (lam [x] x) (num 3).
 test2 : exp = app (app (lam [x] lam [y] x) (num 3)) (num 5).
 
 %define btest2 = B
-%solve _ : trans-hb-pseudo-exists test2 (DT : trans-hb store/nil B test2).
+%solve _ : trans-hb-exists test2 (DT : trans-hb store/nil B test2).
 
 %define ptest2 = P
 %solve _ : trans-bs btest2 P.
@@ -41,7 +41,7 @@ test2 : exp = app (app (lam [x] lam [y] x) (num 3)) (num 5).
 test3 : exp = app (app (lam [f] lam [x] app f x) (lam [x] x)) (num 3).
 
 %define btest3 = B
-%solve _ : trans-hb-pseudo-exists test3 (DT : trans-hb store/nil B test3).
+%solve _ : trans-hb-exists test3 (DT : trans-hb store/nil B test3).
 
 %define ptest3 = P
 %solve _ : trans-bs btest3 P.
@@ -61,7 +61,7 @@ test3 : exp = app (app (lam [f] lam [x] app f x) (lam [x] x)) (num 3).
 test4 : exp = app (app (app (lam [f] lam [x] app f x) (lam [x] lam [y] x)) (num 3)) (num 5).
 
 %define btest4 = B
-%solve _ : trans-hb-pseudo-exists test4 (DT : trans-hb store/nil B test4).
+%solve _ : trans-hb-exists test4 (DT : trans-hb store/nil B test4).
 
 %define ptest4 = P
 %solve _ : trans-bs btest4 P.
