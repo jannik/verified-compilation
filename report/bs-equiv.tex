@@ -1,8 +1,8 @@
 \subsection*{Equivalence}
 
-% \begin{theorem} [Equivalence Bruijn-stack]
-% \label{thm:equiv-bs} If \tr{\b}{\ss}, then \hev{\nil}{\b}{\n{\nat}} if and only if \ev{\ss}{\n{\nat}}.
-% \end{theorem}
+\begin{theorem} [Equivalence Bruijn-Stack]
+\label{thm:equiv-bs} If \trabsfinal{\bexp}{\sprog}, then \bev{\envnil}{\bexp}{\n{\nat}} if and only if \sev{\sprog}{\n{\nat}}.
+\end{theorem}
 
 To prove this we need two additional judgements:
 
@@ -36,14 +36,14 @@ To prove this we need two additional judgements:
   \binf{\cor{\benv \envcons \bval}{\senv \envcons \sval}}
 \end{prooftree}
 
-%% completeness
-%% \begin{lemma}
-%% If \tracc{\b}{\ss_2}{\ss} and \hev{\sg}{\b}{\v} with \cor{\sg}{\tau}, then (for all $\Xi$ and $\mvalsi$) there exists $\w$ such that \ssev{\Xi, \fr{\tau}{\ss}}{\mvalsi}{\Xi, \fr{\tau}{\ss_2}}{\mvalsi, \w} with \cor{\v}{\w}.
-%% \end{lemma}
+\begin{lemma}[Completeness]
+\label{lem:completeness-bs}
+If \trabs{\bexp}{\sprog_2}{\sprog} and \bev{\benv}{\bexp}{\bval} with \cor{\benv}{\senv}, then (for all $\sctrl$ and $\svals$) there exists $\sval$ such that \ssteps{\sctrl \stkcons \fr{\senv}{\sprog}}{\svals}{\sctrl \stkcons \fr{\senv}{\sprog_2}}{\svals \stkcons \sval} with \cor{\bval}{\sval}.
+\end{lemma}
 
-%% Let $\prec$ denote the standard subtree order on step sequences, i.e. $\P_1 \prec \P_2$ if $\P_1$ is a proper suffix of $\P_2$.
+Let $\prec$ denote the standard subtree order on step sequences, i.e. $\P_1 \prec \P_2$ if $\P_1$ is a proper suffix of $\P_2$.
 
-%% soundness
-%% \begin{lemma}
-%% If \tracc{\b}{\ss_2}{\ss} and \ssev{\Xi, \fr{\tau}{\ss}}{\mvalsi}{\nil}{\nil, \w'} (by $\P$) with \cor{\sg}{\tau}, then there exists $\v$ such that \hev{\sg}{\b}{\v} with \cor{\v}{\w} and \ssev{\Xi, \fr{\tau}{\ss_2}}{\mvalsi, \w}{\nil}{\nil, \w'} (by $\P'$) where $\P' \prec \P$.
-%% \end{lemma}
+\begin{lemma}[Soundness]
+\label{lem:soundness-bs}
+If \trabs{\bexp}{\sprog_2}{\sprog} and \ssteps{\sctrl \stkcons \fr{\senv}{\sprog}}{\svals}{\stknil}{[\sval']} (by $\P$) with \cor{\benv}{\senv}, then there exists $\bval$ and $\sval$ such that \bev{\benv}{\bexp}{\bval} with \cor{\bval}{\sval} and \ssteps{\sctrl \stkcons \fr{\senv}{\sprog_2}}{\svals \stkcons \sval}{\stknil}{[\sval']} (by $\P'$) where $\P' \prec \P$.
+\end{lemma}

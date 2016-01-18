@@ -1,113 +1,105 @@
-%
-%\subsection*{Equivalence}
-%
-%\begin{theorem} [Equivalence Stack-Label]
-%\label{thm:equiv-sl} If $\trasl{\ss}{\b}{\q}$, then $\ev{\ss}{\n{\nat}}$ if and only if $\tup{\b ; \q} \downarrow \n{\nat}$.
-%\end{theorem}
-%
-%To prove this, we need some correspondence judgements:
-%
-%\ensurecommand{\corvalue}[3]{#1 \vdash #2 \rightsquigarrow #3}
-%\ensurecommand{\corstore}{\corvalue}
-%\ensurecommand{\corvaluestack}{\corstore}
-%\ensurecommand{\corstack}[4]{#1 \vdash #2 \rightsquigarrow \tup{#3 ; #4}}
-%
-%\vspace{0.5cm}
-%\judgement{$\q' \leq_{f} \q$}
-%
-%\begin{prooftree}
-  %\leftl{\rule{Leq-Left} :}
-  %\ax{$\q' \leq_{\lleft} \lleft(\q') \mnode \q_2 $}
-%\end{prooftree}
-%
-%\begin{prooftree}
-  %\leftl{\rule{Leq-Right} :}
-  %\ax{$\q' \leq_{\lright} \q_1 \mnode \lright(\q') $}
-%\end{prooftree}
-%
-%\begin{prooftree}
-  %\leftl{\rule{Leq-Next} :}
-  %\ax{$\q' \leq_{\lnext} \b \mcons \lnext(\q') $}
-%\end{prooftree}
-%
-%\begin{prooftree}
-  %\leftl{\rule{Leq-Refl} :}
-  %\ax{$\q' \leq_{(\l \mapsto \l)} \q' $}
-%\end{prooftree}
-%
-%\begin{prooftree}
-  %\ninf{$\q' \leq_{f} \q'' $}
-  %\ninf{$\q'' \leq_{g} \q' $}
-  %\leftl{\rule{Leq-Trans} :}
-  %\binf{$\q' \leq_{(g \circ f)} \q $}
-%\end{prooftree}
-%%
-%where $\circ$ denotes function composition.
-%
-%\vspace{0.5cm}
-%\judgement{$\corvalue{\q}{\w}{\r}$}
-%
-%\begin{prooftree}
-  %\leftl{\rule{C-Num} :}
-  %\ax{$\corvalue{\q}{\n{\nat}}{\n{\nat}}$}
-%\end{prooftree}
-%
-%\begin{prooftree}
-  %\ninf{$\corstore{\q}{\tau}{\a}$}
-  %\ninf{$\q \vdash \l \uparrow f(\b')$}
-  %\ninf{$\trasl{\ss}{\b'}{\q'}$}
-  %\ninf{$\q' \leq_{f} \q$}
-  %\leftl{\rule{C-Clos} :}
-  %\qinf{$\corvalue{\q}{\cl{\tau}{\ss}}{\cl{\a}{\l}}$}
-%\end{prooftree}
-%
-%\vspace{0.5cm}
-%\judgement{$\corstore{\q}{\tau}{\a}$}
-%
-%\begin{prooftree}
+
+\subsection*{Equivalence}
+
+\begin{theorem} [Equivalence Stack-Machine]
+\label{thm:equiv-sm} If $\trasmfinal{\sprog}{\mprog}{\addr}$, then $\sev{\sprog}{\n{\nat}}$ if and only if $\meval{\mprog}{\addr}{\n{\nat}}$.
+\end{theorem}
+
+To prove this, we need some correspondence judgements:
+
+\ensurecommand{\corvalue}[3]{\ensuremath{#1 \vdash #2 \rightsquigarrow #3}}
+\ensurecommand{\corstore}{\ensuremath{\corvalue}}
+\ensurecommand{\corvaluestack}{\ensuremath{\corstore}}
+\ensurecommand{\corstack}[4]{\ensuremath{#1 \vdash #2 \rightsquigarrow \tup{#3 \tupsep #4}}}
+
+\vspace{0.5cm}
+\judgement{$\mprog' \leq_{\nat} \mprog$}
+
+\begin{prooftree}
+  \leftl{\rule{Leq-Here} :}
+  \rightl{$(\text{$\mprog'$ is a prefix of $\mprog$})$}
+  \ax{$\mprog' \leq_{0} \mprog$}
+\end{prooftree}
+
+\begin{prooftree}
+  \leftl{\rule{Leq-There} :}
+  \ninf{$\shift{\mprog'}{1} \leq_{n} \mprog$}
+  \uinf{$\mprog' \leq_{n + 1} \minst \mseq \mprog$}
+\end{prooftree}
+
+\vspace{0.5cm}
+\judgement{$\corvalue{\mprog}{\sval}{\mval}$}
+
+\begin{prooftree}
+  \leftl{\rule{C-Num} :}
+  \ax{$\corvalue{\mprog}{\n{\nat}}{\n{\nat}}$}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{$\corstore{\mprog}{\senv}{\menv}$}
+  \ninf{$\trasm{\sprog}{\mprog'}$}
+  \ninf{$\mprog' \leq_{\addr} \mprog$}
+  \leftl{\rule{C-Clos} :}
+  \tinf{$\corvalue{\mprog}{\cl{\senv}{\sprog}}{\cl{\menv}{\addr}}$}
+\end{prooftree}
+
+\vspace{0.5cm}
+\judgement{$\corstore{\mprog}{\senv}{\menv}$}
+
+\begin{prooftree}
+  \leftl{\rule{D-Nil} :}
+  \ax{$\corstore{\mprog}{\envnil}{\envnil}$}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{$\corstore{\mprog}{\senv}{\menv}$}
+  \ninf{$\corvalue{\mprog}{\sval}{\mval}$}
+  \leftl{\rule{D-Cons} :}
+  \binf{$\corstore{\mprog}{\senv \envcons \sval}{\menv \envcons \mval}$}
+\end{prooftree}
+
+\vspace{0.5cm}
+\judgement{$\corvaluestack{\mprog}{\svals}{\mvals}$}
+\vspace{0.5cm}
+
+\begin{prooftree}
   %\leftl{\rule{D-Nil} :}
-  %\ax{$\corstore{\q}{\mnil}{\mnil}$}
-%\end{prooftree}
-%
-%\begin{prooftree}
-  %\ninf{$\corstore{\q}{\tau}{\a}$}
-  %\ninf{$\corvalue{\q}{\w}{\r}$}
+  \ax{$\corvaluestack{\mprog}{\stknil}{\stknil}$}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{$\corvaluestack{\mprog}{\svals}{\mvals}$}
+  \ninf{$\corvalue{\mprog}{\sval}{\mval}$}
   %\leftl{\rule{D-Cons} :}
-  %\binf{$\corstore{\q}{\tau, \w}{\a, \r}$}
-%\end{prooftree}
-%
-%\vspace{0.5cm}
-%\judgement{$\corvaluestack{\q}{\mvalsi}{\svalsi}$}
-%\vspace{0.5cm}
-%
-%(same rules as previous judgement)
-%
-%\vspace{0.5cm}
-%\judgement{$\corstack{\q}{\Xi}{\b}{\sctrlamma}$}
-%
-%\begin{prooftree}
-  %\ax{$\corstack{\q}{\mnil}{\mhalt}{\mnil}$}
-%\end{prooftree}
-%
-%\begin{prooftree}
-  %\ninf{$\corstack{\q}{\Xi}{\b}{\sctrlamma}$}
-  %\ninf{$\corstore{\q}{\tau}{\a}$}
-  %\ninf{$\q \vdash \l \uparrow \b$}
-  %\ninf{$\trasl{\ss}{\b'}{\q'}$}
-  %\ninf{$\q' \leq_{f} \q$}
-  %\fiveinf{$\corstack{\q}{\Xi, \tup{\tau ; \ss}}{f(\b')}{\sctrlamma, \tup{\a; \l}}$}
-%\end{prooftree}
-%
-%\vspace{0.5cm}
-%
-%And now we are ready to generalise completeness and soundness:
-%
-%% completeness
-%\begin{lemma}
-%If $\ssev{\Xi}{\mvalsi}{\mnil}{\mnil, \w}$, $\corstack{\q}{\Xi}{\b}{\sctrlamma}$ and $\corvaluestack{\q}{\mvalsi}{\svalsi}$, then there exists $\r$ such that $\msteps{\q}{\sctrlamma}{\b}{\svalsi}{\mnil}{\mhalt}{\mnil, \r}$ with $\corvalue{\q}{\w}{\r}$.
-%\end{lemma}
-%
-%% soundness
-%\begin{lemma}
-%If $\msteps{\q}{\sctrlamma}{\b}{\svalsi}{\mnil}{\mhalt}{\mnil, \r}$, $\corstack{\q}{\Xi}{\b}{\sctrlamma}$ and $\corvaluestack{\q}{\mvalsi}{\svalsi}$, then there exists $\w$ such that $\ssev{\Xi}{\mvalsi}{\mnil}{\mnil, \w}$ with $\corvalue{\q}{\w}{\r}$.
-%\end{lemma}
+  \binf{$\corvaluestack{\mprog}{\svals \stkcons \sval}{\mvals \stkcons \mval}$}
+\end{prooftree}
+
+\vspace{0.5cm}
+\judgement{$\corstack{\mprog}{\sctrl}{\addr}{\mctrl}$}
+
+\begin{prooftree}
+  \rightl{$(\mprog(\addr) = \mhalt)$}
+  \ax{$\corstack{\mprog}{\stknil}{\addr}{\stknil}$}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{$\corstack{\mprog}{\sctrl}{\addr'}{\mctrl}$}
+  \ninf{$\corstore{\mprog}{\senv}{\menv}$}
+  \ninf{$\trasm{\sprog}{\mprog'}$}
+  \ninf{$\mprog' \leq_{\addr} \mprog$}
+  \qinf{$\corstack{\mprog}{\sctrl \stkcons \fr{\senv}{\sprog}}{\addr}{\mctrl \stkcons \fr{\menv}{\addr'}}$}
+\end{prooftree}
+
+\vspace{0.5cm}
+
+And now we are ready to generalise completeness and soundness:
+
+\begin{lemma}[Completeness]
+\label{lem:completeness-sm}
+If $\ssteps{\sctrl}{\svals}{\stknil}{[\sval]}$, $\corstack{\mprog}{\sctrl}{\addr}{\mctrl}$ and $\corvaluestack{\mprog}{\svals}{\mvals}$, then there exists $\mval$ such that $\msteps{\mprog}{\mctrl}{\addr}{\mvals}{\stknil}{\addr'}{[\mval]}$ with $\mprog(\addr') = \mhalt$ and $\corvalue{\mprog}{\sval}{\mval}$.
+\end{lemma}
+
+\begin{lemma}[Soundness]
+\label{lem:soundness-sm}
+If $\msteps{\mprog}{\mctrl}{\addr}{\mvals}{\stknil}{\addr'}{[\mval]}$ with $\mprog(\addr') = \mhalt$, $\corstack{\mprog}{\sctrl}{\addr}{\mctrl}$ and $\corvaluestack{\mprog}{\svals}{\mvals}$, then there exists $\sval$ such that $\ssteps{\sctrl}{\svals}{\stknil}{[\sval]}$ with $\corvalue{\mprog}{\sval}{\mval}$.
+\end{lemma}
