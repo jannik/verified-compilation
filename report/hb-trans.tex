@@ -2,17 +2,11 @@
 
 % filinski: will need more textual explaination
 
-\ensurecommand{\hbctx}{\Theta}%
-\ensurecommand{\cor}[2]{\ensuremath{#1 \rightsquigarrow #2}}
-
 % We define the type of correspondence contexts $\hbctx$.
 
 % \begin{align*}
 %   \hbctx &\defi \ctxnil \alt \hbctx_1 \ctxcons \cor{\bval}{\var}
 % \end{align*}
-
-\ensurecommand{\trahb}[4]{\ensuremath{#2 \vdash #3 \mathrel{\rhd} #4}} % a bit of a hack
-\ensurecommand{\corhb}[3]{\ensuremath{#2 \rightsquigarrow #3}}
 
 \judgement{\trahb{\hbctx}{\benv}{\bexp}{\hexp}}
 

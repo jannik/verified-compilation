@@ -2,18 +2,6 @@
 
 The De Bruijn language differs from the source language in two important ways: variables are represented by De Bruijn indices, and closures are managed explicitly instead of substituting arguments.
 
-\ensurecommand{\z}{\mathtt{z}}
-\ensurecommand{\suc}{\mathtt{s} \;}
-
-\ensurecommand{\bexp}{b}
-\ensurecommand{\bval}{\h{b}}
-
-% perhaps make macros less dependent on earlier ones?
-\ensurecommand{\bvar}{i}
-\ensurecommand{\blam}{\lam{}}
-\ensurecommand{\bapp}{\app}
-\ensurecommand{\bsuc}{\hsuc}
-
 \subsection*{Syntax}
 
 We define variable indices $\bvar$ and De Bruijn expressions $\bexp$ as follows:
@@ -23,8 +11,6 @@ We define variable indices $\bvar$ and De Bruijn expressions $\bexp$ as follows:
 \end{align*}
 
 \subsection*{Semantics}
-
-\ensurecommand{\benv}{\alpha}
 
 The semantics of the De Bruijn language is environment-based.
 We define De Bruijn values $\bval$ as follows, and environments $\benv$ are then ordered lists of values.
@@ -38,8 +24,6 @@ We define De Bruijn values $\bval$ as follows, and environments $\benv$ are then
 We introduce an auxiliary judgement for variable lookup.
 
 \vspace{0.5cm}
-
-\ensurecommand{\blook}[3]{\ensuremath{#1 \vdash #2 \uparrow #3}}
 
 % note: filinski doesn't like uparrow..
 % and we should consider making all lookups functions instead of judgements
@@ -55,8 +39,6 @@ We introduce an auxiliary judgement for variable lookup.
   \leftl{\rule{Bv-There} :}
   \uinf{\blook{\benv \envcons \bval'}{\suc{\bvar}}{\bval}}
 \end{prooftree}
-
-\ensurecommand{\bev}[3]{\ensuremath{#1 \vdash #2 \downarrow #3}}
 
 \judgement{\bev{\benv}{\bexp}{\bval}}
 

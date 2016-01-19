@@ -4,17 +4,6 @@ The source language represents the abstract syntax tree of the program text.
 
 \subsection*{Syntax}
 
-\ensurecommand{\hexp}{e}
-\ensurecommand{\hval}{\h{e}}
-
-\ensurecommand{\nat}{n}
-\ensurecommand{\var}{x}
-\ensurecommand{\othervar}{y}
-\ensurecommand{\lam}[2]{\lambda #1. #2}
-\ensurecommand{\app}[2]{#1 \; #2}
-\ensurecommand{\hsuc}[1]{\mathtt{suc} \; #1}
-% \ensurecommand{\hcase}[3]{\mathtt{case} \; #1 \; \mathtt{of} \; \z \Rightarrow #2 \; | \; \suc{x} \Rightarrow #3}
-
 Let $\nat$ denote natural numbers and $\var$ variable identifiers. We then define source language expressions $\hexp$ and canonical forms $\hval$:
 \begin{align*}
   \hexp &\defi \n{\nat} \alt \var \alt \lam{\var}{\hexp_1} \alt \app{\hexp_1}{\hexp_2} \alt \hsuc{\hexp_1} \\
@@ -25,10 +14,6 @@ Let $\nat$ denote natural numbers and $\var$ variable identifiers. We then defin
 % filinski note: explain why suc but no case. allows conversion from church numerals in order to observe results.
 
 \subsection*{Semantics}
-
-\ensurecommand{\sub}[3]{#1[#2/#3]}
-
-\ensurecommand{\hev}[2]{\ensuremath{#1 \downarrow #2}}
 
 The source language has a completely standard substitution-based semantics.
 

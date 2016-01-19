@@ -5,18 +5,6 @@ We now develop the next translation target, a stack-based language.
 
 \subsection*{Syntax}
 
-\ensurecommand{\sinst}{s}
-\ensurecommand{\sprog}{p}
-
-\ensurecommand{\snum}[1]{\mathtt{num} \; #1}
-\ensurecommand{\svar}[1]{\mathtt{var} \; #1}
-\ensurecommand{\slam}[1]{\mathtt{mkclos} \; #1}
-\ensurecommand{\sapp}{\mathtt{app}}
-\ensurecommand{\ssuc}{\mathtt{suc}}
-
-\ensurecommand{\send}{\mathtt{end}}
-\ensurecommand{\sseq}{\mathbin{;}}
-
 We define stack-machine instructions $\sinst$ and programs $\sprog$:
 \begin{align*}
   \sinst &\defi \snum{\nat} \alt \svar{\bvar} \alt \slam{\sprog} \alt \sapp \alt \ssuc \\
@@ -25,16 +13,6 @@ We define stack-machine instructions $\sinst$ and programs $\sprog$:
 (Note that $\bvar$ was defined previously.)
 
 \subsection*{Semantics}
-
-\ensurecommand{\sval}{\hat{s}}
-\ensurecommand{\senv}{\beta}
-\ensurecommand{\sctrl}{\Gamma}
-\ensurecommand{\svals}{\Phi}
-
-\ensurecommand{\sev}[2]{\ensuremath{#1 \downarrow #2}}%
-\ensurecommand{\sstep}[4]{\ensuremath{\tup{#1 \tupsep #2} \rightarrow \tup{#3 \tupsep #4}}}
-\ensurecommand{\ssteps}[4]{\ensuremath{\tup{#1 \tupsep #2} \rightarrow^* \tup{#3 \tupsep #4}}}
-\ensurecommand{\slook}[3]{\ensuremath{#1 \vdash #2 \uparrow #3}}%
 
 We define values $\sval$, environments $\senv$, control stacks $\sctrl$, and value stacks $\svals$:
 \begin{align*}

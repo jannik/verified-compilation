@@ -1,0 +1,173 @@
+\newcounter{statementcounter}
+\newtheorem{lemma}[statementcounter]{Lemma}
+\newtheorem{theorem}[statementcounter]{Theorem}
+
+\newenvironment{proof}[1][Proof]{
+\paragraph{#1}
+}{
+\begin{flushright}
+$\blacksquare$
+\end{flushright}
+}
+
+% meta
+\newcommand{\ensurecommand}[1]{\providecommand{#1}{}\renewcommand{#1}}
+
+% judgements/rules
+\ensurecommand{\judgement}[1]{\noindent \framebox{#1}}
+\ensurecommand{\ninf}[1]{\AxiomC{#1}}
+\ensurecommand{\uinf}[1]{\UnaryInfC{#1}}
+\ensurecommand{\binf}[1]{\BinaryInfC{#1}}
+\ensurecommand{\tinf}[1]{\TrinaryInfC{#1}}
+\ensurecommand{\qinf}[1]{\QuaternaryInfC{#1}}
+%\ensurecommand{\fiveinf}[1]{\QuinaryInfC{#1}}%
+\ensurecommand{\ax}[1]{\ninf{} \uinf{#1}}
+\ensurecommand{\prem}[2]{\noLine \ninf{$#1$} \uinf{#2}}
+\ensurecommand{\leftl}[1]{\LeftLabel{#1 \;}}
+\ensurecommand{\rightl}[1]{\RightLabel{#1}}
+\ensurecommand{\rule}{\textsc}
+
+% derivation symbols (consider generalising names in commands..)
+\ensurecommand{\E}{\mathcal{E}}
+\ensurecommand{\B}{\mathcal{B}}
+\ensurecommand{\Bv}{\mathcal{B}^{\mathrm{v}}}
+\ensurecommand{\C}{\mathcal{C}}
+\ensurecommand{\D}{\mathcal{D}}
+\ensurecommand{\T}{\mathcal{T}}
+\ensurecommand{\Tv}{\mathcal{L}}
+\ensurecommand{\P}{\mathcal{P}}
+
+% misc/general
+\ensurecommand{\defi}{\Coloneqq}
+\ensurecommand{\alt}{\;\; | \;\;}
+\ensurecommand{\set}[1]{\{ #1 \}}%
+\ensurecommand{\tup}[1]{\langle #1 \rangle}
+
+% separators
+\ensurecommand{\tupsep}{,}
+\ensurecommand{\ctxsep}{\, | \,} 
+
+\ensurecommand{\envnil}{[]}
+\ensurecommand{\envcons}{::}
+
+\ensurecommand{\stknil}{[]}
+\ensurecommand{\stkcons}{::}
+
+\ensurecommand{\ctxnil}{[]}
+\ensurecommand{\ctxcons}{::}
+
+% h-language syntax
+\ensurecommand{\hexp}{e}
+\ensurecommand{\hval}{\hat{e}}
+
+\ensurecommand{\n}{\overline}
+\ensurecommand{\nat}{n}
+\ensurecommand{\var}{x}
+\ensurecommand{\othervar}{y}
+\ensurecommand{\lam}[2]{\lambda #1. #2}
+\ensurecommand{\app}[2]{#1 \; #2}
+\ensurecommand{\hsuc}[1]{\mathtt{suc} \; #1}
+%\ensurecommand{\hcase}[3]{\mathtt{case} \; #1 \; \mathtt{of} \; \z \Rightarrow #2 \; | \; \suc{x} \Rightarrow #3}
+
+% h-language semantics
+\ensurecommand{\sub}[3]{#1 [ #2 / #3 ]}
+\ensurecommand{\hev}[2]{\ensuremath{#1 \downarrow #2}}
+
+% b-language syntax
+\ensurecommand{\z}{\mathtt{z}}
+\ensurecommand{\suc}{\mathtt{s} \;}
+
+\ensurecommand{\bexp}{b}
+\ensurecommand{\bval}{\hat{b}}
+
+\ensurecommand{\bvar}{i}
+\ensurecommand{\blam}[1]{\lambda . #1}
+\ensurecommand{\bapp}[2]{#1 \; #2}
+\ensurecommand{\bsuc}[1]{\mathtt{suc} \; #1}
+
+% b-language semantics
+\ensurecommand{\cl}[2]{\{ #1 \tupsep #2 \}}
+
+\ensurecommand{\benv}{\alpha}
+
+\ensurecommand{\blook}[3]{\ensuremath{#1 \vdash #2 \uparrow #3}}
+\ensurecommand{\bev}[3]{\ensuremath{#1 \vdash #2 \downarrow #3}}
+
+% hb translation
+\ensurecommand{\hbctx}{\Theta}%
+\ensurecommand{\cor}[2]{\ensuremath{#1 \rightsquigarrow #2}}
+\ensurecommand{\trahb}[4]{\ensuremath{#2 \vdash #3 \mathrel{\rhd} #4}} % a bit of a hack
+\ensurecommand{\corhb}[3]{\ensuremath{#2 \rightsquigarrow #3}}
+
+% s-language syntax
+\ensurecommand{\sinst}{s}
+\ensurecommand{\sprog}{p}
+
+\ensurecommand{\snum}[1]{\mathtt{num} \; #1}
+\ensurecommand{\svar}[1]{\mathtt{var} \; #1}
+\ensurecommand{\slam}[1]{\mathtt{mkclos} \; #1}
+\ensurecommand{\sapp}{\mathtt{app}}
+\ensurecommand{\ssuc}{\mathtt{suc}}
+
+\ensurecommand{\send}{\mathtt{end}}
+\ensurecommand{\sseq}{\mathbin{;}}
+
+% s-language semantics
+\ensurecommand{\fr}[2]{\langle #1 \tupsep #2 \rangle}
+
+\ensurecommand{\sval}{\hat{s}}
+\ensurecommand{\senv}{\beta}
+\ensurecommand{\sctrl}{\Gamma}
+\ensurecommand{\svals}{\Phi}
+
+\ensurecommand{\sev}[2]{\ensuremath{#1 \downarrow #2}}%
+\ensurecommand{\sstep}[4]{\ensuremath{\tup{#1 \tupsep #2} \rightarrow \tup{#3 \tupsep #4}}}
+\ensurecommand{\ssteps}[4]{\ensuremath{\tup{#1 \tupsep #2} \rightarrow^* \tup{#3 \tupsep #4}}}
+\ensurecommand{\slook}[3]{\ensuremath{#1 \vdash #2 \uparrow #3}}%
+
+% bs translation
+\ensurecommand{\trabs}[3]{\ensuremath{#1 \circ #2 \mathrel{\rhd} #3}}
+\ensurecommand{\trabsfinal}[2]{\ensuremath{#1 \mathrel{\rhd} #2}}
+
+% m-language syntax
+\ensurecommand{\addr}{\ell}
+\ensurecommand{\addrret}{\addr_{\mathrm{ret}}}
+
+\ensurecommand{\minst}{m}
+\ensurecommand{\mprog}{q}
+
+\ensurecommand{\mpushnum}[1]{\mathtt{pushnum} \; #1}
+\ensurecommand{\mpushvar}[1]{\mathtt{pushvar} \; #1}
+\ensurecommand{\mpushclos}[1]{\mathtt{pushclos} \; #1}
+\ensurecommand{\mcall}[1]{\mathtt{call} \; #1}
+\ensurecommand{\minc}{\mathtt{inc}}
+\ensurecommand{\mret}{\mathtt{ret}}
+\ensurecommand{\mhalt}{\mathtt{halt}}
+
+\ensurecommand{\mend}{\mathtt{[]}}
+\ensurecommand{\mseq}{\mathbin{;}}
+\ensurecommand{\mconcat}{\mathbin{;\!;}} % or perhaps double semicolon isn't ideal notation
+
+% m-language semantics
+\ensurecommand{\mval}{\hat{m}}
+\ensurecommand{\menv}{\gamma}
+\ensurecommand{\mctrl}{\Delta}
+\ensurecommand{\mvals}{\Psi}
+
+\ensurecommand{\mexec}[7]{\ensuremath{#1 : \tup{#2 \tupsep #3 \tupsep #4} \rightarrow \tup{#5 \tupsep #6 \tupsep #7}}}
+\ensurecommand{\msteps}[7]{\ensuremath{#1 \vdash \tup{#2 \tupsep #3 \tupsep #4} \rightarrow^* \tup{#5 \tupsep #6 \tupsep #7}}}
+\ensurecommand{\meval}[3]{\ensuremath{\tup{#1 \tupsep #2} \downarrow #3}}
+\ensurecommand{\mlook}[3]{\ensuremath{#1 \vdash #2 \uparrow #3}}%
+
+% sm translation
+\ensurecommand{\trasm}[2]{\ensuremath{#1 \mathrel{\rhd} #2}}
+\ensurecommand{\trasmfinal}[3]{\ensuremath{#1 \mathrel{\rhd} \tup{#2 \tupsep #3}}}
+
+\ensurecommand{\shift}[2]{(#1 \gg #2)} % or perhaps {#1^{\wedge #2}}
+\ensurecommand{\len}[1]{\left| #1 \right|}
+
+% sm equivalence
+\ensurecommand{\corvalue}[3]{\ensuremath{#1 \vdash #2 \rightsquigarrow #3}}
+\ensurecommand{\corstore}{\ensuremath{\corvalue}}
+\ensurecommand{\corvaluestack}{\ensuremath{\corstore}}
+\ensurecommand{\corstack}[4]{\ensuremath{#1 \vdash #2 \rightsquigarrow \tup{#3 \tupsep #4}}}
