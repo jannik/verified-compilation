@@ -1,4 +1,11 @@
 \subsection*{Equivalence}
+
+\begin{theorem} [Equivalence HOAS-Bruijn]
+\label{thm:equivalence-hb} If \trahb{\hbctx}{\envnil}{\bexp}{\hexp}, then \hev{\hexp}{\n{n}} if and only if \bev{\envnil}{\bexp}{\n{n}}.
+\end{theorem}
+
+To prove this, we first generalise to the following lemmas.
+
 \begin{lemma}
 \label{lem:substitution-cor}
 If \corhb{\hbxtx}{\bval}{\hexp} and \corhb{\hbctx}{\bval'}{\hexp'} then \corhb{\hbctx}{\sub{\bval}{\bval'}{\var}}{\sub{\hexp}{\hexp'}{\var}}
@@ -113,60 +120,6 @@ The case is finished using \rule{E-App} with $\E_1$, $\E_2$ and $\E_3$; the requ
 If \trahb{\hbctx}{\benv}{\hexp}{\bexp} (by $\T$) and \hev{\hexp}{\hval} (by $\E$), then there exists $\bval$ such that \bev{\benv}{\bexp}{\bval} (by some $\B$) and \corhb{\hbctx}{\bval}{\hval} (by some $\C$).
 \end{lemma}
 
-\begin{lemma}[Totality]
-For any $\hexp$ and $\benv$ with free variables $\var_1, \ldots, \var_n$ together with indices $\bvar_1, \ldots, \bvar_n$ and derivations $\Tv_1, \ldots, \Tv_n$ of respectively $\blook{\benv}{\bvar_1}{\var_1}, \ldots, \blook{\benv}{\bvar_n}{\var_n}$ there exists an alpha-equivalent $\hexp'$ such that \trahb{\hbctx}{\benv}{\bexp}{\hexp'} (by some $\T$) for some $\bexp$.
-\end{lemma}
-
-\begin{proof}
-By induction on $\hexp$ modulo renaming, i.e. if $\hexp_1$ is a subterm of $\hexp$ then $\sub{\hexp_1}{\var}{\othervar}$ is also considered a subterm.
-Since in any case the size of the term decreases the induction is well-founded.
-
-\paragraph{Case $\hexp = \var$}
-Since $\var$ is free we must have $\var = \var_k$ for some $k$.
-Take $\hexp' = \hexp$ and let $\T$ be
-\begin{prooftree}
-  \prem{\Tv_k}{\blook{\benv}{\bvar_k}{\var_k}}
-  \ax{\corhb{\hbctx}{\var_k}{\var_k}}
-  \binf{\trahb{\hbctx}{\benv}{\bvar_k}{\var_k}}
-\end{prooftree}
-
-\paragraph{Case $\hexp = \lam{\var}{\hexp_1}$}
-\paragraph{Subcase \textnormal{$\var = \var_k$ for some $k$}}
-Let $\othervar$ be a variable that does not occur free in $\hexp_1$ and let $\hexp_1' = \sub{\hexp_1}{\othervar}{\var}$.
-We want to invoke the IH with $\hexp_1'$ and $\benv \envcons \othervar$, which requires suitable derivations.
-Let $\Tv_k'$ be
-\begin{prooftree}
-  \ax{\blook{\benv \envcons \othervar}{\z}{\othervar}}
-\end{prooftree}
-and for any $j \neq k$ let $\Tv_j'$ be
-\begin{prooftree}
-  \prem{\Tv_j}{\blook{\benv}{\bvar_j}{\var_j}}
-  \uinf{\blook{\benv \envcons \othervar}{\suc{\bvar_j}}{\var_j}}
-\end{prooftree}
-By IH on $\hexp_1'$ with $\benv \envcons \othervar$ and $\Tv_1', \ldots, \Tv_n'$ we get \trahb{\hbctx}{\benv \envcons \othervar}{\bexp_1}{\hexp_1''} (by some $\T_1$) for some $\bexp_1$ and $\hexp_1''$.
-Observing that $\lam{\var}{\hexp_1}$ is alpha-equivalent to $\lam{\othervar}{\sub{\hexp_1}{\othervar}{\var}}$ which is again alpha-equivalent to $\lam{\othervar}{\hexp_1''}$ we can take $\T$ to be
-
-\begin{prooftree}
-	\prem{\T_1}{\trahb{\hbctx}{\benv \envcons \othervar}{\bexp_1}{\hexp_1''}}
-  \rightl{($\othervar \notin \benv$)}
-  \uinf{\trahb{\hbctx}{\benv}{\blam{\bexp_1}}{\lam{\othervar}{\hexp_1''}}}
-\end{prooftree}
-
-\paragraph{Subcase \textnormal{$\var \neq \var_k$ for all $k$}}
-For all $j$ let $\Tv_j'$ be
-\begin{prooftree}
-  \prem{\Tv_j}{\blook{\benv}{\bvar_j}{\var_j}}
-  \uinf{\blook{\benv \envcons \var}{\suc{\bvar_j}}{\var_j}}
-\end{prooftree}
-By IH on $\hexp_1$ with $\benv \envcons \var$ and $\Tv_1', \ldots, \Tv_n'$ we get \trahb{\hbctx}{\benv \envcons \var}{\bexp_1}{\hexp_1'} (by some $\T_1$) for some $\bexp_1$ and $\hexp_1'$.
-Since $\lam{\var}{\hexp_1}$ is alpha-equivalent to $\lam{\var}{\hexp_1'}$ we can $\T$ to be
-\begin{prooftree}
-	\prem{\T_1}{\trahb{\hbctx}{\benv \envcons \var}{\bexp_1}{\hexp_1'}}
-  \rightl{($\var \notin \benv$)}
-  \uinf{\trahb{\hbctx}{\benv}{\blam{\bexp_1}}{\lam{\othervar}{\hexp_1'}}}
-\end{prooftree}
-
-\end{proof}
 
 % \subsection*{Equivalence}
 
