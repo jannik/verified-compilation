@@ -4,7 +4,7 @@
 \label{thm:equiv-bs} If \trabsfinal{\bexp}{\sprog}, then \bev{\envnil}{\bexp}{\n{\nat}} if and only if \sev{\sprog}{\n{\nat}}.
 \end{theorem}
 
-To prove this we need two additional judgements:
+To prove this we need two correspondence judgements:
 
 \vspace{0.5cm}
 
@@ -36,10 +36,65 @@ To prove this we need two additional judgements:
   \binf{\cor{\benv \envcons \bval}{\senv \envcons \sval}}
 \end{prooftree}
 
+We can now generalise the two directions of the theorem, i.e. completeness and soundness.
+
 \begin{lemma}[Completeness]
 \label{lem:completeness-bs}
-If \trabs{\bexp}{\sprog_2}{\sprog} and \bev{\benv}{\bexp}{\bval} with \cor{\benv}{\senv}, then (for all $\sctrl$ and $\svals$) there exists $\sval$ such that \ssteps{\sctrl \stkcons \fr{\senv}{\sprog}}{\svals}{\sctrl \stkcons \fr{\senv}{\sprog_2}}{\svals \stkcons \sval} with \cor{\bval}{\sval}.
+If \trabs{\bexp}{\sprog_2}{\sprog} (by $\T$) and \bev{\benv}{\bexp}{\bval} (by $\B$) with \cor{\benv}{\senv} (by $\D$), then (for all $\sctrl$ and $\svals$) there exists $\sval$ such that \ssteps{\sctrl \stkcons \fr{\senv}{\sprog}}{\svals}{\sctrl \stkcons \fr{\senv}{\sprog_2}}{\svals \stkcons \sval} (by some $\P$) with \cor{\bval}{\sval} (by some $\C$).
 \end{lemma}
+
+\begin{proof}
+By induction on $\B$.
+The proof is rather straightforward, so we show only the most interesting case:
+
+\paragraph{Case \textnormal{\rule{B-App}}}
+
+\begin{prooftree}
+  \prem{\B_1}{\bev{\benv}{\bexp_1}{\cl{\benv'}{\bexp_0}}}
+  \prem{\B_2}{\bev{\benv}{\bexp_2}{\bval_2}}
+  \prem{\B_3}{\bev{\benv' \envcons \bval_2}{\bexp_0}{\bval}}
+	\leftl{$\B =$}
+  \tinf{\bev{\benv}{\bapp{\bexp_1}{\bexp_2}}{\bval}}
+\end{prooftree}
+So $\bexp = \bapp{\bexp_1}{\bexp_2}$.
+$\T$ must have the form
+\begin{prooftree}
+  \prem{\T_2}{\trabs{\bexp_2}{\sapp \sseq \sprog_2}{\sprog'}}
+  \prem{\T_1}{\trabs{\bexp_1}{\sprog'}{\sprog}}
+  \binf{\trabs{\bapp{\bexp_1}{\bexp_2}}{\sprog_2}{\sprog}}
+\end{prooftree}
+
+By IH on $\B_1$ with $\T_1$ and $\D$, (for all $\sctrl_1$ and $\svals_1$) we get derivations $\P_1$ of \ssteps{\sctrl_1 \stkcons \fr{\senv}{\sprog}}{\svals_1}{\sctrl_1 \stkcons \fr{\senv}{\sprog'}}{\svals_1 \stkcons \sval_1} and $\C_1$ of \cor{\cl{\benv'}{\bexp_0}}{\sval_1} (for some $\sval_1$).
+$\C_1$ must have the form
+\begin{prooftree}
+  \prem{\D_1'}{\cor{\benv'}{\senv'}}
+  \prem{\T_1'}{\trabsfinal{\bexp_0}{\sprog_0}}
+  \binf{\cor{\cl{\benv'}{\bexp_0}}{\cl{\senv'}{\sprog_0}}}
+\end{prooftree}
+So $\sval_1 = \cl{\senv'}{\sprog_0}$ (for some $\senv'$ and $\sprog_0$).
+
+By IH on $\B_2$ with $\T_2$ and $\D$, (for all $\sctrl_2$ and $\svals_2$) we get derivations $\P_2$ of \ssteps{\sctrl_2 \stkcons \fr{\senv}{\sprog'}}{\svals_2}{\sctrl_2 \stkcons \fr{\senv}{\sapp \sseq \sprog_2}}{\svals_2 \stkcons \sval_2} and $\C_2$ of \cor{\bval_2}{\sval_2} (for some $\sval_2$).
+We construct the following derivation $\D'$ of \cor{\benv' \envcons \bval_2}{\senv' \envcons \sval_2}:
+\begin{prooftree}
+  \prem{\D_1'}{\cor{\benv'}{\senv'}}
+  \prem{\C_2}{\cor{\bval_2}{\sval_2}}
+  \binf{\cor{\benv' \envcons \bval_2}{\senv' \envcons \sval_2}}
+\end{prooftree}
+
+Then by IH on $\B_3$ with $\T_1'$ and $\D'$, (for all $\sctrl_3$ and $\svals_3$) we get derivations $\P_3$ of \ssteps{\sctrl_3 \stkcons \fr{\senv' \envcons \sval_2}{\sprog_0}}{\svals_3}{\sctrl_3 \stkcons \fr{\senv' \envcons \sval_2}{\send}}{\svals_3 \stkcons \sval_3} and $\C_3$ of \cor{\bval}{\sval_3} (for some $\sval_3$).
+Taking $\sval = \sval_3$, we can take $\C = \C_3$.
+Finally, fixing $\sctrl$ and $\svals$, we construct the required derivation $\P$ by concatenation:
+% note: 
+\begin{align*}
+\ssteplhs{\sctrl \stkcons \fr{\senv}{\sprog}}{\svals}
+  & \sstepsrhs{\sctrl \stkcons \fr{\senv}{\sprog'}}{\svals \stkcons \cl{\senv'}{\sprog_0}} & (\text{$\P_1$; $\sctrl_1 = \sctrl$ and $\svals_1 = \svals$}) \\
+  & \sstepsrhs{\sctrl \stkcons \fr{\senv}{\sapp \sseq \sprog_2}}{\svals \stkcons \cl{\senv'}{\sprog_0} \stkcons \sval_2} & (\text{$\P_2$; $\sctrl_2 = \sctrl$ and $\svals_2 = \svals \stkcons \sval_2$}) \\
+  & \ssteprhs{\sctrl \stkcons \fr{\senv}{\sprog_2} \stkcons \fr{\senv' \envcons \sval_2}{\sprog_0}}{\svals} & (\text{\rule{S-App}}) \\
+  & \sstepsrhs{\sctrl \stkcons \fr{\senv}{\sprog_2} \stkcons \fr{\senv' \envcons \sval_2}{\send}}{\svals \stkcons \sval_3} & (\text{$\P_3$; $\sctrl_3 = \sctrl \stkcons \fr{\senv}{\sprog_2}$ and $\svals_3 = \svals$}) \\
+  & \ssteprhs{\sctrl \stkcons \fr{\senv}{\sprog_2}}{\svals \stkcons \sval_3} & (\text{\rule{S-Ret}})
+\end{align*}
+
+\end{proof}
 
 Let $\prec$ denote the standard subtree order on step sequences, i.e. $\P_1 \prec \P_2$ if $\P_1$ is a proper suffix of $\P_2$.
 
@@ -47,3 +102,26 @@ Let $\prec$ denote the standard subtree order on step sequences, i.e. $\P_1 \pre
 \label{lem:soundness-bs}
 If \trabs{\bexp}{\sprog_2}{\sprog} and \ssteps{\sctrl \stkcons \fr{\senv}{\sprog}}{\svals}{\stknil}{[\sval']} (by $\P$) with \cor{\benv}{\senv}, then there exists $\bval$ and $\sval$ such that \bev{\benv}{\bexp}{\bval} with \cor{\bval}{\sval} and \ssteps{\sctrl \stkcons \fr{\senv}{\sprog_2}}{\svals \stkcons \sval}{\stknil}{[\sval']} (by $\P'$) where $\P' \prec \P$.
 \end{lemma}
+
+\begin{proof}
+By simultaneous induction on $\T$ and $\P$.
+Again we show only the most interesting case:
+[is it relevant to have in report?]
+% something about how twelf proof needing inversion and coerce lemmas..
+\end{proof}
+
+And finally we can establish the main theorem:
+
+\begin{proof}[Proof of Theorem~\ref{thm:equiv-hb}]
+Supposing \trabsfinal{\bexp}{\sprog} (by $\T$), we show the bi-implication.
+
+For the left-to-right direction, assume \bev{\envnil}{\bexp}{\n{\nat}} (by $\B$).
+Rule \rule{D-Nil} provides $\D$ showing the compatibility of empty contexts.
+Then by Lemma~\ref{lem:completeness-bs} on $\T$, $\B$ and $\D$, we get \ssteps{[\fr{[]}{\sprog}]}{[]}{[\fr{[]}{\send}]}{[\sval]} (by $\P$) for some $\sval$ satisfying \cor{\n{\nat}}{\sval} (by $\C$).
+By inversion on $\C$, we must have $\sval = \n{\nat}$.
+Concatenating $\P$ with a use of \rule{S-Ret}, we get a derivation $\P'$ of \ssteps{[\fr{[]}{\sprog}]}{[]}{[]}{[\n{\nat}]}.
+And with $\P'$ we can derive $\sev{\sprog}{\n{\nat}}$ as required.
+
+The other direction is similar. [though not analogous.. is it relevant to prove these on paper?]
+
+\end{proof}
