@@ -1,4 +1,11 @@
 \subsection*{Equivalence}
+
+\begin{theorem} [Equivalence HOAS-Bruijn]
+\label{thm:equivalence-hb} If \trahb{\hbctx}{\envnil}{\bexp}{\hexp}, then \hev{\hexp}{\n{n}} if and only if \bev{\envnil}{\bexp}{\n{n}}.
+\end{theorem}
+
+To prove this, we first generalise to the following lemmas.
+
 \begin{lemma}
 \label{lem:substitution-cor}
 If \corhb{\hbxtx}{\bval}{\hexp} and \corhb{\hbctx}{\bval'}{\hexp'} then \corhb{\hbctx}{\sub{\bval}{\bval'}{\var}}{\sub{\hexp}{\hexp'}{\var}}
