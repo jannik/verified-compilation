@@ -1,6 +1,10 @@
 \section*{The \textnormal{\slang} Language}
 
 We now develop the next translation target, \slang.
+Where \blang expressions have a tree structure, \slang programs are flat lists of mostly atomic instructions.
+(Functions will be flattened in the next translation.)
+Computation uses abstract stack machine semantics, replacing evaluation trees with flat sequences of states.
+
 % some text about its purpose, major changes, etc.
 % From big-step to abstract stack machine.
 
