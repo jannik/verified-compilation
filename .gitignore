@@ -9,3 +9,4 @@
 *.fdb_latexmk
 *.fls
 .tup/
+/report/code-*.tex

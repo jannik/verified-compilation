@@ -2,15 +2,34 @@
 
 % Lots of \Twelf
 
-% General Explanation
-% Explain why it is going in the 'wrong' direction
-% Refer to Pfenning
 
 % We define the type of correspondence contexts $\hbctx$.
 
 % \begin{align*}
 %   \hbctx &\defi \ctxnil \alt \hbctx_1 \ctxcons \cor{\bval}{\var}
 % \end{align*}
+
+Before giving the translation judgement, we want to point out that there are several workable ways of implementing translation.
+The most ``obvious'' solution is to keep an ordered list of free variables (say $\Gamma$) such that each variable's position indicates its De Bruijn index.
+For instance, the case for variables would be something like:
+\begin{prooftree}
+\ax{\trahb{\hbctx}{\Gamma}{\bvar}{\Gamma(\bvar)}}
+\end{prooftree}
+The case for $\lambda$ would be:
+\begin{prooftree}
+\ninf{\trahb{\hbctx}{\Gamma \envcons \var}{\bexp_1}{\hexp_1}}
+\uinf{\trahb{\hbctx}{\Gamma}{\blam{\bexp_1}}{\lam{\var}{\hexp_1}}}
+\end{prooftree}
+(The direction of the translation is intentional as will be explained below.) Investigating this approach we found that proving soundness and completeness was doable but cumbersome: the invariant involves a complex relationship between $\benv$, $\Gamma$ and the free variables in scope.
+
+It turns out that there is an easier way, adapted from Pfenning. [cite]
+The idea is to weaken the separation between semantics and translation and use the store type $\benv$ instead of just a list of variables.
+For this to work we need a notion of hypothetical values (after all, we are not executing the program so no concrete values will arise) which explains the need for including variables as \blang values.
+This has little effect if all we want to do is translate programs, but it turns out that this approach affords a simple invariant for soundness and completeness.
+
+That being said, the translation judgement is as follows.
+
+\vspace{0.5em}
 
 \judgement{\trahb{\hbctx}{\benv}{\bexp}{\hexp}}
 
@@ -46,6 +65,8 @@
   \uinf{\trahb{\hbctx}{\benv}{\bsuc{\bexp_1}}{\hsuc{\hexp_1}}}
 \end{prooftree}
 
+
+
 % \begin{prooftree}
 % 	\ninf{\trahb{\hbctx}{\benv}{b_1}{e_1}}
 % 	\ninf{\trahb{\hbctx}{\benv}{b_2}{e_2}}
@@ -55,7 +76,7 @@
 %   \tinf{\trahb{\hbctx}{\benv}{\bcase{b_1}{b_2}{b_3}}{\hcase{e_1}{e_2}{e_3}}}
 % \end{prooftree}
 
-We define a correspondence between values and expressions in canonical form:
+It uses a correspondence relation between values and expressions in canonical form:
 
 \vspace{0.5cm}
 
@@ -77,7 +98,7 @@ We define a correspondence between values and expressions in canonical form:
   \uinf{\corhb{\hbctx}{\cl{\benv}{\bexp}}{\lam{\var}{\hexp}}}
 \end{prooftree}
 
-It is not immediately clear that this translation is total in the right-to-left direction, i.e. that every $\hexp$ has a corresponding $\bexp$.
+While every $\bexp$ allows us to find some $\hexp$ such that \trahb{\hbctx}{\envnil}{\bexp}{\hexp}, it is not immediately clear that the translation is total in the right-to-left direction, i.e. that every $\hexp$ has a corresponding $\bexp$.
 In fact, this property does not hold!
 Consider $\hexp = \lam{\var}{\lam{\var}{\n{0}}}$; the best attempt at a translation would be the following:
 \begin{prooftree}
@@ -89,6 +110,7 @@ Consider $\hexp = \lam{\var}{\lam{\var}{\n{0}}}$; the best attempt at a translat
 \end{prooftree}
 However, the side condition $\var \notin (\envnil \envcons \var)$ is blatantly false.
 In general, nested $\lambda$'s using the same variable name will run into this problem.
+This is the reason for the translation going ``backwards''.
 
 Hence, we can at best hope that there is always some alpha-equivalent expression which is translatable.
 Even this is not readily apparent from the rules and therefore requires a proof.
@@ -154,3 +176,56 @@ Since $\lam{\var}{\hexp_1}$ is alpha-equivalent to $\lam{\var}{\hexp_1'}$ we can
 \end{prooftree}
 
 \end{proof}
+
+\Twelf
+The Twelf implementation differs in several ways.
+We do not explicitly consider variables to be values --- instead, we consider worlds where hypothetical values exist.
+This means that what is just a variable $\var$ during the translation on paper will manifest itself both as a hypothetical \hlang expression and as a hypothetical \blang value in Twelf.
+Hence, we must make sure that they correspond giving rise to the following block:
+\input{code-trans-hb-block}
+This block of assumptions is introduced in the case for $\lambda$-abstractions.
+\input{code-trans-hb-lam}
+The correspondence hypothesis is the Twelf analogue of the \rule{C-Var} rule.
+
+(As an aside, note that we could also have introduced a separate constructorless type, \texttt{var}, to represent variables and constructors
+\begin{align*}
+  &\texttt{hyp : var -> exp} \\
+  &\texttt{bhyp : var -> value}
+\end{align*}
+to regard them as both \hlang expressions and as \blang values.
+However, this would only introduce complications with no clear benefit.
+On the other hand, one might consider porting the Twelf implementation back to the paper version.
+This also is not worthwhile since it requires defining the notion of a hypothetical value and a somewhat complicated argument about the relationship between variables and hypothetical values which is handled implicitly by Twelf's world checker.
+Thus, we claim that the difference in the translation judgement between the paper formulation and the Twelf mechanisation is justified.)
+
+Another important difference is that since we use higher-order abstract syntax in Twelf we do not have to worry about alpha-equivalence.
+Hence, there is no caveat about alpha-equivalence in the totality theorem of the translation in Twelf.
+However, convincing Twelf of the totality is difficult.
+Simply putting a \texttt{\%total} directive on the relation is rejected by Twelf (and rightly so) because it is not clear that searching through $\benv$ for a value related to some variable will always be successful.
+Indeed, the translation relation does not encode the crucial property that every free variable corresponds to some value occuring in $\benv$.
+For instance, the following query is well-typed and respects the world assumption of \texttt{trans-hb} but has no solutions:
+\input{code-trans-hb-query}
+Consequently, we need a separate existence theorem to show totality.
+
+This is a point where the limitations of Twelf become somewhat painful.
+There is no way to represent an invariant like ``every hypothetical expression corresponds to some value in $\benv$'' like in our paper proof because there is no way to state relations between hypotheticals in the ``ambient'' scope [is there a better term?] and parameters to a judgement.
+
+It turns out, however, that there is an alternative induction hypothesis which is also sufficient to show totality of translation for closed expressions in an empty context.
+In Twelf it is stated as follows:
+\input{code-totality-hb-exists}
+The \texttt{match} type family is mostly a technicality so we can discriminate variables.
+The \texttt{good-store} type family constraints the store to only contain hypothetical values.
+Thus, the lemma essentially says that for every $\hexp$ there exists some $\benv$ containing only variables and some $\bexp$ such that \trahb{\hbctx}{\benv}{\bexp}{\hexp}.
+The idea is that in a closed world an $\benv$ containing only variables must in fact be empty.
+
+It is not immediately obvious how to maintain the invariant, though.
+The proof is structured around a preorder on stores such that \trahb{\hbctx}{\benv_1}{\bexp}{\hexp} and $\benv_1 \le \benv_2$ implies \trahb{\hbctx}{\benv_2}{\bexp}{\hexp}.
+For the application case, $\app{\hexp_1}{\hexp_2}$, we can then simply invoke the induction hypothesis to get two different stores $\benv_1$ and $\benv_2$.
+Concatenating them yields a new store $\benv$ such that $\benv_1 \le \benv$ and $\benv_2 \le \benv$:
+\input{code-totality-hb-app}
+For the $\lambda$-abstraction case, $\lam{\var}{\hexp_1}$, the situation is a bit more complicated: we get some $\benv$ where $\var$ can occur anywhere.
+The key lemma is that we can find another store $\benv'$ with $\benv \le \benv' \envcons \var$ and such that $\var$ does not occur in $\benv'$:
+\input{code-totality-hb-move-to-head}
+This is sufficient to construct the required translation:
+\input{code-totality-hb-lam}
+The remaining cases are straightforward.

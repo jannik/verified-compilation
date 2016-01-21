@@ -58,3 +58,6 @@ trans-hb/case : trans-hb Alph (bcase B1 B2 B3) (case E1 E2 E3)
 }%
 
 %block bl-trans-hb : block {v : value} {x : exp} {dc : cor v x}.
+
+% Example showing that trans-hb is not total.
+%query 0 * {v} {x} cor v x -> trans-hb store/nil B x.

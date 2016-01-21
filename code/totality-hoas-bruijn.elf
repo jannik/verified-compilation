@@ -20,35 +20,35 @@ match : exp -> type. %name match C.
 match/num : match (num N).
 
 match/var : match E
-             <- bhyp V
-             <- cor V E.
+            <- bhyp V
+            <- cor V E.
 
 match/app : match (app E1 E2)
-             <- match E1
-             <- match E2.
+            <- match E1
+            <- match E2.
 
 match/lam : match (lam E1)
-             <- {v} {x} cor v x -> bhyp v -> match (E1 x).
+            <- {v} {x} cor v x -> bhyp v -> match (E1 x).
 
 match/suc : match (suc E1)
-             <- match E1.
+            <- match E1.
 
 
 
 match-exists : {E} match E -> type.
-%mode match-exists +E -C.
+%mode match-exists +E -M.
 
 match-exists/num : match-exists (num N) match/num.
 
-match-exists/lam : match-exists (lam E1) (match/lam C1)
-                    <- {x} {v} {dc : cor v x} {h : bhyp v} match-exists x (match/var dc h) -> match-exists (E1 x) (C1 v x dc h).
+match-exists/lam : match-exists (lam E1) (match/lam M1)
+                    <- {x} {v} {dc : cor v x} {h : bhyp v} match-exists x (match/var dc h) -> match-exists (E1 x) (M1 v x dc h).
 
-match-exists/app : match-exists (app E1 E2) (match/app C2 C1)
-                    <- match-exists E1 C1
-                    <- match-exists E2 C2.
+match-exists/app : match-exists (app E1 E2) (match/app M2 M1)
+                    <- match-exists E1 M1
+                    <- match-exists E2 M2.
 
-match-exists/suc : match-exists (suc E1) (match/suc C1)
-                    <- match-exists E1 C1.
+match-exists/suc : match-exists (suc E1) (match/suc M1)
+                    <- match-exists E1 M1.
 
 %block bl-match-exists : block {x : exp} {v : value} {dc : cor v x} {h : bhyp v} {d : match-exists x (match/var dc h)}.
 
@@ -199,7 +199,9 @@ good-store-append/cons : good-store-append G1 (good-store/cons G2 H) (store-appe
 
 
 
-move-to-head : ({v} bhyp v -> good-store (Alph v)) -> good-store Alph' -> ({v} Alph v <= store/cons Alph' v) -> type.
+move-to-head : ({v} bhyp v -> good-store (Alph v))
+                -> good-store Alph'
+                -> ({v} Alph v <= store/cons Alph' v) -> type.
 %mode move-to-head +G -G' -L.
 
 move-to-head/nil : move-to-head ([v] [h] good-store/nil)
@@ -223,33 +225,35 @@ move-to-head/cons/diff : move-to-head ([v] [h] good-store/cons (G v h) H)
 
 
 trans-hb-exists' : match E -> good-store Alph -> trans-hb Alph B E -> type.
-%mode trans-hb-exists' +C -G -DT.
+%mode trans-hb-exists' +M -G -DT.
 
 trans-hb-exists'/num : trans-hb-exists' match/num good-store/nil trans-hb/num.
 
 trans-hb-exists'/var : trans-hb-exists' (match/var DC H) (good-store/cons good-store/nil H) (trans-hb/var (trans-hb-var/here DC)).
 
-trans-hb-exists'/app : trans-hb-exists' (match/app C2 C1) G1+G2 (trans-hb/app DT2' DT1')
-                        <- trans-hb-exists' C1 G1 DT1
-                        <- trans-hb-exists' C2 G2 DT2
+trans-hb-exists'/app : trans-hb-exists' (match/app M2 M1)
+                                        G1+G2 (trans-hb/app DT2' DT1')
+                        <- trans-hb-exists' M1 G1 DT1
+                        <- trans-hb-exists' M2 G2 DT2
                         <- good-store-append G1 G2 DSA G1+G2
                         <- <=-append1 DSA L1
                         <- trans-hb-<= DT1 L1 DT1'
                         <- <=-append2 DSA L2
                         <- trans-hb-<= DT2 L2 DT2'.
 
-trans-hb-exists'/lam : trans-hb-exists' (match/lam C1) G1' (trans-hb/lam DT1')
+trans-hb-exists'/lam : trans-hb-exists' (match/lam M1) G1' (trans-hb/lam DT1')
                         <- ({v} {x} {dc : cor v x} {h : bhyp v}
-                              trans-hb-exists' (C1 v x dc h) (G1 v h) (DT1 v x dc : trans-hb _ B _))
+                              trans-hb-exists' (M1 v x dc h)
+                                (G1 v h) (DT1 v x dc : trans-hb _ B _))
                         <- move-to-head G1 G1' L
                         <- ({v} {x} {dc : cor v x}
                               trans-hb-<= (DT1 v x dc) (L v) (DT1' v x dc)).
 
-trans-hb-exists'/suc : trans-hb-exists' (match/suc C1) G1 (trans-hb/suc DT1)
-                        <- trans-hb-exists' C1 G1 DT1.
+trans-hb-exists'/suc : trans-hb-exists' (match/suc M1) G1 (trans-hb/suc DT1)
+                        <- trans-hb-exists' M1 G1 DT1.
 
 %worlds (bl-trans-hb-exists) (trans-hb-exists' _ _ _).
-%total C (trans-hb-exists' C _ _).
+%total M (trans-hb-exists' M _ _).
 
 
 
@@ -267,8 +271,8 @@ trans-hb-exists : {E} trans-hb store/nil B E -> type.
 %mode trans-hb-exists +E -DT.
 
 trans-hb-exists/ : trans-hb-exists E DT
-                    <- match-exists E C
-                    <- trans-hb-exists' C G DT'
+                    <- match-exists E M
+                    <- trans-hb-exists' M G DT'
                     <- coerce-trans-hb G DT' DT.
 
 %worlds () (trans-hb-exists _ _).
