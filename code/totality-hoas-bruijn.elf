@@ -9,9 +9,9 @@ good-store : store -> type.
 
 good-store/nil : good-store store/nil.
 
-good-store/cons : good-store (store/cons Sigma V)
+good-store/cons : good-store (store/cons Alph V)
                    <- bhyp V
-                   <- good-store Sigma.
+                   <- good-store Alph.
 
 
 
@@ -20,18 +20,18 @@ match : exp -> type. %name match C.
 match/num : match (num N).
 
 match/var : match E
-            <- bhyp V
-            <- cor V E.
+             <- bhyp V
+             <- cor V E.
 
 match/app : match (app E1 E2)
-            <- match E1
-            <- match E2.
+             <- match E1
+             <- match E2.
 
 match/lam : match (lam E1)
-            <- {v} {x} cor v x -> bhyp v -> match (E1 x).
+             <- {v} {x} cor v x -> bhyp v -> match (E1 x).
 
 match/suc : match (suc E1)
-            <- match E1.
+             <- match E1.
 
 
 
@@ -59,37 +59,37 @@ match-exists/suc : match-exists (suc E1) (match/suc C1)
 
 <= : store -> store -> type. %infix none 5 <=.
 
-<=/refl : Sigma <= Sigma.
-<=/trans : Sigma1 <= Sigma3
-            <- Sigma1 <= Sigma2
-            <- Sigma2 <= Sigma3.
+<=/refl : Alph <= Alph.
+<=/trans : Alph1 <= Alph3
+            <- Alph1 <= Alph2
+            <- Alph2 <= Alph3.
 
-<=/cons : store/cons Sigma1 V <= store/cons Sigma2 V
-           <- Sigma1 <= Sigma2.
+<=/cons : store/cons Alph1 V <= store/cons Alph2 V
+           <- Alph1 <= Alph2.
 
-<=/exchange : store/cons (store/cons Sigma V1) V2 <= store/cons (store/cons Sigma V2) V1.
+<=/exchange : store/cons (store/cons Alph V1) V2 <= store/cons (store/cons Alph V2) V1.
 
-<=/weaken : Sigma <= store/cons Sigma V.
+<=/weaken : Alph <= store/cons Alph V.
 
-<=/combine : store/cons (store/cons Sigma V) V <= store/cons Sigma V.
+<=/combine : store/cons (store/cons Alph V) V <= store/cons Alph V.
 
 
 
-<=-nil : {Sigma} store/nil <= Sigma -> type.
-%mode <=-nil +Sigma -L.
+<=-nil : {Alph} store/nil <= Alph -> type.
+%mode <=-nil +Alph -L.
 
 <=-nil/nil : <=-nil store/nil <=/refl.
 
-<=-nil/cons : <=-nil (store/cons Sigma V) (<=/trans <=/weaken L)
-               <- <=-nil Sigma L.
+<=-nil/cons : <=-nil (store/cons Alph V) (<=/trans <=/weaken L)
+               <- <=-nil Alph L.
 
 %worlds (bl-trans-hb-exists) (<=-nil _ _).
-%total Sigma (<=-nil Sigma _).
+%total Alph (<=-nil Alph _).
 
 
 
 
-trans-hb-var-<= : trans-hb-var Sigma I E -> Sigma <= Sigma' -> trans-hb-var Sigma' I' E -> type.
+trans-hb-var-<= : trans-hb-var Alph I E -> Alph <= Alph' -> trans-hb-var Alph' I' E -> type.
 %mode trans-hb-var-<= +DTV +L -DTV'.
 
 trans-hb-var-<=/refl : trans-hb-var-<= DTV <=/refl DTV.
@@ -122,7 +122,7 @@ trans-hb-var-<=/combine/there/there : trans-hb-var-<= (trans-hb-var/there (trans
 
 
 
-trans-hb-<= : trans-hb Sigma B E -> Sigma <= Sigma' -> trans-hb Sigma' B' E -> type.
+trans-hb-<= : trans-hb Alph B E -> Alph <= Alph' -> trans-hb Alph' B' E -> type.
 %mode trans-hb-<= +DT +L -DT'.
 
 trans-hb-<=/num : trans-hb-<= trans-hb/num L trans-hb/num.
@@ -147,19 +147,19 @@ trans-hb-<=/suc : trans-hb-<= (trans-hb/suc DT) L (trans-hb/suc DT')
 
 
 store-append : store -> store -> store -> type.
-%mode store-append +Sigma1 +Sigma2 -Sigma.
+%mode store-append +Alph1 +Alph2 -Alph.
 
-store-append/nil : store-append Sigma1 store/nil Sigma1.
+store-append/nil : store-append Alph1 store/nil Alph1.
 
-store-append/cons : store-append Sigma1 (store/cons Sigma2 V) (store/cons Sigma V)
-                     <- store-append Sigma1 Sigma2 Sigma.
+store-append/cons : store-append Alph1 (store/cons Alph2 V) (store/cons Alph V)
+                     <- store-append Alph1 Alph2 Alph.
 
 %worlds () (store-append _ _ _).
-%total Sigma2 (store-append _ Sigma2 _).
+%total Alph2 (store-append _ Alph2 _).
 
 
 
-good-store-append : good-store Sigma1 -> good-store Sigma2 -> store-append Sigma1 Sigma2 Sigma -> good-store Sigma -> type.
+good-store-append : good-store Alph1 -> good-store Alph2 -> store-append Alph1 Alph2 Alph -> good-store Alph -> type.
 %mode good-store-append +G1 +G2 -DSA -G.
 
 good-store-append/nil : good-store-append G1 good-store/nil store-append/nil G1.
@@ -172,7 +172,7 @@ good-store-append/cons : good-store-append G1 (good-store/cons G2 H) (store-appe
 
 
 
-<=-append1 : store-append Sigma1 Sigma2 Sigma -> Sigma1 <= Sigma -> type.
+<=-append1 : store-append Alph1 Alph2 Alph -> Alph1 <= Alph -> type.
 %mode <=-append1 +DSA -L.
 
 <=-append1/nil : <=-append1 store-append/nil <=/refl.
@@ -185,7 +185,7 @@ good-store-append/cons : good-store-append G1 (good-store/cons G2 H) (store-appe
 
 
 
-<=-append2 : store-append Sigma1 Sigma2 Sigma -> Sigma2 <= Sigma -> type.
+<=-append2 : store-append Alph1 Alph2 Alph -> Alph2 <= Alph -> type.
 %mode <=-append2 +DSA -L.
 
 <=-append2/nil : <=-append2 store-append/nil L
@@ -199,7 +199,7 @@ good-store-append/cons : good-store-append G1 (good-store/cons G2 H) (store-appe
 
 
 
-move-to-head : ({v} bhyp v -> good-store (Sigma v)) -> good-store Sigma' -> ({v} Sigma v <= store/cons Sigma' v) -> type.
+move-to-head : ({v} bhyp v -> good-store (Alph v)) -> good-store Alph' -> ({v} Alph v <= store/cons Alph' v) -> type.
 %mode move-to-head +G -G' -L.
 
 move-to-head/nil : move-to-head ([v] [h] good-store/nil)
@@ -222,7 +222,7 @@ move-to-head/cons/diff : move-to-head ([v] [h] good-store/cons (G v h) H)
 
 
 
-trans-hb-exists' : match E -> good-store Sigma -> trans-hb Sigma B E -> type.
+trans-hb-exists' : match E -> good-store Alph -> trans-hb Alph B E -> type.
 %mode trans-hb-exists' +C -G -DT.
 
 trans-hb-exists'/num : trans-hb-exists' match/num good-store/nil trans-hb/num.
@@ -253,7 +253,7 @@ trans-hb-exists'/suc : trans-hb-exists' (match/suc C1) G1 (trans-hb/suc DT1)
 
 
 
-coerce-trans-hb : good-store Sigma -> trans-hb Sigma B E -> trans-hb store/nil B E -> type.
+coerce-trans-hb : good-store Alph -> trans-hb Alph B E -> trans-hb store/nil B E -> type.
 %mode coerce-trans-hb +G +DT -DT'.
 
 coerce-trans-hb/ : coerce-trans-hb good-store/nil DT DT.

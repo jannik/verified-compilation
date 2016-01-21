@@ -203,8 +203,8 @@ cor-store : mprog -> sstore -> mstore -> type.
 
 cor-value/num : cor-value Q (wnum N) (rnum N).
 
-cor-value/clos : cor-value Q (wclos Tau P) (rclos Alpha L)
-                  <- cor-store Q Tau Alpha
+cor-value/clos : cor-value Q (wclos Bet P) (rclos Gam L)
+                  <- cor-store Q Bet Gam
                   <- trans-sm' P Q'
                   <- leq Q' Q L.
 
@@ -212,8 +212,8 @@ cor-value/clos : cor-value Q (wclos Tau P) (rclos Alpha L)
 
 cor-store/nil : cor-store Q sstore/nil mstore/nil.
 
-cor-store/cons : cor-store Q (sstore/cons Tau W) (mstore/cons Alpha R)
-                  <- cor-store Q Tau Alpha
+cor-store/cons : cor-store Q (sstore/cons Bet W) (mstore/cons Gam R)
+                  <- cor-store Q Bet Gam
                   <- cor-value Q W R.
 
 
@@ -223,9 +223,9 @@ cor-stack : mprog -> frames -> label -> mframes -> type.
 cor-stack/nil : cor-stack Q frames/nil L mframes/nil
                  <- label-lookup Q L mhalt.
 
-cor-stack/cons : cor-stack Q (frames/cons Xi Tau P) L (mframes/cons Gamma Alpha L')
-                  <- cor-stack Q Xi L' Gamma
-                  <- cor-store Q Tau Alpha
+cor-stack/cons : cor-stack Q (frames/cons Gamma Bet P) L (mframes/cons Delta Gam L')
+                  <- cor-stack Q Gamma L' Delta
+                  <- cor-store Q Bet Gam
                   <- trans-sm' P Q'
                   <- leq Q' Q L.
 

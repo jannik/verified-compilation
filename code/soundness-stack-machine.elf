@@ -1,4 +1,4 @@
-soundness-sm-var : mvar-lookup Alpha I R -> cor-store Q Tau Alpha -> seval-var Tau I W -> cor-value Q W R -> type.
+soundness-sm-var : mvar-lookup Gam I R -> cor-store Q Bet Gam -> seval-var Bet I W -> cor-value Q W R -> type.
 %mode soundness-sm-var +DVL +DCE -DSV -DC.
 
 soundness-sm-var/here : soundness-sm-var mvar-lookup/here (cor-store/cons DC DCE) seval-var/here DC.
@@ -11,9 +11,9 @@ soundness-sm-var/there : soundness-sm-var (mvar-lookup/there DVL) (cor-store/con
 
 
 
-coerce-msteps : msteps Q (mframes/cons (mframes/cons Gamma Alpha1 L1) Alpha2 L2) L3 Phi mframes/nil L4 (rstack/single R)
+coerce-msteps : msteps Q (mframes/cons (mframes/cons Delta Gam1 L1) Gam2 L2) L3 Phi mframes/nil L4 (rstack/single R)
                  -> add 1 L2' L2
-                 -> msteps Q (mframes/cons (mframes/cons Gamma Alpha1 L1) Alpha2 (s L2')) L3 Phi mframes/nil L4 (rstack/single R) -> type.
+                 -> msteps Q (mframes/cons (mframes/cons Delta Gam1 L1) Gam2 (s L2')) L3 Phi mframes/nil L4 (rstack/single R) -> type.
 %mode coerce-msteps +DMM +DA -DMM'.
 
 - : coerce-msteps DMM (add/s add/z) DMM.
@@ -110,7 +110,7 @@ shift-minst-equiv/s/halt : shift-minst-equiv (shift-minst/s H shift1-minst/halt)
 
 
 
-good-stack : cor-stack Q Xi L Gamma -> type.
+good-stack : cor-stack Q Gamma L Delta -> type.
 
 good-stack/ : good-stack (cor-stack/cons (DLE : leq (M ; Q') Q S) DT DCE DCS)
                <- shift-minst S M M^S
@@ -121,20 +121,20 @@ good-stack/ : good-stack (cor-stack/cons (DLE : leq (M ; Q') Q S) DT DCE DCS)
 
 soundness-sm'-aux
    : cor-value-stack Q Psi Phi
-      -> {DCS : cor-stack Q Xi L Gamma} good-stack DCS
-      -> msteps Q Gamma L Phi mframes/nil L' (rstack/single R)
+      -> {DCS : cor-stack Q Gamma L Delta} good-stack DCS
+      -> msteps Q Delta L Phi mframes/nil L' (rstack/single R)
       -> label-lookup Q L' mhalt
-      -> ssteps Xi Psi frames/nil (wstack/single W)
+      -> ssteps Gamma Psi frames/nil (wstack/single W)
       -> cor-value Q W R
       -> type.
 %mode soundness-sm'-aux +DCV +DCS +DGS +DMM +DLL -DP -DC.
 
 soundness-sm'
    : cor-value-stack Q Psi Phi
-      -> cor-stack Q Xi L Gamma
-      -> msteps Q Gamma L Phi mframes/nil L' (rstack/single R)
+      -> cor-stack Q Gamma L Delta
+      -> msteps Q Delta L Phi mframes/nil L' (rstack/single R)
       -> label-lookup Q L' mhalt
-      -> ssteps Xi Psi frames/nil (wstack/single W)
+      -> ssteps Gamma Psi frames/nil (wstack/single W)
       -> cor-value Q W R
       -> type.
 %mode soundness-sm' +DCV +DCS +DMM +DLL -DP -DC.

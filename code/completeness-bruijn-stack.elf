@@ -3,20 +3,20 @@ comp-bs : store -> sstore -> type. %name comp-bs DD.
 
 cor-bs/num : cor-bs (vnum N) (wnum N).
 
-cor-bs/fun : cor-bs (vclos Sigma B) (wclos Tau P)
-              <- comp-bs Sigma Tau
+cor-bs/fun : cor-bs (vclos Alph B) (wclos Bet P)
+              <- comp-bs Alph Bet
               <- trans-bs B P.
 
 comp-bs/nil : comp-bs store/nil sstore/nil.
 
-comp-bs/cons : comp-bs (store/cons Sigma V) (sstore/cons Tau W)
-                <- comp-bs Sigma Tau
+comp-bs/cons : comp-bs (store/cons Alph V) (sstore/cons Bet W)
+                <- comp-bs Alph Bet
                 <- cor-bs V W.
 
 
 
-completeness-bs-var : beval-var Sigma I V -> comp-bs Sigma Tau
-                   -> seval-var Tau I W -> cor-bs V W -> type.
+completeness-bs-var : beval-var Alph I V -> comp-bs Alph Bet
+                   -> seval-var Bet I W -> cor-bs V W -> type.
 %mode completeness-bs-var +DBV +DD -DSV -DC.
 
 completeness-bs-var/here : completeness-bs-var beval-var/here (comp-bs/cons DC DD) seval-var/here DC.
@@ -29,11 +29,11 @@ completeness-bs-var/there : completeness-bs-var (beval-var/there DBV) (comp-bs/c
 
 
 
-ssteps/single : sstep Xi Psi Xi' Psi' -> ssteps Xi Psi Xi' Psi' = [ds] ssteps/more ssteps/zero ds.
+ssteps/single : sstep Gamma Psi Gamma' Psi' -> ssteps Gamma Psi Gamma' Psi' = [ds] ssteps/more ssteps/zero ds.
 
 
 
-cat-ssteps : ssteps Xi Psi Xi' Psi' -> ssteps Xi' Psi' Xi'' Psi'' -> ssteps Xi Psi Xi'' Psi'' -> type.
+cat-ssteps : ssteps Gamma Psi Gamma' Psi' -> ssteps Gamma' Psi' Gamma'' Psi'' -> ssteps Gamma Psi Gamma'' Psi'' -> type.
 %mode cat-ssteps +DP1 +DP2 -DP3.
 
 cat-ssteps/zero : cat-ssteps ssteps/zero DP2 DP2.
@@ -66,12 +66,12 @@ s-inj-cor-bs : cor-bs (vnum (s N1)) (wnum (s N2)) -> cor-bs (vnum N1) (wnum N2) 
 
 
 
-completeness-bs' : trans-bs-acc B P2 P -> beval Sigma B V -> comp-bs Sigma Tau
-                -> ssteps (frames/cons Xi Tau P) Psi (frames/cons Xi Tau P2) (wstack/cons Psi W)
+completeness-bs' : trans-bs-acc B P2 P -> beval Alph B V -> comp-bs Alph Bet
+                -> ssteps (frames/cons Gamma Bet P) Psi (frames/cons Gamma Bet P2) (wstack/cons Psi W)
                 -> cor-bs V W -> type.
-%mode +{B} +{P2} +{P} +{Sigma} +{V} +{Tau} +{Xi} +{Psi} -{W}
-      +{DT:trans-bs-acc B P2 P} +{DB:beval Sigma B V} +{DD:comp-bs Sigma Tau}
-      -{DP:ssteps (frames/cons Xi Tau P) Psi (frames/cons Xi Tau P2) (wstack/cons Psi W)}
+%mode +{B} +{P2} +{P} +{Alph} +{V} +{Bet} +{Gamma} +{Psi} -{W}
+      +{DT:trans-bs-acc B P2 P} +{DB:beval Alph B V} +{DD:comp-bs Alph Bet}
+      -{DP:ssteps (frames/cons Gamma Bet P) Psi (frames/cons Gamma Bet P2) (wstack/cons Psi W)}
       -{DC:cor-bs V W}
       completeness-bs' DT DB DD DP DC.
 

@@ -1,4 +1,4 @@
-store : type. %name store Sigma.
+store : type. %name store Alph.
 value : type. %name value V.
 
 store/nil : store.
@@ -13,36 +13,36 @@ vclos : store -> bexp -> value.
 
 beval-var : store -> nat -> value -> type.
 
-beval-var/here : beval-var (store/cons Sigma V) z V.
+beval-var/here : beval-var (store/cons Alph V) z V.
 
-beval-var/there : beval-var (store/cons Sigma V') (s I) V
-                   <- beval-var Sigma I V.
+beval-var/there : beval-var (store/cons Alph V') (s I) V
+                   <- beval-var Alph I V.
 
 
 
 beval : store -> bexp -> value -> type. %name beval DB.
 
-beval/num : beval Sigma (bnum N) (vnum N).
+beval/num : beval Alph (bnum N) (vnum N).
 
-beval/var : beval Sigma (bvar I) V
-             <- beval-var Sigma I V.
+beval/var : beval Alph (bvar I) V
+             <- beval-var Alph I V.
 
-beval/lam : beval Sigma (blam B1) (vclos Sigma B1).
+beval/lam : beval Alph (blam B1) (vclos Alph B1).
 
-beval/app : beval Sigma (bapp B1 B2) V
-             <- beval Sigma B1 (vclos Sigma' B0)
-             <- beval Sigma B2 V2
-             <- beval (store/cons Sigma' V2) B0 V.
+beval/app : beval Alph (bapp B1 B2) V
+             <- beval Alph B1 (vclos Alph' B0)
+             <- beval Alph B2 V2
+             <- beval (store/cons Alph' V2) B0 V.
 
-beval/suc : beval Sigma (bsuc B1) (vnum (s N))
-             <- beval Sigma B1 (vnum N).
+beval/suc : beval Alph (bsuc B1) (vnum (s N))
+             <- beval Alph B1 (vnum N).
 
 %{
-beval/case/z : beval Sigma (bcase B1 B2 B3) V2
-               <- beval Sigma B1 (vnum z)
-               <- beval Sigma B2 V2.
+beval/case/z : beval Alph (bcase B1 B2 B3) V2
+               <- beval Alph B1 (vnum z)
+               <- beval Alph B2 V2.
 
-beval/case/s : beval Sigma (bcase B1 B2 B3) V3
-               <- beval Sigma B1 (vnum (s N))
-               <- beval (store/cons Sigma (vnum N)) B3 V3.
+beval/case/s : beval Alph (bcase B1 B2 B3) V3
+               <- beval Alph B1 (vnum (s N))
+               <- beval (store/cons Alph (vnum N)) B3 V3.
 }%

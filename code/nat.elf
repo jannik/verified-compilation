@@ -60,7 +60,7 @@ add-right-s : add N1 N2 N -> add N1 (s N2) (s N) -> type.
 add-right-s/z : add-right-s add/z add/z.
 
 add-right-s/s : add-right-s (add/s DA) (add/s DA')
-                  <- add-right-s DA DA'.
+                 <- add-right-s DA DA'.
 
 %worlds () (add-right-s _ _).
 %total DA (add-right-s DA _).

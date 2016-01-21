@@ -1,4 +1,4 @@
-soundness-hb'-var : eval E C -> trans-hb-var Sigma I E -> beval-var Sigma I V -> cor V C -> type.
+soundness-hb'-var : eval E C -> trans-hb-var Alph I E -> beval-var Alph I V -> cor V C -> type.
 %mode soundness-hb'-var -DE +DTV +DBV -DC.
 
 soundness-hb'-var/here/num : soundness-hb'-var eval/num (trans-hb-var/here DC) beval-var/here DC.
@@ -13,7 +13,7 @@ soundness-hb'-var/there : soundness-hb'-var DE (trans-hb-var/there DTV) (beval-v
 
 
 
-soundness-hb' : eval E C -> trans-hb Sigma B E -> beval Sigma B V -> cor V C -> type.
+soundness-hb' : eval E C -> trans-hb Alph B E -> beval Alph B V -> cor V C -> type.
 %mode soundness-hb' -DE +DT +DB -DC.
 
 soundness-hb'/num : soundness-hb' eval/num trans-hb/num beval/num cor/num.

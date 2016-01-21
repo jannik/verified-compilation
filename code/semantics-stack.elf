@@ -1,5 +1,5 @@
 svalue : type. %name svalue W.
-sstore : type. %name sstore Tau.
+sstore : type. %name sstore Bet.
 
 wnum : nat -> svalue.
 wclos : sstore -> sprog -> svalue.
@@ -9,7 +9,7 @@ sstore/cons : sstore -> svalue -> sstore.
 
 
 
-frames : type. %name frames Xi.
+frames : type. %name frames Gamma.
 
 frames/nil : frames.
 frames/cons : frames -> sstore -> sprog -> frames.
@@ -26,60 +26,60 @@ wstack/single = wstack/cons wstack/nil.
 
 
 seval-var : sstore -> nat -> svalue -> type. %name seval-var DSV.
-%mode seval-var +Tau +I -W.
+%mode seval-var +Bet +I -W.
 
-seval-var/here : seval-var (sstore/cons Tau W) z W.
+seval-var/here : seval-var (sstore/cons Bet W) z W.
 
-seval-var/there : seval-var (sstore/cons Tau W') (s I) W
-                   <- seval-var Tau I W.
+seval-var/there : seval-var (sstore/cons Bet W') (s I) W
+                   <- seval-var Bet I W.
 
 
 
 sstep : frames -> wstack -> frames -> wstack -> type. %name sstep DS.
-%mode sstep +Xi +Psi -Xi' -Psi'.
+%mode sstep +Gamma +Psi -Gamma' -Psi'.
 
-sstep/num : sstep (frames/cons Xi Tau (sprog/cons (snum N) P)) Psi
-                  (frames/cons Xi Tau P) (wstack/cons Psi (wnum N)).
+sstep/num : sstep (frames/cons Gamma Bet (sprog/cons (snum N) P)) Psi
+                  (frames/cons Gamma Bet P) (wstack/cons Psi (wnum N)).
 
-sstep/var : sstep (frames/cons Xi Tau (sprog/cons (svar I) P)) Psi
-                  (frames/cons Xi Tau P) (wstack/cons Psi W)
-             <- seval-var Tau I W.
+sstep/var : sstep (frames/cons Gamma Bet (sprog/cons (svar I) P)) Psi
+                  (frames/cons Gamma Bet P) (wstack/cons Psi W)
+             <- seval-var Bet I W.
 
-sstep/lam : sstep (frames/cons Xi Tau (sprog/cons (slam P') P)) Psi
-                  (frames/cons Xi Tau P) (wstack/cons Psi (wclos Tau P')).
+sstep/lam : sstep (frames/cons Gamma Bet (sprog/cons (slam P') P)) Psi
+                  (frames/cons Gamma Bet P) (wstack/cons Psi (wclos Bet P')).
 
-sstep/app : sstep (frames/cons Xi Tau (sprog/cons sapp P))
-                  (wstack/cons (wstack/cons Psi (wclos Tau' P')) W)
-                  (frames/cons (frames/cons Xi Tau P) (sstore/cons Tau' W) P')
+sstep/app : sstep (frames/cons Gamma Bet (sprog/cons sapp P))
+                  (wstack/cons (wstack/cons Psi (wclos Bet' P')) W)
+                  (frames/cons (frames/cons Gamma Bet P) (sstore/cons Bet' W) P')
                   Psi.
 
-sstep/suc : sstep (frames/cons Xi Tau (sprog/cons ssuc P)) (wstack/cons Psi (wnum N))
-                  (frames/cons Xi Tau P) (wstack/cons Psi (wnum (s N))).
+sstep/suc : sstep (frames/cons Gamma Bet (sprog/cons ssuc P)) (wstack/cons Psi (wnum N))
+                  (frames/cons Gamma Bet P) (wstack/cons Psi (wnum (s N))).
 
 %{
-sstep/case/z : sstep (frames/cons Xi Tau (sprog/cons (scase P1 P2) P))
+sstep/case/z : sstep (frames/cons Gamma Bet (sprog/cons (scase P1 P2) P))
                      (wstack/cons Psi (wnum z))
-                     (frames/cons (frames/cons Xi Tau P) Tau P1)
+                     (frames/cons (frames/cons Gamma Bet P) Bet P1)
                      Psi.
 
-sstep/case/s : sstep (frames/cons Xi Tau (sprog/cons (scase P1 P2) P))
+sstep/case/s : sstep (frames/cons Gamma Bet (sprog/cons (scase P1 P2) P))
                      (wstack/cons Psi (wnum (s N)))
-                     (frames/cons (frames/cons Xi Tau P) (sstore/cons Tau (wnum N)) P2)
+                     (frames/cons (frames/cons Gamma Bet P) (sstore/cons Bet (wnum N)) P2)
                      Psi.
 }%
 
-sstep/ret : sstep (frames/cons Xi Tau sprog/nil) Psi
-                  Xi Psi.
+sstep/ret : sstep (frames/cons Gamma Bet sprog/nil) Psi
+                  Gamma Psi.
 
 
 ssteps : frames -> wstack -> frames -> wstack -> type. %name ssteps DP.
-%mode ssteps +Xi +Psi -Xi' -Psi'.
+%mode ssteps +Gamma +Psi -Gamma' -Psi'.
 
-ssteps/zero : ssteps Xi Psi Xi Psi.
+ssteps/zero : ssteps Gamma Psi Gamma Psi.
 
-ssteps/more : ssteps Xi Psi Xi'' Psi''
-               <- sstep Xi Psi Xi' Psi'
-               <- ssteps Xi' Psi' Xi'' Psi''.
+ssteps/more : ssteps Gamma Psi Gamma'' Psi''
+               <- sstep Gamma Psi Gamma' Psi'
+               <- ssteps Gamma' Psi' Gamma'' Psi''.
 
 
 

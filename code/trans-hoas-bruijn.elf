@@ -4,11 +4,11 @@ cor : value -> exp -> type. %name cor DC.
 
 % Translation of variables.
 trans-hb-var : store -> nat -> exp -> type. %name trans-hb-var DTV.
-%mode trans-hb-var +Sigma +I -C.
+%mode trans-hb-var +Alph +I -C.
 
 % Translation between HOAS and de Bruijn.
 trans-hb : store -> bexp -> exp -> type. %name trans-hb DT.
-%mode trans-hb +Sigma +B -E.
+%mode trans-hb +Alph +B -E.
 
 
 
@@ -16,45 +16,45 @@ trans-hb : store -> bexp -> exp -> type. %name trans-hb DT.
 
 cor/num : cor (vnum N) (num N).
 
-cor/fun : cor (vclos Sigma B) (lam E)
-           <- trans-hb Sigma (blam B) (lam E).
+cor/fun : cor (vclos Alph B) (lam E)
+           <- trans-hb Alph (blam B) (lam E).
 
 
 
 % rules for trans-hb-var
 
-trans-hb-var/here : trans-hb-var (store/cons Sigma V) z C
+trans-hb-var/here : trans-hb-var (store/cons Alph V) z C
                      <- cor V C.
 
-trans-hb-var/there : trans-hb-var (store/cons Sigma V') (s I) C
-                      <- trans-hb-var Sigma I C.
+trans-hb-var/there : trans-hb-var (store/cons Alph V') (s I) C
+                      <- trans-hb-var Alph I C.
 
 
 
 % rules for trans-hb
 
-trans-hb/num : trans-hb Sigma (bnum N) (num N).
+trans-hb/num : trans-hb Alph (bnum N) (num N).
 
-trans-hb/var : trans-hb Sigma (bvar I) E
-                <- trans-hb-var Sigma I E.
+trans-hb/var : trans-hb Alph (bvar I) E
+                <- trans-hb-var Alph I E.
 
-trans-hb/lam : trans-hb Sigma (blam B1) (lam E1)
+trans-hb/lam : trans-hb Alph (blam B1) (lam E1)
                 <- ({v : value} {x : exp}
-                      cor v x -> trans-hb (store/cons Sigma v) B1 (E1 x)).
+                      cor v x -> trans-hb (store/cons Alph v) B1 (E1 x)).
 
-trans-hb/app : trans-hb Sigma (bapp B1 B2) (app E1 E2)
-                <- trans-hb Sigma B1 E1
-                <- trans-hb Sigma B2 E2.
+trans-hb/app : trans-hb Alph (bapp B1 B2) (app E1 E2)
+                <- trans-hb Alph B1 E1
+                <- trans-hb Alph B2 E2.
 
-trans-hb/suc : trans-hb Sigma (bsuc B1) (suc E1)
-                <- trans-hb Sigma B1 E1.
+trans-hb/suc : trans-hb Alph (bsuc B1) (suc E1)
+                <- trans-hb Alph B1 E1.
 
 %{
-trans-hb/case : trans-hb Sigma (bcase B1 B2 B3) (case E1 E2 E3)
-                 <- trans-hb Sigma B1 E1
-                 <- trans-hb Sigma B2 E2
+trans-hb/case : trans-hb Alph (bcase B1 B2 B3) (case E1 E2 E3)
+                 <- trans-hb Alph B1 E1
+                 <- trans-hb Alph B2 E2
                  <- ({v : value} {x : exp}
-                       cor v x -> trans-hb (store/cons Sigma v) B3 (E3 x)).
+                       cor v x -> trans-hb (store/cons Alph v) B3 (E3 x)).
 }%
 
 %block bl-trans-hb : block {v : value} {x : exp} {dc : cor v x}.

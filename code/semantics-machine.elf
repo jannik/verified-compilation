@@ -1,5 +1,5 @@
 mvalue : type. %name mvalue R.
-mstore : type. %name mstore Alpha.
+mstore : type. %name mstore Gam.
 
 rnum : number -> mvalue.
 rclos : mstore -> label -> mvalue.
@@ -20,7 +20,7 @@ rstack/single = rstack/cons rstack/nil.
 
 
 
-mframes : type. %name mframes Gamma.
+mframes : type. %name mframes Delta.
 
 mframes/nil : mframes.
 mframes/cons : mframes -> mstore -> label -> mframes.
@@ -30,12 +30,12 @@ mframes/final = mframes/cons mframes/nil mstore/nil.
 
 
 mvar-lookup : mstore -> nat -> mvalue -> type. %name mvar-lookup DVL.
-%mode mvar-lookup +Alpha +I -R.
+%mode mvar-lookup +Gam +I -R.
 
-mvar-lookup/here : mvar-lookup (mstore/cons Alpha R) z R.
+mvar-lookup/here : mvar-lookup (mstore/cons Gam R) z R.
 
-mvar-lookup/there : mvar-lookup (mstore/cons Alpha R') (s I) R
-                     <- mvar-lookup Alpha I R.
+mvar-lookup/there : mvar-lookup (mstore/cons Gam R') (s I) R
+                     <- mvar-lookup Gam I R.
 
 
 
@@ -53,38 +53,38 @@ label-lookup/there : label-lookup (M' ; Q) (s L) M
 
 
 mstep : minst -> mframes -> label -> rstack -> mframes -> label -> rstack -> type. %name mstep DM.
-%mode mstep +M +Gamma +L +Phi -Gamma' -L' -Phi'.
+%mode mstep +M +Delta +L +Phi -Delta' -L' -Phi'.
 
-mstep/pushnum : mstep (mpushnum N) (mframes/cons Gamma Alpha L-Ret) L Phi
-                                   (mframes/cons Gamma Alpha L-Ret) (s L) (rstack/cons Phi (rnum N)).
+mstep/pushnum : mstep (mpushnum N) (mframes/cons Delta Gam L-Ret) L Phi
+                                   (mframes/cons Delta Gam L-Ret) (s L) (rstack/cons Phi (rnum N)).
 
-mstep/pushvar : mstep (mpushvar I) (mframes/cons Gamma Alpha L-Ret) L Phi
-                                   (mframes/cons Gamma Alpha L-Ret) (s L) (rstack/cons Phi R)
-                 <- mvar-lookup Alpha I R.
+mstep/pushvar : mstep (mpushvar I) (mframes/cons Delta Gam L-Ret) L Phi
+                                   (mframes/cons Delta Gam L-Ret) (s L) (rstack/cons Phi R)
+                 <- mvar-lookup Gam I R.
 
-mstep/pushclos : mstep (mpushclos L') (mframes/cons Gamma Alpha L-Ret) L Phi
-                                      (mframes/cons Gamma Alpha L-Ret) (s L) (rstack/cons Phi (rclos Alpha L')).
+mstep/pushclos : mstep (mpushclos L') (mframes/cons Delta Gam L-Ret) L Phi
+                                      (mframes/cons Delta Gam L-Ret) (s L) (rstack/cons Phi (rclos Gam L')).
 
-mstep/call : mstep (mcall L-Cont) (mframes/cons Gamma Alpha L-Ret) L (rstack/cons (rstack/cons Phi (rclos Alpha' L')) R)
-                                  (mframes/cons (mframes/cons Gamma Alpha L-Ret) (mstore/cons Alpha' R) L-Cont) L' Phi.
+mstep/call : mstep (mcall L-Cont) (mframes/cons Delta Gam L-Ret) L (rstack/cons (rstack/cons Phi (rclos Gam' L')) R)
+                                  (mframes/cons (mframes/cons Delta Gam L-Ret) (mstore/cons Gam' R) L-Cont) L' Phi.
 
-mstep/inc : mstep minc Gamma L (rstack/cons Phi (rnum N))
-                       Gamma (s L) (rstack/cons Phi (rnum (s N))).
+mstep/inc : mstep minc Delta L (rstack/cons Phi (rnum N))
+                       Delta (s L) (rstack/cons Phi (rnum (s N))).
 
-mstep/ret : mstep mret (mframes/cons Gamma Alpha' L-Ret) L Phi
-                       Gamma L-Ret Phi.
+mstep/ret : mstep mret (mframes/cons Delta Gam' L-Ret) L Phi
+                       Delta L-Ret Phi.
 
 
 
 msteps : mprog -> mframes -> label -> rstack -> mframes -> label -> rstack -> type. %name ssteps DMM.
-%mode msteps +Q +Gamma +L +Phi -Gamma' -L' -Phi'.
+%mode msteps +Q +Delta +L +Phi -Delta' -L' -Phi'.
 
-msteps/zero : msteps Q Gamma L Phi Gamma L Phi.
+msteps/zero : msteps Q Delta L Phi Delta L Phi.
 
-msteps/more : msteps Q Gamma L Phi Gamma'' L'' Phi''
+msteps/more : msteps Q Delta L Phi Delta'' L'' Phi''
                <- label-lookup Q L M
-               <- mstep M Gamma L Phi Gamma' L' Phi'
-               <- msteps Q Gamma' L' Phi' Gamma'' L'' Phi''.
+               <- mstep M Delta L Phi Delta' L' Phi'
+               <- msteps Q Delta' L' Phi' Delta'' L'' Phi''.
 
 
 

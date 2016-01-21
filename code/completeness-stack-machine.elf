@@ -1,10 +1,10 @@
-completeness-sm-var : mvar-lookup Alpha I R -> cor-store Q Tau Alpha -> seval-var Tau I W -> cor-value Q W R -> type.
+completeness-sm-var : mvar-lookup Gam I R -> cor-store Q Bet Gam -> seval-var Bet I W -> cor-value Q W R -> type.
 %mode completeness-sm-var -DVL +DCE +DSV -DC.
 
 completeness-sm-var/here : completeness-sm-var mvar-lookup/here (cor-store/cons DC DCE) seval-var/here DC.
 
 completeness-sm-var/there : completeness-sm-var (mvar-lookup/there DVL) (cor-store/cons DC' DCE) (seval-var/there DSV) DC
-                          <- completeness-sm-var DVL DCE DSV DC.
+                             <- completeness-sm-var DVL DCE DSV DC.
 
 %worlds () (completeness-sm-var _ _ _ _).
 %total DSV (completeness-sm-var _ _ DSV _).
@@ -13,17 +13,17 @@ completeness-sm-var/there : completeness-sm-var (mvar-lookup/there DVL) (cor-sto
 
 completeness-sm'
    : cor-value-stack Q Psi Phi
-      -> cor-stack Q Xi L Gamma
-      -> msteps Q Gamma L Phi mframes/nil L' (rstack/single R)
+      -> cor-stack Q Gamma L Delta
+      -> msteps Q Delta L Phi mframes/nil L' (rstack/single R)
       -> label-lookup Q L' mhalt
-      -> ssteps Xi Psi frames/nil (wstack/single W)
+      -> ssteps Gamma Psi frames/nil (wstack/single W)
       -> cor-value Q W R
       -> type.
 %mode completeness-sm' +DCV +DCS -DMM -DLL +DP -DC.
 
 completeness-sm'/halt
    : completeness-sm' (cor-value-stack/cons DC cor-value-stack/nil) (cor-stack/nil DLL-Halt) msteps/zero DLL-Halt
-                   ssteps/zero DC.
+                       ssteps/zero DC.
 
 completeness-sm'/num
    : completeness-sm' DCV (cor-stack/cons Pushnum;Q1^1<Q (trans-sm'/num H DT) DCE DCS) (msteps/more DMM mstep/pushnum DLL-Pushnum) DLL-Halt (ssteps/more DP sstep/num) DC
