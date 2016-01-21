@@ -6,4 +6,3 @@ bvar : nat -> bexp.
 blam : bexp -> bexp.
 bapp : bexp -> bexp -> bexp.
 bsuc : bexp -> bexp.
-% bcase : bexp -> bexp -> bexp -> bexp.

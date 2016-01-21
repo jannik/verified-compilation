@@ -56,18 +56,6 @@ sstep/app : sstep (frames/cons Gamma Bet (sprog/cons sapp P))
 sstep/suc : sstep (frames/cons Gamma Bet (sprog/cons ssuc P)) (wstack/cons Psi (wnum N))
                   (frames/cons Gamma Bet P) (wstack/cons Psi (wnum (s N))).
 
-%{
-sstep/case/z : sstep (frames/cons Gamma Bet (sprog/cons (scase P1 P2) P))
-                     (wstack/cons Psi (wnum z))
-                     (frames/cons (frames/cons Gamma Bet P) Bet P1)
-                     Psi.
-
-sstep/case/s : sstep (frames/cons Gamma Bet (sprog/cons (scase P1 P2) P))
-                     (wstack/cons Psi (wnum (s N)))
-                     (frames/cons (frames/cons Gamma Bet P) (sstore/cons Bet (wnum N)) P2)
-                     Psi.
-}%
-
 sstep/ret : sstep (frames/cons Gamma Bet sprog/nil) Psi
                   Gamma Psi.
 

@@ -36,14 +36,6 @@ As a shorthand, \trabsfinal{\bexp}{\sprog} denotes \trabs{\bexp}{\send}{\sprog}.
   \uinf{\trabs{\bsuc{\bexp_1}}{\sprog}{\sprog'}}
 \end{prooftree}
 
-% \begin{prooftree}
-% 	\ninf{\trabs{\b_3}{\nil}{p_3}}
-% 	\ninf{\trabs{\b_2}{\nil}{p_2}}
-%   \ninf{\trabs{\b_1}{\scase{p_2}{p_3}, p}{p'}}
-%   \leftl{\rule{T-Case} :}
-%   \tinf{\trabs{\bcase{\b_1}{\b_2}{\b_3}}{p}{p'}}
-% \end{prooftree}
-
 % Since a \blang expression corresponds to a list of \slang instructions, i.e. a \slang program, it is convenient to ... something something accumulator.
 If \trabs{\bexp}{\sprog}{\sprog'}, then $\sprog'$ is the translation of $\bexp$ put in front of the accumulator $\sprog$.
 This avoids having to reason about concatenation of programs in the equivalence proof.

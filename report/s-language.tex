@@ -80,17 +80,6 @@ And the semantics judgements:
   \ax{\sstep{\sctrl \stkcons \fr{\senv}{\ssuc \sseq \sprog}}{\svals \stkcons \n{\nat}}{\sctrl \stkcons \fr{\senv}{\sprog}}{\svals \stkcons \n{\nat + 1}}}
 \end{prooftree}
 
-%\begin{prooftree}
-  %\leftl{\rule{S-Case-z} :}
-  %\ax{\sev{\Xi, \fr{\tau}{\scase{\ss_1}{\ss_2}, \ss}}{\mvalsi, \n{\z}}{\Xi, \fr{\tau}{\ss}, \fr{\tau}{\ss_1}}{\mvalsi}}
-%\end{prooftree}
-%
-%\begin{prooftree}
-  %\leftl{\rule{S-Case-s} :}
-  %\ax{\sev{\Xi, \fr{\tau}{\scase{\ss_1}{\ss_2}, \ss}}{\mvalsi, \n{\suc{\nat}}}{\Xi, \fr{\tau}{\ss}, \fr{\tau, \n{\nat}}{\ss_2}}{\mvalsi}}
-%\end{prooftree}
-%
-
 \begin{prooftree}
   \leftl{\rule{S-Ret} :}
   \ax{\sstep{\sctrl \stkcons \fr{\senv}{\send}}{\svals}{\sctrl}{\svals}}

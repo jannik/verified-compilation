@@ -36,13 +36,3 @@ beval/app : beval Alph (bapp B1 B2) V
 
 beval/suc : beval Alph (bsuc B1) (vnum (s N))
              <- beval Alph B1 (vnum N).
-
-%{
-beval/case/z : beval Alph (bcase B1 B2 B3) V2
-               <- beval Alph B1 (vnum z)
-               <- beval Alph B2 V2.
-
-beval/case/s : beval Alph (bcase B1 B2 B3) V3
-               <- beval Alph B1 (vnum (s N))
-               <- beval (store/cons Alph (vnum N)) B3 V3.
-}%

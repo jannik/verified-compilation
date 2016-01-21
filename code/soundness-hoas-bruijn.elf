@@ -32,17 +32,6 @@ soundness-hb'/suc : soundness-hb' (eval/suc DE1) (trans-hb/suc DT1) (beval/suc D
                      <- soundness-hb' DE1 DT1 DB1 DC1
                      <- s-compat-cor DC1 DC.
 
-%{
-soundness-hb'/case/z : soundness-hb' (eval/case/z DE2 DE1) (trans-hb/case DT3 DT2 DT1) (beval/case/z DB2 DB1) DC2
-                        <- soundness-hb' DE1 DT1 DB1 cor/num
-                        <- soundness-hb' DE2 DT2 DB2 DC2.
-
-soundness-hb'/case/s : soundness-hb' (eval/case/s DE3 DE1) (trans-hb/case DT3 DT2 DT1) (beval/case/s DB3 DB1) DC3
-                        <- soundness-hb' DE1 DT1 DB1 (DC1 : cor (vnum (s N1)) (num (s N2)))
-                        <- s-inj-cor DC1 (DC1' : cor (vnum N1) (num N2))
-                        <- soundness-hb' DE3 (DT3 (vnum N1) (num N2) DC1') DB3 DC3.
-}%
-
 %worlds () (soundness-hb' _ _ _ _).
 %total (DB) (soundness-hb' _ _ DB _).
 

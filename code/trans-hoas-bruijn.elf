@@ -49,14 +49,6 @@ trans-hb/app : trans-hb Alph (bapp B1 B2) (app E1 E2)
 trans-hb/suc : trans-hb Alph (bsuc B1) (suc E1)
                 <- trans-hb Alph B1 E1.
 
-%{
-trans-hb/case : trans-hb Alph (bcase B1 B2 B3) (case E1 E2 E3)
-                 <- trans-hb Alph B1 E1
-                 <- trans-hb Alph B2 E2
-                 <- ({v : value} {x : exp}
-                       cor v x -> trans-hb (store/cons Alph v) B3 (E3 x)).
-}%
-
 %block bl-trans-hb : block {v : value} {x : exp} {dc : cor v x}.
 
 % Example showing that trans-hb is not total.

@@ -52,16 +52,6 @@ completeness-hb'/suc : completeness-hb' (eval/suc DE1) (trans-hb/suc DT1) (beval
                         <- completeness-hb' DE1 DT1 DB1 DC1
                         <- s-compat-cor DC1 DC.
 
-%{
-completeness-hb'/case/z : completeness-hb' (eval/case/z DE2 DE1) (trans-hb/case DT3 DT2 DT1) (beval/case/z DB2 DB1) DC2
-                           <- completeness-hb' DE1 DT1 DB1 cor/num
-                           <- completeness-hb' DE2 DT2 DB2 DC2.
-
-completeness-hb'/case/s : completeness-hb' (eval/case/s DE3 DE1) (trans-hb/case DT3 DT2 DT1) (beval/case/s DB3 DB1) DC3
-                           <- completeness-hb' DE1 DT1 DB1 (DC1 : cor (vnum (s N1)) (num (s N2)))
-                           <- s-inj-cor DC1 (DC1' : cor (vnum N1) (num N2))
-                           <- completeness-hb' DE3 (DT3 (vnum N1) (num N2) DC1') DB3 DC3.
-}%
 %worlds () (completeness-hb' _ _ _ _).
 %total (DE) (completeness-hb' DE _ _ _).
 

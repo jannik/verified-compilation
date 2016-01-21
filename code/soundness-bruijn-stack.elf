@@ -104,13 +104,6 @@ soundness-bs'/suc : soundness-bs' DP (trans-bs-acc/suc DT1) DD (beval/suc DB1') 
                      <- invert-cor-bs-num DC1 DQW DQV
                      <- coerce-beval DB1 DQV DB1'.
 
-%{
-soundness-bs'/case : soundness-bs' DP (trans-bs-acc/case DT1 DT2 DT3) DD (DB' _ DB2) DC2 DP2
-                      <- soundness-bs' DP DT1 DD DB1 DC1 DP1
-                      <- soundness-bs'-lemma DB1 DC1 DP1 DT2 DT3 DD DP1' DT' DD' DB'
-                      <- soundness-bs' DP1' DT' DD' DB2 DC2 (ssteps/more DP2 sstep/ret).
-}%
-
 %worlds () (soundness-bs' _ _ _ _ _ _).
 %reduces DP' < DP (soundness-bs' DP _ _ _ _ DP').
 %total {DP DT} (soundness-bs' DP DT _ _ _ _).
