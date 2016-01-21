@@ -38,6 +38,7 @@ $\blacksquare$
 \ensurecommand{\P}{\mathcal{P}}
 
 % misc/general
+\ensurecommand{\Twelf}{\paragraph{Twelf:}}
 \ensurecommand{\defi}{\Coloneqq}
 \ensurecommand{\alt}{\;\; | \;\;}
 \ensurecommand{\set}[1]{\{ #1 \}}%
@@ -45,7 +46,8 @@ $\blacksquare$
 
 % separators
 \ensurecommand{\tupsep}{,}
-\ensurecommand{\ctxsep}{\, | \,} 
+\ensurecommand{\ctxsep}{\, | \,}
+\ensurecommand{\clsep}{:}
 
 \ensurecommand{\envnil}{[]}
 \ensurecommand{\envcons}{::}
@@ -57,6 +59,8 @@ $\blacksquare$
 \ensurecommand{\ctxcons}{::}
 
 % h-language syntax
+\ensurecommand{\hlang}{\textsc{Fun}\xspace}
+
 \ensurecommand{\hexp}{e}
 \ensurecommand{\hval}{\hat{e}}
 
@@ -74,6 +78,8 @@ $\blacksquare$
 \ensurecommand{\hev}[2]{\ensuremath{#1 \downarrow #2}}
 
 % b-language syntax
+\ensurecommand{\blang}{\textsc{Bruijn}\xspace}
+
 \ensurecommand{\z}{\mathtt{z}}
 \ensurecommand{\suc}{\mathtt{s} \;}
 
@@ -86,7 +92,7 @@ $\blacksquare$
 \ensurecommand{\bsuc}[1]{\mathtt{suc} \; #1}
 
 % b-language semantics
-\ensurecommand{\cl}[2]{\{ #1 \tupsep #2 \}}
+\ensurecommand{\cl}[2]{\{ #1 \clsep #2 \}}
 
 \ensurecommand{\benv}{\alpha}
 
@@ -100,6 +106,8 @@ $\blacksquare$
 \ensurecommand{\corhb}[3]{\ensuremath{#2 \rightsquigarrow #3}}
 
 % s-language syntax
+\ensurecommand{\slang}{\textsc{Stack}\xspace}
+
 \ensurecommand{\sinst}{s}
 \ensurecommand{\sprog}{p}
 
@@ -131,10 +139,12 @@ $\blacksquare$
 
 % bs equivalence
 \ensurecommand{\ssteplhs}[2]{\ensuremath{\tup{#1 \tupsep #2}}}
-\ensurecommand{\ssteprhs}[2]{\ensuremath{\rightarrow \tup{#1 \tupsep #2}}}
+\ensurecommand{\ssteprhs}[2]{\ensuremath{\rightarrow \phantom{^*} \tup{#1 \tupsep #2}}}
 \ensurecommand{\sstepsrhs}[2]{\ensuremath{\rightarrow^* \tup{#1 \tupsep #2}}}
 
 % m-language syntax
+\ensurecommand{\mlang}{\textsc{Machine}\xspace}
+
 \ensurecommand{\addr}{\ell}
 \ensurecommand{\addrret}{\addr_{\mathrm{ret}}}
 

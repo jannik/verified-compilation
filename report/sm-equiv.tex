@@ -10,6 +10,7 @@ To prove this, we need some correspondence judgements:
 \vspace{0.5cm}
 \judgement{$\mprog' \leq_{\nat} \mprog$}
 
+% Sub instead of Leq.
 \begin{prooftree}
   \leftl{\rule{Leq-Here} :}
   \rightl{$(\text{$\mprog'$ is a prefix of $\mprog$})$}
@@ -70,19 +71,19 @@ To prove this, we need some correspondence judgements:
 \end{prooftree}
 
 \vspace{0.5cm}
-\judgement{$\corstack{\mprog}{\sctrl}{\addr}{\mctrl}$}
+\judgement{$\corstack{\mprog}{\sctrl}{\mctrl}{\addr}$}
 
 \begin{prooftree}
   \rightl{$(\mprog(\addr) = \mhalt)$}
-  \ax{$\corstack{\mprog}{\stknil}{\addr}{\stknil}$}
+  \ax{$\corstack{\mprog}{\stknil}{\stknil}{\addr}$}
 \end{prooftree}
 
 \begin{prooftree}
-  \ninf{$\corstack{\mprog}{\sctrl}{\addr'}{\mctrl}$}
+  \ninf{$\corstack{\mprog}{\sctrl}{\mctrl}{\addr'}$}
   \ninf{$\corstore{\mprog}{\senv}{\menv}$}
   \ninf{$\trasm{\sprog}{\mprog'}$}
   \ninf{$\mprog' \leq_{\addr} \mprog$}
-  \qinf{$\corstack{\mprog}{\sctrl \stkcons \fr{\senv}{\sprog}}{\addr}{\mctrl \stkcons \fr{\menv}{\addr'}}$}
+  \qinf{$\corstack{\mprog}{\sctrl \stkcons \fr{\senv}{\sprog}}{\mctrl \stkcons \fr{\menv}{\addr'}}{\addr}$}
 \end{prooftree}
 
 \vspace{0.5cm}

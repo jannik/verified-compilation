@@ -1,7 +1,7 @@
 \subsection*{Translation}
 
-We translate from De Bruijn expressions to stack programs using the following judgements.
-As a shorthand, \trabsfinal{\bexp}{\sprog} denotes \trabs{\bexp}{\send}{\sprog}. % filinski: worth it?
+We translate from \blang expressions to \slang programs using the following judgement.
+As a shorthand, \trabsfinal{\bexp}{\sprog} denotes \trabs{\bexp}{\send}{\sprog}.
 
 \vspace{0.5cm}
 
@@ -43,3 +43,14 @@ As a shorthand, \trabsfinal{\bexp}{\sprog} denotes \trabs{\bexp}{\send}{\sprog}.
 %   \leftl{\rule{T-Case} :}
 %   \tinf{\trabs{\bcase{\b_1}{\b_2}{\b_3}}{p}{p'}}
 % \end{prooftree}
+
+% Since a \blang expression corresponds to a list of \slang instructions, i.e. a \slang program, it is convenient to ... something something accumulator.
+If \trabs{\bexp}{\sprog}{\sprog'}, then $\sprog'$ is the translation of $\bexp$ put in front of the accumulator $\sprog$.
+This avoids having to reason about concatenation of programs in the equivalence proof.
+% .. is a common technique used e.g. when proving x. [ref]. or perhaps not worth mentioning.
+
+Unlike the previous translation, from \hlang to \blang, this translation is clearly total.
+That is, for every \blang expression $\bexp$ there exists a \slang program $\sprog$ such that \trabsfinal{\bexp}{\sprog}.
+
+% \Twelf agrees.
+% Concatenation is painful in Twelf, hence accumulator.

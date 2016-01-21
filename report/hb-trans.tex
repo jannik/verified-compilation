@@ -1,6 +1,10 @@
 \subsection*{Translation}
 
-% filinski: will need more textual explaination
+% Lots of \Twelf
+
+% General Explanation
+% Explain why it is going in the 'wrong' direction
+% Refer to Pfenning
 
 % We define the type of correspondence contexts $\hbctx$.
 
@@ -9,8 +13,6 @@
 % \end{align*}
 
 \judgement{\trahb{\hbctx}{\benv}{\bexp}{\hexp}}
-
-% explain why it is going in the 'wrong' direction
 
 \begin{prooftree}
   \leftl{\rule{T-Num} :}
@@ -85,9 +87,10 @@ Consider $\hexp = \lam{\var}{\lam{\var}{\n{0}}}$; the best attempt at a translat
   \rightl{($\var \notin \envnil$)}
   \uinf{\trahb{\hbctx}{\envnil}{\blam{\blam{\n{0}}}}{\lam{\var}{\lam{\var}{\n{0}}}}}
 \end{prooftree}
-However, the side condition $\var \notin (\envnil \envcons \var)$ is blatantly false. In general, nested $\lambda$'s using the same variable name will run into this problem.
+However, the side condition $\var \notin (\envnil \envcons \var)$ is blatantly false.
+In general, nested $\lambda$'s using the same variable name will run into this problem.
 
-Hence, we can at best hope that there is always some alpha-equivalent program which is translatable.
+Hence, we can at best hope that there is always some alpha-equivalent expression which is translatable.
 Even this is not readily apparent from the rules and therefore requires a proof.
 
 \begin{theorem}[Totality]
@@ -96,13 +99,14 @@ For any $\hexp$ there exists an alpha-equivalent $\hexp'$ and some $\bexp$ such 
 
 This is proven by the following generalised statement.
 
-\begin{lemma}[Totality]
+\begin{lemma}
 For any $\hexp$ and $\benv$ with free variables $\var_1, \ldots, \var_n$ together with indices $\bvar_1, \ldots, \bvar_n$ and derivations $\Tv_1, \ldots, \Tv_n$ of respectively $\blook{\benv}{\bvar_1}{\var_1}, \ldots, \blook{\benv}{\bvar_n}{\var_n}$ there exists an alpha-equivalent $\hexp'$ such that \trahb{\hbctx}{\benv}{\bexp}{\hexp'} (by some $\T$) for some $\bexp$.
 \end{lemma}
 
 \begin{proof}
 By induction on $\hexp$ modulo renaming, i.e. if $\hexp_1$ is a subterm of $\hexp$ then $\sub{\hexp_1}{\var}{\othervar}$ is also considered a subterm.
 Since in any case the size of the term decreases the induction is well-founded.
+% Prove all cases or explain why not.
 
 \paragraph{Case $\hexp = \var$}
 Since $\var$ is free we must have $\var = \var_k$ for some $k$.
@@ -142,7 +146,7 @@ For all $j$ let $\Tv_j'$ be
   \uinf{\blook{\benv \envcons \var}{\suc{\bvar_j}}{\var_j}}
 \end{prooftree}
 By IH on $\hexp_1$ with $\benv \envcons \var$ and $\Tv_1', \ldots, \Tv_n'$ we get \trahb{\hbctx}{\benv \envcons \var}{\bexp_1}{\hexp_1'} (by some $\T_1$) for some $\bexp_1$ and $\hexp_1'$.
-Since $\lam{\var}{\hexp_1}$ is alpha-equivalent to $\lam{\var}{\hexp_1'}$ we can $\T$ to be
+Since $\lam{\var}{\hexp_1}$ is alpha-equivalent to $\lam{\var}{\hexp_1'}$ we can take $\T$ to be
 \begin{prooftree}
 	\prem{\T_1}{\trahb{\hbctx}{\benv \envcons \var}{\bexp_1}{\hexp_1'}}
   \rightl{($\var \notin \benv$)}

@@ -1,22 +1,22 @@
 \subsection*{Equivalence}
 
 \begin{theorem} [Equivalence HOAS-Bruijn]
-\label{thm:equivalence-hb} If \trahb{\hbctx}{\envnil}{\bexp}{\hexp}, then \hev{\hexp}{\n{n}} if and only if \bev{\envnil}{\bexp}{\n{n}}.
+\label{thm:equivalence-hb} If \trahb{\hbctx}{\envnil}{\bexp}{\hexp}, then \hev{\hexp}{\n{\nat}} if and only if \bev{\envnil}{\bexp}{\n{\nat}}.
 \end{theorem}
 
 To prove this, we first generalise to the following lemmas.
 
-\begin{lemma}
+\begin{lemma}[Correspondence Substitution]
 \label{lem:substitution-cor}
 If \corhb{\hbxtx}{\bval}{\hexp} and \corhb{\hbctx}{\bval'}{\hexp'} then \corhb{\hbctx}{\sub{\bval}{\bval'}{\var}}{\sub{\hexp}{\hexp'}{\var}}
 \end{lemma}
 
-\begin{lemma}
+\begin{lemma}[Lookup Substitution]
 \label{lem:substitution-lookup}
 Given $\var$ and $\bval$, if \blook{\benv}{\bvar}{\bval'} then \blook{\sub{\benv}{\bval}{\var}}{\bvar}{\sub{\bval'}{\bval}{\var}}.
 \end{lemma}
 
-\begin{lemma}
+\begin{lemma}[Translation Substitution]
 \label{lem:substitution-trans}
 Given a variable $\var$, if \trahb{\hbctx}{\benv}{\bexp}{\hexp} (by $\T$) and \corhb{\hbctx}{\bval}{\hval} (by $\C$) then \trahb{\hbctx}{\sub{\benv}{\bval}{\var}}{\bexp}{\sub{\hexp}{\hval}{\var}} (by some $\T'$).
 \end{lemma}
@@ -56,6 +56,7 @@ Otherwise $x \neq y$ so $\sub{(\benv \envcons \othervar)}{\bval}{\var} = \sub{\b
 By IH on $\T_1$ with $\C$ we get \trahb{\hbctx}{\sub{\benv}{\bval}{\var} \envcons \othervar}{\bexp_1}{\sub{\hexp_1}{\hval}{\var}} (by $\T_1'$) which has the right shape to finish the case with \rule{T-Lam}.
 
 \end{proof}
+
 
 \begin{lemma}[Soundness]
 \label{lem:soundness-hb}
@@ -119,6 +120,13 @@ The case is finished using \rule{E-App} with $\E_1$, $\E_2$ and $\E_3$; the requ
 \label{lem:completeness-hb}
 If \trahb{\hbctx}{\benv}{\hexp}{\bexp} (by $\T$) and \hev{\hexp}{\hval} (by $\E$), then there exists $\bval$ such that \bev{\benv}{\bexp}{\bval} (by some $\B$) and \corhb{\hbctx}{\bval}{\hval} (by some $\C$).
 \end{lemma}
+
+\begin{proof}
+Completely analogous to the soundness proof. [Can we say this?]
+\end{proof}
+
+\Twelf
+% Something about identical code.
 
 
 % \subsection*{Equivalence}

@@ -1,21 +1,30 @@
-\section*{Source Language}
-The source language represents the abstract syntax tree of the program text.
-% is a simple functional language
+\section{The \textnormal{\hlang} Language}
+\hlang is a simple functional language with $\lambda$-abstractions and numbers.
+It directly represents the abstract syntax tree of the program text.
 
-\subsection*{Syntax}
+\subsection{Syntax}
 
-Let $\nat$ denote natural numbers and $\var$ variable identifiers. We then define source language expressions $\hexp$ and canonical forms $\hval$:
+Let $\nat$ denote natural numbers and $\var$ variable identifiers. We then define \hlang expressions $\hexp$:
 \begin{align*}
-  \hexp &\defi \n{\nat} \alt \var \alt \lam{\var}{\hexp_1} \alt \app{\hexp_1}{\hexp_2} \alt \hsuc{\hexp_1} \\
-  \hval &\defi \n{\nat} \alt \lam{\var}{\hexp} \quad (\text{with} \; FV(\hexp) \subseteq \set{\var}) \\
+  \hexp &\defi \n{\nat} \alt \var \alt \lam{\var}{\hexp} \alt \app{\hexp_1}{\hexp_2} \alt \hsuc{\hexp} \\
 \end{align*}
 
-% consider moving values to Semantics section
-% filinski note: explain why suc but no case. allows conversion from church numerals in order to observe results.
+Note that we include the successor operation but no eliminator (e.g. case expressions) --- the idea is to compute with Church numerals and observe the result $\hexp$ using
+\[
+\app{\app{\hexp}{(\lam{\var}{\hsuc{\var}}})}{\n{0}}
+\]
 
-\subsection*{Semantics}
+\Twelf We use higher-order abstract syntax to represent $\lambda$-abstractions.
 
-The source language has a completely standard substitution-based semantics.
+\subsection{Semantics}
+
+We define canonical forms $\hval$ as a subset of expressions:
+\begin{align*}
+  \hval &\defi \n{\nat} \alt \lam{\var}{\hexp} \quad (\text{with} \; \mathrm{FV}(\hexp) \subseteq \set{\var}) \\
+\end{align*}
+(The side condition ensures that canonical forms are closed.)
+
+\hlang has a completely standard substitution-based semantics.
 
 \vspace{0.5cm}
 
@@ -44,6 +53,8 @@ The source language has a completely standard substitution-based semantics.
 	\leftl{\rule{E-Suc} :}
   \uinf{\hev{\hsuc{\hexp_1}}{\n{\nat + 1}}}
 \end{prooftree}
+
+\Twelf We use Twelf's built-in substitution.
 
 % \begin{prooftree}
 %   \ninf{\hev{\e_1}{\n{0}}}

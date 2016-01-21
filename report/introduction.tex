@@ -1,38 +1,44 @@
-\section*{Introduction}
+\section{Abstract?}
+Should there be one?
 
-%
-%There are several ways of ensuring the correctness of a compiler.
-%One way is through extensive testing, though in practice this is never quite sufficient to be rid of all errors [citation?].
-%Another way is to prove correctness through some external mechanism.
-%Yet another way, which is a variation of this idea, is to develop the compiler in such a way that it is correct by construction.
-%
-%This last option is the subject of this inquiry.
-%Using a dependently typed language it is possible to encode properties about the behaviour of the program in its types --- in particular, given the right types, the mere fact that a program type checks is a witness that it is a correct compiler with respect to the semantics of the source and target languages.
-%
-%We use the Twelf logic programming language, which is based on the LF logical framework [citation Pfenning].
-%Twelf is dependently typed, but it is limited in other respects such as only being able to prove metatheorems of the form $\Pi \cdots \Pi \Sigma \cdots \Sigma$ [what's the proper description?].
-%Hence, for a given statement it is not a priori clear whether Twelf is capable of proving (or even stating) it, even if a proof exists on paper.
-%On the other hand, Twelf has higher-order abstract syntax offering advantages when dealing with binders.
-%
-%Our aim therefore is to investigate the feasibility of implementing a verified compiler using Twelf.
-%
-%\section*{Previous Work}
-%
-%The main work in this area is the CompCert C verified compiler, a ``high-assurance compiler for almost all of the ISO C90 / ANSI C language, generating efficient code for the PowerPC, ARM and x86 processors'' [cite http://compcert.inria.fr/].
-%It targets embedded programming and is written almost entirely in Coq (exceptions being the parser and the assembly code pretty-printer).
-%Notably, the compiler implements non-trivial optimisations such as inlining.
-%
-%The same framework has been used to make a compiler for mini-ML with progress towards verified garbage collection [cite Xavier Leroy].
-%
-%Another project similarly achieves verified compilation for an ML-like language using Coq [cite Adam Chlipala].
-%The focus is on maintainability of the compiler, in particular using parameterised higher-order abstract syntax, while memory management is largely ignored.
-%
-%[maybe mention PILSNER, a compositionally verified compiler]
-%
+\section{Introduction}
 
-\section*{Overview}
+% Motiverende ævl.
 
-The translation employs two intermediate languages to more clearly separate the different aspects of the equivalence between the source language and the machine language.
+There are several ways of ensuring the correctness of a compiler.
+One way is through extensive testing, though in practice this is never quite sufficient to be rid of all errors [citation?].
+Another way is to prove the correctness of the compiler.
+The latter option is the subject of this inquiry.
+Using a dependently typed language it is possible to encode statements and their proofs in the type system.
+
+We use the Twelf proof assistant, which is based on the LF logical framework [citation Pfenning].
+Twelf is dependently typed, but it is limited in other respects such as only being able to prove $\Pi_2$ ($\forall \exists$) theorems. [cite How to Believe a Twelf Proof?]
+Hence, for a given statement it is not a priori clear whether Twelf is capable of proving (or even stating) it, even if a proof exists on paper.
+On the other hand, Twelf has higher-order abstract syntax offering advantages when dealing with binders.
+
+Our aim therefore is to investigate the feasibility of implementing a verified compiler using Twelf.
+
+\section{Previous Work}
+
+The main work in this area is the CompCert C verified compiler, a ``high-assurance compiler for almost all of the ISO C90 / ANSI C language, generating efficient code for the PowerPC, ARM and x86 processors'' [cite http://compcert.inria.fr/].
+It targets embedded programming and is written almost entirely in Coq (exceptions being the parser and the assembly code pretty-printer).
+Notably, the compiler implements non-trivial optimisations such as inlining.
+
+The same framework has been used to make a compiler for mini-ML with progress towards verified garbage collection [cite Xavier Leroy].
+
+Another project similarly achieves verified compilation for an ML-like language using Coq [cite Adam Chlipala].
+The focus is on maintainability of the compiler, in particular using parameterised higher-order abstract syntax, while memory management is largely ignored.
+
+% Not too much higher-order previously.
+
+% Mention Pfenning.
+% Explain how we expand on previous work.
+
+\section{Overview}
+Our source language, \hlang, is a simple higher-order functional language with substitution semantics.
+The target language, \mlang, is a machine-like language featuring linearised programs with abstract stack machine semantics.
+
+The translation employs two intermediate languages to more clearly separate the different aspects of the equivalence between \hlang and \mlang.
 
 Firstly, named variables are turned into De Bruijn indices and closures are represented explicitly.
 Secondly, the syntax is partially linearised and the semantics are based on an abstract machine.

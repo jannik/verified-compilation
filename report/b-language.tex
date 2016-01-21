@@ -1,32 +1,29 @@
-\section*{De Bruijn Language}
+\section{The \textnormal{\blang} Language}
 
-The De Bruijn language differs from the source language in two important ways: variables are represented by De Bruijn indices, and closures are managed explicitly instead of substituting arguments.
+\blang differs from \hlang in two important ways: variables are represented by De Bruijn indices, and closures are managed explicitly instead of substituting arguments.
 
-\subsection*{Syntax}
+\subsection{Syntax}
 
-We define variable indices $\bvar$ and De Bruijn expressions $\bexp$ as follows:
+We define variable indices $\bvar$ and \blang expressions $\bexp$ as follows:
 \begin{align*}
 	\bvar &\defi \z \alt \suc{i} \\
-	\bexp &\defi \n{\nat} \alt \bvar \alt \blam{\bexp_1} \alt \bapp{\bexp_1}{\bexp_2} \alt \bsuc{\bexp_1} \\
+	\bexp &\defi \n{\nat} \alt \bvar \alt \blam{\bexp} \alt \bapp{\bexp_1}{\bexp_2} \alt \bsuc{\bexp} \\
 \end{align*}
 
-\subsection*{Semantics}
+\subsection{Semantics}
 
-The semantics of the De Bruijn language is environment-based.
-We define De Bruijn values $\bval$ as follows, and environments $\benv$ are then ordered lists of values.
+The semantics of \blang is environment-based.
+We define \blang values $\bval$ as follows, and environments $\benv$ are then ordered lists of values.
 \begin{align*}
   \bval &\defi \n{\nat} \alt \cl{\benv}{\bexp} \alt \var \\
-  \benv &\defi \envnil \alt \benv_1 \envcons \bval \\
+  \benv &\defi \envnil \alt \benv \envcons \bval \\
 \end{align*}
-
-% note about the need for variables as values
+% Explanation of variables...
 
 We introduce an auxiliary judgement for variable lookup.
 
 \vspace{0.5cm}
 
-% note: filinski doesn't like uparrow..
-% and we should consider making all lookups functions instead of judgements
 \judgement{\blook{\benv}{\bvar}{\bval}}
 
 \begin{prooftree}
