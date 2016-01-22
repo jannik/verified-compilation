@@ -1,17 +1,3 @@
-Soundness and completeness for stack-to-machine translation.
-Case for machine language.
-Soundness for case in bruijn-to-stack.
-Report: hoas-to-bruijn proof.
-Report: bruijn-to-stack proof.
-Report: stack-to-machine proof.
-Report: introduction and motivation
-Report: modelling in Twelf.
-Report: hoas language description.
-Report: bruijn language description.
-Report: stack language description.
-Report: machine language description.
-Report: previous work.
-Report: conclusion.
-Report: future work.
-Investigate "concrete representations".
-Interesting examples.
+
+When doing final batch of search-and-replace in code:
+- Replace 'store' with e.g. 'env'.

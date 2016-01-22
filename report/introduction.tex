@@ -1,10 +1,6 @@
-\section{Abstract?}
-Should there be one?
-
 \section{Introduction}
 
-% Motiverende ævl.
-%[A little motivation about the need for trustworthy compilers..]
+[A little motivation about the need for trustworthy compilers]
 There are several ways of ensuring the correctness of a compiler.
 One way is through extensive testing, though in practice this is never quite sufficient to be rid of all errors [citation?].
 Another way is to prove the correctness of the compiler.
@@ -12,11 +8,14 @@ The latter option is the subject of this inquiry.
 Using a dependently typed language it is possible to encode statements and their proofs in the type system.
 
 We use the Twelf proof assistant, which is based on the LF logical framework [citation Pfenning].
-Twelf is dependently typed, but it is limited in other respects such as only being able to prove $\Pi_2$ ($\forall \exists$) theorems. [cite How to Believe a Twelf Proof?]
+Twelf is dependently typed, but it is limited in other respects such as only being able to prove $\Pi_2^0$ ($\forall \exists$) theorems. [cite How to Believe a Twelf Proof?]
 Hence, for a given statement it is not a priori clear whether Twelf is capable of proving (or even stating) it, even if a proof exists on paper.
 On the other hand, Twelf has higher-order abstract syntax offering advantages when dealing with binders.
 
 Our aim therefore is to investigate the feasibility of implementing a verified compiler using Twelf.
+
+% Andrzej: 'could be a bit longer'
+% A little intro to LF, Elf and Twelf.. and how they differ from other logics and proof assistants.
 
 \section{Previous Work}
 
@@ -38,8 +37,8 @@ The focus is on maintainability of the compiler, in particular using parameteris
 Our source language, \hlang, is a simple higher-order functional language with substitution semantics.
 The target language, \mlang, is a machine-like language featuring linearised programs with abstract stack machine semantics.
 
-The translation employs two intermediate languages to more clearly separate the different aspects of the equivalence between \hlang and \mlang.
+The translation employs two intermediate languages --- \blang and \slang --- to more clearly separate the different aspects of the equivalence between \hlang and \mlang.
 
-Firstly, named variables are turned into De Bruijn indices and closures are represented explicitly.
-Secondly, the syntax is partially linearised and the semantics are based on an abstract machine.
-Finally, the entire program is linearised.
+From \hlang to \blang, named variables are turned into De Bruijn indices and closures are represented explicitly.
+Then from \blang to \slang, the syntax is partially linearised and the semantics are based on an abstract machine.
+And finally from \slang to \mlang, the entire program is linearised.

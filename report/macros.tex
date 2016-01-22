@@ -101,7 +101,7 @@ $\blacksquare$
 % hb translation
 \ensurecommand{\hbctx}{\Theta}%
 \ensurecommand{\cor}[2]{\ensuremath{#1 \rightsquigarrow #2}}
-\ensurecommand{\trahb}[4]{\ensuremath{#2 \vdash #3 \mathrel{\rhd} #4}} % a bit of a hack
+\ensurecommand{\trahb}[4]{\ensuremath{#2 \vdash #4 \mathrel{\lhd} #3}} % a bit of a hack
 \ensurecommand{\corhb}[3]{\ensuremath{#2 \rightsquigarrow #3}}
 
 % s-language syntax
@@ -120,7 +120,8 @@ $\blacksquare$
 \ensurecommand{\sseq}{\mathbin{;}}
 
 % s-language semantics
-\ensurecommand{\fr}[2]{\langle #1 \tupsep #2 \rangle}
+\ensurecommand{\fr}[2]{\{\mkern-5mu| #1 \clsep #2 |\mkern-5mu\}}
+%\ensurecommand{\fr}[2]{\langle #1 \tupsep #2 \rangle}
 
 \ensurecommand{\sval}{v}
 \ensurecommand{\senv}{\beta}

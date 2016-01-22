@@ -1,4 +1,4 @@
-\subsection*{Translation}
+\subsection{Translation}
 
 % Lots of \Twelf
 
@@ -9,9 +9,14 @@
 %   \hbctx &\defi \ctxnil \alt \hbctx_1 \ctxcons \cor{\bval}{\var}
 % \end{align*}
 
+% explain first why translation is backwards
+% consider calling it 'extraction' or similar, or 'correspondence' (probably not) instead
+
 Before giving the translation judgement, we want to point out that there are several workable ways of implementing translation.
 The most ``obvious'' solution is to keep an ordered list of free variables (say $\Gamma$) such that each variable's position indicates its De Bruijn index.
 For instance, the case for variables would be something like:
+% use up-arrow syntax instead of \Gamma(\bvar) or explain
+% even in a hypothetical scenario, giving rules before a judgement is not okay
 \begin{prooftree}
 \ax{\trahb{\hbctx}{\Gamma}{\bvar}{\Gamma(\bvar)}}
 \end{prooftree}
@@ -23,7 +28,7 @@ The case for $\lambda$ would be:
 (The direction of the translation is intentional as will be explained below.) Investigating this approach we found that proving soundness and completeness was doable but cumbersome: the invariant involves a complex relationship between $\benv$, $\Gamma$ and the free variables in scope.
 
 It turns out that there is an easier way, adapted from Pfenning. [cite]
-The idea is to weaken the separation between semantics and translation and use the store type $\benv$ instead of just a list of variables.
+The idea is to weaken the separation between semantics and translation and use the environment type $\benv$ instead of just a list of variables.
 For this to work we need a notion of hypothetical values (after all, we are not executing the program so no concrete values will arise) which explains the need for including variables as \blang values.
 This has little effect if all we want to do is translate programs, but it turns out that this approach affords a simple invariant for soundness and completeness.
 
@@ -87,7 +92,10 @@ It uses a correspondence relation between values and expressions in canonical fo
   \uinf{\corhb{\hbctx}{\cl{\benv}{\bexp}}{\lam{\var}{\hexp}}}
 \end{prooftree}
 
-While every $\bexp$ allows us to find some $\hexp$ such that \trahb{\hbctx}{\envnil}{\bexp}{\hexp}, it is not immediately clear that the translation is total in the right-to-left direction, i.e. that every $\hexp$ has a corresponding $\bexp$.
+While every $\bexp$ allows us to find some $\hexp$ such that \trahb{\hbctx}{\envnil}{\bexp}{\hexp},
+% not really true. require b closed? also, we should mention that we don't particularly need this result.
+% note that 'right-to-left' i
+it is not immediately clear that the translation is total in the left-to-left direction, i.e. that every $\hexp$ has a corresponding $\bexp$.
 In fact, this property does not hold!
 Consider $\hexp = \lam{\var}{\lam{\var}{\n{0}}}$; the best attempt at a translation would be the following:
 \begin{prooftree}
@@ -111,10 +119,16 @@ For any $\hexp$ there exists an alpha-equivalent $\hexp'$ and some $\bexp$ such 
 This is proven by the following generalised statement.
 
 \begin{lemma}
-For any $\hexp$ and $\benv$ with free variables $\var_1, \ldots, \var_n$ together with indices $\bvar_1, \ldots, \bvar_n$ and derivations $\Tv_1, \ldots, \Tv_n$ of respectively $\blook{\benv}{\bvar_1}{\var_1}, \ldots, \blook{\benv}{\bvar_n}{\var_n}$ there exists an alpha-equivalent $\hexp'$ such that \trahb{\hbctx}{\benv}{\bexp}{\hexp'} (by some $\T$) for some $\bexp$.
+For any $\hexp$ and $\benv$ with free variables $\var_1, \ldots, \var_n$ together with indices $\bvar_1, \ldots, \bvar_n$ such that $\blook{\benv}{\bvar_k}{\var_k}$ (by $\Tv_k$) for $k = 1 \ldots n$, there exists an alpha-equivalent $\hexp'$ such that \trahb{\hbctx}{\benv}{\bexp}{\hexp'} (by some $\T$) for some $\bexp$.
 \end{lemma}
+% make 'alpha-equivalent' more clear with e \underset{\alpha}{=} e'
+
+% state conditions of lemma more precisely with math notation:
+% FV(e) \subseteq {x_1, ..., x_n}
+% define 'vars(alph)' and state requirement separately
 
 \begin{proof}
+% by induction on size of e instead
 By induction on $\hexp$ modulo renaming, i.e. if $\hexp_1$ is a subterm of $\hexp$ then $\sub{\hexp_1}{\var}{\othervar}$ is also considered a subterm.
 Since in any case the size of the term decreases the induction is well-founded.
 % Prove all cases or explain why not.
@@ -131,6 +145,7 @@ Take $\hexp' = \hexp$ and let $\T$ be
 \paragraph{Case $\hexp = \lam{\var}{\hexp_1}$}
 \paragraph{Subcase \textnormal{$\var = \var_k$ for some $k$}}
 Let $\othervar$ be a variable that does not occur free in $\hexp_1$ and let $\hexp_1' = \sub{\hexp_1}{\othervar}{\var}$.
+% Let $\othervar$ be a variable NOT IN ALPHA? that ...
 We want to invoke the IH with $\hexp_1'$ and $\benv \envcons \othervar$, which requires suitable derivations.
 Let $\Tv_k'$ be
 \begin{prooftree}
@@ -163,6 +178,8 @@ Since $\lam{\var}{\hexp_1}$ is alpha-equivalent to $\lam{\var}{\hexp_1'}$ we can
   \rightl{($\var \notin \benv$)}
   \uinf{\trahb{\hbctx}{\benv}{\blam{\bexp_1}}{\lam{\othervar}{\hexp_1'}}}
 \end{prooftree}
+
+% case for either app or suc. may not be completely trivial.
 
 \end{proof}
 

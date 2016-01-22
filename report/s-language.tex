@@ -1,4 +1,4 @@
-\section*{The \textnormal{\slang} Language}
+\section{The \textnormal{\slang} Language}
 
 We now develop the next translation target, \slang.
 Where \blang expressions have a tree structure, \slang programs are flat lists of mostly atomic instructions.
@@ -8,7 +8,7 @@ Computation uses abstract stack machine semantics, replacing evaluation trees wi
 % some text about its purpose, major changes, etc.
 % From big-step to abstract stack machine.
 
-\subsection*{Syntax}
+\subsection{Syntax}
 
 We define stack-machine instructions $\sinst$ and programs $\sprog$:
 \begin{align*}
@@ -17,7 +17,7 @@ We define stack-machine instructions $\sinst$ and programs $\sprog$:
 \end{align*}
 (Note that $\bvar$ was defined previously.)
 
-\subsection*{Semantics}
+\subsection{Semantics}
 
 We define values $\sval$, environments $\senv$, control stacks $\sctrl$, and value stacks $\svals$:
 \begin{align*}
@@ -32,7 +32,7 @@ And the semantics judgements:
 
 \judgement{\sev{\sprog}{\sval}}
 
-% Change to abbreviation.
+% Change to abbreviation and move to end.
 
 \begin{prooftree}
   \ninf{\ssteps{[\fr{\envnil}{\sprog}]}{\stknil}{\stknil}{[\sval]}}

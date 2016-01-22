@@ -1,5 +1,7 @@
-\subsection*{Equivalence}
+\subsection{Equivalence}
 
+% move formal theorem to end, state it informally (without the Theorem) here.
+% use this scheme for each equivalence proof
 \begin{theorem} [Equivalence Bruijn-Stack]
 \label{thm:equivalence-bs} If \trabsfinal{\bexp}{\sprog}, then \bev{\envnil}{\bexp}{\n{\nat}} if and only if \sev{\sprog}{\n{\nat}}.
 \end{theorem}
@@ -48,9 +50,13 @@ If \trabs{\bexp}{\sprog_2}{\sprog} (by $\T$) and \ssteps{\sctrl \stkcons \fr{\se
 \Twelf Something about \texttt{\%reduces}.
 
 \begin{proof}
-By simultaneous induction on $\T$ and $\P$.
+By lexicographic induction on $\T$ and $\P$.
+% is this what we mean exactly?
+
 % We show only the most interesting case:
 [is it relevant to have any cases in report?]
+% in any case, refer to the code file that contains the proof
+
 % something about how twelf proof needing inversion and coerce lemmas..
 \end{proof}
 

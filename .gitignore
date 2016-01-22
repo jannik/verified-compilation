@@ -8,5 +8,8 @@
 *.thm
 *.fdb_latexmk
 *.fls
+*.tcp
+*.toc
+*.tps
 .tup/
 /report/code-*.tex

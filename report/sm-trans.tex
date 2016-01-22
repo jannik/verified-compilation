@@ -1,12 +1,11 @@
-\subsection*{Translation}
+\subsection{Translation}
 
-%Let $f, g$ denote functions on labels, e.g. $\lnext$.
-%Let $f(\q)$ denote the label-program $\q$ with $f$ applied to each label.
-
-Let $\shift{\mprog}{\nat}$ denote the program $\mprog$ shifted by $\nat$, i.e. with each address $\addr$ replaced by $\addr + \nat$.
+Let $\shift{\mprog}{\nat}$ denote the program $\mprog$ shifted by $\nat$, i.e. with each address $\addr$ (in $\mpushclos{\addr}$ and $\mcall{\addr}$) replaced by $\addr + \nat$.
 We translate from stack programs to machine programs using the following judgements:
 
 \vspace{0.5cm}
+
+% mention: quadratic but equivalent to simpler linear. but (perhaps) this translation is easier to prove things about.
 
 \judgement{$\trasmfinal{\sprog}{\mprog}{\addr}$}
 

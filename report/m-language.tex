@@ -1,12 +1,12 @@
-\section*{The \textnormal{\mlang} Language}
+\section{The \textnormal{\mlang} Language}
 
-The next challenge we face is moving the program code to some external storage and referring to it indirectly.
+The next challenge we face is moving the program code to some immutable program store and referring to it indirectly.
 To illuminate this issue we consider a slight evolution of the stack language.
-Nevertheless, it still poses the problem of how to handle translations of subprograms when the evaluation is happening in the context of the full program.
+% Nevertheless, it still poses the problem of how to handle translations of subprograms when the evaluation is happening in the context of the full program.
 The solution is to define a subprogram relation that keeps track of the position of the subprogram within the complete program.
 [ref to Equivalence section, where the relation is defined.]
 
-\subsection*{Syntax}
+\subsection{Syntax}
 
 Let $\addr$ denote program addresses (natural numbers).
 We define machine instructions $\minst$ and programs $\mprog$:
@@ -23,7 +23,7 @@ And let $\mprog_1 \mconcat \mprog_2$ denote the concatenation of programs $\mpro
 
 % NOTE: Wednesday annotations end here.
 
-\subsection*{Semantics}
+\subsection{Semantics}
 
 We define values $\mval$, environments $\menv$, control stacks $\mctrl$, and value stacks $\mvals$:
 \begin{align*}
