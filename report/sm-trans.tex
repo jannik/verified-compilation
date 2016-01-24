@@ -5,8 +5,6 @@ We translate from stack programs to machine programs using the following judgeme
 
 \vspace{0.5cm}
 
-% mention: quadratic but equivalent to simpler linear. but (perhaps) this translation is easier to prove things about.
-
 \judgement{$\trasmfinal{\sprog}{\mprog}{\addr}$}
 
 \begin{prooftree}
@@ -47,3 +45,11 @@ We translate from stack programs to machine programs using the following judgeme
 \begin{prooftree}
   \ax{$\trasm{\send}{\mret \mseq \mend}$}
 \end{prooftree}
+
+This translation is clearly total; for every \slang program $\sprog$ there exists a \mlang program $\mprog$ and an address $\addr$ such that \trasmfinal{\sprog}{\mprog}{\addr}.
+
+% mention: quadratic but equivalent to simpler linear. but (perhaps) this translation is easier to prove things about.
+
+\Twelf
+Twelf does indeed accept a \texttt{\%total} declaration on the translation judgement.
+% something about shifts as a judgement?

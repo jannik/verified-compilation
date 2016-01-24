@@ -56,6 +56,8 @@ By lexicographic induction on $\P$ and $\T$.
 If \trabs{\bexp}{\sprog_2}{\sprog} (by $\T$) and \bev{\benv}{\bexp}{\bval} (by $\B$) with \cor{\benv}{\senv} (by $\D$), then (for all $\sctrl$ and $\svals$) there exists $\sval$ such that \ssteps{\sctrl \stkcons \fr{\senv}{\sprog}}{\svals}{\sctrl \stkcons \fr{\senv}{\sprog_2}}{\svals \stkcons \sval} (by some $\P$) with \cor{\bval}{\sval} (by some $\C$).
 \end{lemma}
 
+\code{completeness-bs'}{completeness-bruijn-stack.elf}
+
 \begin{proof}
 By induction on $\B$.
 The proof is rather straightforward, so we show only the most interesting case:

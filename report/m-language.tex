@@ -31,17 +31,24 @@ We define values $\mval$, environments $\menv$, control stacks $\mctrl$, and val
   \mvals &\defi \stknil \alt \mvals \stkcons \mval
 \end{align*}
 
-We need a judgement for variable lookup (rules as expected):
+As usual, we need a judgement for variable lookup:
 
 \vspace{0.5cm}
 
 \judgement{\mlook{\menv}{\bvar}{\mval}}
 
-% write the rules here
+\begin{prooftree}
+  \ax{\slook{\menv \envcons \mval}{\z}{\mval}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\slook{\menv}{\bvar}{\mval}}
+  \uinf{\slook{\menv \envcons \mval'}{\suc{\bvar}}{\mval}}
+\end{prooftree}
 
 \vspace{0.5cm}
 
-And an execution judgement:
+We then define judgements for execution:
 
 \vspace{0.5cm}
 \judgement{\mexec{\minst}{\mctrl}{\addr}{\mvals}{\mctrl'}{\addr'}{\mvals'}}
@@ -73,37 +80,31 @@ And an execution judgement:
 
 (No rule for \texttt{halt}!)
 
-% mention: no rule for halt
-
-% And finally the multi-step judgement:
-
 \vspace{0.5cm}
 \judgement{\msteps{\mprog}{\mctrl}{\addr}{\mvals}{\mctrl'}{\addr'}{\mvals'}}
 \vspace{0.5cm}
 
 \begin{prooftree}
-  \leftl{\rule{MS-Zero} :}
   \ax{\msteps{\mprog}{\mctrl}{\addr}{\mvals}{\mctrl}{\addr}{\mvals}}
 \end{prooftree}
 
 \begin{prooftree}
   \ninf{\mexec{\minst}{\mctrl}{\addr}{\mvals}{\mctrl''}{\addr''}{\mvals''}}
   \ninf{\msteps{\mprog}{\mctrl''}{\addr''}{\mvals''}{\mctrl'}{\addr'}{\mvals'}}
-  \leftl{\rule{MS-More} :}
 	\rightl{$(\mprog(\addr) = \minst)$}
   \binf{\msteps{\mprog}{\mctrl}{\addr}{\mvals}{\mctrl'}{\addr'}{\mvals'}}
 \end{prooftree}
 where $\mprog(\addr)$ denotes the $\addr$'th instruction of the program $\mprog$.
 
-And a complete evaluation judgement:
+As an abbreviation for complete execution, let \meval{\mprog}{\addr}{\mval} denote \msteps{\mprog}{[\fr{\envnil}{0}]}{\addr}{\stknil}{\stknil}{\addr'}{[\mval]} with $\mprog(\addr') = \mhalt$.
+[Are side conditions okay for abbreviations? This used to be a judgement with a single rule.]
 
-% Abbreviation?
-\vspace{0.5cm}
-\judgement{\meval{\mprog}{\addr}{\mval}}
-\vspace{0.5cm}
-
-\begin{prooftree}
-  \ninf{\msteps{\mprog}{[\fr{\envnil}{0}]}{\addr}{\stknil}{\stknil}{\addr'}{[\mval]}}
-  \rightl{$(\mprog(\addr') = \mhalt)$}
-  \uinf{\meval{\mprog}{\addr}{\mval}}
-\end{prooftree}
+%\vspace{0.5cm}
+%\judgement{\meval{\mprog}{\addr}{\mval}}
+%\vspace{0.5cm}
+%
+%\begin{prooftree}
+  %\ninf{\msteps{\mprog}{[\fr{\envnil}{0}]}{\addr}{\stknil}{\stknil}{\addr'}{[\mval]}}
+  %\rightl{$(\mprog(\addr') = \mhalt)$}
+  %\uinf{\meval{\mprog}{\addr}{\mval}}
+%\end{prooftree}

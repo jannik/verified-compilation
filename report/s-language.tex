@@ -89,14 +89,4 @@ And the semantics judgements:
   \binf{\ssteps{\sctrl}{\svals}{\sctrl'}{\svals'}}
 \end{prooftree}
 
-\judgement{\sev{\sprog}{\sval}}
-
-% Change to abbreviation and move to end.
-
-\begin{prooftree}
-  \ninf{\ssteps{[\fr{\envnil}{\sprog}]}{\stknil}{\stknil}{[\sval]}}
-  \uinf{\sev{\sprog}{\sval}}
-\end{prooftree}
-
-\Twelf
-% Something about unpacking of tuples.
+As an abbreviation, let \sev{\sprog}{\sval} denote \ssteps{[\fr{\envnil}{\sprog}]}{\stknil}{\stknil}{[\sval]}.

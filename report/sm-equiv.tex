@@ -13,13 +13,11 @@ As a solution we define a subprogram relation that keeps track of the position o
 
 % Sub instead of Leq.
 \begin{prooftree}
-  \leftl{\rule{Leq-Here} :}
   \rightl{$(\text{$\mprog'$ is a prefix of $\mprog$})$}
   \ax{$\mprog' \leq_{0} \mprog$}
 \end{prooftree}
 
 \begin{prooftree}
-  \leftl{\rule{Leq-There} :}
   \ninf{$\shift{\mprog'}{1} \leq_{n} \mprog$}
   \uinf{$\mprog' \leq_{n + 1} \minst \mseq \mprog$}
 \end{prooftree}
@@ -32,7 +30,6 @@ We also need some correspondence judgements:
 \judgement{$\corvalue{\mprog}{\sval}{\mval}$}
 
 \begin{prooftree}
-  \leftl{\rule{C-Num} :}
   \ax{$\corvalue{\mprog}{\n{\nat}}{\n{\nat}}$}
 \end{prooftree}
 
@@ -40,7 +37,6 @@ We also need some correspondence judgements:
   \ninf{$\corstore{\mprog}{\senv}{\menv}$}
   \ninf{$\trasm{\sprog}{\mprog'}$}
   \ninf{$\mprog' \leq_{\addr} \mprog$}
-  \leftl{\rule{C-Clos} :}
   \tinf{$\corvalue{\mprog}{\cl{\senv}{\sprog}}{\cl{\menv}{\addr}}$}
 \end{prooftree}
 
@@ -48,14 +44,12 @@ We also need some correspondence judgements:
 \judgement{$\corstore{\mprog}{\senv}{\menv}$}
 
 \begin{prooftree}
-  \leftl{\rule{D-Nil} :}
   \ax{$\corstore{\mprog}{\envnil}{\envnil}$}
 \end{prooftree}
 
 \begin{prooftree}
   \ninf{$\corstore{\mprog}{\senv}{\menv}$}
   \ninf{$\corvalue{\mprog}{\sval}{\mval}$}
-  \leftl{\rule{D-Cons} :}
   \binf{$\corstore{\mprog}{\senv \envcons \sval}{\menv \envcons \mval}$}
 \end{prooftree}
 
@@ -64,14 +58,12 @@ We also need some correspondence judgements:
 \vspace{0.5cm}
 
 \begin{prooftree}
-  %\leftl{\rule{D-Nil} :}
   \ax{$\corvaluestack{\mprog}{\stknil}{\stknil}$}
 \end{prooftree}
 
 \begin{prooftree}
   \ninf{$\corvaluestack{\mprog}{\svals}{\mvals}$}
   \ninf{$\corvalue{\mprog}{\sval}{\mval}$}
-  %\leftl{\rule{D-Cons} :}
   \binf{$\corvaluestack{\mprog}{\svals \stkcons \sval}{\mvals \stkcons \mval}$}
 \end{prooftree}
 
@@ -93,14 +85,18 @@ We also need some correspondence judgements:
 
 \vspace{0.5cm}
 
-And now we are ready to generalise completeness and soundness:
+And now we are ready to generalise soundness and completeness:
+
+\begin{lemma}[Soundness]
+\label{lem:soundness-sm}
+If $\msteps{\mprog}{\mctrl}{\addr}{\mvals}{\stknil}{\addr'}{[\mval]}$ with $\mprog(\addr') = \mhalt$, $\corstack{\mprog}{\sctrl}{\addr}{\mctrl}$ and $\corvaluestack{\mprog}{\svals}{\mvals}$, then there exists $\sval$ such that $\ssteps{\sctrl}{\svals}{\stknil}{[\sval]}$ with $\corvalue{\mprog}{\sval}{\mval}$.
+\end{lemma}
+
+\code{soundness-sm'}{soundness-stack-machine.elf}
 
 \begin{lemma}[Completeness]
 \label{lem:completeness-sm}
 If $\ssteps{\sctrl}{\svals}{\stknil}{[\sval]}$, $\corstack{\mprog}{\sctrl}{\addr}{\mctrl}$ and $\corvaluestack{\mprog}{\svals}{\mvals}$, then there exists $\mval$ such that $\msteps{\mprog}{\mctrl}{\addr}{\mvals}{\stknil}{\addr'}{[\mval]}$ with $\mprog(\addr') = \mhalt$ and $\corvalue{\mprog}{\sval}{\mval}$.
 \end{lemma}
 
-\begin{lemma}[Soundness]
-\label{lem:soundness-sm}
-If $\msteps{\mprog}{\mctrl}{\addr}{\mvals}{\stknil}{\addr'}{[\mval]}$ with $\mprog(\addr') = \mhalt$, $\corstack{\mprog}{\sctrl}{\addr}{\mctrl}$ and $\corvaluestack{\mprog}{\svals}{\mvals}$, then there exists $\sval$ such that $\ssteps{\sctrl}{\svals}{\stknil}{[\sval]}$ with $\corvalue{\mprog}{\sval}{\mval}$.
-\end{lemma}
+\code{completeness-sm'}{completeness-stack-machine.elf}
