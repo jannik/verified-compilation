@@ -3,6 +3,7 @@
 \hlang is a simple functional language with $\lambda$-abstractions and numbers.
 It directly represents the abstract syntax tree of the program text.
 
+
 \subsection{Syntax}
 
 Let $\nat$ denote natural numbers and $\var$ variable identifiers. We then define \hlang expressions $\hexp$:
@@ -14,10 +15,14 @@ Note that we include the successor operation but no eliminator (e.g. case expres
 \[
 \app{\app{\hexp}{(\lam{\var}{\hsuc{\var}}})}{\n{0}}
 \]
+Furthermore, we observe that \hlang is Turing complete since it is untyped and therefore allows general recursion with e.g. the Y-combinator.
 
-% mention that it is Turing complete with Y-combinator and such
+\Twelf
+The Twelf definition is:
+\input{code-hoas-exp}
+The hypothetical \texttt{exp} in the \texttt{lam} constructor is an example of higher-order abstract syntax (HOAS).
+This way \hlang $\lambda$-abstractions are represented by Twelf $\lambda$-abstractions.
 
-\Twelf We use higher-order abstract syntax to represent $\lambda$-abstractions.
 
 \subsection{Semantics}
 
@@ -57,4 +62,6 @@ We define canonical forms $\hval$ as a subset of expressions:
   \uinf{\hev{\hsuc{\hexp_1}}{\n{\nat + 1}}}
 \end{prooftree}
 
-\Twelf We use Twelf's built-in substitution.
+\Twelf
+Since we use HOAS to represent $\lambda$-abstractions, we can appeal to Twelf's built-in substitution when defining application:
+\input{code-hoas-eval-app}

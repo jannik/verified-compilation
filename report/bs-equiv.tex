@@ -1,11 +1,6 @@
 \subsection{Equivalence}
 
-% move formal theorem to end, state it informally (without the Theorem) here.
-% use this scheme for each equivalence proof
-\begin{theorem} [Equivalence Bruijn-Stack]
-\label{thm:equivalence-bs} If \trabsfinal{\bexp}{\sprog}, then \bev{\envnil}{\bexp}{\n{\nat}} if and only if \sev{\sprog}{\n{\nat}}.
-\end{theorem}
-
+We want to show that if \trabsfinal{\bexp}{\sprog}, then \bev{\envnil}{\bexp}{\n{\nat}} if and only if \sev{\sprog}{\n{\nat}}.
 To prove this we need two correspondence judgements:
 
 \vspace{0.5cm}
@@ -47,17 +42,13 @@ Let $\prec$ denote the well-founded relation defined by $\P_1 \prec \P_2$ if $\P
 If \trabs{\bexp}{\sprog_2}{\sprog} (by $\T$) and \ssteps{\sctrl \stkcons \fr{\senv}{\sprog}}{\svals}{\stknil}{[\sval']} (by $\P$) with \cor{\benv}{\senv} (by $\D$), then there exists $\bval$ and $\sval$ such that \bev{\benv}{\bexp}{\bval} (by some $\B$) and \ssteps{\sctrl \stkcons \fr{\senv}{\sprog_2}}{\svals \stkcons \sval}{\stknil}{[\sval']} (by some $\P'$ where $\P' \prec \P$)  with \cor{\bval}{\sval} (by some $\C$).
 \end{lemma}
 
-\Twelf Something about \texttt{\%reduces}.
+\code{soundness-bs'}{soundness-bruijn-stack.elf}
 
 \begin{proof}
-By lexicographic induction on $\T$ and $\P$.
-% is this what we mean exactly?
+By lexicographic induction on $\P$ and $\T$.
 
-% We show only the most interesting case:
-[is it relevant to have any cases in report?]
-% in any case, refer to the code file that contains the proof
+% Do we show the most interesting case?
 
-% something about how twelf proof needing inversion and coerce lemmas..
 \end{proof}
 
 \begin{lemma}[Completeness]
@@ -120,7 +111,12 @@ Finally, fixing $\sctrl$ and $\svals$, we construct the required derivation $\P$
 
 And finally we can establish the main theorem:
 
-\begin{proof}[Proof of Theorem~\ref{thm:equivalence-bs}]
+\begin{theorem} [Equivalence Bruijn-Stack]
+\label{thm:equivalence-bs}
+If \trabsfinal{\bexp}{\sprog}, then \bev{\envnil}{\bexp}{\n{\nat}} if and only if \sev{\sprog}{\n{\nat}}.
+\end{theorem}
+
+\begin{proof}
 Supposing \trabsfinal{\bexp}{\sprog} (by $\T$), we show the bi-implication.
 
 For the left-to-right direction, assume \bev{\envnil}{\bexp}{\n{\nat}} (by $\B$).
@@ -133,3 +129,12 @@ And with $\P'$ we can derive $\sev{\sprog}{\n{\nat}}$ as required.
 The other direction is similar. [though not analogous.. is it relevant to prove these on paper?]
 
 \end{proof}
+
+\Twelf
+The totality checking of the soundness lemma is expressed in Twelf as follows:
+\input{code-soundness-bs}
+The \texttt{\%reduces} declaration makes Twelf verify that \texttt{DP'} is always a subterm of \texttt{DP}.
+The \texttt{\%total} declaration uses this information to establish termination.
+This is the analogue of requiring that $\P' \prec \P$ in the paper formulation.
+
+% something about how twelf proof needing inversion and coerce lemmas..

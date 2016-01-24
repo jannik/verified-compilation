@@ -22,6 +22,8 @@ extract codeFile defName texFile = do
 
 extractAll :: IO ()
 extractAll = do
+    extract "code/syntax-hoas.elf" "num" "report/code-hoas-exp.tex"
+    extract "code/semantics-hoas.elf" "eval/app" "report/code-hoas-eval-app.tex"
     extract "code/trans-hoas-bruijn.elf" "trans-hb/lam" "report/code-trans-hb-lam.tex"
     extract "code/trans-hoas-bruijn.elf" "%block bl-trans-hb" "report/code-trans-hb-block.tex"
     extract "code/trans-hoas-bruijn.elf" "%query 0 *" "report/code-trans-hb-query.tex"
@@ -29,3 +31,4 @@ extractAll = do
     extract "code/totality-hoas-bruijn.elf" "trans-hb-exists'/lam" "report/code-totality-hb-lam.tex"
     extract "code/totality-hoas-bruijn.elf" "trans-hb-exists'/app" "report/code-totality-hb-app.tex"
     extract "code/totality-hoas-bruijn.elf" "move-to-head" "report/code-totality-hb-move-to-head.tex"
+    extract "code/soundness-bruijn-stack.elf" "%reduces" "report/code-soundness-bs.tex"

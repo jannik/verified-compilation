@@ -1,7 +1,6 @@
 \subsection{Translation}
-
-% Lots of \Twelf
-
+The inclusion of variables as \blang values deserves an explanation.
+They will not play any part in the semantics, but they are used in the translation from \hlang to denote a hypothetical value corresponding to some variable.
 
 % We define the type of correspondence contexts $\hbctx$.
 
@@ -113,7 +112,7 @@ Hence, we can at best hope that there is always some alpha-equivalent expression
 Even this is not readily apparent from the rules and therefore requires a proof.
 
 \begin{theorem}[Totality]
-For any $\hexp$ there exists an alpha-equivalent $\hexp'$ and some $\bexp$ such that \trahb{\hbctx}{\envnil}{\bexp}{\hexp'}.
+For any closed $\hexp$ there exists an alpha-equivalent $\hexp'$ and some $\bexp$ such that \trahb{\hbctx}{\envnil}{\bexp}{\hexp'}.
 \end{theorem}
 
 This is proven by the following generalised statement.

@@ -2,33 +2,25 @@
 
 \blang differs from \hlang in two important ways: variables are represented by De Bruijn indices, and closures are managed explicitly instead of substituting arguments.
 
+
 \subsection{Syntax}
 
 We define variable indices $\bvar$ and \blang expressions $\bexp$ as follows:
 \begin{align*}
 	\bvar &\defi \z \alt \suc{i} \\
-	\bexp &\defi \n{\nat} \alt \bvar \alt \blam{\bexp} \alt \bapp{\bexp_1}{\bexp_2} \alt \bsuc{\bexp} \\
+	\bexp &\defi \n{\nat} \alt \bvar \alt \blam{\bexp} \alt \bapp{\bexp_1}{\bexp_2} \alt \bsuc{\bexp}
 \end{align*}
+
 
 \subsection{Semantics}
 
 The semantics of \blang is environment-based.
 We define \blang values $\bval$ as follows, and environments $\benv$ are then ordered lists of values.
 \begin{align*}
-  \bval &\defi \n{\nat} \alt \cl{\benv}{\bexp} \alt \var \\
-  \benv &\defi \envnil \alt \benv \envcons \bval \\
+  \bval &\defi \n{\nat} \alt \cl{\benv}{\bexp} \\
+  \benv &\defi \envnil \alt \benv \envcons \bval
 \end{align*}
 % maybe require that environments in closures are appropriately closed?
-The inclusion of variables as \blang values deserves an explanation.
-They will not play any part in the semantics, but they are used in the translation from \hlang to denote a hypothetical value corresponding to some variable.
-% do not have \var in grammar here, but introduce it later when needed. that is,
-%
-% here: u ::= \n{n} | {alph : b}
-% later: u ::= ... | x
-%
-% or:
-% h ::= u | x
-% alph ::= [] | alph :: h
 
 Before giving the main evaluation judgement, we introduce an auxiliary judgement for variable lookup.
 

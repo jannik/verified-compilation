@@ -5,7 +5,8 @@
 \label{thm:equivalence-sm} If $\trasmfinal{\sprog}{\mprog}{\addr}$, then $\sev{\sprog}{\n{\nat}}$ if and only if $\meval{\mprog}{\addr}{\n{\nat}}$.
 \end{theorem}
 
-To prove this, we need some correspondence judgements:
+Equivalence of \slang and \mlang poses the problem of how to handle translations of subprograms when the evaluation is happening in the context of the full program.
+As a solution we define a subprogram relation that keeps track of the position of the subprogram within the complete program.
 
 \vspace{0.5cm}
 \judgement{$\mprog' \leq_{\nat} \mprog$}
@@ -22,6 +23,10 @@ To prove this, we need some correspondence judgements:
   \ninf{$\shift{\mprog'}{1} \leq_{n} \mprog$}
   \uinf{$\mprog' \leq_{n + 1} \minst \mseq \mprog$}
 \end{prooftree}
+
+\vspace{0.5cm}
+
+We also need some correspondence judgements:
 
 \vspace{0.5cm}
 \judgement{$\corvalue{\mprog}{\sval}{\mval}$}

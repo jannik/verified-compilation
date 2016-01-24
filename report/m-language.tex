@@ -1,10 +1,8 @@
 \section{The \textnormal{\mlang} Language}
 
-The next challenge we face is moving the program code to some immutable program store and referring to it indirectly.
-To illuminate this issue we consider a slight evolution of the stack language.
-% Nevertheless, it still poses the problem of how to handle translations of subprograms when the evaluation is happening in the context of the full program.
-The solution is to define a subprogram relation that keeps track of the position of the subprogram within the complete program.
-[ref to Equivalence section, where the relation is defined.]
+The distinguishing feature of \mlang is that the program is fully linearised and is not consumed during execution.
+Rather, instructions are fetched from a program store which is kept static.
+Like \slang, \mlang has abstract stack machine semantics.
 
 \subsection{Syntax}
 
@@ -17,11 +15,11 @@ We define machine instructions $\minst$ and programs $\mprog$:
 Note that the address in the instruction $\mcall{\addr}$ is the return address.
 And let $\mprog_1 \mconcat \mprog_2$ denote the concatenation of programs $\mprog_1$ and $\mprog_2$.
 
-% mend: going outside the program storage.
-% ret: returning from a function.
-% halt: ending the program.
+The abundance of syntax indicating termination deserves an explanation.
+\texttt{ret} is for returning from a function call.
+\texttt{halt} is for ending the entire program (to treat all stack frames uniformly, the top-level also ends with a \texttt{ret} instruction).
+\texttt{end} signifies the end of the program store --- it should never be reached during execution.
 
-% NOTE: Wednesday annotations end here.
 
 \subsection{Semantics}
 
@@ -73,6 +71,8 @@ And an execution judgement:
   \ax{\mexec{\mret}{\mctrl \stkcons \fr{\menv}{\addrret}}{\addr}{\mvals}{\mctrl}{\addrret}{\mvals}}
 \end{prooftree}
 
+(No rule for \texttt{halt}!)
+
 % mention: no rule for halt
 
 % And finally the multi-step judgement:
@@ -96,6 +96,7 @@ And an execution judgement:
 where $\mprog(\addr)$ denotes the $\addr$'th instruction of the program $\mprog$.
 
 And a complete evaluation judgement:
+
 % Abbreviation?
 \vspace{0.5cm}
 \judgement{\meval{\mprog}{\addr}{\mval}}

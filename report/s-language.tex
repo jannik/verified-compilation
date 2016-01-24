@@ -3,10 +3,8 @@
 We now develop the next translation target, \slang.
 Where \blang expressions have a tree structure, \slang programs are flat lists of mostly atomic instructions.
 (Functions will be flattened in the next translation.)
-Computation uses abstract stack machine semantics, replacing evaluation trees with flat sequences of states.
+Computation uses abstract stack machine semantics, replacing a big-step evaluation tree with a flat sequence of states.
 
-% some text about its purpose, major changes, etc.
-% From big-step to abstract stack machine.
 
 \subsection{Syntax}
 
@@ -17,6 +15,7 @@ We define stack-machine instructions $\sinst$ and programs $\sprog$:
 \end{align*}
 (Note that $\bvar$ was defined previously.)
 
+
 \subsection{Semantics}
 
 We define values $\sval$, environments $\senv$, control stacks $\sctrl$, and value stacks $\svals$:
@@ -24,20 +23,11 @@ We define values $\sval$, environments $\senv$, control stacks $\sctrl$, and val
   \sval &\defi \n{\nat} \alt \cl{\senv}{\sprog} \\
   \senv &\defi \envnil \alt \senv \envcons \sval \\
   \sctrl &\defi \stknil \alt \sctrl \stkcons \fr{\senv}{\sprog} \\
-  \svals &\defi \stknil \alt \svals \stkcons \sval \\
+  \svals &\defi \stknil \alt \svals \stkcons \sval
 \end{align*}
 
 And the semantics judgements:
 \vspace{0.5cm}
-
-\judgement{\sev{\sprog}{\sval}}
-
-% Change to abbreviation and move to end.
-
-\begin{prooftree}
-  \ninf{\ssteps{[\fr{\envnil}{\sprog}]}{\stknil}{\stknil}{[\sval]}}
-  \uinf{\sev{\sprog}{\sval}}
-\end{prooftree}
 
 \judgement{\slook{\senv}{\bvar}{\sval}}
 
@@ -97,6 +87,15 @@ And the semantics judgements:
   \ninf{\ssteps{\sctrl''}{\svals''}{\sctrl'}{\svals'}}
   \leftl{\rule{SS-More} :}
   \binf{\ssteps{\sctrl}{\svals}{\sctrl'}{\svals'}}
+\end{prooftree}
+
+\judgement{\sev{\sprog}{\sval}}
+
+% Change to abbreviation and move to end.
+
+\begin{prooftree}
+  \ninf{\ssteps{[\fr{\envnil}{\sprog}]}{\stknil}{\stknil}{[\sval]}}
+  \uinf{\sev{\sprog}{\sval}}
 \end{prooftree}
 
 \Twelf

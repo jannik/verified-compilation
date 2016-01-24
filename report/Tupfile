@@ -1,1 +1,1 @@
-: main.tex |> latexmk -pdf main.tex |> main.pdf main.log main.aux main.thm main.fdb_latexmk main.fls
+: main.tex |> latexmk -pdf main.tex |> main.pdf main.log main.aux main.thm main.fdb_latexmk main.fls main.toc
