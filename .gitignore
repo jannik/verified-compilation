@@ -10,6 +10,7 @@
 *.fls
 *.tcp
 *.toc
+*.out
 *.tps
 .tup/
 /report/code-*.tex
