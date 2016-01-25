@@ -10,7 +10,38 @@ We define variable indices $\bvar$ and \blang expressions $\bexp$ as follows:
 	\bvar &\defi \z \alt \suc{i} \\
 	\bexp &\defi \n{\nat} \alt \bvar \alt \blam{\bexp} \alt \bapp{\bexp_1}{\bexp_2} \alt \bsuc{\bexp}
 \end{align*}
+We will a notion of a \blang expressions being closed:
 
+\vspace{0.5cm}
+
+\judgement{\closed{k}{\bexp}}
+
+\begin{prooftree}
+  \ax{\closed{k}{\n{\nat}}}
+\end{prooftree}
+
+\begin{prooftree}
+  \rightl{($\bvar < k$)}
+  \ax{\closed{k}{\bvar}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\closed{k + 1}{\bexp_1}}
+  \uinf{\closed{k}{\blam{\bexp_1}}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\closed{k}{\bexp_1}}
+  \ninf{\closed{k}{\bexp_2}}
+  \binf{\closed{k}{\bapp{\bexp_1}{\bexp_2}}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\closed{k}{\bexp_1}}
+  \uinf{\closed{k}{\bsuc{\bexp_1}}}
+\end{prooftree}
+
+If \closed{0}{\bexp} we simply say that $\bexp$ is closed.
 
 \subsection{Semantics}
 

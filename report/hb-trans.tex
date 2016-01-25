@@ -1,6 +1,4 @@
 \subsection{Translation}
-The inclusion of variables as \blang values deserves an explanation.
-They will not play any part in the semantics, but they are used in the translation from \hlang to denote a hypothetical value corresponding to some variable.
 
 % We define the type of correspondence contexts $\hbctx$.
 
@@ -8,65 +6,103 @@ They will not play any part in the semantics, but they are used in the translati
 %   \hbctx &\defi \ctxnil \alt \hbctx_1 \ctxcons \cor{\bval}{\var}
 % \end{align*}
 
-% explain first why translation is backwards
 % consider calling it 'extraction' or similar, or 'correspondence' (probably not) instead
 
 Before giving the translation judgement, we want to point out that there are several workable ways of implementing translation.
 The most ``obvious'' solution is to keep an ordered list of free variables (say $\Gamma$) such that each variable's position indicates its De Bruijn index.
-For instance, the case for variables would be something like:
-% use up-arrow syntax instead of \Gamma(\bvar) or explain
-% even in a hypothetical scenario, giving rules before a judgement is not okay
-\begin{prooftree}
-\ax{\trahb{\hbctx}{\Gamma}{\bvar}{\Gamma(\bvar)}}
-\end{prooftree}
-The case for $\lambda$ would be:
-\begin{prooftree}
-\ninf{\trahb{\hbctx}{\Gamma \envcons \var}{\bexp_1}{\hexp_1}}
-\uinf{\trahb{\hbctx}{\Gamma}{\blam{\bexp_1}}{\lam{\var}{\hexp_1}}}
-\end{prooftree}
-(The direction of the translation is intentional as will be explained below.) Investigating this approach we found that proving soundness and completeness was doable but cumbersome: the invariant involves a complex relationship between $\benv$, $\Gamma$ and the free variables in scope.
+We would have a judgement like the following (omitting the cases that are just straightforward induction).
 
-It turns out that there is an easier way, adapted from Pfenning. [cite]
+\vspace{0.5cm}
+
+\judgement{\blook{\Gamma}{\bvar}{\var}}
+
+\vspace{0.5cm}
+
+(Suitable rules to find the $\bvar$'th element of $\Gamma$.)
+
+\vspace{0.5cm}
+
+\judgement{\trahbfaux{\Gamma}{\hexp}{\bexp}}
+
+\begin{prooftree}
+  \ninf{\blook{\Gamma}{\bvar}{\var}}
+  \uinf{\trahbfaux{\Gamma}{\var}{\bvar}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\trahbfaux{\Gamma \envcons \var}{\hexp_1}{\bexp_1}}
+  \rightl{($\var \notin \Gamma$)}
+  \uinf{\trahbfaux{\Gamma}{\lam{\var}{\hexp_1}}{\blam{\bexp_1}}}
+\end{prooftree}
+Note that the side condition $\var \notin \Gamma$ is necessary to prevent shadowed variables from being used giving rise to ``translations'' like \trahbfaux{\envnil}{\lam{\var}{\lam{\var}{\var}}}{\blam{\blam{(\suc{\z})}}}.
+However, there are still two problems with the translation judgement presented above.
+
+Firstly, while every closed $\bexp$ allows us to find some $\hexp$ such that \trahbfaux{\envnil}{\hexp}{\bexp} (we will neither need nor prove this fact), it is not immediately clear that the translation is total in the left-to-right direction, i.e. that every closed $\hexp$ has a corresponding $\bexp$.
+In fact, this property does not hold!
+Consider $\hexp = \lam{\var}{\lam{\var}{\n{0}}}$; the best attempt at a translation would be something like:
+\begin{prooftree}
+	\prem{\vdots}{\trahbfaux{\envnil \envcons \var \envcons \var}{\n{0}}{\n{0}}}
+  \rightl{($\var \notin (\envnil \envcons \var)$)}
+  \uinf{\trahbfaux{\envnil \envcons \var}{\lam{\var}{\n{0}}}{\blam{\n{0}}}}
+  \rightl{($\var \notin \envnil$)}
+  \uinf{\trahbfaux{\envnil}{\lam{\var}{\lam{\var}{\n{0}}}}{\blam{\blam{\n{0}}}}}
+\end{prooftree}
+However, the side condition $\var \notin (\envnil \envcons \var)$ is blatantly false.
+In general, nested $\lambda$'s using the same variable name will run into this problem.
+
+Hence, we can at best hope that there is always some alpha-equivalent expression which is translatable.
+For this reason using a $\rhd$ is misleading and we shall instead use the notation \trahb{\hbctx}{\Gamma}{\bexp}{\hexp} to accurately depict in which direction the relation \emph{is} total (again, assuming closed expressions).
+
+Secondly, investigating this approach we found that proving soundness and completeness was doable but cumbersome: the invariant involves a complex relationship between $\benv$, $\Gamma$ and the free variables in scope.
+There is an easier way, though, adapted from \cite[p. 150]{Pfenning01}.
 The idea is to weaken the separation between semantics and translation and use the environment type $\benv$ instead of just a list of variables.
-For this to work we need a notion of hypothetical values (after all, we are not executing the program so no concrete values will arise) which explains the need for including variables as \blang values.
+For this to work we need a notion of hypothetical values (after all, we are not executing the program so no concrete values will arise) so we will have to use an extended from of $\benv$ that can also contain variables.
 This has little effect if all we want to do is translate programs, but it turns out that this approach affords a simple invariant for soundness and completeness.
+
+Formally, we define a new type of values and environments as follows:
+\begin{align*}
+  \bvalext &\defi \bval \alt \var \\
+  \benvext &\defi \envnil \alt \benvext \envcons \bvalext
+\end{align*}
+We will consider $\benv$ to be a subtype of $\benvext$ in the natural way.
+The set of variables occuring in $\benvext$ will be denoted by $\vars(\benvext)$.
 
 That being said, the translation judgement is as follows.
 
-\vspace{0.5em}
+\vspace{0.5cm}
 
-\judgement{\trahb{\hbctx}{\benv}{\bexp}{\hexp}}
+\judgement{\trahb{\hbctx}{\benvext}{\bexp}{\hexp}}
 
 \begin{prooftree}
   \leftl{\rule{T-Num} :}
-  \ax{\trahb{\hbctx}{\benv}{\n{\nat}}{\n{\nat}}}
+  \ax{\trahb{\hbctx}{\benvext}{\n{\nat}}{\n{\nat}}}
 \end{prooftree}
 
 \begin{prooftree}
-  \ninf{\blook{\benv}{\bvar}{\bval}}
+  \ninf{\blook{\benvext}{\bvar}{\bval}}
   \ninf{\corhb{\hbctx}{\bval}{\hexp}}
   \leftl{\rule{T-Var} :}
-  \binf{\trahb{\hbctx}{\benv}{\bvar}{\hexp}}
+  \binf{\trahb{\hbctx}{\benvext}{\bvar}{\hexp}}
 \end{prooftree}
 
 \begin{prooftree}
-	\ninf{\trahb{\hbctx}{\benv \envcons \var}{\bexp_1}{\hexp_1}}
-  \rightl{($\var \notin \benv$)}
+	\ninf{\trahb{\hbctx}{\benvext \envcons \var}{\bexp_1}{\hexp_1}}
+  \rightl{($\var \notin \benvext$)}
   \leftl{\rule{T-Lam} :}
-  \uinf{\trahb{\hbctx}{\benv}{\blam{\bexp_1}}{\lam{\var}{\hexp_1}}}
+  \uinf{\trahb{\hbctx}{\benvext}{\blam{\bexp_1}}{\lam{\var}{\hexp_1}}}
 \end{prooftree}
 
 \begin{prooftree}
-  \ninf{\trahb{\hbctx}{\benv}{\bexp_1}{\hexp_1}}
-  \ninf{\trahb{\hbctx}{\benv}{\bexp_2}{\hexp_2}}
+  \ninf{\trahb{\hbctx}{\benvext}{\bexp_1}{\hexp_1}}
+  \ninf{\trahb{\hbctx}{\benvext}{\bexp_2}{\hexp_2}}
 	\leftl{\rule{T-App} :}
-  \binf{\trahb{\hbctx}{\benv}{\bapp{\bexp_1}{\bexp_2}}{\app{\hexp_1}{\hexp_2}}}
+  \binf{\trahb{\hbctx}{\benvext}{\bapp{\bexp_1}{\bexp_2}}{\app{\hexp_1}{\hexp_2}}}
 \end{prooftree}
 
 \begin{prooftree}
-  \ninf{\trahb{\hbctx}{\benv}{\bexp_1}{\hexp_1}}
+  \ninf{\trahb{\hbctx}{\benvext}{\bexp_1}{\hexp_1}}
 	\leftl{\rule{T-Suc} :}
-  \uinf{\trahb{\hbctx}{\benv}{\bsuc{\bexp_1}}{\hsuc{\hexp_1}}}
+  \uinf{\trahb{\hbctx}{\benvext}{\bsuc{\bexp_1}}{\hsuc{\hexp_1}}}
 \end{prooftree}
 
 It uses a correspondence relation between values and expressions in canonical form:
@@ -90,101 +126,91 @@ It uses a correspondence relation between values and expressions in canonical fo
   \leftl{\rule{C-Fun} :}
   \uinf{\corhb{\hbctx}{\cl{\benv}{\bexp}}{\lam{\var}{\hexp}}}
 \end{prooftree}
+The fact that \rule{C-Fun} uses a plain $\benv$ is intentional: we do not allow \hlang variables to occur inside \blang closures.
 
-While every $\bexp$ allows us to find some $\hexp$ such that \trahb{\hbctx}{\envnil}{\bexp}{\hexp},
-% not really true. require b closed? also, we should mention that we don't particularly need this result.
-% note that 'right-to-left' i
-it is not immediately clear that the translation is total in the left-to-left direction, i.e. that every $\hexp$ has a corresponding $\bexp$.
-In fact, this property does not hold!
-Consider $\hexp = \lam{\var}{\lam{\var}{\n{0}}}$; the best attempt at a translation would be the following:
-\begin{prooftree}
-	\ax{\trahb{\hbctx}{\envnil \envcons \var \envcons \var}{\n{0}}{\n{0}}}
-  \rightl{($\var \notin (\envnil \envcons \var)$)}
-  \uinf{\trahb{\hbctx}{\envnil \envcons \var}{\blam{\n{0}}}{\lam{\var}{\n{0}}}}
-  \rightl{($\var \notin \envnil$)}
-  \uinf{\trahb{\hbctx}{\envnil}{\blam{\blam{\n{0}}}}{\lam{\var}{\lam{\var}{\n{0}}}}}
-\end{prooftree}
-However, the side condition $\var \notin (\envnil \envcons \var)$ is blatantly false.
-In general, nested $\lambda$'s using the same variable name will run into this problem.
-This is the reason for the translation going ``backwards''.
-
-Hence, we can at best hope that there is always some alpha-equivalent expression which is translatable.
-Even this is not readily apparent from the rules and therefore requires a proof.
+As mentioned earlier, one would hope that for every $\hexp$ there exists an $\hexp'$ which is translatable and alpha-equivalent to $\hexp$ (written $\hexp \alphaeq \hexp'$).
+This is not readily apparent from the rules and therefore requires a proof.
 
 \begin{theorem}[Totality]
-For any closed $\hexp$ there exists an alpha-equivalent $\hexp'$ and some $\bexp$ such that \trahb{\hbctx}{\envnil}{\bexp}{\hexp'}.
+For any closed $\hexp$ there exists some $\hexp'$ with $\hexp \alphaeq \hexp'$ and some $\bexp$ such that \trahb{\hbctx}{\envnil}{\bexp}{\hexp'}.
 \end{theorem}
 
 This is proven by the following generalised statement.
 
 \begin{lemma}
-For any $\hexp$ and $\benv$ with free variables $\var_1, \ldots, \var_n$ together with indices $\bvar_1, \ldots, \bvar_n$ such that $\blook{\benv}{\bvar_k}{\var_k}$ (by $\Tv_k$) for $k = 1 \ldots n$, there exists an alpha-equivalent $\hexp'$ such that \trahb{\hbctx}{\benv}{\bexp}{\hexp'} (by some $\T$) for some $\bexp$.
+For any $\hexp$ and $\benvext$ where $\FV(\hexp) \subseteq \set{\var_1, \ldots, \var_n}$ and $\vars(\benvext) \subseteq \set{\var_1, \ldots, \var_n}$ together with indices $\bvar_1, \ldots, \bvar_n$ such that $\blook{\benvext}{\bvar_k}{\var_k}$ (by $\Tv_k$) for $k = 1 \ldots n$, there exists $\hexp'$ with $\hexp \alphaeq \hexp'$ such that \trahb{\hbctx}{\benvext}{\bexp}{\hexp'} (by some $\T$) for some $\bexp$.
 \end{lemma}
-% make 'alpha-equivalent' more clear with e \underset{\alpha}{=} e'
-
-% state conditions of lemma more precisely with math notation:
-% FV(e) \subseteq {x_1, ..., x_n}
-% define 'vars(alph)' and state requirement separately
 
 \begin{proof}
-% by induction on size of e instead
-By induction on $\hexp$ modulo renaming, i.e. if $\hexp_1$ is a subterm of $\hexp$ then $\sub{\hexp_1}{\var}{\othervar}$ is also considered a subterm.
-Since in any case the size of the term decreases the induction is well-founded.
-% Prove all cases or explain why not.
+By induction on the size of $\hexp$.
+In particular, if $\hexp_1$ is a subterm of $\hexp$ and $\hexp_1' \alphaeq \hexp_1$ we can apply the IH to $\hexp_1'$.
+
+\paragraph{Case $\hexp = \n{\nat}$}
+Take $\T$ to be
+\begin{prooftree}
+  \ax{\trahb{\hbctx}{\benvext}{\n{\nat}}{\n{\nat}}}
+\end{prooftree}
 
 \paragraph{Case $\hexp = \var$}
 Since $\var$ is free we must have $\var = \var_k$ for some $k$.
 Take $\hexp' = \hexp$ and let $\T$ be
 \begin{prooftree}
-  \prem{\Tv_k}{\blook{\benv}{\bvar_k}{\var_k}}
+  \prem{\Tv_k}{\blook{\benvext}{\bvar_k}{\var_k}}
   \ax{\corhb{\hbctx}{\var_k}{\var_k}}
-  \binf{\trahb{\hbctx}{\benv}{\bvar_k}{\var_k}}
+  \binf{\trahb{\hbctx}{\benvext}{\bvar_k}{\var_k}}
 \end{prooftree}
 
 \paragraph{Case $\hexp = \lam{\var}{\hexp_1}$}
 \paragraph{Subcase \textnormal{$\var = \var_k$ for some $k$}}
-Let $\othervar$ be a variable that does not occur free in $\hexp_1$ and let $\hexp_1' = \sub{\hexp_1}{\othervar}{\var}$.
-% Let $\othervar$ be a variable NOT IN ALPHA? that ...
-We want to invoke the IH with $\hexp_1'$ and $\benv \envcons \othervar$, which requires suitable derivations.
+Let $\othervar$ be a ``fresh'' variable, i.e. $\othervar \notin \FV(e_1) \cup \vars(\benvext)$, and let $\hexp_1' = \sub{\hexp_1}{\othervar}{\var}$.
+We want to invoke the IH with $\hexp_1'$ and $\benvext \envcons \othervar$, which requires suitable derivations.
 Let $\Tv_k'$ be
 \begin{prooftree}
-  \ax{\blook{\benv \envcons \othervar}{\z}{\othervar}}
+  \ax{\blook{\benvext \envcons \othervar}{\z}{\othervar}}
 \end{prooftree}
 and for any $j \neq k$ let $\Tv_j'$ be
 \begin{prooftree}
-  \prem{\Tv_j}{\blook{\benv}{\bvar_j}{\var_j}}
-  \uinf{\blook{\benv \envcons \othervar}{\suc{\bvar_j}}{\var_j}}
+  \prem{\Tv_j}{\blook{\benvext}{\bvar_j}{\var_j}}
+  \uinf{\blook{\benvext \envcons \othervar}{\suc{\bvar_j}}{\var_j}}
 \end{prooftree}
-By IH on $\hexp_1'$ with $\benv \envcons \othervar$ and $\Tv_1', \ldots, \Tv_n'$ we get \trahb{\hbctx}{\benv \envcons \othervar}{\bexp_1}{\hexp_1''} (by some $\T_1$) for some $\bexp_1$ and $\hexp_1''$.
-Observing that $\lam{\var}{\hexp_1}$ is alpha-equivalent to $\lam{\othervar}{\sub{\hexp_1}{\othervar}{\var}}$ which is again alpha-equivalent to $\lam{\othervar}{\hexp_1''}$ we can take $\T$ to be
+By IH on $\hexp_1'$ with $\benvext \envcons \othervar$ and $\Tv_1', \ldots, \Tv_n'$ we get \trahb{\hbctx}{\benvext \envcons \othervar}{\bexp_1}{\hexp_1''} (by some $\T_1$) for some $\bexp_1$ and $\hexp_1''$.
+Observing that $\lam{\var}{\hexp_1} \alphaeq \lam{\othervar}{\sub{\hexp_1}{\othervar}{\var}} \alphaeq \lam{\othervar}{\hexp_1''}$ we can take $\T$ to be
 
 \begin{prooftree}
-	\prem{\T_1}{\trahb{\hbctx}{\benv \envcons \othervar}{\bexp_1}{\hexp_1''}}
-  \rightl{($\othervar \notin \benv$)}
-  \uinf{\trahb{\hbctx}{\benv}{\blam{\bexp_1}}{\lam{\othervar}{\hexp_1''}}}
+	\prem{\T_1}{\trahb{\hbctx}{\benvext \envcons \othervar}{\bexp_1}{\hexp_1''}}
+  \rightl{($\othervar \notin \benvext$)}
+  \uinf{\trahb{\hbctx}{\benvext}{\blam{\bexp_1}}{\lam{\othervar}{\hexp_1''}}}
 \end{prooftree}
 
 \paragraph{Subcase \textnormal{$\var \neq \var_k$ for all $k$}}
 For all $j$ let $\Tv_j'$ be
 \begin{prooftree}
-  \prem{\Tv_j}{\blook{\benv}{\bvar_j}{\var_j}}
-  \uinf{\blook{\benv \envcons \var}{\suc{\bvar_j}}{\var_j}}
+  \prem{\Tv_j}{\blook{\benvext}{\bvar_j}{\var_j}}
+  \uinf{\blook{\benvext \envcons \var}{\suc{\bvar_j}}{\var_j}}
 \end{prooftree}
-By IH on $\hexp_1$ with $\benv \envcons \var$ and $\Tv_1', \ldots, \Tv_n'$ we get \trahb{\hbctx}{\benv \envcons \var}{\bexp_1}{\hexp_1'} (by some $\T_1$) for some $\bexp_1$ and $\hexp_1'$.
-Since $\lam{\var}{\hexp_1}$ is alpha-equivalent to $\lam{\var}{\hexp_1'}$ we can take $\T$ to be
+By IH on $\hexp_1$ with $\benvext \envcons \var$ and $\Tv_1', \ldots, \Tv_n'$ we get \trahb{\hbctx}{\benvext \envcons \var}{\bexp_1}{\hexp_1'} (by some $\T_1$) for some $\bexp_1$ and $\hexp_1'$.
+Since $\lam{\var}{\hexp_1} \alphaeq \lam{\var}{\hexp_1'}$ we can take $\T$ to be
 \begin{prooftree}
-	\prem{\T_1}{\trahb{\hbctx}{\benv \envcons \var}{\bexp_1}{\hexp_1'}}
-  \rightl{($\var \notin \benv$)}
-  \uinf{\trahb{\hbctx}{\benv}{\blam{\bexp_1}}{\lam{\othervar}{\hexp_1'}}}
+	\prem{\T_1}{\trahb{\hbctx}{\benvext \envcons \var}{\bexp_1}{\hexp_1'}}
+  \rightl{($\var \notin \benvext$)}
+  \uinf{\trahb{\hbctx}{\benvext}{\blam{\bexp_1}}{\lam{\othervar}{\hexp_1'}}}
 \end{prooftree}
 
-% case for either app or suc. may not be completely trivial.
+\paragraph{Case $\hexp = \hsuc{\hexp_1}$}
+By IH on $\hexp_1$ with $\benvext$ and $\Tv_1, \ldots, \Tv_n$ we get \trahb{\hbctx}{\benvext}{\bexp_1}{\hexp_1'} (by $\T_1$) and we construct $\T$ as follows:
+\begin{prooftree}
+	\prem{\T_1}{\trahb{\hbctx}{\benvext}{\bexp_1}{\hexp_1'}}
+  \uinf{\trahb{\hbctx}{\benvext}{\bsuc{\bexp_1}}{\hsuc{\hexp_1'}}}
+\end{prooftree}
+
+\paragraph{Case $\hexp = \app{\hexp_1}{\hexp_1}$}
+Analogous to the previous case.
 
 \end{proof}
 
 \Twelf
 The Twelf implementation differs in several ways.
-We do not explicitly consider variables to be values --- instead, we consider worlds where hypothetical values exist.
+We do not explicitly consider a different type of environment where variables can occur --- instead, we consider worlds where hypothetical values exist.
 This means that what is just a variable $\var$ during the translation on paper will manifest itself both as a hypothetical \hlang expression and as a hypothetical \blang value in Twelf.
 Hence, we must make sure that they correspond giving rise to the following block:
 \input{code-trans-hb-block}
@@ -206,30 +232,30 @@ Thus, we claim that the difference in the translation judgement between the pape
 Another important difference is that since we use higher-order abstract syntax in Twelf we do not have to worry about alpha-equivalence.
 Hence, there is no caveat about alpha-equivalence in the totality theorem of the translation in Twelf.
 However, convincing Twelf of the totality is difficult.
-Simply putting a \texttt{\%total} directive on the relation is rejected by Twelf (and rightly so) because it is not clear that searching through $\benv$ for a value related to some variable will always be successful.
-Indeed, the translation relation does not encode the crucial property that every free variable corresponds to some value occuring in $\benv$.
+Simply putting a \texttt{\%total} directive on the relation is rejected by Twelf (and rightly so) because it is not clear that searching through $\benvext$ for a value related to some variable will always be successful.
+Indeed, the translation relation does not encode the crucial property that every free variable corresponds to some value occuring in $\benvext$.
 For instance, the following query is well-typed and respects the world assumption of \texttt{trans-hb} but has no solutions:
 \input{code-trans-hb-query}
 Consequently, we need a separate existence theorem to show totality.
 
 This is a point where the limitations of Twelf become somewhat painful.
-There is no way to represent an invariant like ``every hypothetical expression corresponds to some value in $\benv$'' like in our paper proof because there is no way to state relations between hypotheticals in the ``ambient'' scope [is there a better term?] and parameters to a judgement.
+There is no way to represent an invariant like ``every hypothetical expression corresponds to some value in $\benvext$'' like in our paper proof because there is no way to state relations between hypotheticals in the ``ambient'' scope [is there a better term?] and parameters to a judgement.
 
 It turns out, however, that there is an alternative induction hypothesis which is also sufficient to show totality of translation for closed expressions in an empty context.
 In Twelf it is stated as follows:
 \input{code-totality-hb-exists}
 The \texttt{match} type family is mostly a technicality so we can discriminate variables.
 The \texttt{good-store} type family constraints the store to only contain hypothetical values.
-Thus, the lemma essentially says that for every $\hexp$ there exists some $\benv$ containing only variables and some $\bexp$ such that \trahb{\hbctx}{\benv}{\bexp}{\hexp}.
-The idea is that in a closed world an $\benv$ containing only variables must in fact be empty.
+Thus, the lemma essentially says that for every $\hexp$ there exists some $\benvext$ containing only variables and some $\bexp$ such that \trahb{\hbctx}{\benvext}{\bexp}{\hexp}.
+The idea is that in a closed world an $\benvext$ containing only variables must in fact be empty.
 
 It is not immediately obvious how to maintain the invariant, though.
-The proof is structured around a preorder on stores such that \trahb{\hbctx}{\benv_1}{\bexp}{\hexp} and $\benv_1 \le \benv_2$ implies \trahb{\hbctx}{\benv_2}{\bexp}{\hexp}.
-For the application case, $\app{\hexp_1}{\hexp_2}$, we can then simply invoke the induction hypothesis to get two different stores $\benv_1$ and $\benv_2$.
-Concatenating them yields a new store $\benv$ such that $\benv_1 \le \benv$ and $\benv_2 \le \benv$:
+The proof is structured around a preorder on stores such that \trahb{\hbctx}{\benvext_1}{\bexp}{\hexp} and $\benvext_1 \le \benvext_2$ implies \trahb{\hbctx}{\benvext_2}{\bexp}{\hexp}.
+For the application case, $\app{\hexp_1}{\hexp_2}$, we can then simply invoke the induction hypothesis to get two different stores $\benvext_1$ and $\benvext_2$.
+Concatenating them yields a new store $\benvext$ such that $\benvext_1 \le \benvext$ and $\benvext_2 \le \benvext$:
 \input{code-totality-hb-app}
-For the $\lambda$-abstraction case, $\lam{\var}{\hexp_1}$, the situation is a bit more complicated: we get some $\benv$ where $\var$ can occur anywhere.
-The key lemma is that we can find another store $\benv'$ with $\benv \le \benv' \envcons \var$ and such that $\var$ does not occur in $\benv'$:
+For the $\lambda$-abstraction case, $\lam{\var}{\hexp_1}$, the situation is a bit more complicated: we get some $\benvext$ where $\var$ can occur anywhere.
+The key lemma is that we can find another store $\benvext'$ with $\benvext \le \benvext' \envcons \var$ and such that $\var$ does not occur in $\benvext'$:
 \input{code-totality-hb-move-to-head}
 This is sufficient to construct the required translation:
 \input{code-totality-hb-lam}
