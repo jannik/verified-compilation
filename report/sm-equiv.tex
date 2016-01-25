@@ -1,11 +1,8 @@
 
 \subsection{Equivalence}
 
-\begin{theorem} [Equivalence Stack-Machine]
-\label{thm:equivalence-sm} If $\trasmfinal{\sprog}{\mprog}{\addr}$, then $\sev{\sprog}{\n{\nat}}$ if and only if $\meval{\mprog}{\addr}{\n{\nat}}$.
-\end{theorem}
-
-Equivalence of \slang and \mlang poses the problem of how to handle translations of subprograms when the evaluation is happening in the context of the full program.
+We want to show that if $\trasmfinal{\sprog}{\mprog}{\addr}$, then $\sev{\sprog}{\n{\nat}}$ if and only if $\meval{\mprog}{\addr}{\n{\nat}}$.
+This poses the problem of how to handle translations of subprograms when the evaluation is happening in the context of the full program.
 As a solution we define a subprogram relation that keeps track of the position of the subprogram within the complete program.
 
 \vspace{0.5cm}
@@ -100,3 +97,9 @@ If $\ssteps{\sctrl}{\svals}{\stknil}{[\sval]}$, $\corstack{\mprog}{\sctrl}{\addr
 \end{lemma}
 
 \code{completeness-sm'}{completeness-stack-machine.elf}
+
+Finally, we can establish the main theorem:
+
+\begin{theorem}[Equivalence \textnormal{\slang}-\textnormal{\mlang}]
+\label{thm:equivalence-sm} If $\trasmfinal{\sprog}{\mprog}{\addr}$, then $\sev{\sprog}{\n{\nat}}$ if and only if $\meval{\mprog}{\addr}{\n{\nat}}$.
+\end{theorem}

@@ -74,34 +74,34 @@ That being said, the translation judgement is as follows.
 \judgement{\trahb{\hbctx}{\benvext}{\bexp}{\hexp}}
 
 \begin{prooftree}
-  \leftl{\rule{T-Num} :}
+  \leftl{\rulename{T-Num} :}
   \ax{\trahb{\hbctx}{\benvext}{\n{\nat}}{\n{\nat}}}
 \end{prooftree}
 
 \begin{prooftree}
   \ninf{\blook{\benvext}{\bvar}{\bval}}
   \ninf{\corhb{\hbctx}{\bval}{\hexp}}
-  \leftl{\rule{T-Var} :}
+  \leftl{\rulename{T-Var} :}
   \binf{\trahb{\hbctx}{\benvext}{\bvar}{\hexp}}
 \end{prooftree}
 
 \begin{prooftree}
 	\ninf{\trahb{\hbctx}{\benvext \envcons \var}{\bexp_1}{\hexp_1}}
   \rightl{($\var \notin \benvext$)}
-  \leftl{\rule{T-Lam} :}
+  \leftl{\rulename{T-Lam} :}
   \uinf{\trahb{\hbctx}{\benvext}{\blam{\bexp_1}}{\lam{\var}{\hexp_1}}}
 \end{prooftree}
 
 \begin{prooftree}
   \ninf{\trahb{\hbctx}{\benvext}{\bexp_1}{\hexp_1}}
   \ninf{\trahb{\hbctx}{\benvext}{\bexp_2}{\hexp_2}}
-	\leftl{\rule{T-App} :}
+	\leftl{\rulename{T-App} :}
   \binf{\trahb{\hbctx}{\benvext}{\bapp{\bexp_1}{\bexp_2}}{\app{\hexp_1}{\hexp_2}}}
 \end{prooftree}
 
 \begin{prooftree}
   \ninf{\trahb{\hbctx}{\benvext}{\bexp_1}{\hexp_1}}
-	\leftl{\rule{T-Suc} :}
+	\leftl{\rulename{T-Suc} :}
   \uinf{\trahb{\hbctx}{\benvext}{\bsuc{\bexp_1}}{\hsuc{\hexp_1}}}
 \end{prooftree}
 
@@ -112,21 +112,21 @@ It uses a correspondence relation between values and expressions in canonical fo
 \judgement{\corhb{\hbctx}{\bval}{\hexp}}
 
 \begin{prooftree}
-  \leftl{\rule{C-Var} :}
+  \leftl{\rulename{C-Var} :}
   \ax{\corhb{\Theta}{\var}{\var}}
 \end{prooftree}
 
 \begin{prooftree}
-  \leftl{\rule{C-Num} :}
+  \leftl{\rulename{C-Num} :}
   \ax{\corhb{\hbctx}{\n{\nat}}{\n{\nat}}}
 \end{prooftree}
 
 \begin{prooftree}
   \ninf{\trahb{\hbctx}{\benv}{\blam{\bexp}}{\lam{\var}{\hexp}}}
-  \leftl{\rule{C-Fun} :}
+  \leftl{\rulename{C-Fun} :}
   \uinf{\corhb{\hbctx}{\cl{\benv}{\bexp}}{\lam{\var}{\hexp}}}
 \end{prooftree}
-The fact that \rule{C-Fun} uses a plain $\benv$ is intentional: we do not allow \hlang variables to occur inside \blang closures.
+The fact that \rulename{C-Fun} uses a plain $\benv$ is intentional: we do not allow \hlang variables to occur inside \blang closures.
 
 As mentioned earlier, one would hope that for every $\hexp$ there exists an $\hexp'$ which is translatable and alpha-equivalent to $\hexp$ (written $\hexp \alphaeq \hexp'$).
 This is not readily apparent from the rules and therefore requires a proof.
@@ -216,7 +216,7 @@ Hence, we must make sure that they correspond giving rise to the following block
 \input{code-trans-hb-block}
 This block of assumptions is introduced in the case for $\lambda$-abstractions.
 \input{code-trans-hb-lam}
-The correspondence hypothesis is the Twelf analogue of the \rule{C-Var} rule.
+The correspondence hypothesis is the Twelf analogue of the \rulename{C-Var} rule.
 
 (As an aside, note that we could also have introduced a separate constructorless type, \texttt{var}, to represent variables and constructors
 \begin{align*}
@@ -233,6 +233,7 @@ Another important difference is that since we use higher-order abstract syntax i
 Hence, there is no caveat about alpha-equivalence in the totality theorem of the translation in Twelf.
 However, convincing Twelf of the totality is difficult.
 Simply putting a \texttt{\%total} directive on the relation is rejected by Twelf (and rightly so) because it is not clear that searching through $\benvext$ for a value related to some variable will always be successful.
+% note that ``Pfenning also mentions...''
 Indeed, the translation relation does not encode the crucial property that every free variable corresponds to some value occuring in $\benvext$.
 For instance, the following query is well-typed and respects the world assumption of \texttt{trans-hb} but has no solutions:
 \input{code-trans-hb-query}

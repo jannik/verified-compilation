@@ -1,9 +1,6 @@
 \subsection{Equivalence}
 
-\begin{theorem} [Equivalence HOAS-Bruijn]
-\label{thm:equivalence-hb} If \trahb{\hbctx}{\envnil}{\bexp}{\hexp}, then \hev{\hexp}{\n{\nat}} if and only if \bev{\envnil}{\bexp}{\n{\nat}}.
-\end{theorem}
-
+We want to show that if \trahb{\hbctx}{\envnil}{\bexp}{\hexp}, then \hev{\hexp}{\n{\nat}} if and only if \bev{\envnil}{\bexp}{\n{\nat}}.
 To prove this, we first generalise to the following lemmas.
 
 \begin{lemma}[Correspondence Substitution]
@@ -24,7 +21,7 @@ Given a variable $\var$, if \trahb{\hbctx}{\benv}{\bexp}{\hexp} (by $\T$) and \c
 \begin{proof}
 By induction on $\T$.
 
-\paragraph{Case \textnormal{\rule{T-Var}}}
+\paragraph{Case \textnormal{\rulename{T-Var}}}
 
 $\T$ has the form
 \begin{prooftree}
@@ -42,7 +39,7 @@ We then take $\T'$ to be
   \binf{\trahb{\hbctx}{\sub{\benv}{\bval}{\var}}{\bexp}{\sub{\hexp}{\hval}{\var}}}
 \end{prooftree}
 
-\paragraph{Case \textnormal{\rule{T-Lam}}}
+\paragraph{Case \textnormal{\rulename{T-Lam}}}
 $\T$ has the form
 \begin{prooftree}
 	\prem{\T_1}{\trahb{\hbctx}{\benv \envcons \othervar}{\bexp_1}{\hexp_1}}
@@ -53,7 +50,7 @@ If $\var = \othervar$ then (using the side condition) $\sub{\benv}{\bval}{\var} 
 Therefore we can take $\T' = \T$.
 
 Otherwise $x \neq y$ so $\sub{(\benv \envcons \othervar)}{\bval}{\var} = \sub{\benv}{\bval}{\var} \envcons \othervar$ and $\sub{(\lam{\othervar}{\hexp_1})}{\hval}{\var} = \lam{\othervar}{\sub{\hexp_1}{\hval}{\var}}$.
-By IH on $\T_1$ with $\C$ we get \trahb{\hbctx}{\sub{\benv}{\bval}{\var} \envcons \othervar}{\bexp_1}{\sub{\hexp_1}{\hval}{\var}} (by $\T_1'$) which has the right shape to finish the case with \rule{T-Lam}.
+By IH on $\T_1$ with $\C$ we get \trahb{\hbctx}{\sub{\benv}{\bval}{\var} \envcons \othervar}{\bexp_1}{\sub{\hexp_1}{\hval}{\var}} (by $\T_1'$) which has the right shape to finish the case with \rulename{T-Lam}.
 
 \end{proof}
 
@@ -69,7 +66,7 @@ By induction on $\B$. We proceed by case analysis on $\T$.
 
 % other cases trivial, we show only lam and app
 
-\paragraph{Case \textnormal{\rule{T-Lam}}}
+\paragraph{Case \textnormal{\rulename{T-Lam}}}
 $\T$ has the form
 \begin{prooftree}
 	\prem{\T_1}{\trahb{\hbctx}{\benv \ctxcons \var}{\bexp_1}{\hexp_1}}
@@ -79,14 +76,14 @@ Hence, $\B$ must be
 \begin{prooftree}
   \ax{\bev{\benv}{\blam{\bexp_1}}{\cl{\benv}{\bexp_1}}}
 \end{prooftree}
-Using \rule{E-Lam} we get \hev{\lam{\var}{\hexp_1}}{\lam{\var}{\hexp_1}} and construct the required correspondence as follows:
+Using \rulename{E-Lam} we get \hev{\lam{\var}{\hexp_1}}{\lam{\var}{\hexp_1}} and construct the required correspondence as follows:
 \begin{prooftree}
   \prem{\T}{\trahb{\hbctx}{\benv}{\blam{\bexp_1}}{\lam{\var}{\hexp_1}}}
   \uinf{\corhb{\hbctx}{\cl{\benv}{\bexp_1}}{\lam{\var}{\hexp_1}}}
 \end{prooftree}
 
 
-\paragraph{Case \textnormal{\rule{T-App}}}
+\paragraph{Case \textnormal{\rulename{T-App}}}
 $\T$ has the form
 \begin{prooftree}
   \prem{\T_1}{\trahb{\hbctx}{\benv}{\bexp_1}{\hexp_1}}
@@ -112,7 +109,7 @@ so $\hval_1 = \lam{\var}{\hexp_0}$.
 By IH on $\B_2$ with $\T_2$ we get \hev{\hexp_2}{\hval_2} by some $\E_2$ and \corhb{\hbctx}{\bval_2}{\hval_2} by some $\C_2$.
 Using Lemma~\ref{lem:substitution-trans} on $\T_3$ with $\C_2$ we get \trahb{\hbctx}{\benv \envcons \hval_2}{\bexp_0}{\sub{\hexp_0}{\hexp_2}{\var}} (by some $\T_3'$).
 By IH on $\B_3$ with $\T_3'$ we get \hev{\sub{\hexp_0}{\hval_2}{\var}}{\hval} by some $\E_3$ and $\corhb{\hbctx}{\bval}{\hval}$ by some $\C_3$.
-The case is finished using \rule{E-App} with $\E_1$, $\E_2$ and $\E_3$; the required correspondence is provided by $\C_3$.
+The case is finished using \rulename{E-App} with $\E_1$, $\E_2$ and $\E_3$; the required correspondence is provided by $\C_3$.
 
 \end{proof}
 
@@ -127,6 +124,15 @@ Completely analogous to the soundness proof.
 
 \Twelf
 % Something about identical code.
+
+And finally, we can establish the main theorem:
+
+\begin{theorem}[Equivalence \textnormal{\hlang}-\textnormal{\blang}]
+\label{thm:equivalence-hb} If \trahb{\hbctx}{\envnil}{\bexp}{\hexp}, then \hev{\hexp}{\n{\nat}} if and only if \bev{\envnil}{\bexp}{\n{\nat}}.
+\end{theorem}
+
+\Twelf
+% something about the fact that we cannot state equivalence in twelf.
 
 
 % \subsection{Equivalence}
@@ -157,7 +163,7 @@ Completely analogous to the soundness proof.
 % \begin{proof}
 % By induction on $\Tv$.
 
-% \paragraph{Case \textnormal{\rule{Tv-Here}}}
+% \paragraph{Case \textnormal{\rulename{Tv-Here}}}
 
 % \begin{prooftree}
 %   \leftl{$\Tv =$}
@@ -171,10 +177,10 @@ Completely analogous to the soundness proof.
 %   \binf{\comp{\sg', \v}{\De', x}{\svalsi'[x \mapsto \c]}}
 % \end{prooftree}
 % So $\sg = \sg', \v$ and $\svalsi = \svalsi'[x \mapsto \c]$.
-% We now get the required derivation $\Bv$ of $\hevv{\sg', \v}{\z}{\v}$ directly by rule \rule{Bv-Here}.
+% We now get the required derivation $\Bv$ of $\hevv{\sg', \v}{\z}{\v}$ directly by rule \rulename{Bv-Here}.
 % And since $\svalsi(x) = \svalsi'[x \mapsto \c](x) = \c$, we can take $\C = \C'$.
 
-% \paragraph{Case \textnormal{\rule{Tv-There}}}
+% \paragraph{Case \textnormal{\rulename{Tv-There}}}
 
 % \begin{prooftree}
 %   \prem{\Tv_1}{\trav{\De}{x}{i'}}
@@ -211,10 +217,10 @@ Completely analogous to the soundness proof.
 
 % \paragraph{Case $\e = \n{n}$}
 
-% $\T$ must end in \rule{T-Num} and so $\b = \n{n}$.
-% We have $\subs{\e}{\svalsi} = \n{n}$, so $\E$ must end in \rule{E-Num} and $v = \n{n}$.
-% Taking $\v = \n{n}$, by rule \rule{B-Num} we get a derivation $\B$ of $\hev{\sg}{\n{n}}{\n{n}}$ as required.
-% And $\cor{\n{n}}{\n{n}}$ by rule \rule{C-Num}.
+% $\T$ must end in \rulename{T-Num} and so $\b = \n{n}$.
+% We have $\subs{\e}{\svalsi} = \n{n}$, so $\E$ must end in \rulename{E-Num} and $v = \n{n}$.
+% Taking $\v = \n{n}$, by rule \rulename{B-Num} we get a derivation $\B$ of $\hev{\sg}{\n{n}}{\n{n}}$ as required.
+% And $\cor{\n{n}}{\n{n}}$ by rule \rulename{C-Num}.
 
 % \paragraph{Case $\e = x$}
 
@@ -241,8 +247,8 @@ Completely analogous to the soundness proof.
 % 	\prem{\T_1}{\tra{\De, x}{\e_1}{\b_1}}
 %   \uinf{\tra{\De}{\lam{x}{\e_1}}{\lam{}{\b_1}}}
 % \end{prooftree}
-% So $\b = \lam{}{\b_1}$. We have $\subs{\e}{\svalsi} = \subs{(\lam{x}{\e_1})}{\svalsi} = \lam{x}{\subs{\e_1}{\svalsi \wo x}}$, so $\E$ must end in \rule{E-Lam} and $v = \lam{x}{\subs{\e_1}{\svalsi \wo x}}$.
-% Taking $\v = \cl{\sg}{\b_1}$, we get the required $\B$ showing $\hev{\sg}{\lam{}{\b_1}}{\cl{\sg}{\b_1}}$ by rule \rule{B-Lam}.
+% So $\b = \lam{}{\b_1}$. We have $\subs{\e}{\svalsi} = \subs{(\lam{x}{\e_1})}{\svalsi} = \lam{x}{\subs{\e_1}{\svalsi \wo x}}$, so $\E$ must end in \rulename{E-Lam} and $v = \lam{x}{\subs{\e_1}{\svalsi \wo x}}$.
+% Taking $\v = \cl{\sg}{\b_1}$, we get the required $\B$ showing $\hev{\sg}{\lam{}{\b_1}}{\cl{\sg}{\b_1}}$ by rule \rulename{B-Lam}.
 % And we construct the required derivation $\C$ as follows:
 % \begin{prooftree}
 %   \prem{\D}{\comp{\sg}{\De}{\svalsi}}
@@ -260,7 +266,7 @@ Completely analogous to the soundness proof.
 % \end{prooftree}
 % So $\b = \b_1 \app \b_2$.
 
-% We have $\subs{\e}{\svalsi} = \subs{\e_1}{\svalsi} \app \subs{\e_2}{\svalsi}$, so $\E$ must end in \rule{E-App} and have the form
+% We have $\subs{\e}{\svalsi} = \subs{\e_1}{\svalsi} \app \subs{\e_2}{\svalsi}$, so $\E$ must end in \rulename{E-App} and have the form
 % \begin{prooftree}
 %   \prem{\E_1}{\ev{\subs{\e_1}{\svalsi}}{\lam{x}{\e_0}}}
 %   \prem{\E_2}{\ev{\subs{\e_2}{\svalsi}}{\c_2}}
@@ -306,7 +312,7 @@ Completely analogous to the soundness proof.
 % \begin{proof}
 % By induction on $\Tv$.
 
-% \paragraph{Case \textnormal{\rule{Tv-Here}}}
+% \paragraph{Case \textnormal{\rulename{Tv-Here}}}
 
 % \begin{prooftree}
 %   \leftl{$\Tv =$}
@@ -327,7 +333,7 @@ Completely analogous to the soundness proof.
 % So $\svalsi = \svalsi'[x \mapsto \c]$ and consequently $\svalsi(x) = c$.
 % In particular, $x \in \dom(\svalsi)$ and \cor{\v}{c} (taking $\C = \C'$) as required.
 
-% \paragraph{Case \textnormal{\rule{Tv-There}}}
+% \paragraph{Case \textnormal{\rulename{Tv-There}}}
 
 % \begin{prooftree}
 %   \prem{\Tv_1}{\trav{\De}{x}{i'}}
@@ -365,7 +371,7 @@ Completely analogous to the soundness proof.
 % \begin{proof}
 % By induction on $\B$.
 
-% \paragraph{Case \textnormal{\rule{B-Num}}}
+% \paragraph{Case \textnormal{\rulename{B-Num}}}
 
 % \begin{prooftree}
 %   \leftl{$\B =$}
@@ -373,11 +379,11 @@ Completely analogous to the soundness proof.
 % \end{prooftree}
 % So $\b = \v = \n{n}$.
 
-% $\T$ must end in \rule{T-Num} and so $\e = \n{n}$.
-% Since $\subs{\e}{\svalsi} = \n{n}$, we can take $\c = \n{n}$ and get the required derivation $\E$ of $\ev{\n{n}}{\n{n}}$ by rule \rule{E-Num}.
-% And $\cor{\n{n}}{\n{n}}$ by rule \rule{C-Num}.
+% $\T$ must end in \rulename{T-Num} and so $\e = \n{n}$.
+% Since $\subs{\e}{\svalsi} = \n{n}$, we can take $\c = \n{n}$ and get the required derivation $\E$ of $\ev{\n{n}}{\n{n}}$ by rule \rulename{E-Num}.
+% And $\cor{\n{n}}{\n{n}}$ by rule \rulename{C-Num}.
 
-% \paragraph{Case \textnormal{\rule{B-Var}}}
+% \paragraph{Case \textnormal{\rulename{B-Var}}}
 
 % \begin{prooftree}
 %   \prem{\Bv}{\hevv{\sg}{i}{\v}}
@@ -395,7 +401,7 @@ Completely analogous to the soundness proof.
 % Taking $\c = \svalsi(x)$, we get a suitable derivation $\E$ of $\ev{\svalsi(x)}{\svalsi(x)}$ by Lemma~\ref{lem:value-eval}.
 % And we can take $\C = \C'$.
 
-% \paragraph{Case \textnormal{\rule{B-Lam}}}
+% \paragraph{Case \textnormal{\rulename{B-Lam}}}
 
 % \begin{prooftree}
 %   \leftl{$\B =$}
@@ -408,15 +414,15 @@ Completely analogous to the soundness proof.
 %   \uinf{\tra{\De}{\lam{x}{\e_1}}{\lam{}{\b_1}}}
 % \end{prooftree}
 % So $\e = \lam{x}{\e_1}$.
-% We have $\subs{\e}{\svalsi} = \subs{(\lam{x}{\e_1})}{\svalsi} = \lam{x}{\subs{\e_1}{\svalsi \wo x}}$, and taking $\c = \lam{x}{\subs{\e_1}{\svalsi \wo x}}$ we get the required $\E$ showing $\ev{\lam{x}{\subs{\e_1}{\svalsi \wo x}}}{\lam{x}{\subs{\e_1}{\svalsi \wo x}}}$ by rule \rule{E-Lam}.
-% We then construct the required $\C$ using rule \rule{C-Fun} as follows:
+% We have $\subs{\e}{\svalsi} = \subs{(\lam{x}{\e_1})}{\svalsi} = \lam{x}{\subs{\e_1}{\svalsi \wo x}}$, and taking $\c = \lam{x}{\subs{\e_1}{\svalsi \wo x}}$ we get the required $\E$ showing $\ev{\lam{x}{\subs{\e_1}{\svalsi \wo x}}}{\lam{x}{\subs{\e_1}{\svalsi \wo x}}}$ by rule \rulename{E-Lam}.
+% We then construct the required $\C$ using rule \rulename{C-Fun} as follows:
 % \begin{prooftree}
 %   \prem{\D}{\comp{\sg}{\De}{\svalsi}}
 %   \prem{\T_1}{\tra{\De, x}{\e_1}{\b_1}}
 %   \binf{\cor{\cl{\sg}{\b_1}}{\lam{x}{\subs{\e_1}{\svalsi \wo x}}}}
 % \end{prooftree}
 
-% \paragraph{Case \textnormal{\rule{B-App}}}
+% \paragraph{Case \textnormal{\rulename{B-App}}}
 
 % \begin{prooftree}
 %   \prem{\B_1}{\hev{\sg}{\b_1}{\cl{\sg'}{\b_0}}}
@@ -468,7 +474,7 @@ Completely analogous to the soundness proof.
 % \begin{proof}[Proof of Theorem~\ref{thm:equiv-hb}]
 % Supposing \tra{\nil}{\e}{\b} (by $\T$), we show the bi-implication.
 % For the left-to-right direction, assume \ev{\e}{\n{n}} (by $\E$) and note $\e = \subs{\e}{\nil}$.
-% Rule \rule{D-Nil} provides $\D$ showing the compatibility of empty contexts.
+% Rule \rulename{D-Nil} provides $\D$ showing the compatibility of empty contexts.
 % Then use Lemma~\ref{lem:completeness-hb} on $\T$, $\E$ and $\D$ to get \hev{\nil}{\b}{\v} for some $\v$ satisfying \cor{\v}{\n{n}}.
 % But since numbers correspond only to themselves, we must have $\v = \n{n}$ as required.
 

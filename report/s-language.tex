@@ -32,60 +32,60 @@ And the semantics judgements:
 \judgement{\slook{\senv}{\bvar}{\sval}}
 
 \begin{prooftree}
-  \leftl{\rule{Sv-Here} :}
+  \leftl{\rulename{Sv-Here} :}
   \ax{\slook{\senv \envcons \sval}{\z}{\sval}}
 \end{prooftree}
 
 \begin{prooftree}
   \ninf{\slook{\senv}{\bvar}{\sval}}
-  \leftl{\rule{Sv-There} :}
+  \leftl{\rulename{Sv-There} :}
   \uinf{\slook{\senv \envcons \sval'}{\suc{\bvar}}{\sval}}
 \end{prooftree}
 
 \judgement{\sstep{\sctrl}{\svals}{\sctrl'}{\svals'}}
 
 \begin{prooftree}
-  \leftl{\rule{S-Num} :}
+  \leftl{\rulename{S-Num} :}
   \ax{\sstep{\sctrl \stkcons \fr{\senv}{\snum{\nat} \sseq \sprog}}{\svals}{\sctrl \stkcons \fr{\senv}{\sprog}}{\svals \stkcons \n{\nat}}}
 \end{prooftree}
 
 \begin{prooftree}
   \ninf{\slook{\senv}{\bvar}{\sval}}
-  \leftl{\rule{S-Var} :}
+  \leftl{\rulename{S-Var} :}
   \uinf{\sstep{\sctrl \stkcons \fr{\senv}{\svar{\bvar} \sseq \sprog}}{\svals}{\sctrl \stkcons \fr{\senv}{\sprog}}{\svals \stkcons \sval}}
 \end{prooftree}
 
 \begin{prooftree}
-  \leftl{\rule{S-Lam} :}
+  \leftl{\rulename{S-Lam} :}
   \ax{\sstep{\sctrl \stkcons \fr{\senv}{\slam{\sprog_1} \sseq \sprog}}{\svals}{\sctrl \stkcons \fr{\senv}{\sprog}}{\svals \stkcons \cl{\senv}{\sprog_1}}}
 \end{prooftree}
 
 \begin{prooftree}
-  \leftl{\rule{S-App} :}
+  \leftl{\rulename{S-App} :}
   \ax{\sstep{\sctrl \stkcons \fr{\senv}{\sapp \sseq \sprog}}{\svals \stkcons \cl{\senv'}{\sprog_1} \stkcons \sval_2}{\sctrl \stkcons \fr{\senv}{\sprog} \stkcons \fr{\senv' \stkcons \sval_2}{\sprog_1}}{\svals}}
 \end{prooftree}
 
 \begin{prooftree}
-  \leftl{\rule{S-Suc} :}
+  \leftl{\rulename{S-Suc} :}
   \ax{\sstep{\sctrl \stkcons \fr{\senv}{\ssuc \sseq \sprog}}{\svals \stkcons \n{\nat}}{\sctrl \stkcons \fr{\senv}{\sprog}}{\svals \stkcons \n{\nat + 1}}}
 \end{prooftree}
 
 \begin{prooftree}
-  \leftl{\rule{S-Ret} :}
+  \leftl{\rulename{S-Ret} :}
   \ax{\sstep{\sctrl \stkcons \fr{\senv}{\send}}{\svals}{\sctrl}{\svals}}
 \end{prooftree}
 
 \judgement{\ssteps{\sctrl}{\svals}{\sctrl'}{\svals'}}
 
 \begin{prooftree}
-  \leftl{\rule{SS-Zero} :}
+  \leftl{\rulename{SS-Zero} :}
   \ax{\ssteps{\sctrl}{\svals}{\sctrl}{\svals}}
 \end{prooftree}
 
 \begin{prooftree}
   \ninf{\sstep{\sctrl}{\svals}{\sctrl''}{\svals''}}
   \ninf{\ssteps{\sctrl''}{\svals''}{\sctrl'}{\svals'}}
-  \leftl{\rule{SS-More} :}
+  \leftl{\rulename{SS-More} :}
   \binf{\ssteps{\sctrl}{\svals}{\sctrl'}{\svals'}}
 \end{prooftree}
 

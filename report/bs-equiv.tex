@@ -8,28 +8,28 @@ To prove this we need two correspondence judgements:
 \judgement{\cor{\bval}{\sval}}
 
 \begin{prooftree}
-  \leftl{\rule{C-Num} :}
+  \leftl{\rulename{C-Num} :}
   \ax{\cor{\n{\nat}}{\n{\nat}}}
 \end{prooftree}
 
 \begin{prooftree}
   \ninf{\cor{\benv}{\senv}}
   \ninf{\trabsfinal{\bexp}{\sprog}}
-  \leftl{\rule{C-Fun} :}
+  \leftl{\rulename{C-Fun} :}
   \binf{\cor{\cl{\benv}{\bexp}}{\cl{\senv}{\sprog}}}
 \end{prooftree}
 
 \judgement{\cor{\benv}{\senv}}
 
 \begin{prooftree}
-  \leftl{\rule{D-Nil} :}
+  \leftl{\rulename{D-Nil} :}
   \ax{\cor{\envnil}{\envnil}}
 \end{prooftree}
 
 \begin{prooftree}
   \ninf{\cor{\benv}{\senv}}
   \ninf{\cor{\bval}{\sval}}
-  \leftl{\rule{D-Cons} :}
+  \leftl{\rulename{D-Cons} :}
   \binf{\cor{\benv \envcons \bval}{\senv \envcons \sval}}
 \end{prooftree}
 
@@ -62,7 +62,7 @@ If \trabs{\bexp}{\sprog_2}{\sprog} (by $\T$) and \bev{\benv}{\bexp}{\bval} (by $
 By induction on $\B$.
 The proof is rather straightforward, so we show only the most interesting case:
 
-\paragraph{Case \textnormal{\rule{B-App}}}
+\paragraph{Case \textnormal{\rulename{B-App}}}
 
 \begin{prooftree}
   \prem{\B_1}{\bev{\benv}{\bexp_1}{\cl{\benv'}{\bexp_0}}}
@@ -104,16 +104,16 @@ Finally, fixing $\sctrl$ and $\svals$, we construct the required derivation $\P$
 \ssteplhs{\sctrl \stkcons \fr{\senv}{\sprog}}{\svals}
   & \sstepsrhs{\sctrl \stkcons \fr{\senv}{\sprog'}}{\svals \stkcons \cl{\senv'}{\sprog_0}} && (\text{$\P_1$; $\sctrl_1 = \sctrl$ and $\svals_1 = \svals$}) \\
   & \sstepsrhs{\sctrl \stkcons \fr{\senv}{\sapp \sseq \sprog_2}}{\svals \stkcons \cl{\senv'}{\sprog_0} \stkcons \sval_2} && (\text{$\P_2$; $\sctrl_2 = \sctrl$ and $\svals_2 = \svals \stkcons \sval_2$}) \\
-  & \ssteprhs{\sctrl \stkcons \fr{\senv}{\sprog_2} \stkcons \fr{\senv' \envcons \sval_2}{\sprog_0}}{\svals} && (\text{\rule{S-App}}) \\
+  & \ssteprhs{\sctrl \stkcons \fr{\senv}{\sprog_2} \stkcons \fr{\senv' \envcons \sval_2}{\sprog_0}}{\svals} && (\text{\rulename{S-App}}) \\
   & \sstepsrhs{\sctrl \stkcons \fr{\senv}{\sprog_2} \stkcons \fr{\senv' \envcons \sval_2}{\send}}{\svals \stkcons \sval_3} && (\text{$\P_3$; $\sctrl_3 = \sctrl \stkcons \fr{\senv}{\sprog_2}$ and $\svals_3 = \svals$}) \\
-  & \ssteprhs{\sctrl \stkcons \fr{\senv}{\sprog_2}}{\svals \stkcons \sval_3} && (\text{\rule{S-Ret}})
+  & \ssteprhs{\sctrl \stkcons \fr{\senv}{\sprog_2}}{\svals \stkcons \sval_3} && (\text{\rulename{S-Ret}})
 \end{align*}
 
 \end{proof}
 
 And finally we can establish the main theorem:
 
-\begin{theorem} [Equivalence Bruijn-Stack]
+\begin{theorem}[Equivalence \textnormal{\blang}-\textnormal{\slang}]
 \label{thm:equivalence-bs}
 If \trabsfinal{\bexp}{\sprog}, then \bev{\envnil}{\bexp}{\n{\nat}} if and only if \sev{\sprog}{\n{\nat}}.
 \end{theorem}
@@ -122,10 +122,10 @@ If \trabsfinal{\bexp}{\sprog}, then \bev{\envnil}{\bexp}{\n{\nat}} if and only i
 Supposing \trabsfinal{\bexp}{\sprog} (by $\T$), we show the bi-implication.
 
 For the left-to-right direction, assume \bev{\envnil}{\bexp}{\n{\nat}} (by $\B$).
-Rule \rule{D-Nil} provides $\D$ showing the compatibility of empty contexts.
+Rule \rulename{D-Nil} provides $\D$ showing the compatibility of empty contexts.
 Then by Lemma~\ref{lem:completeness-bs} on $\T$, $\B$ and $\D$, we get \ssteps{[\fr{[]}{\sprog}]}{[]}{[\fr{[]}{\send}]}{[\sval]} (by $\P$) for some $\sval$ satisfying \cor{\n{\nat}}{\sval} (by $\C$).
 By inversion on $\C$, we must have $\sval = \n{\nat}$.
-Concatenating $\P$ with a use of \rule{S-Ret}, we get a derivation $\P'$ of \ssteps{[\fr{[]}{\sprog}]}{[]}{[]}{[\n{\nat}]}.
+Concatenating $\P$ with a use of \rulename{S-Ret}, we get a derivation $\P'$ of \ssteps{[\fr{[]}{\sprog}]}{[]}{[]}{[\n{\nat}]}.
 And with $\P'$ we can derive $\sev{\sprog}{\n{\nat}}$ as required.
 
 The other direction is similar. [though not analogous.. is it relevant to prove these on paper?]

@@ -25,7 +25,7 @@ $\blacksquare$
 \ensurecommand{\prem}[2]{\noLine \ninf{$#1$} \uinf{#2}}
 \ensurecommand{\leftl}[1]{\LeftLabel{#1 \;}}
 \ensurecommand{\rightl}[1]{\RightLabel{#1}}
-\ensurecommand{\rule}{\textsc}
+\ensurecommand{\rulename}{\textsc}
 
 % derivation symbols (consider generalising names in commands..)
 \ensurecommand{\E}{\mathcal{E}}
@@ -39,7 +39,8 @@ $\blacksquare$
 
 % misc/general
 \ensurecommand{\Twelf}{\paragraph{Twelf}}
-\ensurecommand{\code}[2]{\paragraph{Code} \texttt{#1} in \texttt{#2}.}
+\ensurecommand{\code}[2]{\paragraph{Code} See \texttt{#1} in \texttt{#2}.}
+\ensurecommand{\codefile}[2]{\paragraph{Code} See \texttt{#1} and \texttt{#2}.}
 \ensurecommand{\defi}{\Coloneqq}
 \ensurecommand{\alt}{\;\; | \;\;}
 \ensurecommand{\set}[1]{\{ #1 \}}%
@@ -195,3 +196,9 @@ $\blacksquare$
 \ensurecommand{\corstore}{\ensuremath{\corvalue}}
 \ensurecommand{\corvaluestack}{\ensuremath{\corstore}}
 \ensurecommand{\corstack}[4]{\ensuremath{#1 \vdash #2 \rightsquigarrow \tup{#3 \tupsep #4}}}
+
+% conclusion
+\ensurecommand{\trahm}[3]{\ensuremath{#1 \mathrel{\rhd} \tup{#2 \tupsep #3}}}
+\ensurecommand{\reify}{\mathbf{reify}}
+\ensurecommand{\repr}{\mathbf{repr}}
+\ensurecommand{\+}{\mathbin{\texttt{+}}}

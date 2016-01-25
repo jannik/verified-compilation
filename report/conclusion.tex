@@ -1,29 +1,90 @@
-% something about the full translation+equivalence? only in conclusion?
+\section{Full Translation}
 
-\section{Example}
+We are now ready to define the full translation from \hlang to \mlang.
 
-% probably some differently title
+\vspace{0.5cm}
+\judgement{\trahm{\hexp}{\mprog}{\addr}}
 
-% We have proved that the semantics are preserved during all translations.
-% Nevertheless, it seems instructive to see the compilation process in action with a single example.
-%
-% Let us multiply two numbers.
-% We define ...
+\begin{prooftree}
+  \ninf{\trahb{\hbctx}{\envnil}{\bexp}{\hexp'}}
+  \ninf{\trabsfinal{\bexp}{\sprog}}
+  \ninf{\trasmfinal{\sprog}{\mprog}{\addr}}
+  \rightl{$(\hexp \alphaeq \hexp')$}
+  \tinf{\trahm{\hexp}{\mprog}{\addr}}
+\end{prooftree}
 
+By the totality of each translation the full translation is also total, and we can state the full equivalence theorem:
+
+\begin{theorem}[Equivalence \textnormal{\hlang}-\textnormal{\mlang}]
+\label{thm:equivalence-hm} If $\trahm{\hexp}{\mprog}{\addr}$, then $\hev{\hexp}{\n{\nat}}$ if and only if $\meval{\mprog}{\addr}{\n{\nat}}$.
+\end{theorem}
+\codefile{soundness-main.elf}{completeness-main.elf}
+
+\begin{proof}
+Immediate from theorems \ref{thm:equivalence-hb}, \ref{thm:equivalence-bs} and \ref{thm:equivalence-sm}.
+\end{proof}
+
+In order to see the compilation process in action, we finally present a small example.
+
+\subsection{Worked Example}
+
+Let us add two numbers using Church numerals.
+We use $\repr(\nat)$ to denote the Church encoding of $\nat$ and $\reify(\hexp)$ to extract the numeral represented by $\hexp$ (with unpredictable behaviour if $\hexp$ does not represent any number).
+We recall the following Church numeral constructions:
+\begin{align*}
+  \repr(1) &= \ldots \\
+  \repr(2) &= \ldots \\
+  \repr(3) &= \ldots \\
+  \hexp_1 \+ \hexp_2 &= \hexp_1 \ldots \hexp_2 \\
+  \reify(\hexp) &= \ldots
+\end{align*}
+Now let $\hexp = \repr(1) \+ \repr(2) = \ldots$.
+
+Running our \hlang-to-\blang translation, we get
+\[
+\bexp = \ldots
+\]
+Translating further to \slang, we get
+\[
+\sprog = \ldots
+\]
+And after the final translation, we get the $\mlang$ program
+\[
+\mprog = \ldots
+\]
+with starting address $\addr = 1$.
+And indeed, evaluating this program yields $\n{3}$ as expected.
+
+\Twelf
+This example can be found in \texttt{example.elf}.
 
 \section{Conclusion}
 
-\ldots
+We have presented a compiler from a simple higher-order functional language with substitution-based semantics to a machine-like language.
+The compilation has been mechanised in the Twelf proof assistant along with a proof of correctness.
+That is, every source program compiles to a machine program and the compilation respects the semantics.
+
+Earlier attempts at translating from higher-abstract syntax to De Bruijn indices in Twelf have had to choose between a mechanised totality proof or a simple proof that the translation is semantics-preserving.
+We have demonstrated that it is possible to prove totality while keeping the translation simple to reason about.
+Our target language is closer to being a machine language than for previous attempts using Twelf.
+Overall, we have established that implementing a verified compiler in Twelf is viable.
+Since we only use HOAS in the source language, however, the advantages of Twelf compared to other proof assistants (such as Coq) have not had much effect.
+Furthermore, logic programming does not seem better suited to constructing a verified compiler than functional programming.
 
 
 \section{Future Work}
 
-% heap objects --> garbage collection
-% case in source language
-% something recursion. instad of Y combinator.
-% lower level, e.g. finite registers, single stack..
+A natural continuation of our work is to extend the source language to make it more realistic, for instance by adding case-expressions and explicit recursion.
+For most language constructs the general technique is well-known and adapting it to our mechanisation should be manageable, especially since \cite{Pfenning01} includes a section about such extensions for the first phase of our translation.
 
-\ldots
+Another direction is to translate further toward an actual machine language.
+This would entail first representing the heap more explicitly as an external store.
+It is then not obvious how to best represent closures.
+Another matter is memory management, which has been studied extensively using other proof assistants (e.g. \cite{Myreen10} verified a copying garbage collector using HOL4) but never using Twelf.
+For the language to be even more machine-like it would also be required that values are kept in a finite number of registers, which involves reasoning about register allocation.
+We expect such an endeavor to prove challenging.
+
+While efficiency of the generated code has not been a priority, it would be interesting to investigate the feasibility of verified optimisations in Twelf.
 
 \clearpage
 
@@ -37,17 +98,47 @@ Frank Pfenning.
 Cambridge University Press, 2001.
 
 \bibitem{Twelf16}
-Twelf home page. Available at \texttt{http://www.twelf.org}, 2016.
+Twelf home page. Available at \texttt{http://www.twelf.org/}, 2016.
+
+\bibitem{CompCert16}
+CompCert home page. Available at \texttt{http://compcert.inria.fr/}, 2016.
+
+\bibitem{Yang11}
+Xuejun Yang, Yang Chen, Eric Eide, John Regehr.
+\textit{Finding and understanding bugs in C compilers}
+In \textit{Proceedings of the 32nd ACM SIGPLAN conference on Programming language design and implementation}, pages 283-294, 2011.
 
 \bibitem{EideRegehr08}
 Eric Eide, John Regehr.
 \textit{Volatiles Are Miscompiled, and What to Do about It}.
 In \textit{Proceedings of the 8th ACM international conference on Embedded software}, pages 255-264, 2008.
 
+\bibitem{Myreen10}
+Magnus O. Myreen.
+\textit{Reusable verification of a copying collector}.
+In \textit{Proceedings of the Third international conference on Verified software: theories, tools, experiments}, pages 142-156, 2010.
+
 \end{thebibliography}
 
 
 \appendix
 
-\section{Code}
+\section{Twelf Implementation}
 \label{sec:code}
+
+\subsection{Overview}
+
+The implementation has been checked by Twelf 1.7.1.
+It comprises 25 \texttt{.elf} files (and a \texttt{sources.cfg} file).
+
+The syntax of \hlang, \blang, \slang and \mlang is defined in \texttt{syntax-hoas}, \texttt{syntax-bruijn}, \texttt{syntax-stack} and \texttt{syntax-machine}, respectively.
+Analogously for the semantics.
+The translation from \hlang to \blang, from \blang to \slang, from \slang to \mlang and (the complete translation) from \hlang to \mlang is given in \texttt{trans-hoas-bruijn}, \texttt{trans-bruijn-stack}, \texttt{trans-stack-machine} and \texttt{trans-main}, respectively.
+Analogously for the soundness and completeness proofs.
+However, \texttt{invariants-bruijn-stack} and \texttt{invariants-stack-machine} contain definitions and lemmas used in the corresponding equivalence proofs.
+Totality of the \hlang-\blang translation is proved in \texttt{totality-hoas-bruijn}.
+Finally, \texttt{nat} defines natural numbers with some needed properties, and \texttt{example} contains a few examples of compilation.
+
+\subsection{Code}
+
+...

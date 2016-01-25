@@ -10,7 +10,7 @@ We define variable indices $\bvar$ and \blang expressions $\bexp$ as follows:
 	\bvar &\defi \z \alt \suc{i} \\
 	\bexp &\defi \n{\nat} \alt \bvar \alt \blam{\bexp} \alt \bapp{\bexp_1}{\bexp_2} \alt \bsuc{\bexp}
 \end{align*}
-We will a notion of a \blang expressions being closed:
+We will need a notion of \blang expressions being closed:
 
 \vspace{0.5cm}
 
@@ -60,31 +60,31 @@ Before giving the main evaluation judgement, we introduce an auxiliary judgement
 \judgement{\blook{\benv}{\bvar}{\bval}}
 
 \begin{prooftree}
-  \leftl{\rule{Bv-Here} :}
+  \leftl{\rulename{Bv-Here} :}
   \ax{\blook{\benv \envcons \bval}{\z}{\bval}}
 \end{prooftree}
 
 \begin{prooftree}
   \ninf{\blook{\benv}{\bvar}{\bval}}
-  \leftl{\rule{Bv-There} :}
+  \leftl{\rulename{Bv-There} :}
   \uinf{\blook{\benv \envcons \bval'}{\suc{\bvar}}{\bval}}
 \end{prooftree}
 
 \judgement{\bev{\benv}{\bexp}{\bval}}
 
 \begin{prooftree}
-  \leftl{\rule{B-Num} :}
+  \leftl{\rulename{B-Num} :}
   \ax{\bev{\benv}{\n{\nat}}{\n{\nat}}}
 \end{prooftree}
 
 \begin{prooftree}
   \ninf{\blook{\benv}{\bvar}{\bval}}
-  \leftl{\rule{B-Var} :}
+  \leftl{\rulename{B-Var} :}
   \uinf{\bev{\benv}{\bvar}{\bval}}
 \end{prooftree}
 
 \begin{prooftree}
-  \leftl{\rule{B-Lam :}}
+  \leftl{\rulename{B-Lam :}}
   \ax{\bev{\benv}{\blam{\bexp_1}}{\cl{\benv}{\bexp_1}}}
 \end{prooftree}
 
@@ -92,12 +92,12 @@ Before giving the main evaluation judgement, we introduce an auxiliary judgement
   \ninf{\bev{\benv}{\bexp_1}{\cl{\benv'}{\bexp_0}}}
   \ninf{\bev{\benv}{\bexp_2}{\bval_2}}
   \ninf{\bev{\benv' \envcons \bval_2}{\bexp_0}{\bval}}
-	\leftl{\rule{B-App} :}
+	\leftl{\rulename{B-App} :}
   \tinf{\bev{\benv}{\bapp{\bexp_1}{\bexp_2}}{\bval}}
 \end{prooftree}
 
 \begin{prooftree}
   \ninf{\bev{\benv}{\bexp_1}{\n{\nat}}}
-	\leftl{\rule{B-Suc} :}
+	\leftl{\rulename{B-Suc} :}
   \uinf{\bev{\benv}{\bsuc{\bexp_1}}{\n{\nat + 1}}}
 \end{prooftree}

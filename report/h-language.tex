@@ -39,12 +39,12 @@ We define canonical forms $\hval$ as a subset of expressions:
 \judgement{\hev{\hexp}{\hval}} ($\hexp$ closed)
 
 \begin{prooftree}
-  \leftl{\rule{E-Num} :}
+  \leftl{\rulename{E-Num} :}
   \ax{\hev{\n{\nat}}{\n{\nat}}}
 \end{prooftree}
 
 \begin{prooftree}
-  \leftl{\rule{E-Lam} :}
+  \leftl{\rulename{E-Lam} :}
   \ax{\hev{\lam{\var}{\hexp_1}}{\lam{\var}{\hexp_1}}}
 \end{prooftree}
 
@@ -52,13 +52,13 @@ We define canonical forms $\hval$ as a subset of expressions:
   \ninf{\hev{\hexp_1}{\lam{\var}{\hexp_0}}}
   \ninf{\hev{\hexp_2}{\hval_2}}
   \ninf{\hev{\sub{\hexp_0}{\hval_2}{\var}}{\hval}}
-	\leftl{\rule{E-App} :}
+	\leftl{\rulename{E-App} :}
   \tinf{\hev{\app{\hexp_1}{\hexp_2}}{\hval}}
 \end{prooftree}
 
 \begin{prooftree}
   \ninf{\hev{\hexp_1}{\n{\nat}}}
-	\leftl{\rule{E-Suc} :}
+	\leftl{\rulename{E-Suc} :}
   \uinf{\hev{\hsuc{\hexp_1}}{\n{\nat + 1}}}
 \end{prooftree}
 

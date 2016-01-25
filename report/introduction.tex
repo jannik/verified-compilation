@@ -4,8 +4,6 @@ For instance, as shown by Eide and Regehr in \cite{EideRegehr08} many C compiler
 This is particularly worrying because it diminishes the value of static analysis on source programs, which is typically simpler than analysing the generated machine code.
 For most programs this is not a big problem because the source code contains many errors already, but for safety-critical applications the importance of a correct compiler is much greater.
 
-% something about this: http://blog.regehr.org/archives/503
-
 There are several ways of achieving the correctness of a compiler.
 One way is through extensive testing, though in practice this is never quite sufficient to be rid of all errors.
 Another way is to prove the correctness of the compiler.
@@ -23,21 +21,26 @@ Our aim is to investigate the feasibility of implementing a verified compiler us
 
 \section{Previous Work}
 
-The main work in this area is the CompCert C verified compiler, a ``high-assurance compiler for almost all of the ISO C90 / ANSI C language, generating efficient code for the PowerPC, ARM and x86 processors'' [cite http://compcert.inria.fr/].
+The main work in this area is the CompCert C verified compiler, a ``high-assurance compiler for almost all of the ISO C90 / ANSI C language, generating efficient code for the PowerPC, ARM and x86 processors'' (see \cite{CompCert16}).
 It targets embedded programming and is written almost entirely in Coq (exceptions being the parser and the assembly code pretty-printer).
 Notably, the compiler implements non-trivial optimisations such as inlining.
+A study, \cite{Yang11}, found code generation errors in all C compilers tested, except for the verified parts of CompCert.
 
 The same framework has been used to make a compiler for mini-ML with progress towards verified garbage collection [cite Xavier Leroy].
+% http://www.cs.ox.ac.uk/ralf.hinze/WG2.8/24/slides/xavier.pdf
+% http://pauillac.inria.fr/~dargaye/publications.html
 
 Another project similarly achieves verified compilation for an ML-like language using Coq [cite Adam Chlipala].
 The focus is on maintainability of the compiler, in particular using parameterised higher-order abstract syntax, while memory management is largely ignored.
 
-% Not too much higher-order previously.
+Overall, however, the focus has mainly been on first-order imperative languages such as C.
 
-% Mention Pfenning.
-% Non-totality.
-% Concrete representations.
-% Explain how we expand on previous work.
+Using Twelf there are not many prior examples of verified compilation.
+The main results are found in \cite[ch. 6]{Pfenning01}.
+% Talk about how little Pfenning did and that it was non-total.
+% Mention concrete representations guy.
+
+[Should we explain how we expand on previous work here?]
 
 
 \section{Overview}
@@ -58,13 +61,7 @@ In general, each section will include details about the Twelf mechanisation when
 Only the parts that differ from the paper version will be commented --- most of the Twelf code corresponds straightforwardly to it.
 The entire code is included as Appendix~\ref{sec:code}.
 
-% something about how most of our effort was spent on coming up with useful generalisation of soundness+completeness.
-% the proofs are generally not that complicated, excepting totality of hoas-bruijn.
-% this sort of explains away the need for long explanations of the equivalence proofs in later sections
-
-
-% \section{Overview of Mechanisation}
-
-% [ok title? placement?]
-% The Twelf implementation comprises x files [perhaps give a list, a sort of table of contents for the code].
-% For each language, the syntax and semantics are defined in ...
+The main challenge in this type of mechanisation is formulating lemmas to generalise the theorems about semantics-preservation.
+This involves finding the right invariants describing the relation between execution states.
+With the appropriate lemma in hand, the proof is usually fairly straightforward.
+Hence, we shall take the liberty to omit explanations of the implementation in most instances.
