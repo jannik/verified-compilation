@@ -34,9 +34,9 @@ We define canonical forms $\hval$ as a subset of expressions:
 
 \hlang has a completely standard substitution-based semantics.
 
-\vspace{0.5cm}
 
-\judgement{\hev{\hexp}{\hval}} ($\hexp$ closed)
+
+\begin{judgement}{\hev{\hexp}{\hval}} ($\hexp$ closed)
 
 \begin{prooftree}
   \leftl{\rulename{E-Num} :}
@@ -61,6 +61,8 @@ We define canonical forms $\hval$ as a subset of expressions:
 	\leftl{\rulename{E-Suc} :}
   \uinf{\hev{\hsuc{\hexp_1}}{\n{\nat + 1}}}
 \end{prooftree}
+
+\end{judgement}
 
 \Twelf
 Since we use HOAS to represent $\lambda$-abstractions, we can appeal to Twelf's built-in substitution when defining application:

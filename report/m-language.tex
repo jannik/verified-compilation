@@ -33,9 +33,9 @@ We define values $\mval$, environments $\menv$, control stacks $\mctrl$, and val
 
 As usual, we need a judgement for variable lookup:
 
-\vspace{0.5cm}
 
-\judgement{\mlook{\menv}{\bvar}{\mval}}
+
+\begin{judgement}{\mlook{\menv}{\bvar}{\mval}}
 
 \begin{prooftree}
   \ax{\slook{\menv \envcons \mval}{\z}{\mval}}
@@ -46,12 +46,13 @@ As usual, we need a judgement for variable lookup:
   \uinf{\slook{\menv \envcons \mval'}{\suc{\bvar}}{\mval}}
 \end{prooftree}
 
-\vspace{0.5cm}
+\end{judgement}
+
+
 
 We then define judgements for execution:
 
-\vspace{0.5cm}
-\judgement{\mexec{\minst}{\mctrl}{\addr}{\mvals}{\mctrl'}{\addr'}{\mvals'}}
+\begin{judgement}{\mexec{\minst}{\mctrl}{\addr}{\mvals}{\mctrl'}{\addr'}{\mvals'}}
 
 \begin{prooftree}
   \ax{\mexec{\mpushnum{\nat}}{\mctrl}{\addr}{\mvals}{\mctrl}{\addr + 1}{\mvals \stkcons \n{\nat}}}
@@ -80,9 +81,9 @@ We then define judgements for execution:
 
 (No rule for \texttt{halt}!)
 
-\vspace{0.5cm}
-\judgement{\msteps{\mprog}{\mctrl}{\addr}{\mvals}{\mctrl'}{\addr'}{\mvals'}}
-\vspace{0.5cm}
+\end{judgement}
+
+\begin{judgement}{\msteps{\mprog}{\mctrl}{\addr}{\mvals}{\mctrl'}{\addr'}{\mvals'}}
 
 \begin{prooftree}
   \ax{\msteps{\mprog}{\mctrl}{\addr}{\mvals}{\mctrl}{\addr}{\mvals}}
@@ -94,17 +95,22 @@ We then define judgements for execution:
 	\rightl{$(\mprog(\addr) = \minst)$}
   \binf{\msteps{\mprog}{\mctrl}{\addr}{\mvals}{\mctrl'}{\addr'}{\mvals'}}
 \end{prooftree}
+
+\end{judgement}
+
 where $\mprog(\addr)$ denotes the $\addr$'th instruction of the program $\mprog$.
 
 As an abbreviation for complete execution, let \meval{\mprog}{\addr}{\mval} denote \msteps{\mprog}{[\fr{\envnil}{0}]}{\addr}{\stknil}{\stknil}{\addr'}{[\mval]} with $\mprog(\addr') = \mhalt$.
 [Are side conditions okay for abbreviations? This used to be a judgement with a single rule.]
 
-%\vspace{0.5cm}
-%\judgement{\meval{\mprog}{\addr}{\mval}}
-%\vspace{0.5cm}
+%
+%\begin{judgement}{\meval{\mprog}{\addr}{\mval}}
+%
 %
 %\begin{prooftree}
   %\ninf{\msteps{\mprog}{[\fr{\envnil}{0}]}{\addr}{\stknil}{\stknil}{\addr'}{[\mval]}}
   %\rightl{$(\mprog(\addr') = \mhalt)$}
   %\uinf{\meval{\mprog}{\addr}{\mval}}
 %\end{prooftree}
+%
+%\end{judgement}

@@ -5,8 +5,7 @@ We want to show that if $\trasmfinal{\sprog}{\mprog}{\addr}$, then $\sev{\sprog}
 This poses the problem of how to handle translations of subprograms when the evaluation is happening in the context of the full program.
 As a solution we define a subprogram relation that keeps track of the position of the subprogram within the complete program.
 
-\vspace{0.5cm}
-\judgement{$\mprog' \leq_{\nat} \mprog$}
+\begin{judgement}{$\mprog' \leq_{\nat} \mprog$}
 
 % Sub instead of Leq.
 \begin{prooftree}
@@ -19,12 +18,11 @@ As a solution we define a subprogram relation that keeps track of the position o
   \uinf{$\mprog' \leq_{n + 1} \minst \mseq \mprog$}
 \end{prooftree}
 
-\vspace{0.5cm}
+\end{judgement}
 
 We also need some correspondence judgements:
 
-\vspace{0.5cm}
-\judgement{$\corvalue{\mprog}{\sval}{\mval}$}
+\begin{judgement}{$\corvalue{\mprog}{\sval}{\mval}$}
 
 \begin{prooftree}
   \ax{$\corvalue{\mprog}{\n{\nat}}{\n{\nat}}$}
@@ -37,8 +35,9 @@ We also need some correspondence judgements:
   \tinf{$\corvalue{\mprog}{\cl{\senv}{\sprog}}{\cl{\menv}{\addr}}$}
 \end{prooftree}
 
-\vspace{0.5cm}
-\judgement{$\corstore{\mprog}{\senv}{\menv}$}
+\end{judgement}
+
+\begin{judgement}{$\corstore{\mprog}{\senv}{\menv}$}
 
 \begin{prooftree}
   \ax{$\corstore{\mprog}{\envnil}{\envnil}$}
@@ -50,9 +49,9 @@ We also need some correspondence judgements:
   \binf{$\corstore{\mprog}{\senv \envcons \sval}{\menv \envcons \mval}$}
 \end{prooftree}
 
-\vspace{0.5cm}
-\judgement{$\corvaluestack{\mprog}{\svals}{\mvals}$}
-\vspace{0.5cm}
+\end{judgement}
+
+\begin{judgement}{$\corvaluestack{\mprog}{\svals}{\mvals}$}
 
 \begin{prooftree}
   \ax{$\corvaluestack{\mprog}{\stknil}{\stknil}$}
@@ -64,8 +63,9 @@ We also need some correspondence judgements:
   \binf{$\corvaluestack{\mprog}{\svals \stkcons \sval}{\mvals \stkcons \mval}$}
 \end{prooftree}
 
-\vspace{0.5cm}
-\judgement{$\corstack{\mprog}{\sctrl}{\mctrl}{\addr}$}
+\end{judgement}
+
+\begin{judgement}{$\corstack{\mprog}{\sctrl}{\mctrl}{\addr}$}
 
 \begin{prooftree}
   \rightl{$(\mprog(\addr) = \mhalt)$}
@@ -80,7 +80,7 @@ We also need some correspondence judgements:
   \qinf{$\corstack{\mprog}{\sctrl \stkcons \fr{\senv}{\sprog}}{\mctrl \stkcons \fr{\menv}{\addr'}}{\addr}$}
 \end{prooftree}
 
-\vspace{0.5cm}
+\end{judgement}
 
 And now we are ready to generalise soundness and completeness:
 

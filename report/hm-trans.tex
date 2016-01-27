@@ -2,16 +2,18 @@
 
 We are now ready to define the full translation from \hlang to \mlang.
 
-\vspace{0.5cm}
-\judgement{\trahm{\hexp}{\mprog}{\addr}}
+
+\begin{judgement}{\trahm{\hexp}{\mprog}{\addr}}
 
 \begin{prooftree}
   \ninf{\trahb{\hbctx}{\envnil}{\bexp}{\hexp'}}
-  \ninf{\trabsfinal{\bexp}{\sprog}}
+  \ninf{\trabs{\bexp}{\send}{\sprog}}
   \ninf{\trasmfinal{\sprog}{\mprog}{\addr}}
   \rightl{$(\hexp \alphaeq \hexp')$}
   \tinf{\trahm{\hexp}{\mprog}{\addr}}
 \end{prooftree}
+
+\end{judgement}
 
 By the totality of each translation the full translation is also total, and we can state the full equivalence theorem:
 

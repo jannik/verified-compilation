@@ -1,11 +1,11 @@
 \subsection{Equivalence}
 
-We want to show that if \trabsfinal{\bexp}{\sprog}, then \bev{\envnil}{\bexp}{\n{\nat}} if and only if \sev{\sprog}{\n{\nat}}.
+We want to show that if \trabs{\bexp}{\send}{\sprog}, then \bev{\envnil}{\bexp}{\n{\nat}} if and only if \sev{\sprog}{\n{\nat}}.
 To prove this we need two correspondence judgements:
 
-\vspace{0.5cm}
 
-\judgement{\cor{\bval}{\sval}}
+
+\begin{judgement}{\cor{\bval}{\sval}}
 
 \begin{prooftree}
   \leftl{\rulename{C-Num} :}
@@ -14,12 +14,14 @@ To prove this we need two correspondence judgements:
 
 \begin{prooftree}
   \ninf{\cor{\benv}{\senv}}
-  \ninf{\trabsfinal{\bexp}{\sprog}}
+  \ninf{\trabs{\bexp}{\send}{\sprog}}
   \leftl{\rulename{C-Fun} :}
   \binf{\cor{\cl{\benv}{\bexp}}{\cl{\senv}{\sprog}}}
 \end{prooftree}
 
-\judgement{\cor{\benv}{\senv}}
+\end{judgement}
+
+\begin{judgement}{\cor{\benv}{\senv}}
 
 \begin{prooftree}
   \leftl{\rulename{D-Nil} :}
@@ -32,6 +34,8 @@ To prove this we need two correspondence judgements:
   \leftl{\rulename{D-Cons} :}
   \binf{\cor{\benv \envcons \bval}{\senv \envcons \sval}}
 \end{prooftree}
+
+\end{judgement}
 
 We can now generalise the two directions of the theorem, i.e. soundness and completeness.
 
@@ -83,7 +87,7 @@ By IH on $\B_1$ with $\T_1$ and $\D$, (for all $\sctrl_1$ and $\svals_1$) we get
 $\C_1$ must have the form
 \begin{prooftree}
   \prem{\D_1'}{\cor{\benv'}{\senv'}}
-  \prem{\T_1'}{\trabsfinal{\bexp_0}{\sprog_0}}
+  \prem{\T_1'}{\trabs{\bexp_0}{\send}{\sprog_0}}
   \binf{\cor{\cl{\benv'}{\bexp_0}}{\cl{\senv'}{\sprog_0}}}
 \end{prooftree}
 So $\sval_1 = \cl{\senv'}{\sprog_0}$ (for some $\senv'$ and $\sprog_0$).
@@ -115,11 +119,11 @@ And finally we can establish the main theorem:
 
 \begin{theorem}[Equivalence \textnormal{\blang}-\textnormal{\slang}]
 \label{thm:equivalence-bs}
-If \trabsfinal{\bexp}{\sprog}, then \bev{\envnil}{\bexp}{\n{\nat}} if and only if \sev{\sprog}{\n{\nat}}.
+If \trabs{\bexp}{\send}{\sprog}, then \bev{\envnil}{\bexp}{\n{\nat}} if and only if \sev{\sprog}{\n{\nat}}.
 \end{theorem}
 
 \begin{proof}
-Supposing \trabsfinal{\bexp}{\sprog} (by $\T$), we show the bi-implication.
+Supposing \trabs{\bexp}{\send}{\sprog} (by $\T$), we show the bi-implication.
 
 For the left-to-right direction, assume \bev{\envnil}{\bexp}{\n{\nat}} (by $\B$).
 Rule \rulename{D-Nil} provides $\D$ showing the compatibility of empty contexts.

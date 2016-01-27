@@ -12,17 +12,19 @@ Before giving the translation judgement, we want to point out that there are sev
 The most ``obvious'' solution is to keep an ordered list of free variables (say $\Gamma$) such that each variable's position indicates its De Bruijn index.
 We would have a judgement like the following (omitting the cases that are just straightforward induction).
 
-\vspace{0.5cm}
 
-\judgement{\blook{\Gamma}{\bvar}{\var}}
 
-\vspace{0.5cm}
+\begin{judgement}{\blook{\Gamma}{\bvar}{\var}}
+
+
 
 (Suitable rules to find the $\bvar$'th element of $\Gamma$.)
 
-\vspace{0.5cm}
 
-\judgement{\trahbfaux{\Gamma}{\hexp}{\bexp}}
+
+\end{judgement}
+
+\begin{judgement}{\trahbfaux{\Gamma}{\hexp}{\bexp}}
 
 \begin{prooftree}
   \ninf{\blook{\Gamma}{\bvar}{\var}}
@@ -34,6 +36,9 @@ We would have a judgement like the following (omitting the cases that are just s
   \rightl{($\var \notin \Gamma$)}
   \uinf{\trahbfaux{\Gamma}{\lam{\var}{\hexp_1}}{\blam{\bexp_1}}}
 \end{prooftree}
+
+\end{judgement}
+
 Note that the side condition $\var \notin \Gamma$ is necessary to prevent shadowed variables from being used giving rise to ``translations'' like \trahbfaux{\envnil}{\lam{\var}{\lam{\var}{\var}}}{\blam{\blam{(\suc{\z})}}}.
 However, there are still two problems with the translation judgement presented above.
 
@@ -69,9 +74,9 @@ The set of variables occuring in $\benvext$ will be denoted by $\vars(\benvext)$
 
 That being said, the translation judgement is as follows.
 
-\vspace{0.5cm}
 
-\judgement{\trahb{\hbctx}{\benvext}{\bexp}{\hexp}}
+
+\begin{judgement}{\trahb{\hbctx}{\benvext}{\bexp}{\hexp}}
 
 \begin{prooftree}
   \leftl{\rulename{T-Num} :}
@@ -105,11 +110,13 @@ That being said, the translation judgement is as follows.
   \uinf{\trahb{\hbctx}{\benvext}{\bsuc{\bexp_1}}{\hsuc{\hexp_1}}}
 \end{prooftree}
 
+\end{judgement}
+
 It uses a correspondence relation between values and expressions in canonical form:
 
-\vspace{0.5cm}
 
-\judgement{\corhb{\hbctx}{\bval}{\hexp}}
+
+\begin{judgement}{\corhb{\hbctx}{\bval}{\hexp}}
 
 \begin{prooftree}
   \leftl{\rulename{C-Var} :}
@@ -126,6 +133,9 @@ It uses a correspondence relation between values and expressions in canonical fo
   \leftl{\rulename{C-Fun} :}
   \uinf{\corhb{\hbctx}{\cl{\benv}{\bexp}}{\lam{\var}{\hexp}}}
 \end{prooftree}
+
+\end{judgement}
+
 The fact that \rulename{C-Fun} uses a plain $\benv$ is intentional: we do not allow \hlang variables to occur inside \blang closures.
 
 As mentioned earlier, one would hope that for every $\hexp$ there exists an $\hexp'$ which is translatable and alpha-equivalent to $\hexp$ (written $\hexp \alphaeq \hexp'$).

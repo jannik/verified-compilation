@@ -2,6 +2,14 @@
 \newtheorem{lemma}[statementcounter]{Lemma}
 \newtheorem{theorem}[statementcounter]{Theorem}
 
+\newenvironment{judgement}[1]{
+\vspace{0.5cm}
+\noindent \framebox{#1}
+\vspace{0.5cm}
+}{
+\vspace{0.5cm}
+}
+
 \newenvironment{proof}[1][Proof]{
 \paragraph{#1}
 }{
@@ -14,7 +22,6 @@ $\blacksquare$
 \newcommand{\ensurecommand}[1]{\providecommand{#1}{}\renewcommand{#1}}
 
 % judgements/rules
-\ensurecommand{\judgement}[1]{\noindent \framebox{#1}}
 \ensurecommand{\ninf}[1]{\AxiomC{#1}}
 \ensurecommand{\uinf}[1]{\UnaryInfC{#1}}
 \ensurecommand{\binf}[1]{\BinaryInfC{#1}}
@@ -146,7 +153,6 @@ $\blacksquare$
 
 % bs translation
 \ensurecommand{\trabs}[3]{\ensuremath{#1 \circ #2 \mathrel{\rhd} #3}}
-\ensurecommand{\trabsfinal}[2]{\ensuremath{#1 \mathrel{\rhd} #2}}
 
 % bs equivalence
 \ensurecommand{\ssteplhs}[2]{\ensuremath{\tup{#1 \tupsep #2}}}

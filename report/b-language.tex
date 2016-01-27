@@ -12,9 +12,9 @@ We define variable indices $\bvar$ and \blang expressions $\bexp$ as follows:
 \end{align*}
 We will need a notion of \blang expressions being closed:
 
-\vspace{0.5cm}
 
-\judgement{\closed{k}{\bexp}}
+
+\begin{judgement}{\closed{k}{\bexp}}
 
 \begin{prooftree}
   \ax{\closed{k}{\n{\nat}}}
@@ -41,6 +41,8 @@ We will need a notion of \blang expressions being closed:
   \uinf{\closed{k}{\bsuc{\bexp_1}}}
 \end{prooftree}
 
+\end{judgement}
+
 If \closed{0}{\bexp} we simply say that $\bexp$ is closed.
 
 \subsection{Semantics}
@@ -55,9 +57,9 @@ We define \blang values $\bval$ as follows, and environments $\benv$ are then or
 
 Before giving the main evaluation judgement, we introduce an auxiliary judgement for variable lookup.
 
-\vspace{0.5cm}
 
-\judgement{\blook{\benv}{\bvar}{\bval}}
+
+\begin{judgement}{\blook{\benv}{\bvar}{\bval}}
 
 \begin{prooftree}
   \leftl{\rulename{Bv-Here} :}
@@ -70,7 +72,9 @@ Before giving the main evaluation judgement, we introduce an auxiliary judgement
   \uinf{\blook{\benv \envcons \bval'}{\suc{\bvar}}{\bval}}
 \end{prooftree}
 
-\judgement{\bev{\benv}{\bexp}{\bval}}
+\end{judgement}
+
+\begin{judgement}{\bev{\benv}{\bexp}{\bval}}
 
 \begin{prooftree}
   \leftl{\rulename{B-Num} :}
@@ -101,3 +105,5 @@ Before giving the main evaluation judgement, we introduce an auxiliary judgement
 	\leftl{\rulename{B-Suc} :}
   \uinf{\bev{\benv}{\bsuc{\bexp_1}}{\n{\nat + 1}}}
 \end{prooftree}
+
+\end{judgement}

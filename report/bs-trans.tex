@@ -1,12 +1,15 @@
 \subsection{Translation}
 
-We translate from \blang expressions to \slang programs using the following judgement.
-As a shorthand, \trabsfinal{\bexp}{\sprog} denotes \trabs{\bexp}{\send}{\sprog}.
-% Andrzej still does not like the shorthand. consider again if it's worth it.
+Since the syntax of \slang is flatter than that of \blang, a \blang expression potentially corresponds to multiple \slang instructions (a program).
+Translating a composite expression such as $\bapp{\bexp_1}{\bexp_2}$ involves translating its subexpressions and combining the resulting programs.
+This can be done simply with concatenation of programs, defined in the natural way.
+We adopt another strategy, however, with the aim of avoiding having to reason about concatenation in the preservation proof.
+The idea is to translate a \blang expression $\bexp$ to a \slang program $\sprog'$ \emph{in the context of} some accumulator program $\sprog$.
+Intuitively speaking, $\sprog'$ is then the translation of $\bexp$ put in front of $\sprog$.
 
-\vspace{0.5cm}
+This leads us to the following translation judgement:
 
-\judgement{\trabs{\bexp}{\sprog}{\sprog'}}
+\begin{judgement}{\trabs{\bexp}{\sprog}{\sprog'}}
 
 \begin{prooftree}
   \leftl{\rulename{T-Num} :}
@@ -19,7 +22,7 @@ As a shorthand, \trabsfinal{\bexp}{\sprog} denotes \trabs{\bexp}{\send}{\sprog}.
 \end{prooftree}
 
 \begin{prooftree}
-  \ninf{\trabsfinal{\bexp_1}{\sprog_1}}
+  \ninf{\trabs{\bexp_1}{\send}{\sprog_1}}
   \leftl{\rulename{T-Lam} :}
   \uinf{\trabs{\blam{\bexp_1}}{\sprog}{\slam{\sprog_1} \sseq \sprog}}
 \end{prooftree}
@@ -37,11 +40,10 @@ As a shorthand, \trabsfinal{\bexp}{\sprog} denotes \trabs{\bexp}{\send}{\sprog}.
   \uinf{\trabs{\bsuc{\bexp_1}}{\sprog}{\sprog'}}
 \end{prooftree}
 
-If \trabs{\bexp}{\sprog}{\sprog'}, then intuitively speaking $\sprog'$ is the translation of $\bexp$ put in front of the accumulator $\sprog$.
-This avoids having to reason about concatenation of programs in the equivalence proof.
+\end{judgement}
 
 Unlike the previous translation, from \hlang to \blang, this translation is clearly total.
-That is, for every \blang expression $\bexp$ there exists a \slang program $\sprog$ such that \trabsfinal{\bexp}{\sprog}.
+That is, for every \blang expression $\bexp$ there exists a \slang program $\sprog$ such that \trabs{\bexp}{\send}{\sprog}.
 
 \Twelf
 Totality is supported by Twelf accepting a \texttt{\%total} declaration on the translation judgement.

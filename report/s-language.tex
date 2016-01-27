@@ -39,9 +39,7 @@ A deep control stack during execution of a \slang program corresponds to being `
 
 As usual, we need a judgement for indexing an environment:
 
-\vspace{0.5cm}
-\judgement{\slook{\senv}{\bvar}{\sval}}
-\vspace{0.5cm}
+\begin{judgement}{\slook{\senv}{\bvar}{\sval}}
 
 \begin{prooftree}
   \leftl{\rulename{Sv-Here} :}
@@ -54,15 +52,15 @@ As usual, we need a judgement for indexing an environment:
   \uinf{\slook{\senv \envcons \sval'}{\suc{\bvar}}{\sval}}
 \end{prooftree}
 
+\end{judgement}
+
 We are now ready to define the single- and multi-step relations defining execution of \slang programs.
 An execution state comprises a control stack and a value stack, i.e. a pair $\tup{\sctrl \tupsep \svals}$.
 
 Informally, the instructions $\snum{\nat}$, $\svar{\bvar}$ and $\slam{\sprog}$ push values onto the value stack, which $\sapp$ and $\ssuc$ then consume.
 $\sapp$ calls a function, creating a new frame that is eventually removed (by rule \rulename{S-Ret}) once the function body has been exhausted.
 
-\vspace{0.5cm}
-\judgement{\sstep{\sctrl}{\svals}{\sctrl'}{\svals'}}
-\vspace{0.5cm}
+\begin{judgement}{\sstep{\sctrl}{\svals}{\sctrl'}{\svals'}}
 
 \begin{prooftree}
   \leftl{\rulename{S-Num} :}
@@ -97,7 +95,9 @@ $\sapp$ calls a function, creating a new frame that is eventually removed (by ru
   \ax{\sstep{\sctrl \stkcons \fr{\senv}{\send}}{\svals}{\sctrl}{\svals}}
 \end{prooftree}
 
-\judgement{\ssteps{\sctrl}{\svals}{\sctrl'}{\svals'}}
+\end{judgement}
+
+\begin{judgement}{\ssteps{\sctrl}{\svals}{\sctrl'}{\svals'}}
 
 \begin{prooftree}
   \leftl{\rulename{SS-Zero} :}
@@ -110,5 +110,7 @@ $\sapp$ calls a function, creating a new frame that is eventually removed (by ru
   \leftl{\rulename{SS-More} :}
   \binf{\ssteps{\sctrl}{\svals}{\sctrl'}{\svals'}}
 \end{prooftree}
+
+\end{judgement}
 
 In order to have a clean notation for when a program executes fully and yields a value, we let \sev{\sprog}{\sval} abbreviate \ssteps{[\fr{\envnil}{\sprog}]}{\stknil}{\stknil}{[\sval]}.
