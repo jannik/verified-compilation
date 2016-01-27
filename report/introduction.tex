@@ -1,22 +1,35 @@
 \section{Introduction}
 Compilers are notoriously difficult to implement correctly.
-For instance, as shown by Eide and Regehr in \cite{EideRegehr08} many C compilers (including GCC and LLVM) miscompile code involving volatile memory access.
-This is particularly worrying because it diminishes the value of static analysis on source programs, which is typically simpler than analysing the generated machine code.
-For most programs this is not a big problem because the source code contains many errors already, but for safety-critical applications the importance of a correct compiler is much greater.
+For instance, as shown by Eide and Regehr \cite{EideRegehr08} many C compilers (including GCC and LLVM) miscompile code involving volatile memory access.
+For most software development this is worrying but is typically not a decisive factor as contemporary compilers are robust enough that errors are vastly more often caused by bugs in the application source code than in the compiler.
+For safety-critical applications, however, miscompilation is particularly troublesome because it diminishes the value of static analysis on source programs, which is simpler than analysing the generated machine code.
 
-There are several ways of achieving the correctness of a compiler.
+There are several ways of achieving confidence in the correctness of a compiler.
 One way is through extensive testing, though in practice this is never quite sufficient to be rid of all errors.
 Another way is to prove the correctness of the compiler.
 The latter option is the subject matter at hand.
-Using a dependently typed language it is possible to encode statements and their proofs in the type system.
 
-% A little intro to LF, Elf and Twelf.. and how they differ from other logics and proof assistants.
-We use the Twelf proof assistant, which is based on the LF logical framework [citation Pfenning].
-Twelf is dependently typed, but it is limited in other respects such as only being able to prove $\Pi_2^0$ ($\forall \exists$) theorems. [cite How to Believe a Twelf Proof?]
-Hence, for a given statement it is not a priori clear whether Twelf is capable of proving (or even stating) it, even if a proof exists on paper.
-On the other hand, Twelf has higher-order abstract syntax offering advantages when dealing with binders.
+For our purposes the specification of a correct compiler is that given any source language program it generates a target language program such that executing the generated program has the same result as directly interpreting the source program.
+This ignores some aspects of compilation such as efficiency (one would hesitate to call a compiler correct if the generated code is asymptotically slower) but it captures the essence well enough.
 
+Constructing a correctness proof for a compiler rigorously by hand is very tedious and more importantly very error-prone, thus not inducing the confidence we are hoping for.
+Therefore, it is natural to employ a proof assistant making it possible to encode and mechanically check statements and their proofs.
+
+The LF logical framework \cite{Pfenning01} supports a dependently-typed $\lambda$-calculus.
+It does not support recursion, which is crucial --- functions cannot scrutinise their arguments and must simply consider them as terms to put in a context.
+Thus, functions represent data rather than computation enabling the idea of higher-order abstract syntax (HOAS) using LF $\lambda$-abstractions to represent object-language binders.
+
+The Elf programming language is based on interpreting LF definitions as logic programs.
+This allows searching for derivations of judgements encoded in LF.
+It also means that type families can be interpreted as meta-theorems by considering indices as either input or output and reading it as ``for all ground input terms there exist ground output terms such that the type-family is inhabited''.
+The class of theorems expressible this way is called $\Pi_2^0$~($\forall \exists$).
+
+The Twelf system implements Elf and allows annotations on type families describing the mode (i.e. which indices are input and output), the index used for induction and more.
+Using this information Twelf can verify that the constructors of a type family represent a proof of the corresponding meta-theorem.
+Being based on Elf, Twelf is also limited to $\Pi_2^0$ theorems, so it is not a priori clear whether a given statement can be proven (or even stated) using Twelf even if a proof exists on paper.
 Our aim is to investigate the feasibility of implementing a verified compiler using Twelf.
+
+Familiarity with Twelf is not strictly necessary to understand this report, but the reader should have at least some prior exposition to other proof assistants (Coq, Agda, etc.) and in particular to how an object-language can be represented using types.
 
 
 \section{Previous Work}
