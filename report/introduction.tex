@@ -1,5 +1,5 @@
 \section{Introduction}
-Compilers are notoriosly difficult to implement correctly.
+Compilers are notoriously difficult to implement correctly.
 For instance, as shown by Eide and Regehr in \cite{EideRegehr08} many C compilers (including GCC and LLVM) miscompile code involving volatile memory access.
 This is particularly worrying because it diminishes the value of static analysis on source programs, which is typically simpler than analysing the generated machine code.
 For most programs this is not a big problem because the source code contains many errors already, but for safety-critical applications the importance of a correct compiler is much greater.
