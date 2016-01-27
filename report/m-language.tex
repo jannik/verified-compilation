@@ -15,7 +15,7 @@ We define machine instructions $\minst$ and programs $\mprog$:
 Note that the address in the instruction $\mcall{\addr}$ is the return address.
 And let $\mprog_1 \mconcat \mprog_2$ denote the concatenation of programs $\mprog_1$ and $\mprog_2$.
 
-The abundance of syntax indicating termination deserves an explanation.
+The abundance of syntax indicating termination warrants an explanation.
 \texttt{ret} is for returning from a function call.
 \texttt{halt} is for ending the entire program (to treat all stack frames uniformly, the top-level also ends with a \texttt{ret} instruction).
 \texttt{end} signifies the end of the program store --- it should never be reached during execution.

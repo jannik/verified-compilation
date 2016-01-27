@@ -2,34 +2,46 @@
 
 We now develop the next translation target, \slang.
 Where \blang expressions have a tree structure, \slang programs are flat lists of mostly atomic instructions.
-(Functions will be flattened in the next translation.)
-Computation uses abstract stack machine semantics, replacing a big-step evaluation tree with a flat sequence of states.
+(The exception is the instruction for function abstractions, which still contains a program and will be flattened in the next translation.)
+\slang has abstract stack machine semantics, replacing a big-step evaluation tree with a flat sequence of states.
 
 
 \subsection{Syntax}
 
-We define stack-machine instructions $\sinst$ and programs $\sprog$:
+Recall that $\bvar$ denotes variable (De Bruijn) indices.
+We define \slang instructions $\sinst$ and programs $\sprog$:
 \begin{align*}
   \sinst &\defi \snum{\nat} \alt \svar{\bvar} \alt \slam{\sprog} \alt \sapp \alt \ssuc \\
   \sprog &\defi \send \alt \sinst \sseq \sprog
 \end{align*}
-(Note that $\bvar$ was defined previously.)
+Note that $\sapp$ and $\ssuc$ are atomic instructions, unlike the corresponding \blang expressions $\bapp{\bexp_1}{\bexp_2}$ and $\bsuc{\bexp}$.
+During execution, they will use (pop) values from a value stack.
 
 
 \subsection{Semantics}
 
-We define values $\sval$, environments $\senv$, control stacks $\sctrl$, and value stacks $\svals$:
+The semantics models an abstract stack machine.
+Values $\sval$ again comprises numbers and closures, and environments are lists of values:
 \begin{align*}
   \sval &\defi \n{\nat} \alt \cl{\senv}{\sprog} \\
-  \senv &\defi \envnil \alt \senv \envcons \sval \\
-  \sctrl &\defi \stknil \alt \sctrl \stkcons \fr{\senv}{\sprog} \\
-  \svals &\defi \stknil \alt \svals \stkcons \sval
+  \senv &\defi \envnil \alt \senv \envcons \sval
 \end{align*}
+We also define value stacks $\svals$ to be lists of values, but they are used differently than environments and deserve a separate syntactic category.
+\[
+\svals \defi \stknil \alt \svals \stkcons \sval
+\]
+Finally, we define control stacks $\sctrl$ --- list of (activation) frames that keep track of execution contexts:
+\[
+\sctrl \defi \stknil \alt \sctrl \stkcons \fr{\senv}{\sprog}
+\]
+We use a different notation to emphasise the conceptual difference between closures and frames, although they contain the same data.
+A deep control stack during execution of a \slang program corresponds to being ``high up'' in a derivation tree during evaluation of a \hlang or \blang expression.
 
-And the semantics judgements:
+As usual, we need a judgement for indexing an environment:
+
 \vspace{0.5cm}
-
 \judgement{\slook{\senv}{\bvar}{\sval}}
+\vspace{0.5cm}
 
 \begin{prooftree}
   \leftl{\rulename{Sv-Here} :}
@@ -42,7 +54,15 @@ And the semantics judgements:
   \uinf{\slook{\senv \envcons \sval'}{\suc{\bvar}}{\sval}}
 \end{prooftree}
 
+We are now ready to define the single- and multi-step relations defining execution of \slang programs.
+An execution state comprises a control stack and a value stack, i.e. a pair $\tup{\sctrl \tupsep \svals}$.
+
+Informally, the instructions $\snum{\nat}$, $\svar{\bvar}$ and $\slam{\sprog}$ push values onto the value stack, which $\sapp$ and $\ssuc$ then consume.
+$\sapp$ calls a function, creating a new frame that is eventually removed (by rule \rulename{S-Ret}) once the function body has been exhausted.
+
+\vspace{0.5cm}
 \judgement{\sstep{\sctrl}{\svals}{\sctrl'}{\svals'}}
+\vspace{0.5cm}
 
 \begin{prooftree}
   \leftl{\rulename{S-Num} :}
@@ -59,6 +79,8 @@ And the semantics judgements:
   \leftl{\rulename{S-Lam} :}
   \ax{\sstep{\sctrl \stkcons \fr{\senv}{\slam{\sprog_1} \sseq \sprog}}{\svals}{\sctrl \stkcons \fr{\senv}{\sprog}}{\svals \stkcons \cl{\senv}{\sprog_1}}}
 \end{prooftree}
+
+% why is there a strange vertical spacing here? can we do something?
 
 \begin{prooftree}
   \leftl{\rulename{S-App} :}
@@ -89,4 +111,4 @@ And the semantics judgements:
   \binf{\ssteps{\sctrl}{\svals}{\sctrl'}{\svals'}}
 \end{prooftree}
 
-As an abbreviation, let \sev{\sprog}{\sval} denote \ssteps{[\fr{\envnil}{\sprog}]}{\stknil}{\stknil}{[\sval]}.
+In order to have a clean notation for when a program executes fully and yields a value, we let \sev{\sprog}{\sval} abbreviate \ssteps{[\fr{\envnil}{\sprog}]}{\stknil}{\stknil}{[\sval]}.
