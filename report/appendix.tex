@@ -1,0 +1,24 @@
+\appendix
+
+\section{Twelf Implementation}
+\label{sec:code}
+
+\subsection{Overview}
+
+The implementation has been checked by Twelf 1.7.1.
+It comprises 25 \texttt{.elf} files (and a \texttt{sources.cfg} file).
+
+The syntax of \hlang, \blang, \slang and \mlang is defined in \texttt{syntax-hoas}, \texttt{syntax-bruijn}, \texttt{syntax-stack} and \texttt{syntax-machine}, respectively.
+Analogously for the semantics.
+The translation from \hlang to \blang, from \blang to \slang, from \slang to \mlang and (the complete translation) from \hlang to \mlang is given in \texttt{trans-hoas-bruijn}, \texttt{trans-bruijn-stack}, \texttt{trans-stack-machine} and \texttt{trans-main}, respectively.
+Analogously for the soundness and completeness proofs.
+However, \texttt{invariants-bruijn-stack} and \texttt{invariants-stack-machine} contain definitions and lemmas used in the corresponding equivalence proofs.
+Totality of the \hlang-\blang translation is proved in \texttt{totality-hoas-bruijn}.
+Finally, \texttt{nat} defines natural numbers with some needed properties, and \texttt{example} contains a few examples of compilation.
+
+\subsection{Code}
+\begingroup
+\makeatletter
+\@totalleftmargin=-2.5cm
+\input{code-appendix}
+\endgroup

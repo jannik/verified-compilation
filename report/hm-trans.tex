@@ -1,0 +1,60 @@
+\section{Full Translation}
+
+We are now ready to define the full translation from \hlang to \mlang.
+
+\vspace{0.5cm}
+\judgement{\trahm{\hexp}{\mprog}{\addr}}
+
+\begin{prooftree}
+  \ninf{\trahb{\hbctx}{\envnil}{\bexp}{\hexp'}}
+  \ninf{\trabsfinal{\bexp}{\sprog}}
+  \ninf{\trasmfinal{\sprog}{\mprog}{\addr}}
+  \rightl{$(\hexp \alphaeq \hexp')$}
+  \tinf{\trahm{\hexp}{\mprog}{\addr}}
+\end{prooftree}
+
+By the totality of each translation the full translation is also total, and we can state the full equivalence theorem:
+
+\begin{theorem}[Equivalence \textnormal{\hlang}-\textnormal{\mlang}]
+\label{thm:equivalence-hm} If $\trahm{\hexp}{\mprog}{\addr}$, then $\hev{\hexp}{\n{\nat}}$ if and only if $\meval{\mprog}{\addr}{\n{\nat}}$.
+\end{theorem}
+\codefile{soundness-main.elf}{completeness-main.elf}
+
+\begin{proof}
+Immediate from theorems \ref{thm:equivalence-hb}, \ref{thm:equivalence-bs} and \ref{thm:equivalence-sm}.
+\end{proof}
+
+In order to see the compilation process in action, we finally present a small example.
+
+
+\subsection{Worked Example}
+
+Let us add two numbers using Church numerals.
+We use $\repr(\nat)$ to denote the Church encoding of $\nat$ and $\reify(\hexp)$ to extract the numeral represented by $\hexp$ (with unpredictable behaviour if $\hexp$ does not represent any number).
+We recall the following Church numeral constructions:
+\begin{align*}
+  \repr(1) &= \ldots \\
+  \repr(2) &= \ldots \\
+  \repr(3) &= \ldots \\
+  \hexp_1 \+ \hexp_2 &= \hexp_1 \ldots \hexp_2 \\
+  \reify(\hexp) &= \ldots
+\end{align*}
+Now let $\hexp = \repr(1) \+ \repr(2) = \ldots$.
+
+Running our \hlang-to-\blang translation, we get
+\[
+\bexp = \ldots
+\]
+Translating further to \slang, we get
+\[
+\sprog = \ldots
+\]
+And after the final translation, we get the $\mlang$ program
+\[
+\mprog = \ldots
+\]
+with starting address $\addr = 1$.
+And indeed, evaluating this program yields $\n{3}$ as expected.
+
+\Twelf
+This example can be found in \texttt{example.elf}.
