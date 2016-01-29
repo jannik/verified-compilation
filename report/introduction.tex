@@ -34,10 +34,10 @@ Familiarity with Twelf is not strictly necessary to understand this report, but 
 
 \section{Previous Work}
 
-The main work in this area is the CompCert C verified compiler, a ``high-assurance compiler for almost all of the ISO C90 / ANSI C language, generating efficient code for the PowerPC, ARM and x86 processors'' (see \cite{CompCert16}).
+The main work in this area is the CompCert C verified compiler, a ``high-assurance compiler for almost all of the ISO C90 / ANSI C language, generating efficient code for the PowerPC, ARM and x86 processors'' \cite{CompCert16}.
 It targets embedded programming and is written almost entirely in Coq (exceptions being the parser and the assembly code pretty-printer).
 Notably, the compiler implements non-trivial optimisations such as inlining.
-A study, \cite{Yang11}, found code generation errors in all C compilers tested, except for the verified parts of CompCert.
+A 2011 study by Yang et al. \cite{Yang11} found code generation errors in all C compilers tested, except for the verified parts of CompCert.
 
 The same framework has been used to make a compiler for mini-ML with progress towards verified garbage collection [cite Xavier Leroy].
 % http://www.cs.ox.ac.uk/ralf.hinze/WG2.8/24/slides/xavier.pdf
@@ -54,6 +54,8 @@ The main results are found in \cite[ch. 6]{Pfenning01}.
 % Mention concrete representations guy.
 
 [Should we explain how we expand on previous work here?]
+% Andrzej: somewhere!
+
 
 
 \section{Overview}
@@ -61,6 +63,8 @@ The main results are found in \cite[ch. 6]{Pfenning01}.
 Our source language, \hlang, is a simple higher-order functional language with substitution semantics.
 The target language, \mlang, is a machine-like language featuring linearised programs with abstract stack machine semantics.
 The translation employs two intermediate languages --- \blang and \slang --- to more clearly separate the different aspects of the equivalence between \hlang and \mlang.
+% don't use the term equivalence, change to correctness or preservation
+% and explain if this is the first time it is used
 
 From \hlang to \blang, named variables are turned into De Bruijn indices and closures are represented explicitly.
 Then from \blang to \slang, the syntax is partially linearised and the semantics become based on an abstract machine.

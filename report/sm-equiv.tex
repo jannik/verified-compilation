@@ -7,6 +7,10 @@ As a solution we define a subprogram relation that keeps track of the position o
 
 \begin{judgement}{$\mprog' \leq_{\nat} \mprog$}
 
+% explain: (q' >> something) is a subsegment of q starting at n...
+
+% make 'is a prefix of' a formal judgement
+
 % Sub instead of Leq.
 \begin{prooftree}
   \rightl{$(\text{$\mprog'$ is a prefix of $\mprog$})$}
@@ -21,6 +25,8 @@ As a solution we define a subprogram relation that keeps track of the position o
 \end{judgement}
 
 We also need some correspondence judgements:
+
+% consider different symbols for the different correspondence judgements
 
 \begin{judgement}{$\corvalue{\mprog}{\sval}{\mval}$}
 
@@ -83,6 +89,7 @@ We also need some correspondence judgements:
 \end{judgement}
 
 And now we are ready to generalise soundness and completeness:
+% generalise from what?
 
 \begin{lemma}[Soundness]
 \label{lem:soundness-sm}

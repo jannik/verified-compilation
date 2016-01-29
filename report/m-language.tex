@@ -33,8 +33,6 @@ We define values $\mval$, environments $\menv$, control stacks $\mctrl$, and val
 
 As usual, we need a judgement for variable lookup:
 
-
-
 \begin{judgement}{\mlook{\menv}{\bvar}{\mval}}
 
 \begin{prooftree}
@@ -47,8 +45,6 @@ As usual, we need a judgement for variable lookup:
 \end{prooftree}
 
 \end{judgement}
-
-
 
 We then define judgements for execution:
 
@@ -83,6 +79,7 @@ We then define judgements for execution:
 
 \end{judgement}
 
+% maybe require judgement to finish execution, assuming we never concat derivations
 \begin{judgement}{\msteps{\mprog}{\mctrl}{\addr}{\mvals}{\mctrl'}{\addr'}{\mvals'}}
 
 \begin{prooftree}

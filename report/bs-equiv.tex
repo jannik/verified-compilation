@@ -3,8 +3,6 @@
 We want to show that if \trabs{\bexp}{\send}{\sprog}, then \bev{\envnil}{\bexp}{\n{\nat}} if and only if \sev{\sprog}{\n{\nat}}.
 To prove this we need two correspondence judgements:
 
-
-
 \begin{judgement}{\cor{\bval}{\sval}}
 
 \begin{prooftree}
@@ -39,11 +37,11 @@ To prove this we need two correspondence judgements:
 
 We can now generalise the two directions of the theorem, i.e. soundness and completeness.
 
-Let $\prec$ denote the well-founded relation defined by $\P_1 \prec \P_2$ if $\P_1$ is a proper suffix of $\P_2$.
+% Let $\prec$ denote the well-founded relation defined by $\P_1 \prec \P_2$ if $\P_1$ is a proper suffix of $\P_2$.
 
 \begin{lemma}[Soundness]
 \label{lem:soundness-bs}
-If \trabs{\bexp}{\sprog_2}{\sprog} (by $\T$) and \ssteps{\sctrl \stkcons \fr{\senv}{\sprog}}{\svals}{\stknil}{[\sval']} (by $\P$) with \cor{\benv}{\senv} (by $\D$), then there exists $\bval$ and $\sval$ such that \bev{\benv}{\bexp}{\bval} (by some $\B$) and \ssteps{\sctrl \stkcons \fr{\senv}{\sprog_2}}{\svals \stkcons \sval}{\stknil}{[\sval']} (by some $\P'$ where $\P' \prec \P$)  with \cor{\bval}{\sval} (by some $\C$).
+If \trabs{\bexp}{\sprog_2}{\sprog} (by $\T$) and \ssteps{\sctrl \stkcons \fr{\senv}{\sprog}}{\svals}{\stknil}{[\sval']} (by $\P$) with \cor{\benv}{\senv} (by $\D$), then there exists $\bval$ and $\sval$ such that \bev{\benv}{\bexp}{\bval} (by some $\B$) and \ssteps{\sctrl \stkcons \fr{\senv}{\sprog_2}}{\svals \stkcons \sval}{\stknil}{[\sval']} (by some $\P'$ that is a proper subderivation[suffix?] of $\P$)  with \cor{\bval}{\sval} (by some $\C$).
 \end{lemma}
 
 \code{soundness-bs'}{soundness-bruijn-stack.elf}
@@ -54,6 +52,15 @@ By lexicographic induction on $\P$ and $\T$.
 % Do we show the most interesting case?
 
 \end{proof}
+
+\Twelf
+The totality checking of the soundness lemma is expressed in Twelf as follows:
+\input{code-soundness-bs}
+The \texttt{\%reduces} declaration makes Twelf verify that \texttt{DP'} is always a subterm of \texttt{DP}.
+The \texttt{\%total} declaration uses this information to establish termination.
+This is the analogue of requiring that $\P' \prec \P$ in the paper formulation.
+
+% something about how twelf proof needing inversion and coerce lemmas..
 
 \begin{lemma}[Completeness]
 \label{lem:completeness-bs}
@@ -135,12 +142,3 @@ And with $\P'$ we can derive $\sev{\sprog}{\n{\nat}}$ as required.
 The other direction is similar. [though not analogous.. is it relevant to prove these on paper?]
 
 \end{proof}
-
-\Twelf
-The totality checking of the soundness lemma is expressed in Twelf as follows:
-\input{code-soundness-bs}
-The \texttt{\%reduces} declaration makes Twelf verify that \texttt{DP'} is always a subterm of \texttt{DP}.
-The \texttt{\%total} declaration uses this information to establish termination.
-This is the analogue of requiring that $\P' \prec \P$ in the paper formulation.
-
-% something about how twelf proof needing inversion and coerce lemmas..
