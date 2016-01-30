@@ -1,3 +1,7 @@
 
 When doing final batch of search-and-replace in code:
 - Replace 'store' with e.g. 'env'.
+
+In both code and report, remove argument from call.
+
+In both code and report, remove concat-possibility from judgement.
