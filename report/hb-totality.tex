@@ -4,6 +4,7 @@ As mentioned earlier, one would hope that for every $\hexp$ there exists an $\he
 This is not readily apparent from the rules and therefore requires a proof.
 
 \begin{theorem}[Totality]
+\label{thm:totality}
 For any closed $\hexp$ there exists some $\hexp'$ with $\hexp \alphaeq \hexp'$ and some $\bexp$ such that \trahb{\hbctx}{\envnil}{\bexp}{\hexp'}.
 \end{theorem}
 
@@ -81,55 +82,130 @@ Analogous to the previous case.
 \end{proof}
 
 \Twelf
-The Twelf implementation differs in several ways.
-We do not explicitly consider a different type of environment where variables can occur --- instead, we consider worlds where hypothetical values exist.
-This means that what is just a variable $\var$ during the translation on paper will manifest itself both as a hypothetical \hlang expression and as a hypothetical \blang value in Twelf.
-Hence, we must make sure that they correspond giving rise to the following block:
-\input{code-trans-hb-block}
-This block of assumptions is introduced in the case for $\lambda$-abstractions.
-\input{code-trans-hb-lam}
-The correspondence hypothesis is the Twelf analogue of the \rulename{C-Var} rule.
+Theorem~\ref{thm:totality} can be stated in Twelf in a natural way as follows:
+\begin{verbatim}
+trans-hb-exists : {E} trans-hb store/nil B E -> type.
+%mode trans-hb-exists +E -DT.
+\end{verbatim}
+The requirement that the input \hlang expression is closed corresponds to the fact that the relation is checked in an empty world:
+\begin{verbatim}
+%worlds () (trans-hb-exists _ _).
+\end{verbatim}
 
-(As an aside, note that we could also have introduced a separate constructorless type, \texttt{var}, to represent variables and constructors
-\begin{align*}
-  &\texttt{hyp : var -> exp} \\
-  &\texttt{bhyp : var -> value}
-\end{align*}
-to regard them as both \hlang expressions and as \blang values.
-However, this would only introduce complications with no clear benefit.
-On the other hand, one might consider porting the Twelf implementation back to the paper version.
-This also is not worthwhile since it requires defining the notion of a hypothetical value and a somewhat complicated argument about the relationship between variables and hypothetical values which is handled implicitly by Twelf's world checker.
-Thus, we claim that the difference in the translation judgement between the paper formulation and the Twelf mechanisation is justified.)
+% of the lemma/generalisation
+The paper proof above cannot be represented in Twelf [...] as Pfenning also mentions in his lecture notes \cite{Pfenning01}.
 
-Another important difference is that since we use higher-order abstract syntax in Twelf we do not have to worry about alpha-equivalence.
-Hence, there is no caveat about alpha-equivalence in the totality theorem of the translation in Twelf.
-However, convincing Twelf of the totality is difficult.
-Simply putting a \texttt{\%total} directive on the relation is rejected by Twelf (and rightly so) because it is not clear that searching through $\benvext$ for a value related to some variable will always be successful.
-% note that ``Pfenning also mentions...''
-Indeed, the translation relation does not encode the crucial property that every free variable corresponds to some value occuring in $\benvext$.
-For instance, the following query is well-typed and respects the world assumption of \texttt{trans-hb} but has no solutions:
-\input{code-trans-hb-query}
-Consequently, we need a separate existence theorem to show totality.
+% because we cannot employ the usual technique for representing hypothetical judgments as functions.
+% The difficulty is that the order of the hypotheses is important for returning the correct variable,
+% but hypothetical judgments are generally invariant under reordering of hypotheses.
 
-This is a point where the limitations of Twelf become somewhat painful.
-There is no way to represent an invariant like ``every hypothetical expression corresponds to some value in $\benvext$'' like in our paper proof because there is no way to state relations between hypotheticals in the ``ambient'' scope [is there a better term?] and parameters to a judgement.
+% This is a point where the limitations of Twelf become somewhat painful.
+% There is no way to represent an invariant like ``every hypothetical expression corresponds to some value in $\benvext$'' like in our paper proof because there is no way to state relations % between hypotheticals in the ``ambient'' scope [is there a better term?] and parameters to a judgement.
 
-It turns out, however, that there is an alternative induction hypothesis which is also sufficient to show totality of translation for closed expressions in an empty context.
-In Twelf it is stated as follows:
-\input{code-totality-hb-exists}
-The \texttt{match} type family is mostly a technicality so we can discriminate variables.
-The \texttt{good-store} type family constraints the store to only contain hypothetical values.
-Thus, the lemma essentially says that for every $\hexp$ there exists some $\benvext$ containing only variables and some $\bexp$ such that \trahb{\hbctx}{\benvext}{\bexp}{\hexp}.
-The idea is that in a closed world an $\benvext$ containing only variables must in fact be empty.
+% simply writing total is no good
 
-It is not immediately obvious how to maintain the invariant, though.
-The proof is structured around a preorder on stores such that \trahb{\hbctx}{\benvext_1}{\bexp}{\hexp} and $\benvext_1 \le \benvext_2$ implies \trahb{\hbctx}{\benvext_2}{\bexp}{\hexp}.
-For the application case, $\app{\hexp_1}{\hexp_2}$, we can then simply invoke the induction hypothesis to get two different stores $\benvext_1$ and $\benvext_2$.
-Concatenating them yields a new store $\benvext$ such that $\benvext_1 \le \benvext$ and $\benvext_2 \le \benvext$:
-\input{code-totality-hb-app}
-For the $\lambda$-abstraction case, $\lam{\var}{\hexp_1}$, the situation is a bit more complicated: we get some $\benvext$ where $\var$ can occur anywhere.
-The key lemma is that we can find another store $\benvext'$ with $\benvext \le \benvext' \envcons \var$ and such that $\var$ does not occur in $\benvext'$:
-\input{code-totality-hb-move-to-head}
-This is sufficient to construct the required translation:
-\input{code-totality-hb-lam}
-The remaining cases are straightforward.
+However, another generalisation is possible:
+\begin{verbatim}
+trans-hb-exists' : {E} good-store Alph -> trans-hb Alph B E -> type.
+%mode trans-hb-exists' +E -G -DT.
+\end{verbatim}
+Our \texttt{trans-hb-exists'} lemma states that for every \hlang expression $\hexp$, there exist a \blang expression $\bexp$ and an environment $\benvext$ such that $\trahb{\hbctx}{\benvext}{\bexp}{\hexp}$.
+In order for this lemma to be strong enough, we require further that $\benvext$ consists only of variables.
+In the proof of the totality theorem (\texttt{trans-hb-exists}), where the world is empty, using the lemma (\texttt{trans-hb-exists'}) then provides an environment $\benvext$ which must in fact be empty.
+
+The \texttt{good-store} predicate expresses exactly this requirement --- that the environment contains only variables:
+\begin{verbatim}
+good-store : store -> type.
+
+good-store/nil : good-store store/nil.
+
+good-store/cons : good-store (store/cons Alph V)
+                   <- bhyp V
+                   <- good-store Alph.
+\end{verbatim}
+where \texttt{bhyp} expresses that a value is hypothetical.
+\texttt{bhyp} is an empty type family parameterised with a \blang value:
+\begin{verbatim}
+bhyp : value -> type.
+\end{verbatim}
+Whenever the Twelf context is expanded with a value, it is also expanded with an associated \texttt{bhyp} predicate.
+[introduce block]
+% now introduce the blok somehow?
+%block bl-trans-hb-exists : block {v : value} {x : exp} {dc : cor v x} {h : bhyp v} {pf : trans-hb-exists' x (good-store/cons good-store/nil h) (trans-hb/var (trans-hb-var/here dc))}.
+% explain why trans-hb-exists' is checked in this block
+
+In proving \texttt{trans-hb-exists'}, using the induction hypothesis more than once yields different ``good'' environments that must be appropriately related.
+We define a preorder relation on environments:
+\begin{verbatim}
+<= : store -> store -> type. %infix none 5 <=.
+
+<=/refl : Alph <= Alph.
+<=/trans : Alph1 <= Alph3
+            <- Alph1 <= Alph2
+            <- Alph2 <= Alph3.
+
+<=/cons : store/cons Alph1 V <= store/cons Alph2 V
+           <- Alph1 <= Alph2.
+
+<=/exchange : store/cons (store/cons Alph V1) V2 <= store/cons (store/cons Alph V2) V1.
+
+<=/weaken : Alph <= store/cons Alph V.
+
+<=/combine : store/cons (store/cons Alph V) V <= store/cons Alph V.
+\end{verbatim}
+Informally, $\benvext \leq \benvext'$ implies that $\benvext$ is stronger than $\benvext'$.
+That is, if \trahb{}{\benvext}{\bexp}{\hexp} then also \trahb{}{\benvext'}{\bexp}{\hexp}.
+
+[talk about cases of the lemma proof, introduce move-to-head]
+
+% store is output rather than input
+
+%The Twelf implementation differs in several ways.
+%We do not explicitly consider a different type of environment where variables can occur --- instead, we consider worlds where hypothetical values exist.
+%This means that what is just a variable $\var$ during the translation on paper will manifest itself both as a hypothetical \hlang expression and as a hypothetical \blang value in Twelf.
+%Hence, we must make sure that they correspond giving rise to the following block:
+%\input{code-trans-hb-block}
+%This block of assumptions is introduced in the case for $\lambda$-abstractions.
+%\input{code-trans-hb-lam}
+%The correspondence hypothesis is the Twelf analogue of the \rulename{C-Var} rule.
+%
+%(As an aside, note that we could also have introduced a separate constructorless type, \texttt{var}, to represent variables and constructors
+%\begin{align*}
+%  &\texttt{hyp : var -> exp} \\
+%  &\texttt{bhyp : var -> value}
+%\end{align*}
+%to regard them as both \hlang expressions and as \blang values.
+%However, this would only introduce complications with no clear benefit.
+%On the other hand, one might consider porting the Twelf implementation back to the paper version.
+%This also is not worthwhile since it requires defining the notion of a hypothetical value and a somewhat complicated argument about the relationship between variables and hypothetical values which is handled implicitly by Twelf's world checker.
+%Thus, we claim that the difference in the translation judgement between the paper formulation and the Twelf mechanisation is justified.)
+%
+%Another important difference is that since we use higher-order abstract syntax in Twelf we do not have to worry about alpha-equivalence.
+%Hence, there is no caveat about alpha-equivalence in the totality theorem of the translation in Twelf.
+%However, convincing Twelf of the totality is difficult.
+%Simply putting a \texttt{\%total} directive on the relation is rejected by Twelf (and rightly so) because it is not clear that searching through $\benvext$ for a value related to some variable will always be successful.
+%% note that ``Pfenning also mentions...''
+%Indeed, the translation relation does not encode the crucial property that every free variable corresponds to some value occuring in $\benvext$.
+%For instance, the following query is well-typed and respects the world assumption of \texttt{trans-hb} but has no solutions:
+%\input{code-trans-hb-query}
+%Consequently, we need a separate existence theorem to show totality.
+%
+%It turns out, however, that there is an alternative induction hypothesis which is also sufficient to show totality of translation for closed expressions in an empty context.
+%In Twelf it is stated as follows:
+%\input{code-totality-hb-exists}
+%The \texttt{match} type family is mostly a technicality so we can discriminate variables.
+%The \texttt{good-store} type family constraints the store to only contain hypothetical values.
+%Thus, the lemma essentially says that for every $\hexp$ there exists some $\benvext$ containing only variables and some $\bexp$ such that \trahb{\hbctx}{\benvext}{\bexp}{\hexp}.
+%The idea is that in a closed world an $\benvext$ containing only variables must in fact be empty.
+%
+%It is not immediately obvious how to maintain the invariant, though.
+%The proof is structured around a preorder on stores such that \trahb{\hbctx}{\benvext_1}{\bexp}{\hexp} and $\benvext_1 \le \benvext_2$ implies \trahb{\hbctx}{\benvext_2}{\bexp}{\hexp}.
+%For the application case, $\app{\hexp_1}{\hexp_2}$, we can then simply invoke the induction hypothesis to get two different stores $\benvext_1$ and $\benvext_2$.
+%Concatenating them yields a new store $\benvext$ such that $\benvext_1 \le \benvext$ and $\benvext_2 \le \benvext$:
+%\input{code-totality-hb-app}
+%For the $\lambda$-abstraction case, $\lam{\var}{\hexp_1}$, the situation is a bit more complicated: we get some $\benvext$ where $\var$ can occur anywhere.
+%The key lemma is that we can find another store $\benvext'$ with $\benvext \le \benvext' \envcons \var$ and such that $\var$ does not occur in $\benvext'$:
+%\input{code-totality-hb-move-to-head}
+%This is sufficient to construct the required translation:
+%\input{code-totality-hb-lam}
+%The remaining cases are straightforward.
