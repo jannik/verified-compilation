@@ -6,6 +6,7 @@ import Control.Monad.Reader
 import Text.Parsec
 import System.IO
 import System.Process
+import Control.Applicative (Applicative, (<$>), (*>), (<*), (<*>))
 
 newtype Twelf a = Twelf (ReaderT (Handle, Handle, Bool) IO a)
     deriving (Functor, Applicative, Monad, MonadReader (Handle, Handle, Bool), MonadIO)

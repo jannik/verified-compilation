@@ -5,6 +5,7 @@ import Data.Char
 import Control.Monad
 import Control.Monad.IO.Class
 import System.Directory
+import Control.Applicative
 
 import Twelf
 
@@ -57,6 +58,7 @@ createAppendix = do
     writeFile "report/code-appendix.tex" $ appendixCode tuples
 
 twelfPath = "/home/mkm/twelfbin/twelf/bin/twelf-server"
+twelfPath' = "C:\\Program Files\\Twelf\\bin\\twelf-server.bat"
 
 createExample :: IO ()
 createExample = runTwelf twelfPath False $ do
