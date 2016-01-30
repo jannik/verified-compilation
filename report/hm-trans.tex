@@ -36,26 +36,30 @@ Let us add two numbers using Church numerals.
 We use $\repr(\nat)$ to denote the Church encoding of $\nat$ and $\reify(\hexp)$ to extract the numeral represented by $\hexp$ (with unpredictable behaviour if $\hexp$ does not represent any number).
 We recall the following Church numeral constructions:
 \begin{align*}
-  \repr(1) &= \ldots \\
-  \repr(2) &= \ldots \\
-  \repr(3) &= \ldots \\
-  \hexp_1 \+ \hexp_2 &= \hexp_1 \ldots \hexp_2 \\
-  \reify(\hexp) &= \ldots
+  \repr(1) &= \lam{s}{\lam{z}{\app{s}{z}}} \\
+  \repr(2) &= \lam{s}{\lam{z}{\app{s}{(\app{s}{z})}}} \\
+  \repr(3) &= \lam{s}{\lam{z}{\app{s}{(\app{s}{(\app{s}{z})})}}} \\
+  \hexp_1 \+ \hexp_2 &= \lam{s}{\lam{z}{\app{\app{\hexp_1}{s}}{(\app{\app{\hexp_2}{s}}{z})}}} \\
+  \reify(\hexp) &= \app{\app{\hexp}{(\lam{x}{\hsuc{x}})}}{\n{0}}
 \end{align*}
-Now let $\hexp = \repr(1) \+ \repr(2) = \ldots$.
-
+Now let
+% \app{\app{(\lam{s}{\lam{z}{\app{\app{(\lam{s}{\lam{z}{\app{s}{(\app{s}{z})}}})}{s}}{(\app{\app{(\lam{s}{\lam{z}{\app{s}{(\app{s}{z})}}})}{s}}{z})}}})}{(\lam{x}{\hsuc{x}})}}{\n{0}}
+\begin{align*}
+  \hexp &= \reify(\repr(1) \+ \repr(2)) \\
+  &= \input{code-example-hoas}
+\end{align*}
 Running our \hlang-to-\blang translation, we get
 \[
-\bexp = \ldots
+\bexp = \input{code-example-bruijn}
 \]
 Translating further to \slang, we get
 \[
-\sprog = \ldots
+\sprog = \input{code-example-stack}
 \]
 And after the final translation, we get the $\mlang$ program
-\[
-\mprog = \ldots
-\]
+\begin{align*}
+\input{code-example-machine}
+\end{align*}
 with starting address $\addr = 1$.
 And indeed, evaluating this program yields $\n{3}$ as expected.
 
