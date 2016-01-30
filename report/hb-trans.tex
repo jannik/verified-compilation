@@ -1,80 +1,41 @@
 \subsection{Translation}
-
-% We define the type of correspondence contexts $\hbctx$.
-
-% \begin{align*}
-%   \hbctx &\defi \ctxnil \alt \hbctx_1 \ctxcons \cor{\bval}{\var}
-% \end{align*}
-
-% consider calling it 'extraction' or similar, or 'correspondence' (probably not) instead
-
-Before giving the translation judgement, we want to point out that there are several workable ways of implementing translation.
-The most ``obvious'' solution is to keep an ordered list of free variables (say $\Gamma$) such that each variable's position indicates its De Bruijn index.
-We would have a judgement like the following (omitting the cases that are just straightforward induction).
-
-
-
-\begin{judgement}{\blook{\Gamma}{\bvar}{\var}}
-
-
-
-(Suitable rules to find the $\bvar$'th element of $\Gamma$.)
-
-
-
-\end{judgement}
-
-\begin{judgement}{\trahbfaux{\Gamma}{\hexp}{\bexp}}
-
-\begin{prooftree}
-  \ninf{\blook{\Gamma}{\bvar}{\var}}
-  \uinf{\trahbfaux{\Gamma}{\var}{\bvar}}
-\end{prooftree}
-
-\begin{prooftree}
-  \ninf{\trahbfaux{\Gamma \envcons \var}{\hexp_1}{\bexp_1}}
-  \rightl{($\var \notin \Gamma$)}
-  \uinf{\trahbfaux{\Gamma}{\lam{\var}{\hexp_1}}{\blam{\bexp_1}}}
-\end{prooftree}
-
-\end{judgement}
-
-Note that the side condition $\var \notin \Gamma$ is necessary to prevent shadowed variables from being used giving rise to ``translations'' like \trahbfaux{\envnil}{\lam{\var}{\lam{\var}{\var}}}{\blam{\blam{(\suc{\z})}}}.
-However, there are still two problems with the translation judgement presented above.
-
-Firstly, while every closed $\bexp$ allows us to find some $\hexp$ such that \trahbfaux{\envnil}{\hexp}{\bexp} (we will neither need nor prove this fact), it is not immediately clear that the translation is total in the left-to-right direction, i.e. that every closed $\hexp$ has a corresponding $\bexp$.
-In fact, this property does not hold!
-Consider $\hexp = \lam{\var}{\lam{\var}{\n{0}}}$; the best attempt at a translation would be something like:
-\begin{prooftree}
-	\prem{\vdots}{\trahbfaux{\envnil \envcons \var \envcons \var}{\n{0}}{\n{0}}}
-  \rightl{($\var \notin (\envnil \envcons \var)$)}
-  \uinf{\trahbfaux{\envnil \envcons \var}{\lam{\var}{\n{0}}}{\blam{\n{0}}}}
-  \rightl{($\var \notin \envnil$)}
-  \uinf{\trahbfaux{\envnil}{\lam{\var}{\lam{\var}{\n{0}}}}{\blam{\blam{\n{0}}}}}
-\end{prooftree}
-However, the side condition $\var \notin (\envnil \envcons \var)$ is blatantly false.
-In general, nested $\lambda$'s using the same variable name will run into this problem.
-
-Hence, we can at best hope that there is always some alpha-equivalent expression which is translatable.
-For this reason using a $\rhd$ is misleading and we shall instead use the notation \trahb{\hbctx}{\Gamma}{\bexp}{\hexp} to accurately depict in which direction the relation \emph{is} total (again, assuming closed expressions).
-
-Secondly, investigating this approach we found that proving soundness and completeness was doable but cumbersome: the invariant involves a complex relationship between $\benv$, $\Gamma$ and the free variables in scope.
-There is an easier way, though, adapted from \cite[p. 150]{Pfenning01}.
-The idea is to weaken the separation between semantics and translation and use the environment type $\benv$ instead of just a list of variables.
-For this to work we need a notion of hypothetical values (after all, we are not executing the program so no concrete values will arise) so we will have to use an extended from of $\benv$ that can also contain variables.
-This has little effect if all we want to do is translate programs, but it turns out that this approach affords a simple invariant for soundness and completeness.
-
-Formally, we define a new type of values and environments as follows:
+We want an effective procedure that given any \hlang expression $\hexp$ finds a \blang expression $\bexp$ such that $\hexp$ evaluates to $\n{\nat}$ if and only if $\bexp$ evaluates to $\n{\nat}$ --- in other words, a translation from \hlang to \blang that preserves semantics.
+There is little doubt what a given $\hexp$ should translate to since each variable should simply be replaced with its De Bruijn index.
+However, specifying this in general is not trivial and there are several possible solutions.
+We want to make the proof that semantics is preserved as easy as possible.
+To this end we adapt Pfenning's approach \cite[p. 150]{Pfenning01} and define a type of environments containing a number of variables followed by a number of \blang values:
 \begin{align*}
-  \bvalext &\defi \bval \alt \var \\
-  \benvext &\defi \envnil \alt \benvext \envcons \bvalext
+  \benvext &\defi \benv \alt \benvext \envcons \var
 \end{align*}
-We will consider $\benv$ to be a subtype of $\benvext$ in the natural way.
-The set of variables occuring in $\benvext$ will be denoted by $\vars(\benvext)$.
+The set of variables occuring in $\benvext$ at least once will be denoted by $\vars(\benvext)$.
 
-That being said, the translation judgement is as follows.
+The \blook{\benv}{\bvar}{\bval} judgement can be extended to work with $\benvext$:
 
+\begin{judgement}{\blookext{\benvext}{\bvar}{\bval}}
 
+\begin{prooftree}
+  \leftl{\rulename{Tv-Here} :}
+  \ax{\blookext{\benvext \envcons \var}{\z}{\var}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\blookext{\benvext}{\bvar}{\bval}}
+  \rightl{($\bval \neq \var$)}
+  \leftl{\rulename{Tv-There} :}
+  \uinf{\blookext{\benvext \envcons \var}{\suc{\bvar}}{\bval}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\blook{\benv}{\bvar}{\bval}}
+  \leftl{\rulename{Tv-Value} :}
+  \uinf{\blookext{\benv}{\bvar}{\bval}}
+\end{prooftree}
+
+\end{judgement}
+
+Given a $\bexp$ and an $\benvext$ we can consider extracting some $\hexp$, informally speaking by substituting $\benvext$ in $\bexp$ and finding corresponding \hlang values.
+% rephrase
+This can be expressed in judgemental form as follows.
 
 \begin{judgement}{\trahb{\hbctx}{\benvext}{\bexp}{\hexp}}
 
@@ -84,7 +45,7 @@ That being said, the translation judgement is as follows.
 \end{prooftree}
 
 \begin{prooftree}
-  \ninf{\blook{\benvext}{\bvar}{\bval}}
+  \ninf{\blookext{\benvext}{\bvar}{\bval}}
   \ninf{\corhb{\hbctx}{\bval}{\hexp}}
   \leftl{\rulename{T-Var} :}
   \binf{\trahb{\hbctx}{\benvext}{\bvar}{\hexp}}
@@ -92,7 +53,6 @@ That being said, the translation judgement is as follows.
 
 \begin{prooftree}
 	\ninf{\trahb{\hbctx}{\benvext \envcons \var}{\bexp_1}{\hexp_1}}
-  \rightl{($\var \notin \benvext$)}
   \leftl{\rulename{T-Lam} :}
   \uinf{\trahb{\hbctx}{\benvext}{\blam{\bexp_1}}{\lam{\var}{\hexp_1}}}
 \end{prooftree}
@@ -114,8 +74,6 @@ That being said, the translation judgement is as follows.
 
 It uses a correspondence relation between values and expressions in canonical form:
 
-
-
 \begin{judgement}{\corhb{\hbctx}{\bval}{\hexp}}
 
 \begin{prooftree}
@@ -136,4 +94,10 @@ It uses a correspondence relation between values and expressions in canonical fo
 
 \end{judgement}
 
-The fact that \rulename{C-Fun} uses a plain $\benv$ is intentional: we do not allow \hlang variables to occur inside \blang closures.
+Why is this an extraction and why is the $\rhd$ not a $\lhd$?
+The reason is that the judgement is only deterministic when viewed from right to left (considering a fixed $\benvext$).
+For example in the environment $\envnil \envcons \n{0}$ both $\blam{\z}$ and $\blam{\n{0}}$ extract to $\lam{\var}{\n{0}}$.
+In the general case we cannot view it as a function from $\hexp$ to $\bexp$.
+
+Even so we still want to translate!
+Thus, we proceed to prove that every closed $\hexp$ is the extraction of some $\bexp$.
