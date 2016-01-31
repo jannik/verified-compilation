@@ -1,22 +1,20 @@
 \subsubsection{Totality}
 
-As mentioned earlier, one would hope that for every $\hexp$ there exists an $\hexp'$ which is translatable and alpha-equivalent to $\hexp$ (written $\hexp \alphaeq \hexp'$).
-This is not readily apparent from the rules and therefore requires a proof.
+It is not readily apparent from the translation judgement that every $\hexp$ is the extraction of some $\bexp$ so we state it as a theorem.
 
 \begin{theorem}[Totality]
 \label{thm:totality}
-For any closed $\hexp$ there exists some $\hexp'$ with $\hexp \alphaeq \hexp'$ and some $\bexp$ such that \trahb{\hbctx}{\envnil}{\bexp}{\hexp'}.
+For any closed $\hexp$ there exists some $\bexp$ such that \trahb{\hbctx}{\envnil}{\bexp}{\hexp}.
 \end{theorem}
 
 This is proven by the following generalised statement.
 
 \begin{lemma}
-For any $\hexp$ and $\benvext$ where $\FV(\hexp) \subseteq \set{\var_1, \ldots, \var_n}$ and $\vars(\benvext) \subseteq \set{\var_1, \ldots, \var_n}$ together with indices $\bvar_1, \ldots, \bvar_n$ such that $\blook{\benvext}{\bvar_k}{\var_k}$ (by $\Tv_k$) for $k = 1 \ldots n$, there exists $\hexp'$ with $\hexp \alphaeq \hexp'$ such that \trahb{\hbctx}{\benvext}{\bexp}{\hexp'} (by some $\T$) for some $\bexp$.
+For any $\hexp$ and $\benvext$ where $\FV(\hexp) \subseteq \set{\var_1, \ldots, \var_n}$ together with indices $\bvar_1, \ldots, \bvar_n$ such that $\blookext{\benvext}{\bvar_k}{\var_k}$ (by $\Tv_k$) for $k = 1 \ldots n$, there exists $\bexp$ such that \trahb{\hbctx}{\benvext}{\bexp}{\hexp} (by some $\T$).
 \end{lemma}
 
 \begin{proof}
-By induction on the size of $\hexp$.
-In particular, if $\hexp_1$ is a subterm of $\hexp$ and $\hexp_1' \alphaeq \hexp_1$ we can apply the IH to $\hexp_1'$.
+By induction on $\hexp$.
 
 \paragraph{Case $\hexp = \n{\nat}$}
 Take $\T$ to be
@@ -26,57 +24,43 @@ Take $\T$ to be
 
 \paragraph{Case $\hexp = \var$}
 Since $\var$ is free we must have $\var = \var_k$ for some $k$.
-Take $\hexp' = \hexp$ and let $\T$ be
+Construct $\T$ as follows:
 \begin{prooftree}
-  \prem{\Tv_k}{\blook{\benvext}{\bvar_k}{\var_k}}
+  \prem{\Tv_k}{\blookext{\benvext}{\bvar_k}{\var_k}}
   \ax{\corhb{\hbctx}{\var_k}{\var_k}}
   \binf{\trahb{\hbctx}{\benvext}{\bvar_k}{\var_k}}
 \end{prooftree}
 
 \paragraph{Case $\hexp = \lam{\var}{\hexp_1}$}
-\paragraph{Subcase \textnormal{$\var = \var_k$ for some $k$}}
-Let $\othervar$ be a ``fresh'' variable, i.e. $\othervar \notin \FV(e_1) \cup \vars(\benvext)$, and let $\hexp_1' = \sub{\hexp_1}{\othervar}{\var}$.
-We want to invoke the IH with $\hexp_1'$ and $\benvext \envcons \othervar$, which requires suitable derivations.
-Let $\Tv_k'$ be
+We want to invoke the IH with $\hexp_1$ and $\benvext \envcons \var$, which requires suitable derivations.
+For any $k$ if $\var_k = \var$ let $\Tv_k'$ be
 \begin{prooftree}
-  \ax{\blook{\benvext \envcons \othervar}{\z}{\othervar}}
+  \ax{\blookext{\benvext \envcons \var}{\z}{\var}}
 \end{prooftree}
-and for any $j \neq k$ let $\Tv_j'$ be
+and if $\var_k \neq x$ we use \rulename{Tv-There} and let $\Tv_k'$ be
 \begin{prooftree}
-  \prem{\Tv_j}{\blook{\benvext}{\bvar_j}{\var_j}}
-  \uinf{\blook{\benvext \envcons \othervar}{\suc{\bvar_j}}{\var_j}}
+  \prem{\Tv_k}{\blookext{\benvext}{\bvar_k}{\var_k}}
+  \uinf{\blookext{\benvext \envcons \var}{\suc{\bvar_k}}{\var_k}}
 \end{prooftree}
-By IH on $\hexp_1'$ with $\benvext \envcons \othervar$ and $\Tv_1', \ldots, \Tv_n'$ we get \trahb{\hbctx}{\benvext \envcons \othervar}{\bexp_1}{\hexp_1''} (by some $\T_1$) for some $\bexp_1$ and $\hexp_1''$.
-Observing that $\lam{\var}{\hexp_1} \alphaeq \lam{\othervar}{\sub{\hexp_1}{\othervar}{\var}} \alphaeq \lam{\othervar}{\hexp_1''}$ we can take $\T$ to be
-
+Additionally, if $\var \neq \var_k$ for all $k$ let $\Tv_{n + 1}$ be
 \begin{prooftree}
-	\prem{\T_1}{\trahb{\hbctx}{\benvext \envcons \othervar}{\bexp_1}{\hexp_1''}}
-  \rightl{($\othervar \notin \benvext$)}
-  \uinf{\trahb{\hbctx}{\benvext}{\blam{\bexp_1}}{\lam{\othervar}{\hexp_1''}}}
+  \ax{\blookext{\benvext \envcons \var}{\z}{\var}}
 \end{prooftree}
-
-\paragraph{Subcase \textnormal{$\var \neq \var_k$ for all $k$}}
-For all $j$ let $\Tv_j'$ be
+This accounts for all free variables in $\hexp_1$ so by the IH we get \trahb{\hbctx}{\benvext \envcons \var}{\bexp_1}{\hexp_1} (by $\T_1$) for some $\bexp$.
+Thus we can construct
 \begin{prooftree}
-  \prem{\Tv_j}{\blook{\benvext}{\bvar_j}{\var_j}}
-  \uinf{\blook{\benvext \envcons \var}{\suc{\bvar_j}}{\var_j}}
-\end{prooftree}
-By IH on $\hexp_1$ with $\benvext \envcons \var$ and $\Tv_1', \ldots, \Tv_n'$ we get \trahb{\hbctx}{\benvext \envcons \var}{\bexp_1}{\hexp_1'} (by some $\T_1$) for some $\bexp_1$ and $\hexp_1'$.
-Since $\lam{\var}{\hexp_1} \alphaeq \lam{\var}{\hexp_1'}$ we can take $\T$ to be
-\begin{prooftree}
-	\prem{\T_1}{\trahb{\hbctx}{\benvext \envcons \var}{\bexp_1}{\hexp_1'}}
-  \rightl{($\var \notin \benvext$)}
-  \uinf{\trahb{\hbctx}{\benvext}{\blam{\bexp_1}}{\lam{\othervar}{\hexp_1'}}}
+	\prem{\T_1}{\trahb{\hbctx}{\benvext \envcons \var}{\bexp_1}{\hexp_1}}
+  \uinf{\trahb{\hbctx}{\benvext}{\blam{\bexp_1}}{\lam{\var}{\hexp_1}}}
 \end{prooftree}
 
 \paragraph{Case $\hexp = \hsuc{\hexp_1}$}
-By IH on $\hexp_1$ with $\benvext$ and $\Tv_1, \ldots, \Tv_n$ we get \trahb{\hbctx}{\benvext}{\bexp_1}{\hexp_1'} (by $\T_1$) and we construct $\T$ as follows:
+By IH on $\hexp_1$ with $\benvext$ and $\Tv_1, \ldots, \Tv_n$ we get \trahb{\hbctx}{\benvext}{\bexp_1}{\hexp_1} (by $\T_1$) and we construct $\T$ as follows:
 \begin{prooftree}
-	\prem{\T_1}{\trahb{\hbctx}{\benvext}{\bexp_1}{\hexp_1'}}
-  \uinf{\trahb{\hbctx}{\benvext}{\bsuc{\bexp_1}}{\hsuc{\hexp_1'}}}
+	\prem{\T_1}{\trahb{\hbctx}{\benvext}{\bexp_1}{\hexp_1}}
+  \uinf{\trahb{\hbctx}{\benvext}{\bsuc{\bexp_1}}{\hsuc{\hexp_1}}}
 \end{prooftree}
 
-\paragraph{Case $\hexp = \app{\hexp_1}{\hexp_1}$}
+\paragraph{Case $\hexp = \app{\hexp_1}{\hexp_2}$}
 Analogous to the previous case.
 
 \end{proof}
