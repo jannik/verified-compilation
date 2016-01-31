@@ -45,8 +45,8 @@ This can be expressed in judgemental form as follows.
 \end{prooftree}
 
 \begin{prooftree}
-  \ninf{\blookext{\benvext}{\bvar}{\bval}}
-  \ninf{\corhb{\hbctx}{\bval}{\hexp}}
+  \ninf{\blookext{\benvext}{\bvar}{\bvalext}}
+  \ninf{\corhb{\hbctx}{\bvalext}{\hexp}}
   \leftl{\rulename{T-Var} :}
   \binf{\trahb{\hbctx}{\benvext}{\bvar}{\hexp}}
 \end{prooftree}
@@ -72,9 +72,10 @@ This can be expressed in judgemental form as follows.
 
 \end{judgement}
 
-It uses a correspondence relation between values and expressions in canonical form:
+It uses a correspondence relation between values and expressions.
+Note that the rule for functions uses a regular $\benv$.
 
-\begin{judgement}{\corhb{\hbctx}{\bval}{\hexp}}
+\begin{judgement}{\corhb{\hbctx}{\bvalext}{\hexp}}
 
 \begin{prooftree}
   \leftl{\rulename{C-Var} :}
@@ -100,4 +101,4 @@ For example in the environment $\envnil \envcons \n{0}$ both $\blam{\z}$ and $\b
 In the general case we cannot view it as a function from $\hexp$ to $\bexp$.
 
 Even so we still want to translate!
-Thus, we proceed to prove that every closed $\hexp$ is the extraction of some $\bexp$.
+Thus, we proceed to argue that every closed $\hexp$ is the extraction of some $\bexp$.
