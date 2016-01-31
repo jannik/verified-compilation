@@ -10,6 +10,7 @@ For any closed $\hexp$ there exists some $\bexp$ such that \trahb{\hbctx}{\envni
 This is proven by the following generalised statement.
 
 \begin{lemma}
+\label{lem:totality}
 For any $\hexp$ and $\benvext$ where $\FV(\hexp) \subseteq \set{\var_1, \ldots, \var_n}$ together with indices $\bvar_1, \ldots, \bvar_n$ such that $\blookext{\benvext}{\bvar_k}{\var_k}$ (by $\Tv_k$) for $k = 1 \ldots n$, there exists $\bexp$ such that \trahb{\hbctx}{\benvext}{\bexp}{\hexp} (by some $\T$).
 \end{lemma}
 
@@ -66,8 +67,6 @@ Analogous to the previous case.
 \end{proof}
 
 \Twelf
-% mention concrete representations guy
-
 Theorem~\ref{thm:totality} can be stated in Twelf in a natural way as follows:
 \begin{verbatim}
 trans-hb-exists : {E} trans-hb store/nil B E -> type.
@@ -78,38 +77,29 @@ The requirement that the input \hlang expression is closed corresponds to the fa
 %worlds () (trans-hb-exists _ _).
 \end{verbatim}
 
-% of the lemma/generalisation
-The paper proof above cannot be represented in Twelf [...] as Pfenning also mentions in his lecture notes \cite{Pfenning01}.
-
-% because we cannot employ the usual technique for representing hypothetical judgments as functions.
-% The difficulty is that the order of the hypotheses is important for returning the correct variable,
-% but hypothetical judgments are generally invariant under reordering of hypotheses.
-
-% This is a point where the limitations of Twelf become somewhat painful.
-% There is no way to represent an invariant like ``every hypothetical expression corresponds to some value in $\benvext$'' like in our paper proof because there is no way to state relations % between hypotheticals in the ``ambient'' scope [is there a better term?] and parameters to a judgement.
-
-% simply writing total is no good
+The paper proof of Lemma~\ref{lem:totality} cannot be represented directly in Twelf, as Pfenning also mentions \cite{Pfenning01}.
+There is no way to represent an invariant like ``every variable corresponds to some value in $\benvext$'' like in our paper proof because there is no way to state relations between hypotheticals in the Twelf context and parameters of a judgement.
 
 However, another generalisation is possible:
 \begin{verbatim}
 trans-hb-exists' : {E} cover Alph E -> trans-hb Alph B E -> type.
 %mode trans-hb-exists' +E +C -DT.
 \end{verbatim}
-Our \texttt{trans-hb-exists'} lemma states informally that for every \hlang expression $\hexp$ whose free variables are covered by an environment $\benvext$, there exist a \blang expression $\bexp$ for which $\trahb{}{\benvext}{\bexp}{\hexp}$.
+Our \texttt{trans-hb-exists'} lemma states, informally, that for every \hlang expression $\hexp$ whose free variables are ``covered'' by an environment $\benvext$, there exists a \blang expression $\bexp$ for which $\trahb{}{\benvext}{\bexp}{\hexp}$.
 We must allow free variables in $\hexp$ in order to handle the case for $\lambda$-abstractions in the proof of this lemma.
 That is, we must check \texttt{trans-hb-exists'} in a world containing free variables:
 \begin{verbatim}
 %worlds (bl-trans-hb) (trans-hb-exists' _ _ _).
 \end{verbatim}
-The \texttt{bl-trans-hb} block captures exactly this property:
+The \texttt{bl-trans-hb} block captures exactly this property.
+We represent a free variable in Twelf by pairing a \hlang expression with a \blang value and a correspondence proof:
 \begin{verbatim}
 %block bl-trans-hb
    : block {v : value} {x : exp} {dc : cor v x}.
 \end{verbatim}
-[explain more? flow here?]
-Since a closed expression is covered by an empty environment, this lemma is clearly sufficiently strong to prove the theorem (\texttt{trans-hb-exists}).
+We can prove that a closed expression is covered by an empty environment, so this lemma is clearly sufficiently strong to prove the theorem (\texttt{trans-hb-exists}).
 
-Informally, an environment $\benvext$ covers (the free variables of) a \hlang expression $\hexp$ if each free variable corresponds to a \blang expression in $\benvext$.
+An environment $\benvext$ covers (the free variables of) a \hlang expression $\hexp$ if each free variable corresponds to a \blang value in $\benvext$.
 The definition is inductive on $\hexp$, but we need to keep track of --- and ignore --- bound variables as we pass through $\lambda$-abstractions:
 \begin{verbatim}
 cover : store -> exp -> type.
@@ -132,17 +122,17 @@ cover/app : cover Alph (app E1 E2)
 cover/suc : cover Alph (suc E1)
               <- cover Alph E1.
 \end{verbatim}
-where \texttt{bound} is an empty type family parameterised with a \hlang expression, indicating that a variable is bound:
+where \texttt{bound} is a constructorless type family parameterised with a \hlang expression, indicating that a variable is bound:
 \begin{verbatim}
 bound : exp -> type.
 \end{verbatim}
-Whenever the Twelf context is expanded with a bound variable (using the \texttt{cover/lam} rule), it is also expanded with an associated \texttt{bound} predicate to keep track of this information:
+Whenever the Twelf context is expanded with a bound variable (using the \texttt{cover/lam} rule), it is also expanded with an associated \texttt{bound} proof to keep track of this information:
 \begin{verbatim}
 %block bl-bound
    : block {x : exp} {xb : bound x}.
 \end{verbatim}
 
-The proof of \texttt{trans-hb-exists'} proceeds by case analysis on a covering, so there is a case for each rule:
+The proof of \texttt{trans-hb-exists'} proceeds by case analysis on the cover, so there is a case for each rule:
 \begin{verbatim}
 trans-hb-exists' : {E} cover Alph E -> trans-hb Alph B E -> type.
 %mode trans-hb-exists' +E +C -DT.
@@ -165,15 +155,14 @@ trans-hb-exists'/suc : trans-hb-exists' _ (cover/suc C1) (trans-hb/suc DT1)
 %worlds (bl-trans-hb) (trans-hb-exists' _ _ _).
 %total E (trans-hb-exists' E _ _).
 \end{verbatim}
-Most of the cases are straightforward, but \texttt{trans-hb-exists'/lam} naturally has to deal with a previously bound variable.
-In order to use the induction hypothesis, the variable then needs to be convereted from bound to free in the cover.
+Most of the cases are straightforward, but \texttt{trans-hb-exists'/lam} naturally has to deal with a bound variable.
+In order to use the induction hypothesis, the variable then needs to be converted from bound to free in the cover.
 The \texttt{bound-to-free} lemma does exactly this:
 \begin{verbatim}
 bound-to-free : ({x} bound x -> cover Alph (E x)) -> ({v} {x} cor v x -> cover (store/cons Alph v) (E x)) -> type.
 %mode bound-to-free +C -C'.
 \end{verbatim}
-Its proof looks particularly complicated, but this is mainly due the holes in the covers. [rephrase]
-[explain a few cases somehow?]
+Its proof looks particularly complicated, but this is mainly due to the abundance of hypotheticals.
 \begin{verbatim}
 bound-to-free/num : bound-to-free
                      ([x] [xb] cover/num : cover _ (num N))
@@ -207,7 +196,17 @@ bound-to-free/suc : bound-to-free
                      ([v] [x] [dc] cover/suc (C1' v x dc))
                      <- bound-to-free C1 C1'.
 \end{verbatim}
-The lemma needs to be checked in a world with both free and bound variables, corresponding to the two blocks:
+Some cases deserve additional comment.
+The actual conversion from bound to free happens in \texttt{bound-to-free/bound/this}.
+All existing free variables have their index in the cover shifted by 1 in \texttt{bound-to-free/free}.
+The \texttt{bound-to-free/lam} case looks intimidating, but all that happens is that the parameters of the cover \texttt{C1} are rearranged.
+That is, the order in which \texttt{C1} depends on \texttt{x} (the variable being freed) and \texttt{y} (the variable in the $\lambda$-abstraction) is changed.åp
+
+The technique of converting variables from bound to free one at a time is reminiscent of the Concrete Representation article by Simmons on the Twelf home page \cite{Simmons07}.
+It establishes a bijection between HOAS-based syntax and De Bruijn-based syntax.
+In particular, the \texttt{bind} operation similarly converts from one type of variable to another.
+
+The \texttt{bound-to-free} lemma needs to be checked in a world with both free and bound variables, corresponding to the two blocks:
 \begin{verbatim}
 %worlds (bl-trans-hb | bl-bound) (bound-to-free _ _).
 %total C (bound-to-free C _).
@@ -219,13 +218,13 @@ trans-hb-exists : {E} trans-hb store/nil B E -> type.
 %mode trans-hb-exists +E -DT.
 \end{verbatim}
 Before we can refer to the \texttt{trans-hb-exists'} lemma, we need to prove that closed expressions are indeed covered by an empty environment.
-This is stated by the following lemma, which must then be checked in a world without free variables:
+This is stated by the following lemma, which holds in a world without free variables:
 \begin{verbatim}
 empty-cover : {E} cover store/nil E -> type.
 %mode empty-cover +E -C.
 \end{verbatim}
-We omit its proof here --- it is fairly standard, by induction on the expression.
-[although it uses a common trick..]
+We omit its proof here --- it is fairly standard.
+
 And finally, we can prove the theorem:
 \begin{verbatim}
 trans-hb-exists/ : trans-hb-exists E DT
@@ -235,18 +234,3 @@ trans-hb-exists/ : trans-hb-exists E DT
 %worlds () (trans-hb-exists _ _).
 %total {} (trans-hb-exists _ _).
 \end{verbatim}
-
-%We do not explicitly consider a different type of environment where variables can occur --- instead, we consider worlds where hypothetical values exist.
-%This means that what is just a variable $\var$ during the translation on paper will manifest itself both as a hypothetical \hlang expression and as a hypothetical \blang value in Twelf.
-%Hence, we must make sure that they correspond giving rise to the following block:
-%\input{code-trans-hb-block}
-%This block of assumptions is introduced in the case for $\lambda$-abstractions.
-%\input{code-trans-hb-lam}
-%The correspondence hypothesis is the Twelf analogue of the \rulename{C-Var} rule.
-
-%Simply putting a \texttt{\%total} directive on the relation is rejected by Twelf (and rightly so) because it is not clear that searching through $\benvext$ for a value related to some variable will always be successful.
-
-%Indeed, the translation relation does not encode the crucial property that every free variable corresponds to some value occuring in $\benvext$.
-%For instance, the following query is well-typed and respects the world assumption of \texttt{trans-hb} but has no solutions:
-%\input{code-trans-hb-query}
-%Consequently, we need a separate existence theorem to show totality.

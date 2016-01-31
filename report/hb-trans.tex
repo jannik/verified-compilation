@@ -95,8 +95,15 @@ Note that the rule for functions uses a regular $\benv$.
 
 \end{judgement}
 
-Why is this an extraction and why is the $\rhd$ not a $\lhd$?
-The reason is that the judgement is only deterministic when viewed from right to left (considering a fixed $\benvext$).
+\Twelf
+We do not explicitly consider a different type of environment where variables can occur --- instead, we consider worlds where hypothetical values exist.
+What is just a variable $\var$ during the translation on paper will manifest itself both as a hypothetical \hlang expression and as a hypothetical \blang value in Twelf.
+Hence, we must make sure that they correspond giving rise to the following block:
+\input{code-trans-hb-block}
+The correspondence hypothesis is the Twelf analogue of the \rulename{C-Var} rule.
+
+Why is the judgement an extraction and why is the $\rhd$ not a $\lhd$?
+The reason is that it is only deterministic when viewed from right to left (considering a fixed $\benvext$).
 For example in the environment $\envnil \envcons \n{0}$ both $\blam{\z}$ and $\blam{\n{0}}$ extract to $\lam{\var}{\n{0}}$.
 In the general case we cannot view it as a function from $\hexp$ to $\bexp$.
 
