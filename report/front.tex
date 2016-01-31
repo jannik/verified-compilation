@@ -1,6 +1,6 @@
 \title{Verified Compilation in Twelf}
 \author{Jannik Gram\\Mikkel Kragh Mathiesen}
-\date{January 31, 2016}
+\date{February 1, 2016}
 
 \pagenumbering{gobble}
 \thispagestyle{empty}
@@ -8,7 +8,15 @@
 \maketitle
 
 \begin{abstract}
-[abstract abstract abstract]
+Compilers are difficult to implement correctly; despite years of effort, even battle-tested compilers such as GCC are still susceptible to miscompilation.
+Formal verification offers the possibility of machine-checked proofs of correctness.
+With a verified compiler, it is merely necessary to trust the specification in order to have confidence in the implementation.
+
+This report presents a compiler from a simple higher-order functional language to an imperative abstract stack machine language with an external program store.
+It has been implemented in the Twelf proof assistant along with a proof of correctness.
+In particular, the implementation contains a totality proof of a translation converting higher-order abstract syntax to a concrete representation.
+
+[what else?]
 \end{abstract}
 
 \clearpage
