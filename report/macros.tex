@@ -115,11 +115,10 @@ $\blacksquare$
 \ensurecommand{\benvext}{\hat{\benv}}
 \ensurecommand{\hbctx}{\Theta}%
 \ensurecommand{\cor}[2]{\ensuremath{#1 \rightsquigarrow #2}}
-\ensurecommand{\trahbfaux}[3]{\ensuremath{#1 \vdash #2 \mathrel{\rhd} #3}}
 \ensurecommand{\blookext}[3]{\ensuremath{#1 \vdash #2 \Uparrow #3}}
 \ensurecommand{\trahb}[4]{\ensuremath{#2 \vdash #4 \mathrel{\lhd} #3}} % a bit of a hack
 \ensurecommand{\corhb}[3]{\ensuremath{#2 \rightsquigarrow #3}}
-\ensurecommand{\alphaeq}{=_\alpha}
+\ensurecommand{\alphaeq}{=_\alpha}%
 \ensurecommand{\vars}{\mathbf{vars}}
 \ensurecommand{\FV}{\mathrm{FV}}
 
@@ -206,7 +205,10 @@ $\blacksquare$
 \ensurecommand{\corstack}[4]{\ensuremath{#1 \vdash #2 \rightsquigarrow \tup{#3 \tupsep #4}}}
 
 % conclusion
-\ensurecommand{\trahm}[3]{\ensuremath{#1 \mathrel{\rhd} \tup{#2 \tupsep #3}}}
+\ensurecommand{\trahbqual}[2]{\ensuremath{\envnil \vdash #2 \mathrel{\lhd_{\mathrm{FB}}} #1}}
+\ensurecommand{\trabsqual}[2]{\ensuremath{#1 \circ \send \mathrel{\rhd_{\mathrm{BS}}} #2}}
+\ensurecommand{\trasmqual}[3]{\ensuremath{#1 \mathrel{\rhd_{\mathrm{SM}}} \tup{#2 \tupsep #3}}}
+\ensurecommand{\trahmqual}[3]{\ensuremath{#1 \mathrel{\rhd_{\mathrm{FM}}} \tup{#2 \tupsep #3}}}
 \ensurecommand{\reify}{\mathbf{reify}}
 \ensurecommand{\repr}{\mathbf{repr}}
 \ensurecommand{\+}{\mathbin{\texttt{+}}}
