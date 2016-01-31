@@ -5,3 +5,7 @@ When doing final batch of search-and-replace in code:
 In both code and report, remove argument from call.
 
 In both code and report, remove concat-possibility from judgement.
+
+Be consistent about empty lines before and after begin{judgement}/end{judgement}.
+
+Be consistent about references to corresponding code files.

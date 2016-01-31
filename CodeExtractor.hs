@@ -61,7 +61,7 @@ twelfPath = "/home/mkm/twelfbin/twelf/bin/twelf-server"
 twelfPath' = "C:\\Program Files\\Twelf\\bin\\twelf-server.bat"
 
 createExample :: IO ()
-createExample = runTwelf twelfPath False $ do
+createExample = runTwelf twelfPath' False $ do
     loadSources
     [("E", hexp), ("B", bexp)] <- query (TwRaw "trans-hb-exists test5 (_ : trans-hb store/nil B E)")
     [("P", sprog)] <- query (TwName "trans-bs" `TwApp` bexp `TwApp` TwName "P")

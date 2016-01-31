@@ -12,5 +12,6 @@
 *.toc
 *.out
 *.tps
+*.sty
 .tup/
 /report/code-*.tex
