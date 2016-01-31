@@ -1,229 +1,115 @@
-bhyp : value -> type. %name bhyp H.
-%mode bhyp +V.
+bound : exp -> type.
 
+%block bl-bound
+   : block {x : exp} {xb : bound x}.
 
 
-<= : store -> store -> type. %infix none 5 <=.
 
-<=/refl : Alph <= Alph.
-<=/trans : Alph1 <= Alph3
-            <- Alph1 <= Alph2
-            <- Alph2 <= Alph3.
+cover : store -> exp -> type.
 
-<=/cons : store/cons Alph1 V <= store/cons Alph2 V
-           <- Alph1 <= Alph2.
+cover/num : cover Alph (num N).
 
-<=/exchange : store/cons (store/cons Alph V1) V2 <= store/cons (store/cons Alph V2) V1.
+cover/free : cover Alph E
+               <- trans-hb-var Alph I E.
 
-<=/weaken : Alph <= store/cons Alph V.
+cover/bound : cover Alph E
+                <- bound E.
 
-<=/combine : store/cons (store/cons Alph V) V <= store/cons Alph V.
+cover/lam : cover Alph (lam E1)
+              <- {x} bound x -> cover Alph (E1 x).
 
+cover/app : cover Alph (app E1 E2)
+              <- cover Alph E1
+              <- cover Alph E2.
 
+cover/suc : cover Alph (suc E1)
+              <- cover Alph E1.
 
-<=-nil : {Alph} store/nil <= Alph -> type.
-%mode <=-nil +Alph -L.
 
-<=-nil/nil : <=-nil store/nil <=/refl.
 
-<=-nil/cons : <=-nil (store/cons Alph V) (<=/trans <=/weaken L)
-               <- <=-nil Alph L.
+empty-cover : {E} cover store/nil E -> type.
+%mode empty-cover +E -C.
 
-%worlds (bl-trans-hb) (<=-nil _ _).
-%total Alph (<=-nil Alph _).
+empty-cover/num : empty-cover (num N) cover/num.
 
+empty-cover/lam : empty-cover (lam E1) (cover/lam C1)
+                     <- {x} {xb} empty-cover x (cover/bound xb) -> empty-cover (E1 x) (C1 x xb).
 
+empty-cover/app : empty-cover (app E1 E2) (cover/app C2 C1)
+                     <- empty-cover E1 C1
+                     <- empty-cover E2 C2.
 
+empty-cover/suc : empty-cover (suc E1) (cover/suc C1)
+                     <- empty-cover E1 C1.
 
-trans-hb-var-<= : trans-hb-var Alph I E -> Alph <= Alph' -> trans-hb-var Alph' I' E -> type.
-%mode trans-hb-var-<= +DTV +L -DTV'.
+%block bl-empty-cover
+   : block {x : exp} {xb : bound x} {pf : empty-cover x (cover/bound xb)}.
 
-trans-hb-var-<=/refl : trans-hb-var-<= DTV <=/refl DTV.
+%worlds (bl-empty-cover) (empty-cover _ _).
+%total E (empty-cover E _).
 
-trans-hb-var-<=/trans : trans-hb-var-<= DTV (<=/trans L2 L1) DTV'
-                         <- trans-hb-var-<= DTV L1 DTV''
-                         <- trans-hb-var-<= DTV'' L2 DTV'.
 
-trans-hb-var-<=/cons/here : trans-hb-var-<= (trans-hb-var/here DC) (<=/cons L) (trans-hb-var/here DC).
 
-trans-hb-var-<=/cons/there : trans-hb-var-<= (trans-hb-var/there DTV) (<=/cons L) (trans-hb-var/there DTV')
-                              <- trans-hb-var-<= DTV L DTV'.
+bound-to-free : ({x} bound x -> cover Alph (E x)) -> ({v} {x} cor v x -> cover (store/cons Alph v) (E x)) -> type.
+%mode bound-to-free +C -C'.
 
-trans-hb-var-<=/exchange/here : trans-hb-var-<= (trans-hb-var/here DC) <=/exchange (trans-hb-var/there (trans-hb-var/here DC)).
+bound-to-free/num : bound-to-free
+                     ([x] [xb] cover/num : cover _ (num N))
+                     ([v] [x] [dc] cover/num).
 
-trans-hb-var-<=/exchange/there/here : trans-hb-var-<= (trans-hb-var/there (trans-hb-var/here DC)) <=/exchange (trans-hb-var/here DC).
+bound-to-free/bound/this : bound-to-free
+                            ([x] [xb] cover/bound xb)
+                            ([v] [x] [dc] cover/free (trans-hb-var/here dc)).
 
-trans-hb-var-<=/exchange/there/there : trans-hb-var-<= (trans-hb-var/there (trans-hb-var/there DTV)) <=/exchange (trans-hb-var/there (trans-hb-var/there DTV)).
+bound-to-free/bound/other : bound-to-free
+                             ([x] [xb] cover/bound YB)
+                             ([v] [x] [dc] cover/bound YB).
 
-trans-hb-var-<=/weaken : trans-hb-var-<= DTV <=/weaken (trans-hb-var/there DTV).
+bound-to-free/free : bound-to-free
+                      ([x] [xb] cover/free (DTV x : trans-hb-var _ I _))
+                      ([v] [x] [dc] cover/free (trans-hb-var/there (DTV x))).
 
-trans-hb-var-<=/combine/here : trans-hb-var-<= (trans-hb-var/here DC) <=/combine (trans-hb-var/here DC).
+bound-to-free/lam : bound-to-free
+                     ([x] [xb] cover/lam ([y] [yb] C1 x xb y yb))
+                     ([v] [x] [dc] cover/lam ([y] [yb] C2 v x dc y yb))
+                     <- {y} {yb} bound-to-free ([x] [xb] C1 x xb y yb) ([v] [x] [dc] C2 v x dc y yb).
 
-trans-hb-var-<=/combine/there/here : trans-hb-var-<= (trans-hb-var/there (trans-hb-var/here DC)) <=/combine (trans-hb-var/here DC).
+bound-to-free/app : bound-to-free
+                     ([x] [xb] cover/app (C2 x xb) (C1 x xb))
+                     ([v] [x] [dc] cover/app (C2' v x dc) (C1' v x dc))
+                     <- bound-to-free C1 C1'
+                     <- bound-to-free C2 C2'.
 
-trans-hb-var-<=/combine/there/there : trans-hb-var-<= (trans-hb-var/there (trans-hb-var/there DTV)) <=/combine (trans-hb-var/there DTV).
+bound-to-free/suc : bound-to-free
+                     ([x] [xb] cover/suc (C1 x xb))
+                     ([v] [x] [dc] cover/suc (C1' v x dc))
+                     <- bound-to-free C1 C1'.
 
-%worlds (bl-trans-hb) (trans-hb-var-<= _ _ _).
-%total L (trans-hb-var-<= _ L _).
+%worlds (bl-trans-hb | bl-bound) (bound-to-free _ _).
+%total C (bound-to-free C _).
 
 
 
-trans-hb-<= : trans-hb Alph B E -> Alph <= Alph' -> trans-hb Alph' B' E -> type.
-%mode trans-hb-<= +DT +L -DT'.
+trans-hb-exists' : {E} cover Alph E -> trans-hb Alph B E -> type.
+%mode trans-hb-exists' +E +C -DT.
 
-trans-hb-<=/num : trans-hb-<= trans-hb/num L trans-hb/num.
+trans-hb-exists'/num : trans-hb-exists' _ cover/num trans-hb/num.
 
-trans-hb-<=/var : trans-hb-<= (trans-hb/var DTV) L (trans-hb/var DTV')
-                   <- trans-hb-var-<= DTV L DTV'.
+trans-hb-exists'/free : trans-hb-exists' _ (cover/free DTV) (trans-hb/var DTV).
 
-trans-hb-<=/lam : trans-hb-<= (trans-hb/lam DT) L (trans-hb/lam DT')
-                   <- ({v} {x} {dc : cor v x}
-                         trans-hb-<= (DT v x dc) (<=/cons L) (DT' v x dc)).
+trans-hb-exists'/lam : trans-hb-exists' _ (cover/lam [x] [xb] C1 x xb) (trans-hb/lam DT1)
+                        <- bound-to-free C1 C1'
+                        <- {v} {x} {dc : cor v x} trans-hb-exists' _ (C1' v x dc) (DT1 v x dc).
 
-trans-hb-<=/app : trans-hb-<= (trans-hb/app DT2 DT1) L (trans-hb/app DT2' DT1')
-                   <- trans-hb-<= DT1 L DT1'
-                   <- trans-hb-<= DT2 L DT2'.
+trans-hb-exists'/app : trans-hb-exists' _ (cover/app C2 C1) (trans-hb/app DT2 DT1)
+                        <- trans-hb-exists' _ C1 DT1
+                        <- trans-hb-exists' _ C2 DT2.
 
-trans-hb-<=/suc : trans-hb-<= (trans-hb/suc DT) L (trans-hb/suc DT')
-                   <- trans-hb-<= DT L DT'.
+trans-hb-exists'/suc : trans-hb-exists' _ (cover/suc C1) (trans-hb/suc DT1)
+                        <- trans-hb-exists' _ C1 DT1.
 
-%worlds (bl-trans-hb) (trans-hb-<= _ _ _).
-%total DT (trans-hb-<= DT _ _).
-
-
-
-store-append : store -> store -> store -> type.
-%mode store-append +Alph1 +Alph2 -Alph.
-
-store-append/nil : store-append Alph1 store/nil Alph1.
-
-store-append/cons : store-append Alph1 (store/cons Alph2 V) (store/cons Alph V)
-                     <- store-append Alph1 Alph2 Alph.
-
-%worlds () (store-append _ _ _).
-%total Alph2 (store-append _ Alph2 _).
-
-
-
-<=-append1 : store-append Alph1 Alph2 Alph -> Alph1 <= Alph -> type.
-%mode <=-append1 +DSA -L.
-
-<=-append1/nil : <=-append1 store-append/nil <=/refl.
-
-<=-append1/cons : <=-append1 (store-append/cons DSA) (<=/trans <=/weaken L)
-                   <- <=-append1 DSA L.
-
-%worlds (bl-trans-hb) (<=-append1 _ _).
-%total DSA (<=-append1 DSA _).
-
-
-
-<=-append2 : store-append Alph1 Alph2 Alph -> Alph2 <= Alph -> type.
-%mode <=-append2 +DSA -L.
-
-<=-append2/nil : <=-append2 store-append/nil L
-                  <- <=-nil _ L.
-
-<=-append2/cons : <=-append2 (store-append/cons DSA) (<=/cons L)
-                   <- <=-append2 DSA L.
-
-%worlds (bl-trans-hb) (<=-append2 _ _).
-%total DSA (<=-append2 DSA _).
-
-
-
-good-store : store -> type.
-
-good-store/nil : good-store store/nil.
-
-good-store/cons : good-store (store/cons Alph V)
-                   <- bhyp V
-                   <- good-store Alph.
-
-
-
-trans-hb-exists' : {E} good-store Alph -> trans-hb Alph B E -> type.
-%mode trans-hb-exists' +E -G -DT.
-
-%block bl-trans-hb-exists : block {v : value} {x : exp} {dc : cor v x} {h : bhyp v} {pf : trans-hb-exists' x (good-store/cons good-store/nil h) (trans-hb/var (trans-hb-var/here dc))}.
-
-
-
-good-store-append : good-store Alph1 -> good-store Alph2 -> store-append Alph1 Alph2 Alph -> good-store Alph -> type.
-%mode good-store-append +G1 +G2 -DSA -G.
-
-good-store-append/nil : good-store-append G1 good-store/nil store-append/nil G1.
-
-good-store-append/cons : good-store-append G1 (good-store/cons G2 H) (store-append/cons DSA) (good-store/cons G H)
-                          <- good-store-append G1 G2 DSA G.
-
-%worlds (bl-trans-hb-exists) (good-store-append _ _ _ _).
-%total G2 (good-store-append _ G2 _ _).
-
-
-
-move-to-head : ({v} bhyp v -> good-store (Alph v))
-                -> good-store Alph'
-                -> ({v} Alph v <= store/cons Alph' v) -> type.
-%mode move-to-head +G -G' -L.
-
-move-to-head/nil : move-to-head ([v] [h] good-store/nil)
-                    good-store/nil ([v] <=/weaken).
-
-move-to-head/cons/same1 : move-to-head ([v] [h] good-store/cons (G v h) (H v))
-                           G' ([v] <=/trans <=/combine (<=/cons (L v)))
-                           <- move-to-head G G' L.
-
-move-to-head/cons/same2 : move-to-head ([v] [h] good-store/cons (G v h) h)
-                           G' ([v] <=/trans <=/combine (<=/cons (L v)))
-                           <- move-to-head G G' L.
-
-move-to-head/cons/diff : move-to-head ([v] [h] good-store/cons (G v h) H)
-                          (good-store/cons G' H) ([v] <=/trans <=/exchange (<=/cons (L v)))
-                          <- move-to-head G G' L.
-
-%worlds (bl-trans-hb-exists) (move-to-head _ _ _).
-%total G (move-to-head G _ _).
-
-
-
-trans-hb-exists'/num : trans-hb-exists' (num N) good-store/nil trans-hb/num.
-
-trans-hb-exists'/app : trans-hb-exists' (app E1 E2)
-                                        G1+G2 (trans-hb/app DT2' DT1')
-                        <- trans-hb-exists' E1 G1 DT1
-                        <- trans-hb-exists' E2 G2 DT2
-                        <- good-store-append G1 G2 DSA G1+G2
-                        <- <=-append1 DSA L1
-                        <- trans-hb-<= DT1 L1 DT1'
-                        <- <=-append2 DSA L2
-                        <- trans-hb-<= DT2 L2 DT2'.
-
-trans-hb-exists'/lam : trans-hb-exists' (lam E1) G1' (trans-hb/lam DT1')
-                        <- ({v} {x} {dc : cor v x} {h : bhyp v}
-                              trans-hb-exists' x (good-store/cons good-store/nil h)
-                                               (trans-hb/var (trans-hb-var/here dc))
-                              -> trans-hb-exists' (E1 x)
-                                (G1 v h) (DT1 v x dc : trans-hb _ B _))
-                        <- move-to-head G1 G1' L
-                        <- ({v} {x} {dc : cor v x}
-                              trans-hb-<= (DT1 v x dc) (L v) (DT1' v x dc)).
-
-trans-hb-exists'/suc : trans-hb-exists' (suc E1) G1 (trans-hb/suc DT1)
-                        <- trans-hb-exists' E1 G1 DT1.
-
-%worlds (bl-trans-hb-exists) (trans-hb-exists' _ _ _).
-%total M (trans-hb-exists' M _ _).
-
-
-
-coerce-trans-hb : good-store Alph -> trans-hb Alph B E -> trans-hb store/nil B E -> type.
-%mode coerce-trans-hb +G +DT -DT'.
-
-coerce-trans-hb/ : coerce-trans-hb good-store/nil DT DT.
-
-%worlds () (coerce-trans-hb _ _ _).
-%total {} (coerce-trans-hb _ _ _).
+%worlds (bl-trans-hb) (trans-hb-exists' _ _ _).
+%total E (trans-hb-exists' E _ _).
 
 
 
@@ -231,8 +117,8 @@ trans-hb-exists : {E} trans-hb store/nil B E -> type.
 %mode trans-hb-exists +E -DT.
 
 trans-hb-exists/ : trans-hb-exists E DT
-                    <- trans-hb-exists' E G DT'
-                    <- coerce-trans-hb G DT' DT.
+                    <- empty-cover E C
+                    <- trans-hb-exists' E C DT.
 
 %worlds () (trans-hb-exists _ _).
 %total {} (trans-hb-exists _ _).
