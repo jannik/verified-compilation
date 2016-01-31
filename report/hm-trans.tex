@@ -1,30 +1,28 @@
 \section{Full Translation}
 
-We are now ready to define the full translation from \hlang to \mlang.
+In this section, to avoid confusion owing to similarity in notation, we mark the various translation judgements with the initials of the relevant language names, e.g. $\rhd_{\mathrm{BS}}$ for the \blang-\slang translation.
+We are now ready to define the full translation from \hlang to \mlang:
 
-% insert subscripts for the trans judgements here to make the distinction clear
-
-\begin{judgement}{\trahm{\hexp}{\mprog}{\addr}}
-
+\begin{judgement}{\trahmqual{\hexp}{\mprog}{\addr}}
 \begin{prooftree}
-  \ninf{\trahb{\hbctx}{\envnil}{\bexp}{\hexp'}}
-  \ninf{\trabs{\bexp}{\send}{\sprog}}
-  \ninf{\trasmfinal{\sprog}{\mprog}{\addr}}
-  \rightl{$(\hexp \alphaeq \hexp')$}
-  \tinf{\trahm{\hexp}{\mprog}{\addr}}
+  \ninf{\trahbqual{\bexp}{\hexp}}
+  \ninf{\trabsqual{\bexp}{\sprog}}
+  \ninf{\trasmqual{\sprog}{\mprog}{\addr}}
+  \tinf{\trahmqual{\hexp}{\mprog}{\addr}}
 \end{prooftree}
-
 \end{judgement}
+Like for the \slang-\mlang translation, $\addr$ indicates the starting address of the program $\mprog$.
 
-By the totality of each translation the full translation is also total, and we can state the full equivalence theorem:
+By the (left-to-right) totality of each translation, the full translation is also total.
+And we can state the full preservation theorem:
 
-\begin{theorem}[Equivalence \textnormal{\hlang}-\textnormal{\mlang}]
-\label{thm:equivalence-hm} If $\trahm{\hexp}{\mprog}{\addr}$, then $\hev{\hexp}{\n{\nat}}$ if and only if $\meval{\mprog}{\addr}{\n{\nat}}$.
+\begin{theorem}[Preservation \textnormal{\hlang-\mlang}$\!$] % why is $\!$ suddenly needed here?
+\label{thm:preservation-hm} If $\trahmqual{\hexp}{\mprog}{\addr}$, then $\hev{\hexp}{\n{\nat}}$ if and only if $\meval{\mprog}{\addr}{\n{\nat}}$.
 \end{theorem}
 \codefile{soundness-main.elf}{completeness-main.elf}
 
 \begin{proof}
-Immediate from theorems \ref{thm:equivalence-hb}, \ref{thm:equivalence-bs} and \ref{thm:equivalence-sm}.
+Immediate from theorems \ref{thm:preservation-hb}, \ref{thm:preservation-bs} and \ref{thm:preservation-sm}.
 \end{proof}
 
 In order to see the compilation process in action, we finally present a small example.
@@ -36,19 +34,17 @@ Let us add two numbers using Church numerals.
 We use $\repr(\nat)$ to denote the Church encoding of $\nat$ and $\reify(\hexp)$ to extract the numeral represented by $\hexp$ (with unpredictable behaviour if $\hexp$ does not represent any number).
 We recall the following Church numeral constructions:
 \begin{align*}
-  \repr(1) &= \lam{s}{\lam{z}{\app{s}{z}}} \\
   \repr(2) &= \lam{s}{\lam{z}{\app{s}{(\app{s}{z})}}} \\
   \repr(3) &= \lam{s}{\lam{z}{\app{s}{(\app{s}{(\app{s}{z})})}}} \\
   \hexp_1 \+ \hexp_2 &= \lam{s}{\lam{z}{\app{\app{\hexp_1}{s}}{(\app{\app{\hexp_2}{s}}{z})}}} \\
   \reify(\hexp) &= \app{\app{\hexp}{(\lam{x}{\hsuc{x}})}}{\n{0}}
 \end{align*}
 Now let
-% \app{\app{(\lam{s}{\lam{z}{\app{\app{(\lam{s}{\lam{z}{\app{s}{(\app{s}{z})}}})}{s}}{(\app{\app{(\lam{s}{\lam{z}{\app{s}{(\app{s}{z})}}})}{s}}{z})}}})}{(\lam{x}{\hsuc{x}})}}{\n{0}}
 \begin{align*}
-  \hexp &= \reify(\repr(1) \+ \repr(2)) \\
+  \hexp &= \reify(\repr(2) \+ \repr(3)) \\
   &= \input{code-example-hoas}
 \end{align*}
-Running our \hlang-to-\blang translation, we get
+Running our \hlang-\blang translation, we get
 \[
 \bexp = \input{code-example-bruijn}
 \]
@@ -56,7 +52,7 @@ Translating further to \slang, we get
 \[
 \sprog = \input{code-example-stack}
 \]
-And after the final translation, we get the $\mlang$ program
+And after the final translation, we get the \mlang program
 \begin{align*}
 \input{code-example-machine}
 \end{align*}
@@ -65,3 +61,4 @@ And indeed, evaluating this program yields $\n{3}$ as expected.
 
 \Twelf
 This example can be found in \texttt{example.elf}.
+% should this be a Code thing?

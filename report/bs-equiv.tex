@@ -1,4 +1,4 @@
-\subsection{Equivalence}
+\subsection{Preservation}
 
 We want to show that if \trabs{\bexp}{\send}{\sprog}, then \bev{\envnil}{\bexp}{\n{\nat}} if and only if \sev{\sprog}{\n{\nat}}.
 To prove this we need two correspondence judgements:
@@ -124,8 +124,8 @@ Finally, fixing $\sctrl$ and $\svals$, we construct the required derivation $\P$
 
 And finally we can establish the main theorem:
 
-\begin{theorem}[Equivalence \textnormal{\blang}-\textnormal{\slang}]
-\label{thm:equivalence-bs}
+\begin{theorem}[Preservation \textnormal{\blang-\slang}]
+\label{thm:preservation-bs}
 If \trabs{\bexp}{\send}{\sprog}, then \bev{\envnil}{\bexp}{\n{\nat}} if and only if \sev{\sprog}{\n{\nat}}.
 \end{theorem}
 

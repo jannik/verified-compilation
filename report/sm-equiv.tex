@@ -1,5 +1,5 @@
 
-\subsection{Equivalence}
+\subsection{Preservation}
 
 We want to show that if $\trasmfinal{\sprog}{\mprog}{\addr}$, then $\sev{\sprog}{\n{\nat}}$ if and only if $\meval{\mprog}{\addr}{\n{\nat}}$.
 This poses the problem of how to handle translations of subprograms when the evaluation is happening in the context of the full program.
@@ -107,6 +107,6 @@ If $\ssteps{\sctrl}{\svals}{\stknil}{[\sval]}$, $\corstack{\mprog}{\sctrl}{\addr
 
 Finally, we can establish the main theorem:
 
-\begin{theorem}[Equivalence \textnormal{\slang}-\textnormal{\mlang}]
-\label{thm:equivalence-sm} If $\trasmfinal{\sprog}{\mprog}{\addr}$, then $\sev{\sprog}{\n{\nat}}$ if and only if $\meval{\mprog}{\addr}{\n{\nat}}$.
+\begin{theorem}[Preservation \textnormal{\slang-\mlang}]
+\label{thm:preservation-sm} If $\trasmfinal{\sprog}{\mprog}{\addr}$, then $\sev{\sprog}{\n{\nat}}$ if and only if $\meval{\mprog}{\addr}{\n{\nat}}$.
 \end{theorem}
