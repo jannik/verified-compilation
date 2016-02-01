@@ -76,22 +76,17 @@ mstep/ret : mstep mret (mframes/cons Delta Gam' L-Ret) L Phi
 
 
 
-msteps : mprog -> mframes -> label -> rstack -> mframes -> label -> rstack -> type. %name msteps DMM.
-%mode msteps +Q +Delta +L +Phi -Delta' -L' -Phi'.
+msteps : mprog -> mframes -> label -> rstack -> mvalue -> type. %name msteps DMM.
+%mode msteps +Q +Delta +L +Phi -R.
 
-msteps/zero : msteps Q Delta L Phi Delta L Phi.
+msteps/zero : msteps Q Delta L (rstack/single R) R
+               <- label-lookup Q L mhalt.
 
-msteps/more : msteps Q Delta L Phi Delta'' L'' Phi''
+msteps/more : msteps Q Delta L Phi R
                <- label-lookup Q L M
                <- mstep M Delta L Phi Delta' L' Phi'
-               <- msteps Q Delta' L' Phi' Delta'' L'' Phi''.
+               <- msteps Q Delta' L' Phi' R.
 
 
 
-meval : mprog -> label -> mvalue -> type. %name meval DQ.
-%mode meval +Q +L -R.
-
-meval/ : meval Q L R
-          <- msteps Q (mframes/final z) L rstack/nil
-                      mframes/nil L' (rstack/single R)
-          <- label-lookup Q L' mhalt.
+%abbrev meval : mprog -> label -> mvalue -> type = [q] [l] [r] msteps q (mframes/final z) l rstack/nil r.

@@ -11,9 +11,9 @@ soundness-sm-var/there : soundness-sm-var (mvar-lookup/there DVL) (cor-store/con
 
 
 
-coerce-msteps : msteps Q (mframes/cons (mframes/cons Delta Gam1 L1) Gam2 L2) L3 Phi mframes/nil L4 (rstack/single R)
+coerce-msteps : msteps Q (mframes/cons (mframes/cons Delta Gam1 L1) Gam2 L2) L3 Phi R
                  -> add 1 L2' L2
-                 -> msteps Q (mframes/cons (mframes/cons Delta Gam1 L1) Gam2 (s L2')) L3 Phi mframes/nil L4 (rstack/single R) -> type.
+                 -> msteps Q (mframes/cons (mframes/cons Delta Gam1 L1) Gam2 (s L2')) L3 Phi R -> type.
 %mode coerce-msteps +DMM +DA -DMM'.
 
 - : coerce-msteps DMM (add/s add/z) DMM.
@@ -121,40 +121,38 @@ good-stack/ : good-stack (cor-stack/cons (DLE : leq (M ; Q') Q S) DT DCE DCS)
 soundness-sm'-aux
    : cor-value-stack Q Psi Phi
       -> {DCS : cor-stack Q Gamma L Delta} good-stack DCS
-      -> msteps Q Delta L Phi mframes/nil L' (rstack/single R)
-      -> label-lookup Q L' mhalt
+      -> msteps Q Delta L Phi R
       -> ssteps Gamma Psi frames/nil (wstack/single W)
       -> cor-value Q W R
       -> type.
-%mode soundness-sm'-aux +DCV +DCS +DGS +DMM +DLL -DP -DC.
+%mode soundness-sm'-aux +DCV +DCS +DGS +DMM -DP -DC.
 
 soundness-sm'
    : cor-value-stack Q Psi Phi
       -> cor-stack Q Gamma L Delta
-      -> msteps Q Delta L Phi mframes/nil L' (rstack/single R)
-      -> label-lookup Q L' mhalt
+      -> msteps Q Delta L Phi R
       -> ssteps Gamma Psi frames/nil (wstack/single W)
       -> cor-value Q W R
       -> type.
-%mode soundness-sm' +DCV +DCS +DMM +DLL -DP -DC.
+%mode soundness-sm' +DCV +DCS +DMM -DP -DC.
 
 
 
 % soundness-sm'-aux
 
 soundness-sm'-aux/num
-   : soundness-sm'-aux DCV (cor-stack/cons Pushnum;Q1^1<Q (trans-sm'/num H DT) DCE DCS) (good-stack/ DLL-Pushnum' MQ H') (msteps/more DMM mstep/pushnum DLL-Pushnum) DLL-Halt (ssteps/more DP sstep/num) DC
+   : soundness-sm'-aux DCV (cor-stack/cons Pushnum;Q1^1<Q (trans-sm'/num H DT) DCE DCS) (good-stack/ DLL-Pushnum' MQ H') (msteps/more DMM mstep/pushnum DLL-Pushnum) (ssteps/more DP sstep/num) DC
       <- leq-cons H Pushnum;Q1^1<Q Q1<Q
-      <- soundness-sm' (cor-value-stack/cons cor-value/num DCV) (cor-stack/cons Q1<Q DT DCE DCS) DMM DLL-Halt DP DC.
+      <- soundness-sm' (cor-value-stack/cons cor-value/num DCV) (cor-stack/cons Q1<Q DT DCE DCS) DMM DP DC.
 
 soundness-sm'-aux/var
-   : soundness-sm'-aux DCV (cor-stack/cons Pushvar;Q1^1<Q (trans-sm'/var H DT) DCE DCS) (good-stack/ DLL-Pushvar' MQ H') (msteps/more DMM (mstep/pushvar DVL) DLL-Pushvar) DLL-Halt (ssteps/more DP (sstep/var DSV)) DC
+   : soundness-sm'-aux DCV (cor-stack/cons Pushvar;Q1^1<Q (trans-sm'/var H DT) DCE DCS) (good-stack/ DLL-Pushvar' MQ H') (msteps/more DMM (mstep/pushvar DVL) DLL-Pushvar) (ssteps/more DP (sstep/var DSV)) DC
       <- soundness-sm-var DVL DCE DSV DC'
       <- leq-cons H Pushvar;Q1^1<Q Q1<Q
-      <- soundness-sm' (cor-value-stack/cons DC' DCV) (cor-stack/cons Q1<Q DT DCE DCS) DMM DLL-Halt DP DC.
+      <- soundness-sm' (cor-value-stack/cons DC' DCV) (cor-stack/cons Q1<Q DT DCE DCS) DMM DP DC.
 
 soundness-sm'-aux/lam
-   : soundness-sm'-aux DCV (cor-stack/cons Pushclos;Q1^1;;Q2^1+Q1#<Q (trans-sm'/lam Q2->Q2^1+Q1# DT2 Q1Len Q1->Q1^1 DT1) DCE DCS) (good-stack/ DLL-Pushclos' MQ H' %{(shift-minst/pushclos DA)}%) (msteps/more DMM mstep/pushclos DLL-Pushclos) DLL-Halt (ssteps/more DP sstep/lam) DC
+   : soundness-sm'-aux DCV (cor-stack/cons Pushclos;Q1^1;;Q2^1+Q1#<Q (trans-sm'/lam Q2->Q2^1+Q1# DT2 Q1Len Q1->Q1^1 DT1) DCE DCS) (good-stack/ DLL-Pushclos' MQ H' %{(shift-minst/pushclos DA)}%) (msteps/more DMM mstep/pushclos DLL-Pushclos) (ssteps/more DP sstep/lam) DC
       <- shift-minst-pushclos-inv H' DA
       <- add-comm DA DA'
       <- leq-infix (mpushclos (s Q1#) ; Q1^1) mprog/nil Q2->Q2^1+Q1# (mprog-length/cons Q1Len) Q2<Pushclos;Q1^1;;Q2^1+Q1#
@@ -164,41 +162,41 @@ soundness-sm'-aux/lam
       <- soundness-sm'
          (cor-value-stack/cons (cor-value/clos Q2<Q DT2 DCE) DCV)
          (cor-stack/cons Q1<Q DT1 DCE DCS)
-         DMM DLL-Halt DP DC.
+         DMM DP DC.
 
 soundness-sm'-aux/app
-   : soundness-sm'-aux (cor-value-stack/cons DC-Arg (cor-value-stack/cons (cor-value/clos Q'<Q DT' DCE') DCV)) (cor-stack/cons Call;Q1^1<Q (trans-sm'/app H DT) DCE DCS) (good-stack/ DLL-Call' MQ H') (msteps/more DMM mstep/call DLL-Call) DLL-Halt (ssteps/more DP sstep/app) DC
+   : soundness-sm'-aux (cor-value-stack/cons DC-Arg (cor-value-stack/cons (cor-value/clos Q'<Q DT' DCE') DCV)) (cor-stack/cons Call;Q1^1<Q (trans-sm'/app H DT) DCE DCS) (good-stack/ DLL-Call' MQ H') (msteps/more DMM mstep/call DLL-Call) (ssteps/more DP sstep/app) DC
       <- leq-cons H Call;Q1^1<Q Q1<Q
-      <- soundness-sm' DCV (cor-stack/cons Q'<Q DT' (cor-store/cons DC-Arg DCE') (cor-stack/cons Q1<Q DT DCE DCS)) DMM DLL-Halt DP DC.
+      <- soundness-sm' DCV (cor-stack/cons Q'<Q DT' (cor-store/cons DC-Arg DCE') (cor-stack/cons Q1<Q DT DCE DCS)) DMM DP DC.
 
 soundness-sm'-aux/inc
-   : soundness-sm'-aux (cor-value-stack/cons cor-value/num DCV) (cor-stack/cons Inc;Q1^1<Q (trans-sm'/suc H DT) DCE DCS) (good-stack/ DLL-Inc' MQ H') (msteps/more DMM mstep/inc DLL-Inc) DLL-Halt (ssteps/more DP sstep/suc) DC
+   : soundness-sm'-aux (cor-value-stack/cons cor-value/num DCV) (cor-stack/cons Inc;Q1^1<Q (trans-sm'/suc H DT) DCE DCS) (good-stack/ DLL-Inc' MQ H') (msteps/more DMM mstep/inc DLL-Inc) (ssteps/more DP sstep/suc) DC
       <- leq-cons H Inc;Q1^1<Q Q1<Q
-      <- soundness-sm' (cor-value-stack/cons cor-value/num DCV) (cor-stack/cons Q1<Q DT DCE DCS) DMM DLL-Halt DP DC.
+      <- soundness-sm' (cor-value-stack/cons cor-value/num DCV) (cor-stack/cons Q1<Q DT DCE DCS) DMM DP DC.
 
 soundness-sm'-aux/ret
-   : soundness-sm'-aux DCV (cor-stack/cons Ret<Q trans-sm'/ret DCE DCS) (good-stack/ DLL-Ret' MQ H') (msteps/more DMM mstep/ret DLL-Ret) DLL-Halt (ssteps/more DP sstep/ret) DC
-      <- soundness-sm' DCV DCS DMM DLL-Halt DP DC.
+   : soundness-sm'-aux DCV (cor-stack/cons Ret<Q trans-sm'/ret DCE DCS) (good-stack/ DLL-Ret' MQ H') (msteps/more DMM mstep/ret DLL-Ret) (ssteps/more DP sstep/ret) DC
+      <- soundness-sm' DCV DCS DMM DP DC.
 
 
 % soundness-sm'
 
 soundness-sm'/zero
-   : soundness-sm' (cor-value-stack/cons DC cor-value-stack/nil) (cor-stack/nil DLL-Halt) msteps/zero DLL-Halt' ssteps/zero DC.
+   : soundness-sm' (cor-value-stack/cons DC cor-value-stack/nil) (cor-stack/nil DLL-Halt) (msteps/zero DLL-Halt') ssteps/zero DC.
 
 soundness-sm'/more
-   : soundness-sm' DCV (cor-stack/cons DLE DT DCE DCS) DMM DLL-Halt DP DC
+   : soundness-sm' DCV (cor-stack/cons DLE DT DCE DCS) DMM DP DC
       <- shift-minst-exists _ H
       <- shift-minst-equiv H MQ
       <- leq-lookup H DLE DLL-M
-      <- soundness-sm'-aux DCV (cor-stack/cons DLE DT DCE DCS) (good-stack/ DLL-M MQ H) DMM DLL-Halt DP DC.
+      <- soundness-sm'-aux DCV (cor-stack/cons DLE DT DCE DCS) (good-stack/ DLL-M MQ H) DMM DP DC.
 
 
-%worlds () (soundness-sm'-aux _ _ _ _ _ _ _) (soundness-sm' _ _ _ _ _ _).
-%covers soundness-sm'-aux +DCV +DCS +DGS +DMM +DLL -DP -DC.
+%worlds () (soundness-sm'-aux _ _ _ _ _ _) (soundness-sm' _ _ _ _ _).
+%covers soundness-sm'-aux +DCV +DCS +DGS +DMM -DP -DC.
 
 
-%total (DMM1 DMM2) (soundness-sm'-aux _ _ _ DMM1 _ _ _) (soundness-sm' _ _ DMM2 _ _ _).
+%total (DMM1 DMM2) (soundness-sm'-aux _ _ _ DMM1 _ _) (soundness-sm' _ _ DMM2 _ _).
 
 
 
@@ -215,9 +213,9 @@ coerce-seval-num : cor-value Q (wnum N1) (rnum N2) -> seval P (wnum N1) -> seval
 soundness-sm : trans-sm P B Q -> meval B Q (rnum N) -> seval P (wnum N) -> type.
 %mode soundness-sm +DT +DQ -DP.
 
-soundness-sm/ : soundness-sm (trans-sm/ Q->Q^1 DT) (meval/ DLL-Halt DMM) DP'
+soundness-sm/ : soundness-sm (trans-sm/ Q->Q^1 DT) DMM DP'
                  <- leq-infix (mhalt ; mprog/nil) mprog/nil (shift-mprog/s shift-mprog/z Q->Q^1) (mprog-length/cons mprog-length/nil) DLE
-                 <- soundness-sm' cor-value-stack/nil (cor-stack/cons DLE DT cor-store/nil (cor-stack/nil label-lookup/here)) DMM DLL-Halt DP DC
+                 <- soundness-sm' cor-value-stack/nil (cor-stack/cons DLE DT cor-store/nil (cor-stack/nil label-lookup/here)) DMM DP DC
    <- coerce-seval-num DC (seval/ DP) DP'.
 
 %worlds () (soundness-sm _ _ _).
