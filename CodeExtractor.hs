@@ -58,6 +58,7 @@ createAppendix = do
 
 twelfPath = "/home/mkm/twelfbin/twelf/bin/twelf-server"
 twelfPath' = "C:\\Program Files\\Twelf\\bin\\twelf-server.bat"
+twelfPath'' = "C:\\Program Files (x86)\\Twelf\\bin\\twelf-server.bat"
 
 createExample :: IO ()
 createExample = runTwelf twelfPath False $ do
