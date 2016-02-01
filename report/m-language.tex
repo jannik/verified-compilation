@@ -9,10 +9,10 @@ Like \slang, \mlang has abstract stack machine semantics.
 Let $\addr$ denote program addresses (natural numbers).
 We define machine instructions $\minst$ and programs $\mprog$:
 \begin{align*}
-  \minst &\defi \mpushnum{\nat} \alt \mpushvar{\bvar} \alt \mpushclos{\addr} \alt \mcall{\addr} \alt \minc \alt \mret \alt \mhalt \\
+  \minst &\defi \mpushnum{\nat} \alt \mpushvar{\bvar} \alt \mpushclos{\addr} \alt \mcall \alt \minc \alt \mret \alt \mhalt \\
   \mprog &\defi \mend \alt \minst \mseq \mprog
 \end{align*}
-Note that the address in the instruction $\mcall{\addr}$ is the return address.
+Note that the return address of a function call (with the instruction $\mcall$) is the return address. .. write something
 And let $\mprog_1 \mconcat \mprog_2$ denote the concatenation of programs $\mprog_1$ and $\mprog_2$.
 
 The abundance of syntax indicating termination warrants an explanation.
@@ -64,7 +64,7 @@ We then define judgements for execution:
 \end{prooftree}
 
 \begin{prooftree}
-  \ax{\mexec{\mcall{\addrret}}{\mctrl}{\addr}{\mvals \stkcons \cl{\menv'}{\addr'} \stkcons \mval}{\mctrl \stkcons \fr{\menv' \envcons \mval}{\addrret}}{\addr'}{\mvals}}
+  \ax{\mexec{\mcall}{\mctrl}{\addr}{\mvals \stkcons \cl{\menv'}{\addr'} \stkcons \mval}{\mctrl \stkcons \fr{\menv' \envcons \mval}{\addr + 1}}{\addr'}{\mvals}}
 \end{prooftree}
 
 \begin{prooftree}
@@ -79,35 +79,39 @@ We then define judgements for execution:
 
 \end{judgement}
 
-% maybe require judgement to finish execution, assuming we never concat derivations
-\begin{judgement}{\msteps{\mprog}{\mctrl}{\addr}{\mvals}{\mctrl'}{\addr'}{\mvals'}}
+
+%msteps : mprog -> mframes -> label -> rstack -> mvalue -> type. %name msteps DMM.
+%%mode msteps +Q +Delta +L +Phi -R.
+%
+%msteps/zero : msteps Q Delta L (rstack/single R) R
+%               <- label-lookup Q L mhalt.
+%
+%msteps/more : msteps Q Delta L Phi R
+%               <- label-lookup Q L M
+%               <- mstep M Delta L Phi Delta' L' Phi'
+%               <- msteps Q Delta' L' Phi' R.
+%
+%%abbrev meval : mprog -> label -> mvalue -> type = [q] [l] [r] msteps q (mframes/final z) l rstack/nil r.
+
+
+\begin{judgement}{\meval{\mprog}{\mctrl}{\addr}{\mvals}{\mval}}
 
 \begin{prooftree}
-  \ax{\msteps{\mprog}{\mctrl}{\addr}{\mvals}{\mctrl}{\addr}{\mvals}}
+  \rightl{$(\mprog(\addr) = \mhalt)$}
+  \ax{\meval{\mprog}{\stknil}{\addr}{[\mval]}{\mval}}
 \end{prooftree}
 
 \begin{prooftree}
-  \ninf{\mexec{\minst}{\mctrl}{\addr}{\mvals}{\mctrl''}{\addr''}{\mvals''}}
-  \ninf{\msteps{\mprog}{\mctrl''}{\addr''}{\mvals''}{\mctrl'}{\addr'}{\mvals'}}
+  \ninf{\mexec{\minst}{\mctrl}{\addr}{\mvals}{\mctrl'}{\addr'}{\mvals'}}
+  \ninf{\meval{\mprog}{\mctrl'}{\addr'}{\mvals'}{\mval}}
 	\rightl{$(\mprog(\addr) = \minst)$}
-  \binf{\msteps{\mprog}{\mctrl}{\addr}{\mvals}{\mctrl'}{\addr'}{\mvals'}}
+  \binf{\meval{\mprog}{\mctrl}{\addr}{\mvals}{\mval}}
 \end{prooftree}
 
 \end{judgement}
 
 where $\mprog(\addr)$ denotes the $\addr$'th instruction of the program $\mprog$.
 
-As an abbreviation for complete execution, let \meval{\mprog}{\addr}{\mval} denote \msteps{\mprog}{[\fr{\envnil}{0}]}{\addr}{\stknil}{\stknil}{\addr'}{[\mval]} with $\mprog(\addr') = \mhalt$.
-[Are side conditions okay for abbreviations? This used to be a judgement with a single rule.]
+As an abbreviation for complete execution, let \mevalfinal{\mprog}{\addr}{\mval} denote \meval{\mprog}{[\fr{\envnil}{0}]}{\addr}{\stknil}{\mval}.
 
-%
-%\begin{judgement}{\meval{\mprog}{\addr}{\mval}}
-%
-%
-%\begin{prooftree}
-  %\ninf{\msteps{\mprog}{[\fr{\envnil}{0}]}{\addr}{\stknil}{\stknil}{\addr'}{[\mval]}}
-  %\rightl{$(\mprog(\addr') = \mhalt)$}
-  %\uinf{\meval{\mprog}{\addr}{\mval}}
-%\end{prooftree}
-%
-%\end{judgement}
+% halt is always at index 0

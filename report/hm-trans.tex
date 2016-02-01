@@ -17,7 +17,7 @@ By the (left-to-right) totality of each translation, the full translation is als
 And we can state the full preservation theorem:
 
 \begin{theorem}[Preservation \textnormal{\hlang-\mlang}$\!$] % why is $\!$ suddenly needed here?
-\label{thm:preservation-hm} If $\trahmqual{\hexp}{\mprog}{\addr}$, then $\hev{\hexp}{\n{\nat}}$ if and only if $\meval{\mprog}{\addr}{\n{\nat}}$.
+\label{thm:preservation-hm} If $\trahmqual{\hexp}{\mprog}{\addr}$, then $\hev{\hexp}{\n{\nat}}$ if and only if $\mevalfinal{\mprog}{\addr}{\n{\nat}}$.
 \end{theorem}
 \codefile{soundness-main.elf}{completeness-main.elf}
 

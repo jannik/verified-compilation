@@ -172,7 +172,7 @@ $\blacksquare$
 \ensurecommand{\mpushnum}[1]{\mathtt{pushnum} \; #1}
 \ensurecommand{\mpushvar}[1]{\mathtt{pushvar} \; #1}
 \ensurecommand{\mpushclos}[1]{\mathtt{pushclos} \; #1}
-\ensurecommand{\mcall}[1]{\mathtt{call} \; #1}
+\ensurecommand{\mcall}{\mathtt{call}}
 \ensurecommand{\minc}{\mathtt{inc}}
 \ensurecommand{\mret}{\mathtt{ret}}
 \ensurecommand{\mhalt}{\mathtt{halt}}
@@ -188,8 +188,8 @@ $\blacksquare$
 \ensurecommand{\mvals}{\Psi}
 
 \ensurecommand{\mexec}[7]{\ensuremath{#1 : \tup{#2 \tupsep #3 \tupsep #4} \rightarrow \tup{#5 \tupsep #6 \tupsep #7}}}
-\ensurecommand{\msteps}[7]{\ensuremath{#1 \vdash \tup{#2 \tupsep #3 \tupsep #4} \rightarrow^* \tup{#5 \tupsep #6 \tupsep #7}}}
-\ensurecommand{\meval}[3]{\ensuremath{\tup{#1 \tupsep #2} \downarrow #3}}
+\ensurecommand{\meval}[5]{\ensuremath{#1 \vdash \tup{#2 \tupsep #3 \tupsep #4} \downarrow #5}}
+\ensurecommand{\mevalfinal}[3]{\ensuremath{\tup{#1 \tupsep #2} \downarrow #3}}
 \ensurecommand{\mlook}[3]{\ensuremath{#1 \vdash #2 \uparrow #3}}%
 
 % sm translation

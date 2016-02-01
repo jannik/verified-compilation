@@ -43,8 +43,7 @@ extractAll = do
     extract "code/totality-hoas-bruijn.elf" "trans-hb-exists'" "report/code-totality-hb-exists.tex"
     extract "code/totality-hoas-bruijn.elf" "trans-hb-exists'/lam" "report/code-totality-hb-lam.tex"
     extract "code/totality-hoas-bruijn.elf" "trans-hb-exists'/app" "report/code-totality-hb-app.tex"
-    extract "code/totality-hoas-bruijn.elf" "move-to-head" "report/code-totality-hb-move-to-head.tex"
-    extract "code/soundness-bruijn-stack.elf" "%reduces" "report/code-soundness-bs.tex"
+    extract "code/soundness-bruijn-stack.elf" "%reduces DP' < DP (soundness-bs'" "report/code-soundness-bs.tex"
 
 appendixCode :: [(String, [String])] -> String
 appendixCode = unlines . concat . map f
@@ -166,7 +165,7 @@ texifyMExp :: MExp -> String
 texifyMExp (MPushNum n) = "\\mpushnum{" ++ show n ++ "}"
 texifyMExp (MPushVar i) = "\\mpushvar{" ++ show i ++ "}"
 texifyMExp (MPushClos ell) = "\\mpushclos{" ++ show ell ++ "}"
-texifyMExp MCall = "\\mcall{}"
+texifyMExp MCall = "\\mcall"
 texifyMExp MInc = "\\minc"
 texifyMExp MRet = "\\mret"
 texifyMExp MHalt = "\\mhalt"

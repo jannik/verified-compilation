@@ -1,10 +1,10 @@
-\subsection{Preservation}
+\subsection{Semantics Preservation}
 
 We want to show that if \trabs{\bexp}{\send}{\sprog}, then \bev{\envnil}{\bexp}{\n{\nat}} if and only if \sev{\sprog}{\n{\nat}}.
-To prove this we need two correspondence judgements:
+To prove this we will need two correspondence judgements, associating \blang values with \slang values and \blang environments with \slang environment:
 
 \begin{judgement}{\cor{\bval}{\sval}}
-
+%
 \begin{prooftree}
   \leftl{\rulename{C-Num} :}
   \ax{\cor{\n{\nat}}{\n{\nat}}}
@@ -16,11 +16,12 @@ To prove this we need two correspondence judgements:
   \leftl{\rulename{C-Fun} :}
   \binf{\cor{\cl{\benv}{\bexp}}{\cl{\senv}{\sprog}}}
 \end{prooftree}
-
+%
 \end{judgement}
+That is, as per the \rulename{C-Fun} rule, closures correspond if their environments correspond and their bodies are related by translation.
 
 \begin{judgement}{\cor{\benv}{\senv}}
-
+%
 \begin{prooftree}
   \leftl{\rulename{D-Nil} :}
   \ax{\cor{\envnil}{\envnil}}
@@ -32,35 +33,33 @@ To prove this we need two correspondence judgements:
   \leftl{\rulename{D-Cons} :}
   \binf{\cor{\benv \envcons \bval}{\senv \envcons \sval}}
 \end{prooftree}
-
+%
 \end{judgement}
 
-We can now generalise the two directions of the theorem, i.e. soundness and completeness.
-
-% Let $\prec$ denote the well-founded relation defined by $\P_1 \prec \P_2$ if $\P_1$ is a proper suffix of $\P_2$.
+Separating the two directions of the theorem, we are aiming to show
+\begin{itemize}
+	\item[]right-to-left: if \trabs{\bexp}{\send}{\sprog} and \sev{\sprog}{\n{\nat}} then \bev{\envnil}{\bexp}{\n{\nat}}
+	\item[]left-to-right: if \trabs{\bexp}{\send}{\sprog} and \bev{\envnil}{\bexp}{\n{\nat}} then \sev{\sprog}{\n{\nat}}
+\end{itemize}
+In order to prove them inductively, we generalise right-to-left and left-to-right to soundness and completeness, respectively.
 
 \begin{lemma}[Soundness]
 \label{lem:soundness-bs}
-If \trabs{\bexp}{\sprog_2}{\sprog} (by $\T$) and \ssteps{\sctrl \stkcons \fr{\senv}{\sprog}}{\svals}{\stknil}{[\sval']} (by $\P$) with \cor{\benv}{\senv} (by $\D$), then there exists $\bval$ and $\sval$ such that \bev{\benv}{\bexp}{\bval} (by some $\B$) and \ssteps{\sctrl \stkcons \fr{\senv}{\sprog_2}}{\svals \stkcons \sval}{\stknil}{[\sval']} (by some $\P'$ that is a proper subderivation[suffix?] of $\P$)  with \cor{\bval}{\sval} (by some $\C$).
+If \trabs{\bexp}{\sprog_2}{\sprog} (by $\T$) and \ssteps{\sctrl \stkcons \fr{\senv}{\sprog}}{\svals}{\stknil}{[\sval']} (by $\P$) with \cor{\benv}{\senv} (by $\D$), then there exists $\bval$ and $\sval$ such that \bev{\benv}{\bexp}{\bval} (by some $\B$) and \ssteps{\sctrl \stkcons \fr{\senv}{\sprog_2}}{\svals \stkcons \sval}{\stknil}{[\sval']} (by some $\P'$ that is a proper subderivation of $\P$) with \cor{\bval}{\sval} (by some $\C$).
 \end{lemma}
 
 \code{soundness-bs'}{soundness-bruijn-stack.elf}
 
 \begin{proof}
 By lexicographic induction on $\P$ and $\T$.
-
-% Do we show the most interesting case?
-
 \end{proof}
 
 \Twelf
 The totality checking of the soundness lemma is expressed in Twelf as follows:
 \input{code-soundness-bs}
-The \texttt{\%reduces} declaration makes Twelf verify that \texttt{DP'} is always a subterm of \texttt{DP}.
-The \texttt{\%total} declaration uses this information to establish termination.
-This is the analogue of requiring that $\P' \prec \P$ in the paper formulation.
-
-% something about how twelf proof needing inversion and coerce lemmas..
+The \texttt{\%reduces} declaration makes Twelf verify that \texttt{DP'} is always a subderivation of \texttt{DP}.
+The \texttt{\%total} declaration then uses this information to establish termination.
+This is the analogue of requiring that $\P'$ is a proper subderivation of $\P$ in the paper formulation.
 
 \begin{lemma}[Completeness]
 \label{lem:completeness-bs}
@@ -71,7 +70,8 @@ If \trabs{\bexp}{\sprog_2}{\sprog} (by $\T$) and \bev{\benv}{\bexp}{\bval} (by $
 
 \begin{proof}
 By induction on $\B$.
-The proof is rather straightforward, so we show only the most interesting case:
+The proof is rather straightforward, but the universal quantification of $\sctrl$ and $\svals$ introduces some subtlety since we need to use the induction hypothesis with different instantiations.
+We show the most interesting case here:
 
 \paragraph{Case \textnormal{\rulename{B-App}}}
 

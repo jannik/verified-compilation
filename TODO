@@ -1,11 +1,14 @@
 
 When doing final batch of search-and-replace in code:
 - Replace 'store' with e.g. 'env'.
+- Replace equivalence with semantics preservation
+- Replace r with w etc.
 
 In both code and report, remove argument from call.
 
 In both code and report, remove concat-possibility from judgement.
 
 Be consistent about empty lines before and after begin{judgement}/end{judgement}.
+Search and replace, e.g. \end{judgement}\n\end{judgement}
 
 Be consistent about references to corresponding code files.

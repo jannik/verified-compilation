@@ -1,7 +1,7 @@
 
 \subsection{Preservation}
 
-We want to show that if $\trasmfinal{\sprog}{\mprog}{\addr}$, then $\sev{\sprog}{\n{\nat}}$ if and only if $\meval{\mprog}{\addr}{\n{\nat}}$.
+We want to show that if $\trasmfinal{\sprog}{\mprog}{\addr}$, then $\sev{\sprog}{\n{\nat}}$ if and only if $\mevalfinal{\mprog}{\addr}{\n{\nat}}$.
 This poses the problem of how to handle translations of subprograms when the evaluation is happening in the context of the full program.
 As a solution we define a subprogram relation that keeps track of the position of the subprogram within the complete program.
 
@@ -93,14 +93,14 @@ And now we are ready to generalise soundness and completeness:
 
 \begin{lemma}[Soundness]
 \label{lem:soundness-sm}
-If $\msteps{\mprog}{\mctrl}{\addr}{\mvals}{\stknil}{\addr'}{[\mval]}$ with $\mprog(\addr') = \mhalt$, $\corstack{\mprog}{\sctrl}{\addr}{\mctrl}$ and $\corvaluestack{\mprog}{\svals}{\mvals}$, then there exists $\sval$ such that $\ssteps{\sctrl}{\svals}{\stknil}{[\sval]}$ with $\corvalue{\mprog}{\sval}{\mval}$.
+If $\meval{\mprog}{\mctrl}{\addr}{\mvals}{\mval}$ with $\corstack{\mprog}{\sctrl}{\addr}{\mctrl}$ and $\corvaluestack{\mprog}{\svals}{\mvals}$, then there exists $\sval$ such that $\ssteps{\sctrl}{\svals}{\stknil}{[\sval]}$ with $\corvalue{\mprog}{\sval}{\mval}$.
 \end{lemma}
 
 \code{soundness-sm'}{soundness-stack-machine.elf}
 
 \begin{lemma}[Completeness]
 \label{lem:completeness-sm}
-If $\ssteps{\sctrl}{\svals}{\stknil}{[\sval]}$, $\corstack{\mprog}{\sctrl}{\addr}{\mctrl}$ and $\corvaluestack{\mprog}{\svals}{\mvals}$, then there exists $\mval$ such that $\msteps{\mprog}{\mctrl}{\addr}{\mvals}{\stknil}{\addr'}{[\mval]}$ with $\mprog(\addr') = \mhalt$ and $\corvalue{\mprog}{\sval}{\mval}$.
+If $\ssteps{\sctrl}{\svals}{\stknil}{[\sval]}$, $\corstack{\mprog}{\sctrl}{\addr}{\mctrl}$ and $\corvaluestack{\mprog}{\svals}{\mvals}$, then there exists $\mval$ such that $\meval{\mprog}{\mctrl}{\addr}{\mvals}{\mval}$ with $\corvalue{\mprog}{\sval}{\mval}$.
 \end{lemma}
 
 \code{completeness-sm'}{completeness-stack-machine.elf}
@@ -108,5 +108,5 @@ If $\ssteps{\sctrl}{\svals}{\stknil}{[\sval]}$, $\corstack{\mprog}{\sctrl}{\addr
 Finally, we can establish the main theorem:
 
 \begin{theorem}[Preservation \textnormal{\slang-\mlang}]
-\label{thm:preservation-sm} If $\trasmfinal{\sprog}{\mprog}{\addr}$, then $\sev{\sprog}{\n{\nat}}$ if and only if $\meval{\mprog}{\addr}{\n{\nat}}$.
+\label{thm:preservation-sm} If $\trasmfinal{\sprog}{\mprog}{\addr}$, then $\sev{\sprog}{\n{\nat}}$ if and only if $\mevalfinal{\mprog}{\addr}{\n{\nat}}$.
 \end{theorem}

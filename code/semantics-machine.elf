@@ -79,7 +79,7 @@ mstep/ret : mstep mret (mframes/cons Delta Gam' L-Ret) L Phi
 msteps : mprog -> mframes -> label -> rstack -> mvalue -> type. %name msteps DMM.
 %mode msteps +Q +Delta +L +Phi -R.
 
-msteps/zero : msteps Q Delta L (rstack/single R) R
+msteps/zero : msteps Q mframes/nil L (rstack/single R) R
                <- label-lookup Q L mhalt.
 
 msteps/more : msteps Q Delta L Phi R
