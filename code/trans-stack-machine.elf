@@ -20,7 +20,7 @@ shift1-minst/pushvar : shift1-minst (mpushvar I) (mpushvar I).
 
 shift1-minst/pushclos : shift1-minst (mpushclos L) (mpushclos (s L)).
 
-shift1-minst/call : shift1-minst (mcall L) (mcall (s L)).
+shift1-minst/call : shift1-minst mcall mcall.
 
 shift1-minst/inc : shift1-minst minc minc.
 
@@ -143,7 +143,7 @@ trans-sm'/lam : trans-sm' (sprog/cons (slam P') P) (mpushclos (s Q#) ; Q^1 ;; Q'
                 <- trans-sm' P' Q'
                 <- shift-mprog (s Q#) Q' Q'^1+Q#.
 
-trans-sm'/app : trans-sm' (sprog/cons sapp P) (mcall 1 ; Q^1)
+trans-sm'/app : trans-sm' (sprog/cons sapp P) (mcall ; Q^1)
                 <- trans-sm' P Q
                 <- shift1-mprog Q Q^1.
 

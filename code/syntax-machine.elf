@@ -7,7 +7,7 @@ minst : type. %name minst M.
 mpushnum : number -> minst.
 mpushvar : nat -> minst.
 mpushclos : label -> minst.
-mcall : label -> minst.
+mcall : minst.
 minc : minst.
 mret : minst.
 mhalt : minst.

@@ -65,8 +65,8 @@ mstep/pushvar : mstep (mpushvar I) (mframes/cons Delta Gam L-Ret) L Phi
 mstep/pushclos : mstep (mpushclos L') (mframes/cons Delta Gam L-Ret) L Phi
                                       (mframes/cons Delta Gam L-Ret) (s L) (rstack/cons Phi (rclos Gam L')).
 
-mstep/call : mstep (mcall L-Cont) (mframes/cons Delta Gam L-Ret) L (rstack/cons (rstack/cons Phi (rclos Gam' L')) R)
-                                  (mframes/cons (mframes/cons Delta Gam L-Ret) (mstore/cons Gam' R) L-Cont) L' Phi.
+mstep/call : mstep mcall (mframes/cons Delta Gam L-Ret) L (rstack/cons (rstack/cons Phi (rclos Gam' L')) R)
+                         (mframes/cons (mframes/cons Delta Gam L-Ret) (mstore/cons Gam' R) (s L)) L' Phi.
 
 mstep/inc : mstep minc Delta L (rstack/cons Phi (rnum N))
                        Delta (s L) (rstack/cons Phi (rnum (s N))).
@@ -76,7 +76,7 @@ mstep/ret : mstep mret (mframes/cons Delta Gam' L-Ret) L Phi
 
 
 
-msteps : mprog -> mframes -> label -> rstack -> mframes -> label -> rstack -> type. %name ssteps DMM.
+msteps : mprog -> mframes -> label -> rstack -> mframes -> label -> rstack -> type. %name msteps DMM.
 %mode msteps +Q +Delta +L +Phi -Delta' -L' -Phi'.
 
 msteps/zero : msteps Q Delta L Phi Delta L Phi.

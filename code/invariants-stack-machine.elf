@@ -71,20 +71,6 @@ shift-minst-pushclos-inv/s : shift-minst-pushclos-inv (shift-minst/s H shift1-mi
 
 
 
-shift-minst-call-inv : shift-minst S (mcall L) (mcall L') -> add S L L' -> type.
-%mode shift-minst-call-inv +H -DA.
-
-shift-minst-call-inv/z : shift-minst-call-inv shift-minst/z add/z.
-
-shift-minst-call-inv/s : shift-minst-call-inv (shift-minst/s H shift1-minst/call) DA
-                              <- shift-minst-call-inv H DA'
-                              <- add-move-s DA' DA.
-
-%worlds () (shift-minst-call-inv _ _).
-%total H (shift-minst-call-inv H _).
-
-
-
 leq-infix : {Q1} {Q2} shift-mprog S Q Q^S -> mprog-length Q1 S -> leq Q (Q1 ;; Q^S ;; Q2) S -> type.
 %mode leq-infix +Q1 +Q2 +Q->Q^S +Q1Len -DLE.
 

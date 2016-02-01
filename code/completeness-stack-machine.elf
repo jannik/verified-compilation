@@ -58,8 +58,7 @@ completeness-sm'/lam
 completeness-sm'/app
    : completeness-sm' (cor-value-stack/cons DC-Arg (cor-value-stack/cons (cor-value/clos Q'<Q DT' DCE') DCV)) (cor-stack/cons Call;Q1^1<Q (trans-sm'/app H DT) DCE DCS) (msteps/more DMM mstep/call DLL-Call) DLL-Halt (ssteps/more DP sstep/app) DC
       <- leq-cons H Call;Q1^1<Q Q1<Q
-      <- add-comm (add/s add/z) DA
-      <- shift-minst-inc DA ([l] shift1-minst/call : shift1-minst (mcall l) (mcall (s l))) H'
+      <- shift-minst-id _ shift1-minst/call H'
       <- leq-lookup H' Call;Q1^1<Q DLL-Call
       <- completeness-sm' DCV
          (cor-stack/cons Q'<Q DT' (cor-store/cons DC-Arg DCE') (cor-stack/cons Q1<Q DT DCE DCS))

@@ -61,7 +61,7 @@ twelfPath = "/home/mkm/twelfbin/twelf/bin/twelf-server"
 twelfPath' = "C:\\Program Files\\Twelf\\bin\\twelf-server.bat"
 
 createExample :: IO ()
-createExample = runTwelf twelfPath' False $ do
+createExample = runTwelf twelfPath False $ do
     loadSources
     [("E", hexp), ("B", bexp)] <- query (TwRaw "trans-hb-exists test5 (_ : trans-hb store/nil B E)")
     [("P", sprog)] <- query (TwName "trans-bs" `TwApp` bexp `TwApp` TwName "P")
@@ -142,7 +142,7 @@ texifySExp SSuc = "\\ssuc"
 texifySProg :: SProg -> String
 texifySProg = intercalate ";" . map texifySExp
 
-data MExp = MPushNum Integer | MPushVar Integer | MPushClos Integer | MCall Integer | MInc | MRet | MHalt
+data MExp = MPushNum Integer | MPushVar Integer | MPushClos Integer | MCall | MInc | MRet | MHalt
     deriving (Show)
 
 type MProg = [MExp]
@@ -151,7 +151,7 @@ mkMExp :: TwExp -> MExp
 mkMExp (TwName "mpushnum" `TwApp` e) = MPushNum $ mkNat e
 mkMExp (TwName "mpushvar" `TwApp` e) = MPushVar $ mkNat e
 mkMExp (TwName "mpushclos" `TwApp` e) = MPushClos $ mkNat e
-mkMExp (TwName "mcall" `TwApp` e) = MCall $ mkNat e
+mkMExp (TwName "mcall") = MCall
 mkMExp (TwName "minc") = MInc
 mkMExp (TwName "mret") = MRet
 mkMExp (TwName "mhalt") = MHalt
@@ -166,7 +166,7 @@ texifyMExp :: MExp -> String
 texifyMExp (MPushNum n) = "\\mpushnum{" ++ show n ++ "}"
 texifyMExp (MPushVar i) = "\\mpushvar{" ++ show i ++ "}"
 texifyMExp (MPushClos ell) = "\\mpushclos{" ++ show ell ++ "}"
-texifyMExp (MCall ell) = "\\mcall{" ++ show ell ++ "}"
+texifyMExp MCall = "\\mcall{}"
 texifyMExp MInc = "\\minc"
 texifyMExp MRet = "\\mret"
 texifyMExp MHalt = "\\mhalt"
