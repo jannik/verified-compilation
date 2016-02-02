@@ -1,236 +1,163 @@
 \subsubsection{Totality}
+It is not readily apparent that translation from \hlang to \blang is total.
+In this section we prove that for any $\hexp$ there exists some $\bexp$ such that \trahb{}{\envnil}{\bexp}{\hexp}.
 
-It is not readily apparent from the translation judgement that every $\hexp$ is the extraction of some $\bexp$ so we state it as a theorem.
+First we will need a notion of an expression $\hexp$ being covered by an environment $\benvext$, informally meaning that for every free variable $\var$ occuring in $\hexp$ there is a derivation of \blookext{\benvext}{\bvar}{\hbvar} for some $\bvar$.
+However, to define this inductively we need to keep track of the bound variables encountered when going under a $\lambda$-abstraction, since they do not need to satisfy anything.
+Let $\boundenv$ denote (mathematical) sets of variables.
+The following cover judgement is then read as: given a set of bound variables $\boundenv$, $\hexp$ is covered by $\benvext$.
 
-\begin{theorem}[Totality]
-\label{thm:totality}
-For any closed $\hexp$ there exists some $\bexp$ such that \trahb{\hbctx}{\envnil}{\bexp}{\hexp}.
-\end{theorem}
+\begin{judgement}{\cover{\boundenv}{\benvext}{\hexp}}
+%
+\begin{prooftree}
+  \leftl{\rulename{Cov-Num} :}
+  \ax{\cover{\boundenv}{\benvext}{\n{\nat}}}
+\end{prooftree}
 
-This is proven by the following generalised statement.
+\begin{prooftree}
+  \rightl{($\var \in \boundenv$)}
+  \leftl{\rulename{Cov-Bound} :}
+  \ax{\cover{\boundenv}{\benvext}{\var}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\blookext{\benvext}{\bvar}{\hbvar}}
+  \leftl{\rulename{Cov-Free} :}
+  \uinf{\cover{\boundenv}{\benvext}{\var}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\cover{\boundenv \cup \set{\var}}{\benvext}{\hexp_1}}
+  \leftl{\rulename{Cov-Lam} :}
+  \uinf{\cover{\boundenv}{\benvext}{\lam{\var}{\hexp_1}}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\cover{\boundenv}{\benvext}{\hexp_1}}
+  \ninf{\cover{\boundenv}{\benvext}{\hexp_2}}
+  \leftl{\rulename{Cov-App} :}
+  \binf{\cover{\boundenv}{\benvext}{\app{\hexp_1}{\hexp_2}}}
+\end{prooftree}
+
+\begin{prooftree}
+  \ninf{\cover{\boundenv}{\benvext}{\hexp_1}}
+  \leftl{\rulename{Cov-Suc} :}
+  \uinf{\cover{\boundenv}{\benvext}{\hsuc{\hexp_1}}}
+\end{prooftree}
+%
+\end{judgement}
+
+One would expect that for any closed $\hexp$ it is possible to derive \cover{\emptyset}{\envnil}{\hexp}, i.e. closed expressions are covered by the empty environment.
+This is indeed the case as the following (generalised) lemma shows.
 
 \begin{lemma}
-\label{lem:totality}
-For any $\hexp$ and $\benvext$ where $\FV(\hexp) \subseteq \set{\var_1, \ldots, \var_n}$ together with indices $\bvar_1, \ldots, \bvar_n$ such that $\blookext{\benvext}{\bvar_k}{\var_k}$ (by $\Tv_k$) for $k = 1 \ldots n$, there exists $\bexp$ such that \trahb{\hbctx}{\benvext}{\bexp}{\hexp} (by some $\T$).
+\label{lem:empty-cover}
+For any $\hexp$ and $\boundenv$ with $\FV(\hexp) \subseteq \boundenv$ we have \cover{\boundenv}{\envnil}{\hexp}.
 \end{lemma}
 
 \begin{proof}
-By induction on $\hexp$.
+Straightforward induction on $\hexp$.
+\end{proof}
 
-\paragraph{Case $\hexp = \n{\nat}$}
-Take $\T$ to be
-\begin{prooftree}
-  \ax{\trahb{\hbctx}{\benvext}{\n{\nat}}{\n{\nat}}}
-\end{prooftree}
+\code{empty-cover}{totality-hoas-bruijn.elf}
 
-\paragraph{Case $\hexp = \var$}
-Since $\var$ is free we must have $\var = \var_k$ for some $k$.
-Construct $\T$ as follows:
-\begin{prooftree}
-  \prem{\Tv_k}{\blookext{\benvext}{\bvar_k}{\var_k}}
-  \ax{\corhb{\hbctx}{\var_k}{\var_k}}
-  \binf{\trahb{\hbctx}{\benvext}{\bvar_k}{\var_k}}
-\end{prooftree}
+Before we can prove totality we need an important lemma stating that we can convert a bound variable $\var$ to a free one if we extend $\benvext$ with $\hbvar$.
 
-\paragraph{Case $\hexp = \lam{\var}{\hexp_1}$}
-We want to invoke the IH with $\hexp_1$ and $\benvext \envcons \var$, which requires suitable derivations.
-For any $k$ if $\var_k = \var$ let $\Tv_k'$ be
+\begin{lemma}
+\label{lem:bound-to-free}
+If \cover{\boundenv \cup \set{\var}}{\benvext}{\hexp} (by $\C$) then \cover{\boundenv}{\benvext \envcons \hbvar}{\hexp} (by some $\C'$).
+\end{lemma}
+
+\code{bound-to-free}{totality-hoas-bruijn.elf}
+
+\begin{proof}
+Induction on $\C$.
+We show only select cases.
+
+\paragraph{Case \textnormal{\rulename{Cov-Bound}}}
+$\C$ has the shape
 \begin{prooftree}
-  \ax{\blookext{\benvext \envcons \var}{\z}{\var}}
+  \rightl{($\othervar \in \boundenv$)}
+  \ax{\cover{\boundenv \cup \set{\var}}{\benvext}{\othervar}}
 \end{prooftree}
-and if $\var_k \neq x$ we use \rulename{Tv-There} and let $\Tv_k'$ be
+If $\othervar = \var$ then $\othervar$ is the variable being converted from bound to free.
+Hence, we can take $\C'$ to be
 \begin{prooftree}
-  \prem{\Tv_k}{\blookext{\benvext}{\bvar_k}{\var_k}}
-  \uinf{\blookext{\benvext \envcons \var}{\suc{\bvar_k}}{\var_k}}
+  \ax{\blookext{\benvext \envcons \hbvar}{\z}{\hbvar}}
+  \uinf{\cover{\boundenv}{\benvext \envcons \hbvar}{\var}}
 \end{prooftree}
-Additionally, if $\var \neq \var_k$ for all $k$ let $\Tv_{n + 1}$ be
+Otherwise $\othervar \neq \var$ so $\othervar$ stays a bound variable:
 \begin{prooftree}
-  \ax{\blookext{\benvext \envcons \var}{\z}{\var}}
-\end{prooftree}
-This accounts for all free variables in $\hexp_1$ so by the IH we get \trahb{\hbctx}{\benvext \envcons \var}{\bexp_1}{\hexp_1} (by $\T_1$) for some $\bexp$.
-Thus we can construct
-\begin{prooftree}
-	\prem{\T_1}{\trahb{\hbctx}{\benvext \envcons \var}{\bexp_1}{\hexp_1}}
-  \uinf{\trahb{\hbctx}{\benvext}{\blam{\bexp_1}}{\lam{\var}{\hexp_1}}}
+  \rightl{($\othervar \in \boundenv$)}
+  \ax{\cover{\boundenv}{\benvext \envcons \hbvar}{\othervar}}
 \end{prooftree}
 
-\paragraph{Case $\hexp = \hsuc{\hexp_1}$}
-By IH on $\hexp_1$ with $\benvext$ and $\Tv_1, \ldots, \Tv_n$ we get \trahb{\hbctx}{\benvext}{\bexp_1}{\hexp_1} (by $\T_1$) and we construct $\T$ as follows:
+\paragraph{Case \textnormal{\rulename{Cov-Free}}}
+$\C$ has the shape
 \begin{prooftree}
-	\prem{\T_1}{\trahb{\hbctx}{\benvext}{\bexp_1}{\hexp_1}}
-  \uinf{\trahb{\hbctx}{\benvext}{\bsuc{\bexp_1}}{\hsuc{\hexp_1}}}
+  \prem{\Tv}{\blookext{\benvext}{\bvar}{\hbothervar}}
+  \uinf{\cover{\boundenv \cup \set{\var}}{\benvext}{\othervar}}
+\end{prooftree}
+If $\othervar = \var$ we handle it as in the previous case and take $\C'$ as
+\begin{prooftree}
+  \ax{\blookext{\benvext \envcons \hbvar}{\z}{\hbvar}}
+  \uinf{\cover{\boundenv}{\benvext \envcons \hbvar}{\var}}
+\end{prooftree}
+Otherwise $\hbothervar$ will now be found one place further in the list, so we take $\C'$ as
+\begin{prooftree}
+  \prem{\Tv}{\blookext{\benvext}{\bvar}{\hbothervar}}
+  \rightl{($\hbothervar \neq \hbvar$)}
+  \uinf{\blookext{\benvext \envcons \hbvar}{\suc{\bvar}}{\hbothervar}}
+  \uinf{\cover{\boundenv}{\benvext \envcons \hbvar}{\othervar}}
 \end{prooftree}
 
-\paragraph{Case $\hexp = \app{\hexp_1}{\hexp_2}$}
-Analogous to the previous case.
+
+\paragraph{Case \textnormal{\rulename{Cov-Lam}}}
+$\C$ has the shape
+\begin{prooftree}
+  \prem{\C_1}{\cover{\boundenv \cup \set{\var} \cup \set{\othervar}}{\benvext}{\hexp_1}}
+  \uinf{\cover{\boundenv \cup \set{\var}}{\benvext}{\lam{\othervar}{\hexp_1}}}
+\end{prooftree}
+Note that $\boundenv \cup \set{\var} \cup \set{\othervar} = \boundenv \cup \set{\othervar} \cup \set{\var}$.
+Using the IH on $\C_1$ we get \cover{\boundenv \cup \set{\othervar}}{\benvext \envcons \hbvar}{\hexp_1} (by some $\C_1'$), with which we construct $\C'$:
+\begin{prooftree}
+  \prem{\C_1'}{\cover{\boundenv \cup \set{\othervar}}{\benvext \envcons \hbvar}{\hexp_1}}
+  \uinf{\cover{\boundenv}{\benvext \envcons \hbvar}{\lam{\othervar}{\hexp_1}}}
+\end{prooftree}
 
 \end{proof}
 
-\Twelf
-Theorem~\ref{thm:totality} can be stated in Twelf in a natural way as follows:
-\begin{verbatim}
-trans-hb-exists : {E} trans-hb store/nil B E -> type.
-%mode trans-hb-exists +E -DT.
-\end{verbatim}
-The requirement that the input \hlang expression is closed corresponds to the fact that the relation is checked in an empty world:
-\begin{verbatim}
-%worlds () (trans-hb-exists _ _).
-\end{verbatim}
+We are now ready to prove a generalisation of the totality theorem.
+The important part of the induction hypothesis is that there are free variables, but no bound ones.
 
-The paper proof of Lemma~\ref{lem:totality} cannot be represented directly in Twelf, as Pfenning also mentions \cite{Pfenning01}.
-There is no way to represent an invariant like ``every variable corresponds to some value in $\benvext$'' like in our paper proof because there is no way to state relations between hypotheticals in the Twelf context and parameters of a judgement.
+\begin{lemma}
+\label{lem:totality}
+If \cover{\emptyset}{\benvext}{\hexp} (by $\C$) there exists $\bexp$ such that \trahb{}{\benvext}{\bexp}{\hexp}.
+\end{lemma}
 
-However, another generalisation is possible:
-\begin{verbatim}
-trans-hb-exists' : {E} cover Alph E -> trans-hb Alph B E -> type.
-%mode trans-hb-exists' +E +C -DT.
-\end{verbatim}
-Our \texttt{trans-hb-exists'} lemma states, informally, that for every \hlang expression $\hexp$ whose free variables are ``covered'' by an environment $\benvext$, there exists a \blang expression $\bexp$ for which $\trahb{}{\benvext}{\bexp}{\hexp}$.
-We must allow free variables in $\hexp$ in order to handle the case for $\lambda$-abstractions in the proof of this lemma.
-That is, we must check \texttt{trans-hb-exists'} in a world containing free variables:
-\begin{verbatim}
-%worlds (bl-trans-hb) (trans-hb-exists' _ _ _).
-\end{verbatim}
-The \texttt{bl-trans-hb} block captures exactly this property.
-We represent a free variable in Twelf by pairing a \hlang expression with a \blang value and a correspondence proof:
-\begin{verbatim}
-%block bl-trans-hb
-   : block {v : value} {x : exp} {dc : cor v x}.
-\end{verbatim}
-We can prove that a closed expression is covered by an empty environment, so this lemma is clearly sufficiently strong to prove the theorem (\texttt{trans-hb-exists}).
+\code{trans-hb-exists'}{totality-hoas-bruijn.elf}
 
-An environment $\benvext$ covers (the free variables of) a \hlang expression $\hexp$ if each free variable corresponds to a \blang value in $\benvext$.
-The definition is inductive on $\hexp$, but we need to keep track of --- and ignore --- bound variables as we pass through $\lambda$-abstractions:
-\begin{verbatim}
-cover : store -> exp -> type.
+\begin{proof}
+Induction on $\hexp$ but with case analysis on $\C$.
 
-cover/num : cover Alph (num N).
+We show only the case where $\C$ ends in \rulename{Cov-Lam} and has the shape
+\begin{prooftree}
+  \prem{\C_1}{\cover{\emptyset \cup \set{\var}}{\benvext}{\hexp_1}}
+  \uinf{\cover{\emptyset}{\benvext}{\lam{\var}{\hexp_1}}}
+\end{prooftree}
+By Lemma~\ref{lem:bound-to-free} on $\C_1$ we get \cover{\emptyset}{\benvext \envcons \var}{\hexp_1} (by $\C_1'$).
+Applying the IH to $\hexp_1$ with $\C_1'$ we get \trahb{}{\benvext \envcons \var}{\bexp_1}{\hexp_1} for some $\bexp_1$, which suffices to finish the case with \rulename{T-Lam}.
 
-cover/free : cover Alph E
-               <- trans-hb-var Alph I E.
+\end{proof}
 
-cover/bound : cover Alph E
-                <- bound E.
+We finally state the main totality theorem.
 
-cover/lam : cover Alph (lam E1)
-              <- {x} bound x -> cover Alph (E1 x).
+\begin{theorem}
+For any closed $\hexp$ there exists $\bexp$ such that \trahb{}{\envnil}{\bexp}{\hexp}.
+\end{theorem}
 
-cover/app : cover Alph (app E1 E2)
-              <- cover Alph E1
-              <- cover Alph E2.
+\code{trans-hb-exists}{totality-hoas-bruijn.elf}
 
-cover/suc : cover Alph (suc E1)
-              <- cover Alph E1.
-\end{verbatim}
-where \texttt{bound} is a constructorless type family parameterised with a \hlang expression, indicating that a variable is bound:
-\begin{verbatim}
-bound : exp -> type.
-\end{verbatim}
-Whenever the Twelf context is expanded with a bound variable (using the \texttt{cover/lam} rule), it is also expanded with an associated \texttt{bound} proof to keep track of this information:
-\begin{verbatim}
-%block bl-bound
-   : block {x : exp} {xb : bound x}.
-\end{verbatim}
-
-The proof of \texttt{trans-hb-exists'} proceeds by case analysis on the cover, so there is a case for each rule:
-\begin{verbatim}
-trans-hb-exists' : {E} cover Alph E -> trans-hb Alph B E -> type.
-%mode trans-hb-exists' +E +C -DT.
-
-trans-hb-exists'/num : trans-hb-exists' _ cover/num trans-hb/num.
-
-trans-hb-exists'/free : trans-hb-exists' _ (cover/free DTV) (trans-hb/var DTV).
-
-trans-hb-exists'/lam : trans-hb-exists' _ (cover/lam [x] [xb] C1 x xb) (trans-hb/lam DT1)
-                        <- bound-to-free C1 C1'
-                        <- {v} {x} {dc : cor v x} trans-hb-exists' _ (C1' v x dc) (DT1 v x dc).
-
-trans-hb-exists'/app : trans-hb-exists' _ (cover/app C2 C1) (trans-hb/app DT2 DT1)
-                        <- trans-hb-exists' _ C1 DT1
-                        <- trans-hb-exists' _ C2 DT2.
-
-trans-hb-exists'/suc : trans-hb-exists' _ (cover/suc C1) (trans-hb/suc DT1)
-                        <- trans-hb-exists' _ C1 DT1.
-
-%worlds (bl-trans-hb) (trans-hb-exists' _ _ _).
-%total E (trans-hb-exists' E _ _).
-\end{verbatim}
-Most of the cases are straightforward, but \texttt{trans-hb-exists'/lam} naturally has to deal with a bound variable.
-In order to use the induction hypothesis, the variable then needs to be converted from bound to free in the cover.
-The \texttt{bound-to-free} lemma does exactly this:
-\begin{verbatim}
-bound-to-free : ({x} bound x -> cover Alph (E x)) -> ({v} {x} cor v x -> cover (store/cons Alph v) (E x)) -> type.
-%mode bound-to-free +C -C'.
-\end{verbatim}
-Its proof looks particularly complicated, but this is mainly due to the abundance of hypotheticals.
-\begin{verbatim}
-bound-to-free/num : bound-to-free
-                     ([x] [xb] cover/num : cover _ (num N))
-                     ([v] [x] [dc] cover/num).
-
-bound-to-free/bound/this : bound-to-free
-                            ([x] [xb] cover/bound xb)
-                            ([v] [x] [dc] cover/free (trans-hb-var/here dc)).
-
-bound-to-free/bound/other : bound-to-free
-                             ([x] [xb] cover/bound YB)
-                             ([v] [x] [dc] cover/bound YB).
-
-bound-to-free/free : bound-to-free
-                      ([x] [xb] cover/free (DTV x : trans-hb-var _ I _))
-                      ([v] [x] [dc] cover/free (trans-hb-var/there (DTV x))).
-
-bound-to-free/lam : bound-to-free
-                     ([x] [xb] cover/lam ([y] [yb] C1 x xb y yb))
-                     ([v] [x] [dc] cover/lam ([y] [yb] C2 v x dc y yb))
-                     <- {y} {yb} bound-to-free ([x] [xb] C1 x xb y yb) ([v] [x] [dc] C2 v x dc y yb).
-
-bound-to-free/app : bound-to-free
-                     ([x] [xb] cover/app (C2 x xb) (C1 x xb))
-                     ([v] [x] [dc] cover/app (C2' v x dc) (C1' v x dc))
-                     <- bound-to-free C1 C1'
-                     <- bound-to-free C2 C2'.
-
-bound-to-free/suc : bound-to-free
-                     ([x] [xb] cover/suc (C1 x xb))
-                     ([v] [x] [dc] cover/suc (C1' v x dc))
-                     <- bound-to-free C1 C1'.
-\end{verbatim}
-Some cases deserve additional comment.
-The actual conversion from bound to free happens in \texttt{bound-to-free/bound/this}.
-All existing free variables have their index in the cover shifted by 1 in \texttt{bound-to-free/free}.
-The \texttt{bound-to-free/lam} case looks intimidating, but all that happens is that the parameters of the cover \texttt{C1} are rearranged.
-That is, the order in which \texttt{C1} depends on \texttt{x} (the variable being freed) and \texttt{y} (the variable in the $\lambda$-abstraction) is changed.åp
-
-The technique of converting variables from bound to free one at a time is reminiscent of the Concrete Representation article by Simmons on the Twelf home page \cite{Simmons07}.
-It establishes a bijection between HOAS-based syntax and De Bruijn-based syntax.
-In particular, the \texttt{bind} operation similarly converts from one type of variable to another.
-
-The \texttt{bound-to-free} lemma needs to be checked in a world with both free and bound variables, corresponding to the two blocks:
-\begin{verbatim}
-%worlds (bl-trans-hb | bl-bound) (bound-to-free _ _).
-%total C (bound-to-free C _).
-\end{verbatim}
-
-Now recall that we are aiming to prove the following totality theorem:
-\begin{verbatim}
-trans-hb-exists : {E} trans-hb store/nil B E -> type.
-%mode trans-hb-exists +E -DT.
-\end{verbatim}
-Before we can refer to the \texttt{trans-hb-exists'} lemma, we need to prove that closed expressions are indeed covered by an empty environment.
-This is stated by the following lemma, which holds in a world without free variables:
-\begin{verbatim}
-empty-cover : {E} cover store/nil E -> type.
-%mode empty-cover +E -C.
-\end{verbatim}
-We omit its proof here --- it is fairly standard.
-
-And finally, we can prove the theorem:
-\begin{verbatim}
-trans-hb-exists/ : trans-hb-exists E DT
-                    <- empty-cover E C
-                    <- trans-hb-exists' E C DT.
-
-%worlds () (trans-hb-exists _ _).
-%total {} (trans-hb-exists _ _).
-\end{verbatim}
+\begin{proof}
+Immediate from lemmas \ref{lem:empty-cover} and \ref{lem:totality}.
+\end{proof}
