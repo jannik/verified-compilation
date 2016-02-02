@@ -1,80 +1,80 @@
 test1 : exp =  app (lam [x] x) (num 3).
 
 %define btest1 = B
-%solve _ : trans-hb-exists test1 (DT : trans-hb store/nil B test1).
+%solve _ : trans-hb-exists test1 (DT : trans-hb env/nil B test1).
 
 %define ptest1 = P
 %solve _ : trans-bs btest1 P.
 
 %query 1 5 D : eval test1 C.
-%query 1 5 D : beval store/nil btest1 V.
-%query 1 5 D : seval ptest1 W.
+%query 1 5 D : beval env/nil btest1 U.
+%query 1 5 D : seval ptest1 V.
 
 %define qtest1 = Q
 %define qtest1-start = K
 %solve _ : trans-sm ptest1 Q K.
 
-%query 1 1 meval qtest1 qtest1-start R.
+%query 1 1 meval qtest1 qtest1-start W.
 
 
 
 test2 : exp = app (app (lam [x] lam [y] x) (num 3)) (num 5).
 
 %define btest2 = B
-%solve _ : trans-hb-exists test2 (DT : trans-hb store/nil B test2).
+%solve _ : trans-hb-exists test2 (DT : trans-hb env/nil B test2).
 
 %define ptest2 = P
 %solve _ : trans-bs btest2 P.
 
 %query 1 5 D : eval test2 C.
-%query 1 5 D : beval store/nil btest2 V.
-%query 1 5 D : seval ptest2 W.
+%query 1 5 D : beval env/nil btest2 U.
+%query 1 5 D : seval ptest2 V.
 
 %define qtest2 = Q
 %define qtest2-start = K
 %solve _ : trans-sm ptest2 Q K.
 
-%query 1 1 meval qtest2 qtest2-start R.
+%query 1 1 meval qtest2 qtest2-start W.
 
 
 
 test3 : exp = app (app (lam [f] lam [x] app f x) (lam [x] x)) (num 3).
 
 %define btest3 = B
-%solve _ : trans-hb-exists test3 (DT : trans-hb store/nil B test3).
+%solve _ : trans-hb-exists test3 (DT : trans-hb env/nil B test3).
 
 %define ptest3 = P
 %solve _ : trans-bs btest3 P.
 
 %query 1 5 D : eval test3 C.
-%query 1 5 D : beval store/nil btest3 V.
-%query 1 5 D : seval ptest3 W.
+%query 1 5 D : beval env/nil btest3 U.
+%query 1 5 D : seval ptest3 V.
 
 %define qtest3 = Q
 %define qtest3-start = K
 %solve _ : trans-sm ptest3 Q K.
 
-%query 1 1 meval qtest3 qtest3-start R.
+%query 1 1 meval qtest3 qtest3-start W.
 
 
 
 test4 : exp = app (app (app (lam [f] lam [x] app f x) (lam [x] lam [y] x)) (num 3)) (num 5).
 
 %define btest4 = B
-%solve _ : trans-hb-exists test4 (DT : trans-hb store/nil B test4).
+%solve _ : trans-hb-exists test4 (DT : trans-hb env/nil B test4).
 
 %define ptest4 = P
 %solve _ : trans-bs btest4 P.
 
 %query 1 5 D : eval test4 C.
-%query 1 5 D : beval store/nil btest4 V.
-%query 1 5 D : seval ptest4 W.
+%query 1 5 D : beval env/nil btest4 U.
+%query 1 5 D : seval ptest4 V.
 
 %define qtest4 = Q
 %define qtest4-start = K
 %solve _ : trans-sm ptest4 Q K.
 
-%query 1 1 meval qtest4 qtest4-start R.
+%query 1 1 meval qtest4 qtest4-start W.
 
 
 
@@ -100,7 +100,7 @@ test4 : exp = app (app (app (lam [f] lam [x] app f x) (lam [x] lam [y] x)) (num 
 %define qtest5-start = K
 %solve _ : trans-hm test5 Q K.
 
-%query 1 1 meval qtest5 qtest5-start R.
+%query 1 1 meval qtest5 qtest5-start W.
 
 
 
@@ -111,4 +111,4 @@ test6 : exp = #reify (#mul #2 #3).
 %define qtest6-start = K
 %solve _ : trans-hm test6 Q K.
 
-%query 1 1 meval qtest6 qtest6-start R.
+%query 1 1 meval qtest6 qtest6-start W.

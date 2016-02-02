@@ -1,4 +1,4 @@
-soundness-hb'-var : eval E C -> trans-hb-var Alph I E -> beval-var Alph I V -> cor V C -> type.
+soundness-hb'-var : eval E C -> trans-hb-var Alph I E -> beval-var Alph I U -> cor U C -> type.
 %mode soundness-hb'-var -DE +DTV +DBV -DC.
 
 soundness-hb'-var/here/num : soundness-hb'-var eval/num (trans-hb-var/here DC) beval-var/here DC.
@@ -13,7 +13,7 @@ soundness-hb'-var/there : soundness-hb'-var DE (trans-hb-var/there DTV) (beval-v
 
 
 
-soundness-hb' : eval E C -> trans-hb Alph B E -> beval Alph B V -> cor V C -> type.
+soundness-hb' : eval E C -> trans-hb Alph B E -> beval Alph B U -> cor U C -> type.
 %mode soundness-hb' -DE +DT +DB -DC.
 
 soundness-hb'/num : soundness-hb' eval/num trans-hb/num beval/num cor/num.
@@ -25,8 +25,8 @@ soundness-hb'/lam : soundness-hb' eval/lam (trans-hb/lam DT1) beval/lam (cor/fun
 
 soundness-hb'/app : soundness-hb' (eval/app DE3 DE2 DE1) (trans-hb/app DT2 DT1) (beval/app DB3 DB2 DB1) DC3
                      <- soundness-hb' DE1 DT1 DB1 (cor/fun (trans-hb/lam [v] [x] [dc] DT v x dc))
-                     <- soundness-hb' DE2 DT2 DB2 (DC2 : cor V2 C2)
-                     <- soundness-hb' DE3 (DT V2 C2 DC2) DB3 DC3.
+                     <- soundness-hb' DE2 DT2 DB2 (DC2 : cor U2 C2)
+                     <- soundness-hb' DE3 (DT U2 C2 DC2) DB3 DC3.
 
 soundness-hb'/suc : soundness-hb' (eval/suc DE1) (trans-hb/suc DT1) (beval/suc DB1) DC
                      <- soundness-hb' DE1 DT1 DB1 DC1
@@ -47,7 +47,7 @@ coerce-eval : cor (vnum N2) (num N1) -> eval E (num N1) -> eval E (num N2) -> ty
 
 
 
-soundness-hb : beval store/nil B (vnum N) -> trans-hb store/nil B E -> eval E (num N) -> type.
+soundness-hb : beval env/nil B (vnum N) -> trans-hb env/nil B E -> eval E (num N) -> type.
 %mode soundness-hb +DB +DT -DE.
 
 soundness-hb/ : soundness-hb DB DT DE'

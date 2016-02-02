@@ -1,38 +1,40 @@
-store : type. %name store Alph.
-value : type. %name value V.
+env : type. %name env Alph.
+value : type. %name value U.
 
-store/nil : store.
+env/nil : env.
 
-store/cons : store -> value -> store.
+env/cons : env -> value -> env.
 
 vnum : nat -> value.
 
-vclos : store -> bexp -> value.
+vclos : env -> bexp -> value.
 
 
 
-beval-var : store -> nat -> value -> type.
+beval-var : env -> nat -> value -> type.
+%mode beval-var +Alph +I -U.
 
-beval-var/here : beval-var (store/cons Alph V) z V.
+beval-var/here : beval-var (env/cons Alph U) z U.
 
-beval-var/there : beval-var (store/cons Alph V') (s I) V
-                   <- beval-var Alph I V.
+beval-var/there : beval-var (env/cons Alph U') (s I) U
+                   <- beval-var Alph I U.
 
 
 
-beval : store -> bexp -> value -> type. %name beval DB.
+beval : env -> bexp -> value -> type. %name beval DB.
+%mode beval +Alph +B -U.
 
 beval/num : beval Alph (bnum N) (vnum N).
 
-beval/var : beval Alph (bvar I) V
-             <- beval-var Alph I V.
+beval/var : beval Alph (bvar I) U
+             <- beval-var Alph I U.
 
 beval/lam : beval Alph (blam B1) (vclos Alph B1).
 
-beval/app : beval Alph (bapp B1 B2) V
+beval/app : beval Alph (bapp B1 B2) U
              <- beval Alph B1 (vclos Alph' B0)
-             <- beval Alph B2 V2
-             <- beval (store/cons Alph' V2) B0 V.
+             <- beval Alph B2 U2
+             <- beval (env/cons Alph' U2) B0 U.
 
 beval/suc : beval Alph (bsuc B1) (vnum (s N))
              <- beval Alph B1 (vnum N).

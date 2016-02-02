@@ -1,5 +1,5 @@
-completeness-bs-var : beval-var Alph I V -> comp-bs Alph Bet
-                   -> seval-var Bet I W -> cor-bs V W -> type.
+completeness-bs-var : beval-var Alph I U -> comp-bs Alph Bet
+                   -> seval-var Bet I W -> cor-bs U W -> type.
 %mode completeness-bs-var +DBV +DD -DSV -DC.
 
 completeness-bs-var/here : completeness-bs-var beval-var/here (comp-bs/cons DC DD) seval-var/here DC.
@@ -49,13 +49,13 @@ s-inj-cor-bs : cor-bs (vnum (s N1)) (wnum (s N2)) -> cor-bs (vnum N1) (wnum N2) 
 
 
 
-completeness-bs' : trans-bs-acc B P2 P -> beval Alph B V -> comp-bs Alph Bet
+completeness-bs' : trans-bs-acc B P2 P -> beval Alph B U -> comp-bs Alph Bet
                 -> ssteps (frames/cons Gamma Bet P) Psi (frames/cons Gamma Bet P2) (wstack/cons Psi W)
-                -> cor-bs V W -> type.
-%mode +{B} +{P2} +{P} +{Alph} +{V} +{Bet} +{Gamma} +{Psi} -{W}
-      +{DT:trans-bs-acc B P2 P} +{DB:beval Alph B V} +{DD:comp-bs Alph Bet}
+                -> cor-bs U W -> type.
+%mode +{B} +{P2} +{P} +{Alph} +{U} +{Bet} +{Gamma} +{Psi} -{W}
+      +{DT:trans-bs-acc B P2 P} +{DB:beval Alph B U} +{DD:comp-bs Alph Bet}
       -{DP:ssteps (frames/cons Gamma Bet P) Psi (frames/cons Gamma Bet P2) (wstack/cons Psi W)}
-      -{DC:cor-bs V W}
+      -{DC:cor-bs U W}
       completeness-bs' DT DB DD DP DC.
 
 completeness-bs'/num : completeness-bs' trans-bs-acc/num beval/num DD (ssteps/single sstep/num) cor-bs/num.
@@ -95,7 +95,7 @@ coerce-seval-num : cor-bs (vnum N1) (wnum N2) -> seval P (wnum N2) -> seval P (w
 
 
 
-completeness-bs : beval store/nil B (vnum N) -> trans-bs B P -> seval P (wnum N) -> type.
+completeness-bs : beval env/nil B (vnum N) -> trans-bs B P -> seval P (wnum N) -> type.
 %mode completeness-bs +DB +DT -DP.
 
 completeness-bs/ : completeness-bs DB DT DP

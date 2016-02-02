@@ -1,4 +1,4 @@
-completeness-hb'-var : eval E C -> trans-hb-var Alph I E -> beval-var Alph I V -> cor V C -> type.
+completeness-hb'-var : eval E C -> trans-hb-var Alph I E -> beval-var Alph I U -> cor U C -> type.
 %mode completeness-hb'-var +DE +DTV -DBV -DC.
 
 completeness-hb'-var/here/num : completeness-hb'-var eval/num (trans-hb-var/here DC) beval-var/here DC.
@@ -33,7 +33,7 @@ s-inj-cor : cor (vnum (s N1)) (num (s N2)) -> cor (vnum N1) (num N2) -> type.
 
 
 
-completeness-hb' : eval E C -> trans-hb Alph B E -> beval Alph B V -> cor V C -> type.
+completeness-hb' : eval E C -> trans-hb Alph B E -> beval Alph B U -> cor U C -> type.
 %mode completeness-hb' +DE +DT -DB -DC.
 
 completeness-hb'/num : completeness-hb' eval/num trans-hb/num beval/num cor/num.
@@ -45,8 +45,8 @@ completeness-hb'/lam : completeness-hb' eval/lam (trans-hb/lam DT1) beval/lam (c
 
 completeness-hb'/app : completeness-hb' (eval/app DE3 DE2 DE1) (trans-hb/app DT2 DT1) (beval/app DB3 DB2 DB1) DC3
                         <- completeness-hb' DE1 DT1 DB1 (cor/fun (trans-hb/lam [v] [x] [dc] DT v x dc))
-                        <- completeness-hb' DE2 DT2 DB2 (DC2 : cor V2 C2)
-                        <- completeness-hb' DE3 (DT V2 C2 DC2) DB3 DC3.
+                        <- completeness-hb' DE2 DT2 DB2 (DC2 : cor U2 C2)
+                        <- completeness-hb' DE3 (DT U2 C2 DC2) DB3 DC3.
 
 completeness-hb'/suc : completeness-hb' (eval/suc DE1) (trans-hb/suc DT1) (beval/suc DB1) DC
                         <- completeness-hb' DE1 DT1 DB1 DC1
@@ -67,7 +67,7 @@ coerce-beval : cor (vnum N1) (num N2) -> beval Alph B (vnum N1) -> beval Alph B 
 
 
 
-completeness-hb : eval E (num N) -> trans-hb store/nil B E -> beval store/nil B (vnum N) -> type.
+completeness-hb : eval E (num N) -> trans-hb env/nil B E -> beval env/nil B (vnum N) -> type.
 %mode completeness-hb +DE +DT -DB.
 
 completeness-hb/ : completeness-hb DE DT DB'

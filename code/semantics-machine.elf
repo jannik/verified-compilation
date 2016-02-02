@@ -1,11 +1,11 @@
-mvalue : type. %name mvalue R.
-mstore : type. %name mstore Gam.
+mvalue : type. %name mvalue W.
+menv : type. %name menv Gam.
 
 rnum : number -> mvalue.
-rclos : mstore -> label -> mvalue.
+rclos : menv -> label -> mvalue.
 
-mstore/nil : mstore.
-mstore/cons : mstore -> mvalue -> mstore.
+menv/nil : menv.
+menv/cons : menv -> mvalue -> menv.
 
 
 
@@ -14,8 +14,6 @@ rstack : type. %name rstack Phi.
 rstack/nil : rstack.
 rstack/cons : rstack -> mvalue -> rstack.
 
-
-
 rstack/single = rstack/cons rstack/nil.
 
 
@@ -23,19 +21,19 @@ rstack/single = rstack/cons rstack/nil.
 mframes : type. %name mframes Delta.
 
 mframes/nil : mframes.
-mframes/cons : mframes -> mstore -> label -> mframes.
+mframes/cons : mframes -> menv -> label -> mframes.
 
-mframes/final = mframes/cons mframes/nil mstore/nil.
+mframes/final = mframes/cons mframes/nil menv/nil.
 
 
 
-mvar-lookup : mstore -> nat -> mvalue -> type. %name mvar-lookup DVL.
-%mode mvar-lookup +Gam +I -R.
+mvar-lookup : menv -> nat -> mvalue -> type. %name mvar-lookup DVL.
+%mode mvar-lookup +Gam +I -W.
 
-mvar-lookup/here : mvar-lookup (mstore/cons Gam R) z R.
+mvar-lookup/here : mvar-lookup (menv/cons Gam W) z W.
 
-mvar-lookup/there : mvar-lookup (mstore/cons Gam R') (s I) R
-                     <- mvar-lookup Gam I R.
+mvar-lookup/there : mvar-lookup (menv/cons Gam W') (s I) W
+                     <- mvar-lookup Gam I W.
 
 
 
@@ -59,14 +57,14 @@ mstep/pushnum : mstep (mpushnum N) (mframes/cons Delta Gam L-Ret) L Phi
                                    (mframes/cons Delta Gam L-Ret) (s L) (rstack/cons Phi (rnum N)).
 
 mstep/pushvar : mstep (mpushvar I) (mframes/cons Delta Gam L-Ret) L Phi
-                                   (mframes/cons Delta Gam L-Ret) (s L) (rstack/cons Phi R)
-                 <- mvar-lookup Gam I R.
+                                   (mframes/cons Delta Gam L-Ret) (s L) (rstack/cons Phi W)
+                 <- mvar-lookup Gam I W.
 
 mstep/pushclos : mstep (mpushclos L') (mframes/cons Delta Gam L-Ret) L Phi
                                       (mframes/cons Delta Gam L-Ret) (s L) (rstack/cons Phi (rclos Gam L')).
 
-mstep/call : mstep mcall (mframes/cons Delta Gam L-Ret) L (rstack/cons (rstack/cons Phi (rclos Gam' L')) R)
-                         (mframes/cons (mframes/cons Delta Gam L-Ret) (mstore/cons Gam' R) (s L)) L' Phi.
+mstep/call : mstep mcall (mframes/cons Delta Gam L-Ret) L (rstack/cons (rstack/cons Phi (rclos Gam' L')) W)
+                         (mframes/cons (mframes/cons Delta Gam L-Ret) (menv/cons Gam' W) (s L)) L' Phi.
 
 mstep/inc : mstep minc Delta L (rstack/cons Phi (rnum N))
                        Delta (s L) (rstack/cons Phi (rnum (s N))).
@@ -77,15 +75,15 @@ mstep/ret : mstep mret (mframes/cons Delta Gam' L-Ret) L Phi
 
 
 msteps : mprog -> mframes -> label -> rstack -> mvalue -> type. %name msteps DMM.
-%mode msteps +Q +Delta +L +Phi -R.
+%mode msteps +Q +Delta +L +Phi -W.
 
-msteps/zero : msteps Q mframes/nil L (rstack/single R) R
+msteps/zero : msteps Q mframes/nil L (rstack/single W) W
                <- label-lookup Q L mhalt.
 
-msteps/more : msteps Q Delta L Phi R
+msteps/more : msteps Q Delta L Phi W
                <- label-lookup Q L M
                <- mstep M Delta L Phi Delta' L' Phi'
-               <- msteps Q Delta' L' Phi' R.
+               <- msteps Q Delta' L' Phi' W.
 
 
 

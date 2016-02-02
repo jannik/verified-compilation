@@ -1,9 +1,9 @@
-completeness-sm-var : mvar-lookup Gam I R -> cor-store Q Bet Gam -> seval-var Bet I W -> cor-value Q W R -> type.
+completeness-sm-var : mvar-lookup Gam I W -> cor-env Q Bet Gam -> seval-var Bet I V -> cor-value Q V W -> type.
 %mode completeness-sm-var -DVL +DCE +DSV -DC.
 
-completeness-sm-var/here : completeness-sm-var mvar-lookup/here (cor-store/cons DC DCE) seval-var/here DC.
+completeness-sm-var/here : completeness-sm-var mvar-lookup/here (cor-env/cons DC DCE) seval-var/here DC.
 
-completeness-sm-var/there : completeness-sm-var (mvar-lookup/there DVL) (cor-store/cons DC' DCE) (seval-var/there DSV) DC
+completeness-sm-var/there : completeness-sm-var (mvar-lookup/there DVL) (cor-env/cons DC' DCE) (seval-var/there DSV) DC
                              <- completeness-sm-var DVL DCE DSV DC.
 
 %worlds () (completeness-sm-var _ _ _ _).
@@ -14,25 +14,36 @@ completeness-sm-var/there : completeness-sm-var (mvar-lookup/there DVL) (cor-sto
 completeness-sm'
    : cor-value-stack Q Psi Phi
       -> cor-stack Q Gamma L Delta
-      -> msteps Q Delta L Phi R
-      -> ssteps Gamma Psi frames/nil (wstack/single W)
-      -> cor-value Q W R
+      -> msteps Q Delta L Phi W
+      -> ssteps Gamma Psi frames/nil (wstack/single V)
+      -> cor-value Q V W
       -> type.
 %mode completeness-sm' +DCV +DCS -DMM +DP -DC.
 
 completeness-sm'/halt
-   : completeness-sm' (cor-value-stack/cons DC cor-value-stack/nil) (cor-stack/nil DLL-Halt) (msteps/zero DLL-Halt)
-                      ssteps/zero DC.
+   : completeness-sm' (cor-value-stack/cons DC cor-value-stack/nil)
+                      (cor-stack/nil DLL-Halt)
+                      (msteps/zero DLL-Halt)
+                      ssteps/zero
+                      DC.
 
 completeness-sm'/num
-   : completeness-sm' DCV (cor-stack/cons Pushnum;Q1^1<Q (trans-sm'/num H DT) DCE DCS) (msteps/more DMM mstep/pushnum DLL-Pushnum) (ssteps/more DP sstep/num) DC
+   : completeness-sm' DCV
+                      (cor-stack/cons Pushnum;Q1^1<Q (trans-sm'/num H DT) DCE DCS)
+                      (msteps/more DMM mstep/pushnum DLL-Pushnum)
+                      (ssteps/more DP sstep/num)
+                      DC
       <- leq-cons H Pushnum;Q1^1<Q Q1<Q
       <- shift-minst-id _ shift1-minst/pushnum H'
       <- leq-lookup H' Pushnum;Q1^1<Q DLL-Pushnum
       <- completeness-sm' (cor-value-stack/cons cor-value/num DCV) (cor-stack/cons Q1<Q DT DCE DCS) DMM DP DC.
 
 completeness-sm'/var
-   : completeness-sm' DCV (cor-stack/cons Pushvar;Q1^1<Q (trans-sm'/var H DT) DCE DCS) (msteps/more DMM (mstep/pushvar DVL) DLL-Pushvar) (ssteps/more DP (sstep/var DSV)) DC
+   : completeness-sm' DCV
+                      (cor-stack/cons Pushvar;Q1^1<Q (trans-sm'/var H DT) DCE DCS)
+                      (msteps/more DMM (mstep/pushvar DVL) DLL-Pushvar)
+                      (ssteps/more DP (sstep/var DSV))
+                      DC
       <- completeness-sm-var DVL DCE DSV DC'
       <- leq-cons H Pushvar;Q1^1<Q Q1<Q
       <- shift-minst-id _ shift1-minst/pushvar H'
@@ -40,11 +51,18 @@ completeness-sm'/var
       <- completeness-sm' (cor-value-stack/cons DC' DCV) (cor-stack/cons Q1<Q DT DCE DCS) DMM DP DC.
 
 completeness-sm'/lam
-   : completeness-sm' DCV (cor-stack/cons Pushclos;Q1^1;;Q2^1+Q1#<Q (trans-sm'/lam Q2->Q2^1+Q1# DT2 Q1Len Q1->Q1^1 DT1) DCE DCS) (msteps/more DMM mstep/pushclos DLL-Pushclos) (ssteps/more DP sstep/lam) DC
+   : completeness-sm' DCV
+                      (cor-stack/cons Pushclos;Q1^1;;Q2^1+Q1#<Q
+                                      (trans-sm'/lam Q2->Q2^1+Q1# DT2 Q1Len Q1->Q1^1 DT1) DCE DCS)
+                      (msteps/more DMM mstep/pushclos DLL-Pushclos)
+                      (ssteps/more DP sstep/lam)
+                      DC
       <- add-exists (s Q1#) S DA
       <- add-comm DA DA'
-      <- leq-infix (mpushclos (s Q1#) ; Q1^1) mprog/nil Q2->Q2^1+Q1# (mprog-length/cons Q1Len) Q2<Pushclos;Q1^1;;Q2^1+Q1#
-      <- leq-infix (mpushclos (s Q1#) ; mprog/nil) Q2^1+Q1# (shift-mprog/s shift-mprog/z Q1->Q1^1) (mprog-length/cons mprog-length/nil) Q1<Pushclos;Q1^1;;Q2^1+Q1#
+      <- leq-infix (mpushclos (s Q1#) ; Q1^1) mprog/nil Q2->Q2^1+Q1#
+                   (mprog-length/cons Q1Len) Q2<Pushclos;Q1^1;;Q2^1+Q1#
+      <- leq-infix (mpushclos (s Q1#) ; mprog/nil) Q2^1+Q1# (shift-mprog/s shift-mprog/z Q1->Q1^1)
+                   (mprog-length/cons mprog-length/nil) Q1<Pushclos;Q1^1;;Q2^1+Q1#
       <- leq-trans Q2<Pushclos;Q1^1;;Q2^1+Q1# Pushclos;Q1^1;;Q2^1+Q1#<Q DA Q2<Q
       <- leq-trans Q1<Pushclos;Q1^1;;Q2^1+Q1# Pushclos;Q1^1;;Q2^1+Q1#<Q (add/s add/z) Q1<Q
       <- shift-minst-inc DA' ([l] shift1-minst/pushclos : shift1-minst (mpushclos l) (mpushclos (s l))) H'
@@ -55,23 +73,35 @@ completeness-sm'/lam
          DMM DP DC.
 
 completeness-sm'/app
-   : completeness-sm' (cor-value-stack/cons DC-Arg (cor-value-stack/cons (cor-value/clos Q'<Q DT' DCE') DCV)) (cor-stack/cons Call;Q1^1<Q (trans-sm'/app H DT) DCE DCS) (msteps/more DMM mstep/call DLL-Call) (ssteps/more DP sstep/app) DC
+   : completeness-sm' (cor-value-stack/cons DC-Arg (cor-value-stack/cons (cor-value/clos Q'<Q DT' DCE') DCV))
+                      (cor-stack/cons Call;Q1^1<Q (trans-sm'/app H DT) DCE DCS)
+                      (msteps/more DMM mstep/call DLL-Call)
+                      (ssteps/more DP sstep/app)
+                      DC
       <- leq-cons H Call;Q1^1<Q Q1<Q
       <- shift-minst-id _ shift1-minst/call H'
       <- leq-lookup H' Call;Q1^1<Q DLL-Call
       <- completeness-sm' DCV
-         (cor-stack/cons Q'<Q DT' (cor-store/cons DC-Arg DCE') (cor-stack/cons Q1<Q DT DCE DCS))
+         (cor-stack/cons Q'<Q DT' (cor-env/cons DC-Arg DCE') (cor-stack/cons Q1<Q DT DCE DCS))
          DMM DP DC.
 
 completeness-sm'/suc
-   : completeness-sm' (cor-value-stack/cons cor-value/num DCV) (cor-stack/cons Inc;Q1^1<Q (trans-sm'/suc H DT) DCE DCS) (msteps/more DMM mstep/inc DLL-Inc) (ssteps/more DP sstep/suc) DC
+   : completeness-sm' (cor-value-stack/cons cor-value/num DCV)
+                      (cor-stack/cons Inc;Q1^1<Q (trans-sm'/suc H DT) DCE DCS)
+                      (msteps/more DMM mstep/inc DLL-Inc)
+                      (ssteps/more DP sstep/suc)
+                      DC
       <- leq-cons H Inc;Q1^1<Q Q1<Q
       <- shift-minst-id _ shift1-minst/inc H'
       <- leq-lookup H' Inc;Q1^1<Q DLL-Inc
       <- completeness-sm' (cor-value-stack/cons cor-value/num DCV) (cor-stack/cons Q1<Q DT DCE DCS) DMM DP DC.
 
 completeness-sm'/ret
-   : completeness-sm' DCV (cor-stack/cons Ret<Q trans-sm'/ret DCE DCS) (msteps/more DMM mstep/ret DLL-Ret) (ssteps/more DP sstep/ret) DC
+   : completeness-sm' DCV
+                      (cor-stack/cons Ret<Q trans-sm'/ret DCE DCS)
+                      (msteps/more DMM mstep/ret DLL-Ret)
+                      (ssteps/more DP sstep/ret)
+                      DC
       <- shift-minst-id _ shift1-minst/ret H'
       <- leq-lookup H' Ret<Q DLL-Ret
       <- completeness-sm' DCV DCS DMM DP DC.
@@ -95,9 +125,10 @@ completeness-sm : trans-sm P B Q -> meval B Q (rnum N) -> seval P (wnum N) -> ty
 %mode completeness-sm +DT -DQ +DP.
 
 completeness-sm/ : completeness-sm (trans-sm/ Q->Q^1 DT) DQ (seval/ DP)
-                    <- leq-infix (mhalt ; mprog/nil) mprog/nil (shift-mprog/s shift-mprog/z Q->Q^1) (mprog-length/cons mprog-length/nil) DLE
+                    <- leq-infix (mhalt ; mprog/nil) mprog/nil (shift-mprog/s shift-mprog/z Q->Q^1)
+                                 (mprog-length/cons mprog-length/nil) DLE
                     <- completeness-sm' cor-value-stack/nil
-                       (cor-stack/cons DLE DT cor-store/nil (cor-stack/nil label-lookup/here))
+                       (cor-stack/cons DLE DT cor-env/nil (cor-stack/nil label-lookup/here))
                        DMM DP DC
                     <- coerce-meval-num DC DMM DQ.
 

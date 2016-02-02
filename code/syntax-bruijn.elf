@@ -1,4 +1,3 @@
-% The target language -- uses de Bruijn indices.
 bexp : type. %name bexp B.
 
 bnum : nat -> bexp.

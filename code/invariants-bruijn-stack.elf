@@ -1,5 +1,5 @@
 cor-bs : value -> svalue -> type. %name cor-bs DC.
-comp-bs : store -> sstore -> type. %name comp-bs DD.
+comp-bs : env -> senv -> type. %name comp-bs DD.
 
 cor-bs/num : cor-bs (vnum N) (wnum N).
 
@@ -7,8 +7,8 @@ cor-bs/fun : cor-bs (vclos Alph B) (wclos Bet P)
               <- comp-bs Alph Bet
               <- trans-bs B P.
 
-comp-bs/nil : comp-bs store/nil sstore/nil.
+comp-bs/nil : comp-bs env/nil senv/nil.
 
-comp-bs/cons : comp-bs (store/cons Alph V) (sstore/cons Bet W)
+comp-bs/cons : comp-bs (env/cons Alph U) (senv/cons Bet V)
                 <- comp-bs Alph Bet
-                <- cor-bs V W.
+                <- cor-bs U V.

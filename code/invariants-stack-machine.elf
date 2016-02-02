@@ -37,7 +37,7 @@ shift-minst-id : {S} shift1-minst M M -> shift-minst S M M -> type.
 shift-minst-id/z : shift-minst-id z H1 shift-minst/z.
 
 shift-minst-id/s : shift-minst-id (s S) H1 (shift-minst/s H H1)
-                         <- shift-minst-id S H1 H.
+                    <- shift-minst-id S H1 H.
 
 %worlds () (shift-minst-id _ _ _).
 %total S (shift-minst-id S _ _).
@@ -103,7 +103,8 @@ prefix-shift : prefix Q1 Q2 -> shift1-mprog Q1 Q1^1 -> shift1-mprog Q2 Q2^1 -> p
 
 prefix-shift/stop : prefix-shift prefix/stop shift1-mprog/nil H2 prefix/stop.
 
-prefix-shift/keep : prefix-shift (prefix/keep DPre) (shift1-mprog/cons H1 H1') (shift1-mprog/cons H2 H2') (prefix/keep DPre')
+prefix-shift/keep : prefix-shift (prefix/keep DPre) (shift1-mprog/cons H1 H1')
+                                 (shift1-mprog/cons H2 H2') (prefix/keep DPre')
                      <- prefix-shift DPre H1 H2 DPre'.
 
 %worlds () (prefix-shift _ _ _ _).
@@ -117,7 +118,9 @@ prefix-leq-combine : prefix Q1 Q2 -> leq Q2 Q3 N -> leq Q1 Q3 N -> type.
 prefix-leq-combine/nil : prefix-leq-combine Q1-Pre-Q2 (leq/here Q2-Pre-Q3) (leq/here Q1-Pre-Q3)
                           <- prefix-trans Q1-Pre-Q2 Q2-Pre-Q3 Q1-Pre-Q3.
 
-prefix-leq-combine/cons : prefix-leq-combine (Q1-Pre-Q2 : prefix Q1 Q2) (leq/there (Q2<Q3 : leq Q2^1 Q3 N) (Q2->Q2^1 : shift1-mprog Q2 Q2^1)) (leq/there Q1<Q3 Q1->Q1^1)
+prefix-leq-combine/cons : prefix-leq-combine (Q1-Pre-Q2 : prefix Q1 Q2)
+                                             (leq/there (Q2<Q3 : leq Q2^1 Q3 N) (Q2->Q2^1 : shift1-mprog Q2 Q2^1))
+                                             (leq/there Q1<Q3 Q1->Q1^1)
                            <- shift1-mprog-exists _ (Q1->Q1^1 : shift1-mprog Q1 Q1^1)
                            <- prefix-shift Q1-Pre-Q2 Q1->Q1^1 Q2->Q2^1 Q1^1-Pre-Q2^1
                            <- prefix-leq-combine Q1^1-Pre-Q2^1 Q2<Q3 Q1<Q3.
@@ -146,7 +149,8 @@ leq-trans : leq Q1 Q2 M -> leq Q2 Q3 N -> add M N M+N -> leq Q1 Q3 M+N -> type.
 leq-trans/here : leq-trans (leq/here Q1-Pre-Q2) Q2<Q3 add/z Q1<Q3
                   <- prefix-leq-combine Q1-Pre-Q2 Q2<Q3 Q1<Q3.
 
-leq-trans/there : leq-trans (leq/there (Q1<Q2 : leq Q1 Q2 _) H) (M2;Q2<M3;Q3 : leq (M2 ; Q2) (M3 ; Q3) _) (add/s DA) (leq/there Q1<Q3 H)
+leq-trans/there : leq-trans (leq/there (Q1<Q2 : leq Q1 Q2 _) H) (M2;Q2<M3;Q3 : leq (M2 ; Q2) (M3 ; Q3) _)
+                            (add/s DA) (leq/there Q1<Q3 H)
                    <- leq-discard M2;Q2<M3;Q3 Q2<Q3
                    <- leq-trans Q1<Q2 Q2<Q3 DA Q1<Q3.
 
@@ -183,24 +187,24 @@ leq-lookup/s : leq-lookup (shift-minst/s H H1) (leq/there DLE (shift1-mprog/cons
 
 cor-value : mprog -> svalue -> mvalue -> type.
 
-cor-store : mprog -> sstore -> mstore -> type.
+cor-env : mprog -> senv -> menv -> type.
 
 % cor-value
 
 cor-value/num : cor-value Q (wnum N) (rnum N).
 
 cor-value/clos : cor-value Q (wclos Bet P) (rclos Gam L)
-                  <- cor-store Q Bet Gam
+                  <- cor-env Q Bet Gam
                   <- trans-sm' P Q'
                   <- leq Q' Q L.
 
-% cor-store
+% cor-env
 
-cor-store/nil : cor-store Q sstore/nil mstore/nil.
+cor-env/nil : cor-env Q senv/nil menv/nil.
 
-cor-store/cons : cor-store Q (sstore/cons Bet W) (mstore/cons Gam R)
-                  <- cor-store Q Bet Gam
-                  <- cor-value Q W R.
+cor-env/cons : cor-env Q (senv/cons Bet V) (menv/cons Gam W)
+                <- cor-env Q Bet Gam
+                <- cor-value Q V W.
 
 
 
@@ -211,7 +215,7 @@ cor-stack/nil : cor-stack Q frames/nil L mframes/nil
 
 cor-stack/cons : cor-stack Q (frames/cons Gamma Bet P) L (mframes/cons Delta Gam L')
                   <- cor-stack Q Gamma L' Delta
-                  <- cor-store Q Bet Gam
+                  <- cor-env Q Bet Gam
                   <- trans-sm' P Q'
                   <- leq Q' Q L.
 
@@ -221,6 +225,6 @@ cor-value-stack : mprog -> wstack -> rstack -> type.
 
 cor-value-stack/nil : cor-value-stack Q wstack/nil rstack/nil.
 
-cor-value-stack/cons : cor-value-stack Q (wstack/cons Psi W) (rstack/cons Phi R)
+cor-value-stack/cons : cor-value-stack Q (wstack/cons Psi V) (rstack/cons Phi W)
                         <- cor-value-stack Q Psi Phi
-                        <- cor-value Q W R.
+                        <- cor-value Q V W.

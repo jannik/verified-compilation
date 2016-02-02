@@ -2,9 +2,9 @@ completeness-hm : eval E (num N) -> trans-hm E Q L -> meval Q L (rnum N) -> type
 %mode completeness-hm +DE +DT -DM.
 
 completeness-hm/ : completeness-hm DE (trans-hm/ DT-SM DT-BS (_ : trans-hb-exists _ DT-HB)) DM
-                 <- completeness-hb DE DT-HB DB
-                 <- completeness-bs DB DT-BS DP
-                 <- completeness-sm DT-SM DM DP.
+                    <- completeness-hb DE DT-HB DB
+                    <- completeness-bs DB DT-BS DP
+                    <- completeness-sm DT-SM DM DP.
 
 %worlds () (completeness-hm _ _ _).
 %total {} (completeness-hm _ _ _).

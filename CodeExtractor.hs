@@ -72,7 +72,7 @@ twelfPath'' = "C:\\Program Files (x86)\\Twelf\\bin\\twelf-server.bat"
 createExample :: IO ()
 createExample = runTwelf twelfPath False $ do
     loadSources
-    [("E", hexp), ("B", bexp)] <- query (TwRaw "trans-hb-exists test5 (_ : trans-hb store/nil B E)")
+    [("E", hexp), ("B", bexp)] <- query (TwRaw "trans-hb-exists test5 (_ : trans-hb env/nil B E)")
     [("P", sprog)] <- query (TwName "trans-bs" `TwApp` bexp `TwApp` TwName "P")
     [("L", start), ("Q", mprog)] <- query (TwName "trans-sm" `TwApp` sprog `TwApp` TwName "Q" `TwApp` TwName "L")
     liftIO . writeFile "report/code-example-hoas.tex" . texifyHExp 1 . mkHExp $ hexp

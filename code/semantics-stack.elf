@@ -1,18 +1,18 @@
-svalue : type. %name svalue W.
-sstore : type. %name sstore Bet.
+svalue : type. %name svalue V.
+senv : type. %name senv Bet.
 
 wnum : nat -> svalue.
-wclos : sstore -> sprog -> svalue.
+wclos : senv -> sprog -> svalue.
 
-sstore/nil : sstore.
-sstore/cons : sstore -> svalue -> sstore.
+senv/nil : senv.
+senv/cons : senv -> svalue -> senv.
 
 
 
 frames : type. %name frames Gamma.
 
 frames/nil : frames.
-frames/cons : frames -> sstore -> sprog -> frames.
+frames/cons : frames -> senv -> sprog -> frames.
 
 
 
@@ -25,13 +25,13 @@ wstack/single = wstack/cons wstack/nil.
 
 
 
-seval-var : sstore -> nat -> svalue -> type. %name seval-var DSV.
-%mode seval-var +Bet +I -W.
+seval-var : senv -> nat -> svalue -> type. %name seval-var DSV.
+%mode seval-var +Bet +I -V.
 
-seval-var/here : seval-var (sstore/cons Bet W) z W.
+seval-var/here : seval-var (senv/cons Bet V) z V.
 
-seval-var/there : seval-var (sstore/cons Bet W') (s I) W
-                   <- seval-var Bet I W.
+seval-var/there : seval-var (senv/cons Bet V') (s I) V
+                   <- seval-var Bet I V.
 
 
 
@@ -42,15 +42,15 @@ sstep/num : sstep (frames/cons Gamma Bet (sprog/cons (snum N) P)) Psi
                   (frames/cons Gamma Bet P) (wstack/cons Psi (wnum N)).
 
 sstep/var : sstep (frames/cons Gamma Bet (sprog/cons (svar I) P)) Psi
-                  (frames/cons Gamma Bet P) (wstack/cons Psi W)
-             <- seval-var Bet I W.
+                  (frames/cons Gamma Bet P) (wstack/cons Psi V)
+             <- seval-var Bet I V.
 
 sstep/lam : sstep (frames/cons Gamma Bet (sprog/cons (slam P') P)) Psi
                   (frames/cons Gamma Bet P) (wstack/cons Psi (wclos Bet P')).
 
 sstep/app : sstep (frames/cons Gamma Bet (sprog/cons sapp P))
-                  (wstack/cons (wstack/cons Psi (wclos Bet' P')) W)
-                  (frames/cons (frames/cons Gamma Bet P) (sstore/cons Bet' W) P')
+                  (wstack/cons (wstack/cons Psi (wclos Bet' P')) V)
+                  (frames/cons (frames/cons Gamma Bet P) (senv/cons Bet' V) P')
                   Psi.
 
 sstep/suc : sstep (frames/cons Gamma Bet (sprog/cons ssuc P)) (wstack/cons Psi (wnum N))
@@ -72,8 +72,8 @@ ssteps/more : ssteps Gamma Psi Gamma'' Psi''
 
 
 seval : sprog -> svalue -> type. %name seval DP.
-%mode seval +P -W.
+%mode seval +P -V.
 
-seval/ : seval P W
-          <- ssteps (frames/cons frames/nil sstore/nil P) wstack/nil
-                    frames/nil (wstack/cons wstack/nil W).
+seval/ : seval P V
+          <- ssteps (frames/cons frames/nil senv/nil P) wstack/nil
+                    frames/nil (wstack/cons wstack/nil V).

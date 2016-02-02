@@ -5,42 +5,42 @@ bound : exp -> type.
 
 
 
-cover : store -> exp -> type.
+cover : env -> exp -> type.
 
 cover/num : cover Alph (num N).
 
 cover/free : cover Alph E
-               <- trans-hb-var Alph I E.
+              <- trans-hb-var Alph I E.
 
 cover/bound : cover Alph E
-                <- bound E.
+               <- bound E.
 
 cover/lam : cover Alph (lam E1)
-              <- {x} bound x -> cover Alph (E1 x).
+             <- {x} bound x -> cover Alph (E1 x).
 
 cover/app : cover Alph (app E1 E2)
-              <- cover Alph E1
-              <- cover Alph E2.
+             <- cover Alph E1
+             <- cover Alph E2.
 
 cover/suc : cover Alph (suc E1)
-              <- cover Alph E1.
+             <- cover Alph E1.
 
 
 
-empty-cover : {E} cover store/nil E -> type.
+empty-cover : {E} cover env/nil E -> type.
 %mode empty-cover +E -C.
 
 empty-cover/num : empty-cover (num N) cover/num.
 
 empty-cover/lam : empty-cover (lam E1) (cover/lam C1)
-                     <- {x} {xb} empty-cover x (cover/bound xb) -> empty-cover (E1 x) (C1 x xb).
+                   <- {x} {xb} empty-cover x (cover/bound xb) -> empty-cover (E1 x) (C1 x xb).
 
 empty-cover/app : empty-cover (app E1 E2) (cover/app C2 C1)
-                     <- empty-cover E1 C1
-                     <- empty-cover E2 C2.
+                   <- empty-cover E1 C1
+                   <- empty-cover E2 C2.
 
 empty-cover/suc : empty-cover (suc E1) (cover/suc C1)
-                     <- empty-cover E1 C1.
+                   <- empty-cover E1 C1.
 
 %block bl-empty-cover
    : block {x : exp} {xb : bound x} {pf : empty-cover x (cover/bound xb)}.
@@ -51,7 +51,7 @@ empty-cover/suc : empty-cover (suc E1) (cover/suc C1)
 
 
 bound-to-free : ({x} bound x -> cover Alph (E x))
-                 -> ({v} {x} cor v x -> cover (store/cons Alph v) (E x))
+                 -> ({v} {x} cor v x -> cover (env/cons Alph v) (E x))
                  -> type.
 %mode bound-to-free +C -C'.
 
@@ -115,7 +115,7 @@ trans-hb-exists'/suc : trans-hb-exists' _ (cover/suc C1) (trans-hb/suc DT1)
 
 
 
-trans-hb-exists : {E} trans-hb store/nil B E -> type.
+trans-hb-exists : {E} trans-hb env/nil B E -> type.
 %mode trans-hb-exists +E -DT.
 
 trans-hb-exists/ : trans-hb-exists E DT

@@ -1,4 +1,5 @@
 eval : exp -> exp -> type.
+%mode eval +E -C.
 
 eval/num : eval (num N) (num N).
 
@@ -11,6 +12,3 @@ eval/app : eval (app E1 E2) C
 
 eval/suc : eval (suc E1) (num (s N))
             <- eval E1 (num N).
-
-%worlds () (eval _ _).
-
