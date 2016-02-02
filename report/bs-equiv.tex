@@ -109,7 +109,6 @@ We construct the following derivation $\D'$ of \cor{\benv' \envcons \bval_2}{\se
 Then by IH on $\B_3$ with $\T_1'$ and $\D'$, (for all $\sctrl_3$ and $\svals_3$) we get derivations $\P_3$ of \ssteps{\sctrl_3 \stkcons \fr{\senv' \envcons \sval_2}{\sprog_0}}{\svals_3}{\sctrl_3 \stkcons \fr{\senv' \envcons \sval_2}{\send}}{\svals_3 \stkcons \sval_3} and $\C_3$ of \cor{\bval}{\sval_3} (for some $\sval_3$).
 Taking $\sval = \sval_3$, we can take $\C = \C_3$.
 Finally, fixing $\sctrl$ and $\svals$, we construct the required derivation $\P$ by concatenation:
-% note: 
 \begin{align*}
 \ssteplhs{\sctrl \stkcons \fr{\senv}{\sprog}}{\svals}
   & \sstepsrhs{\sctrl \stkcons \fr{\senv}{\sprog'}}{\svals \stkcons \cl{\senv'}{\sprog_0}} && (\text{$\P_1$; $\sctrl_1 = \sctrl$ and $\svals_1 = \svals$}) \\

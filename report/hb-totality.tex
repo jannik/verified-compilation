@@ -55,11 +55,11 @@ This is indeed the case as the following (generalised) lemma shows.
 For any $\hexp$ and $\boundenv$ with $\FV(\hexp) \subseteq \boundenv$ we have \cover{\boundenv}{\envnil}{\hexp}.
 \end{lemma}
 
+\code{empty-cover}{totality-hoas-bruijn.elf}
+
 \begin{proof}
 Straightforward induction on $\hexp$.
 \end{proof}
-
-\code{empty-cover}{totality-hoas-bruijn.elf}
 
 Before we can prove totality we need an important lemma stating that we can convert a bound variable $\var$ to a free one if we extend $\benvext$ with $\hbvar$.
 
