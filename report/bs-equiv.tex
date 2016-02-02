@@ -70,8 +70,7 @@ If \trabs{\bexp}{\sprog_2}{\sprog} (by $\T$) and \bev{\benv}{\bexp}{\bval} (by $
 
 \begin{proof}
 By induction on $\B$.
-The proof is rather straightforward, but the universal quantification of $\sctrl$ and $\svals$ introduces some subtlety since we need to use the induction hypothesis with different instantiations.
-We show the most interesting case here:
+The proof is rather straightforward; we show the most interesting case here.
 
 \paragraph{Case \textnormal{\rulename{B-App}}}
 
@@ -122,12 +121,14 @@ Finally, fixing $\sctrl$ and $\svals$, we construct the required derivation $\P$
 
 \end{proof}
 
-And finally we can establish the main theorem:
+We can finally establish the main preservation theorem:
 
-\begin{theorem}[Preservation \textnormal{\blang-\slang}]
+\begin{theorem}[Semantics Preservation \textnormal{\blang-\slang}]
 \label{thm:preservation-bs}
 If \trabs{\bexp}{\send}{\sprog}, then \bev{\envnil}{\bexp}{\n{\nat}} if and only if \sev{\sprog}{\n{\nat}}.
 \end{theorem}
+
+\doublecode{soundness-bs}{soundness-bruijn-stack.elf}{completeness-bs}{completeness-bruijn-stack.elf}
 
 \begin{proof}
 Supposing \trabs{\bexp}{\send}{\sprog} (by $\T$), we show the bi-implication.
@@ -139,6 +140,5 @@ By inversion on $\C$, we must have $\sval = \n{\nat}$.
 Concatenating $\P$ with a use of \rulename{S-Ret}, we get a derivation $\P'$ of \ssteps{[\fr{[]}{\sprog}]}{[]}{[]}{[\n{\nat}]}.
 And with $\P'$ we can derive $\sev{\sprog}{\n{\nat}}$ as required.
 
-The other direction is similar. [though not analogous.. is it relevant to prove these on paper?]
-
+The other direction is similar.
 \end{proof}
