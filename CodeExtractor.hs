@@ -141,17 +141,24 @@ mkSProg :: TwExp -> SProg
 mkSProg (TwName "sprog/nil") = []
 mkSProg (TwName "sprog/cons" `TwApp` e `TwApp` es) = mkSExp e : mkSProg es
 
-texifySExp :: SExp -> String
-texifySExp (SNum n) = "\\n{" ++ show n ++ "}"
-texifySExp (SVar i) = show i
-texifySExp (SLam es) = "(\\slam{" ++ texifySProg es ++ "})"
-texifySExp SApp = "\\sapp"
-texifySExp SSuc = "\\ssuc"
+texifySExp' :: SExp -> [String]
+texifySExp' (SNum n) = ["\\snum{" ++ show n ++ "}\\\\"]
+texifySExp' (SVar i) = ["\\svar{" ++ show i ++ "}\\\\"]
+texifySExp' (SLam es) = ["\\slamkeyword\\\\"] ++ indent (texifySProg' es)
+texifySExp' SApp = ["\\sapp\\\\"]
+texifySExp' SSuc = ["\\ssuc\\\\"]
+
+indent :: [String] -> [String]
+indent = map ("\\cdot \\;\\; " ++)
+
+texifySProg' :: SProg -> [String]
+texifySProg' = concatMap texifySExp'
 
 texifySProg :: SProg -> String
-texifySProg = intercalate ";" . map texifySExp
+texifySProg = unlines . map ('&' :) . texifySProg'
 
-data MExp = MPushNum Integer | MPushVar Integer | MPushClos Integer | MCall | MInc | MRet | MHalt
+
+data MExp = MPushNum Integer | MPushVar Integer | MPushClos Integer | MCall | MInc | MRet | MHalt | MDummy
     deriving (Show)
 
 type MProg = [MExp]
@@ -179,6 +186,11 @@ texifyMExp MCall = "\\mcall"
 texifyMExp MInc = "\\minc"
 texifyMExp MRet = "\\mret"
 texifyMExp MHalt = "\\mhalt"
+texifyMExp MDummy = ""
 
 texifyMProg :: MProg -> String
-texifyMProg es = unlines ["\\text{" ++ show i ++ ":}& \\quad" ++ texifyMExp e ++ "\\\\" | (e, i) <- zip es [0 ..]]
+texifyMProg es = unlines ["\\text{" ++ show i ++ ":}& \\quad" ++ texifyMExp e1 ++ "&&\\text{" ++ show (i + es1Len) ++ ":}\\quad " ++ texifyMExp e2 ++ "\\\\" | (e1, e2, i) <- zip3 es1 es2 [0 ..]]
+    where
+        es1Len = (length es + 1) `div` 2
+        es1 = take es1Len es
+        es2 = drop es1Len es ++ (if odd (length es) then [MDummy] else [])

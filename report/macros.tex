@@ -47,7 +47,8 @@ $\blacksquare$
 \ensurecommand{\Twelf}{\paragraph{Twelf}}
 \ensurecommand{\code}[2]{\paragraph{Code} See \texttt{#1} in \texttt{#2}.}
 \ensurecommand{\doublecode}[4]{\paragraph{Code} See \texttt{#1} in \texttt{#2} and \texttt{#3} in \texttt{#4}.}
-\ensurecommand{\codefile}[2]{\paragraph{Code} See \texttt{#1} and \texttt{#2}.}
+\ensurecommand{\codefile}[1]{\paragraph{Code} See \texttt{#1}.}
+\ensurecommand{\doublecodefile}[2]{\paragraph{Code} See \texttt{#1} and \texttt{#2}.}
 \ensurecommand{\defi}{\Coloneqq}
 \ensurecommand{\alt}{\;\; | \;\;}
 \ensurecommand{\set}[1]{\{ #1 \}}%
@@ -134,7 +135,8 @@ $\blacksquare$
 
 \ensurecommand{\snum}[1]{\mathtt{num} \; #1}
 \ensurecommand{\svar}[1]{\mathtt{var} \; #1}
-\ensurecommand{\slam}[1]{\mathtt{mkclos} \; #1}
+\ensurecommand{\slamkeyword}{\mathtt{mkclos}}
+\ensurecommand{\slam}[1]{\slamkeyword \; #1}
 \ensurecommand{\sapp}{\mathtt{app}}
 \ensurecommand{\ssuc}{\mathtt{suc}}
 
