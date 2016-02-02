@@ -12,11 +12,14 @@ Compilers are difficult to implement correctly; despite years of effort, even ba
 Formal verification offers the possibility of machine-checked proofs of correctness.
 With a verified compiler, it is merely necessary to trust the specification in order to have confidence in the implementation.
 
-This report presents a compiler from a simple higher-order functional language to an imperative abstract stack machine language with an external program store.
-It has been implemented in the Twelf proof assistant along with a proof of correctness.
-In particular, the implementation contains a totality proof of a translation converting higher-order abstract syntax to a concrete representation.
+This report presents a compiler implemented in the Twelf proof assistant.
+The source language is a simple higher-order functional language represented using higher-order abstract syntax (HOAS) and the target language is an imperative abstract stack machine language with a linear program representation.
+Compilation employs two intermediate languages: the source is translated to a concrete representation using De Bruijn indices, then translated to a high-level stack-based language and finally to the target language.
 
-[what else?]
+The translation is accompanied by a proof of correctness establishing that it is total and semantics-preserving.
+Compared to previous work using Twelf we translate significantly further towards a realistic machine.
+Additionally, our formalised translation from HOAS to De Bruijn is both total and very amenable to proofs about semantics-preservation, which is a considerable improvement on previous published work.
+
 \end{abstract}
 
 \clearpage
