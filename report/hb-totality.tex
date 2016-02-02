@@ -161,3 +161,14 @@ For any closed $\hexp$ there exists $\bexp$ such that \trahb{}{\envnil}{\bexp}{\
 \begin{proof}
 Immediate from lemmas \ref{lem:empty-cover} and \ref{lem:totality}.
 \end{proof}
+
+\Twelf
+Most of the Twelf implementation is a direct encoding of the paper proof.
+The set $\boundenv$ of bound variables is represented implicitly by assumptions in the Twelf context while $\benvext$ is represented explicitly as a list.
+Thus, Lemma~\ref{lem:bound-to-free} is stated as follows:
+\input{code-totality-bound-to-free}
+In Twelf terms, a \texttt{cover} depending on a \texttt{bound x} hypothesis can be converted into a \texttt{cover} without this dependency.
+The technique has similarities with Crary's ``Explicit Contexts in LF'' \cite{Crary08}, where he shows how to convert back and forth between a judgement using implicit contexts and an equivalent one using explicit contexts.
+This is not quite what we are doing --- $\boundenv$ is not just an implicit version of $\benvext$ --- but the general pattern of distinguishing between bound and free variables and having a lemma that converts a single variable from bound to free is the same.
+His proof also requires several auxiliary lemmas while we are able to prove \texttt{bound-to-free} directly.
+

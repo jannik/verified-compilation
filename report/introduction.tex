@@ -49,13 +49,18 @@ The focus is on maintainability of the compiler, in particular using parameteris
 Overall, however, the focus has mainly been on first-order imperative languages such as C.
 
 Using Twelf there are not many prior examples of verified compilation.
-The main results are found in \cite[ch. 6]{Pfenning01}.
-% Talk about how little Pfenning did and that it was non-total.
-% Mention concrete representations guy.
+An early example is a verified compiler written in Elf from a simple functional language to a variant of the Categorical Abstract Machine (roughly speaking, a $\lambda$-calculus with De Bruijn indices) \cite{Hannan92}.
+It includes a proof of semantics-preservation, but being written in the time before Twelf the termination and coverage of meta-theorems are argued on paper.
+There is no formalisation of totality of the translation.
+These ideas are expanded by Pfenning in his notes \cite[ch. 6]{Pfenning01}.
+He goes slightly further to a stack language that embeds tree-structured programs and translates while evaluating.
+Totality of the translation from HOAS to De Bruijn indices is only proved on paper, noting that the theorem cannot be directly encoded in Elf.
 
-[We will explain how we expand on previous work here]
-% Andrzej: somewhere!
+There is prior art in translating from HOAS to De Bruijn indices, however.
+On the Twelf home page Simmons \cite{Simmons07} constructs a total bijection, although at the cost of considerable complexity.
 
+Compared to the previous work using Twelf we translate much further, ending at a more machine-like language with a control stack and a linear program.
+Additionally our translation from HOAS to De Bruijn indices combines the simplicity of Pfenning's with the totality of Simmons'.
 
 
 \section{Overview}

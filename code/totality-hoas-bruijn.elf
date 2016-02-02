@@ -50,7 +50,9 @@ empty-cover/suc : empty-cover (suc E1) (cover/suc C1)
 
 
 
-bound-to-free : ({x} bound x -> cover Alph (E x)) -> ({v} {x} cor v x -> cover (store/cons Alph v) (E x)) -> type.
+bound-to-free : ({x} bound x -> cover Alph (E x))
+                 -> ({v} {x} cor v x -> cover (store/cons Alph v) (E x))
+                 -> type.
 %mode bound-to-free +C -C'.
 
 bound-to-free/num : bound-to-free

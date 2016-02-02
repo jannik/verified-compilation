@@ -48,6 +48,7 @@ extractAll = do
     extract 1 "code/trans-hoas-bruijn.elf" "trans-hb/lam" "report/code-trans-hb-lam.tex"
     extract 1 "code/trans-hoas-bruijn.elf" "%block bl-trans-hb" "report/code-trans-hb-block.tex"
     extract 1 "code/trans-hoas-bruijn.elf" "%query 0 *" "report/code-trans-hb-query.tex"
+    extract 1 "code/totality-hoas-bruijn.elf" "bound-to-free" "report/code-totality-bound-to-free.tex"
     extract 1 "code/totality-hoas-bruijn.elf" "trans-hb-exists'" "report/code-totality-hb-exists.tex"
     extract 1 "code/totality-hoas-bruijn.elf" "trans-hb-exists'/lam" "report/code-totality-hb-lam.tex"
     extract 1 "code/totality-hoas-bruijn.elf" "trans-hb-exists'/app" "report/code-totality-hb-app.tex"
