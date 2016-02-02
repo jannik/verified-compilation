@@ -15,7 +15,7 @@ Note that we include the successor operation but no eliminator (e.g. case expres
 \[
 \app{\app{\hexp}{(\lam{\var}{\hsuc{\var}}})}{\n{0}}
 \]
-Furthermore, we observe that \hlang is Turing complete since it is untyped and therefore allows general recursion with e.g. the Y-combinator.
+Furthermore, we note that \hlang is Turing complete since it is untyped and therefore allows general recursion with e.g. the Y-combinator.
 
 \Twelf
 The Twelf definition is:
@@ -34,10 +34,9 @@ We define canonical forms $\hval$ as a subset of expressions:
 
 \hlang has a completely standard substitution-based semantics.
 
-
-
-\begin{judgement}{\hev{\hexp}{\hval}} ($\hexp$ closed)
-
+\begin{judgement}{\hev{\hexp}{\hval}}
+{$\hexp$ evaluates to $\hval$}
+%
 \begin{prooftree}
   \leftl{\rulename{E-Num} :}
   \ax{\hev{\n{\nat}}{\n{\nat}}}
@@ -61,9 +60,10 @@ We define canonical forms $\hval$ as a subset of expressions:
 	\leftl{\rulename{E-Suc} :}
   \uinf{\hev{\hsuc{\hexp_1}}{\n{\nat + 1}}}
 \end{prooftree}
-
+%
 \end{judgement}
 
 \Twelf
 Since we use HOAS to represent $\lambda$-abstractions, we can appeal to Twelf's built-in substitution when defining application:
+\input{code-hoas-eval}
 \input{code-hoas-eval-app}

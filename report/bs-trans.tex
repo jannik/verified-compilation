@@ -10,7 +10,8 @@ Intuitively speaking, $\sprog'$ is then the translation of $\bexp$ put in front 
 This leads us to the following translation judgement:
 
 \begin{judgement}{\trabs{\bexp}{\sprog}{\sprog'}}
-
+{the translation of $\bexp$ concatenated with $\sprog$ is $\sprog'$}
+%
 \begin{prooftree}
   \leftl{\rulename{T-Num} :}
   \ax{\trabs{\n{\nat}}{\sprog}{\n{\nat} \sseq \sprog}}
@@ -39,7 +40,7 @@ This leads us to the following translation judgement:
   \leftl{\rulename{T-Suc} :}
   \uinf{\trabs{\bsuc{\bexp_1}}{\sprog}{\sprog'}}
 \end{prooftree}
-
+%
 \end{judgement}
 
 Unlike the previous translation, from \hlang to \blang, this translation is clearly total.

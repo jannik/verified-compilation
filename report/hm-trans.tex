@@ -4,12 +4,15 @@ In this section, to avoid confusion owing to similarity in notation, we mark the
 We are now ready to define the full translation from \hlang to \mlang:
 
 \begin{judgement}{\trahmqual{\hexp}{\mprog}{\addr}}
+{$\hexp$ translates to $\mprog$ with starting address $\addr$}
+%
 \begin{prooftree}
   \ninf{\trahbqual{\bexp}{\hexp}}
   \ninf{\trabsqual{\bexp}{\sprog}}
   \ninf{\trasmqual{\sprog}{\mprog}{\addr}}
   \tinf{\trahmqual{\hexp}{\mprog}{\addr}}
 \end{prooftree}
+%
 \end{judgement}
 Like for the \slang-\mlang translation, $\addr$ indicates the starting address of the program $\mprog$.
 

@@ -10,57 +10,24 @@ We define variable indices $\bvar$ and \blang expressions $\bexp$ as follows:
 	\bvar &\defi \z \alt \suc{i} \\
 	\bexp &\defi \n{\nat} \alt \bvar \alt \blam{\bexp} \alt \bapp{\bexp_1}{\bexp_2} \alt \bsuc{\bexp}
 \end{align*}
-We will need a notion of \blang expressions being closed:
-
-
-
-\begin{judgement}{\closed{k}{\bexp}}
-
-\begin{prooftree}
-  \ax{\closed{k}{\n{\nat}}}
-\end{prooftree}
-
-\begin{prooftree}
-  \rightl{($\bvar < k$)}
-  \ax{\closed{k}{\bvar}}
-\end{prooftree}
-
-\begin{prooftree}
-  \ninf{\closed{k + 1}{\bexp_1}}
-  \uinf{\closed{k}{\blam{\bexp_1}}}
-\end{prooftree}
-
-\begin{prooftree}
-  \ninf{\closed{k}{\bexp_1}}
-  \ninf{\closed{k}{\bexp_2}}
-  \binf{\closed{k}{\bapp{\bexp_1}{\bexp_2}}}
-\end{prooftree}
-
-\begin{prooftree}
-  \ninf{\closed{k}{\bexp_1}}
-  \uinf{\closed{k}{\bsuc{\bexp_1}}}
-\end{prooftree}
-
-\end{judgement}
-
-If \closed{0}{\bexp} we simply say that $\bexp$ is closed.
 
 \subsection{Semantics}
 
 The semantics of \blang is environment-based.
-We define \blang values $\bval$ as follows, and environments $\benv$ are then ordered lists of values.
+That is, $\lambda$-abstractions are evaluated to closures which contain a function body expression and a copy of the environment at the time of evaluation.
+Variables, represented by De Bruijn indices, then index the current environment to evaluate to values.
+
+We define \blang values $\bval$ to comprise numbers and closures, and environments $\benv$ are then ordered lists of values:
 \begin{align*}
   \bval &\defi \n{\nat} \alt \cl{\benv}{\bexp} \\
   \benv &\defi \envnil \alt \benv \envcons \bval
 \end{align*}
-% maybe require that environments in closures are appropriately closed?
 
-Before giving the main evaluation judgement, we introduce an auxiliary judgement for variable lookup.
-
-
+Before giving the main evaluation judgement, we introduce an auxiliary judgement for variable lookup:
 
 \begin{judgement}{\blook{\benv}{\bvar}{\bval}}
-
+{$\bval$ is found at index $\bvar$ in $\benv$}
+%
 \begin{prooftree}
   \leftl{\rulename{Bv-Here} :}
   \ax{\blook{\benv \envcons \bval}{\z}{\bval}}
@@ -71,11 +38,14 @@ Before giving the main evaluation judgement, we introduce an auxiliary judgement
   \leftl{\rulename{Bv-There} :}
   \uinf{\blook{\benv \envcons \bval'}{\suc{\bvar}}{\bval}}
 \end{prooftree}
-
+%
 \end{judgement}
 
-\begin{judgement}{\bev{\benv}{\bexp}{\bval}}
+And now the judgement for evaluation of \blang expressions:
 
+\begin{judgement}{\bev{\benv}{\bexp}{\bval}}
+{$\bexp$ evaluates to $\bval$ in the environment $\benv$}
+%
 \begin{prooftree}
   \leftl{\rulename{B-Num} :}
   \ax{\bev{\benv}{\n{\nat}}{\n{\nat}}}
@@ -105,5 +75,5 @@ Before giving the main evaluation judgement, we introduce an auxiliary judgement
 	\leftl{\rulename{B-Suc} :}
   \uinf{\bev{\benv}{\bsuc{\bexp_1}}{\n{\nat + 1}}}
 \end{prooftree}
-
+%
 \end{judgement}

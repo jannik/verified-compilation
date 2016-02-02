@@ -12,7 +12,8 @@ The set of variables occuring in $\benvext$ at least once will be denoted by $\v
 The \blook{\benv}{\bvar}{\bval} judgement can be extended to work with $\benvext$:
 
 \begin{judgement}{\blookext{\benvext}{\bvar}{\bval}}
-
+{something}
+%
 \begin{prooftree}
   \leftl{\rulename{Tv-Here} :}
   \ax{\blookext{\benvext \envcons \var}{\z}{\var}}
@@ -30,7 +31,7 @@ The \blook{\benv}{\bvar}{\bval} judgement can be extended to work with $\benvext
   \leftl{\rulename{Tv-Value} :}
   \uinf{\blookext{\benv}{\bvar}{\bval}}
 \end{prooftree}
-
+%
 \end{judgement}
 
 Given a $\bexp$ and an $\benvext$ we can consider extracting some $\hexp$, informally speaking by substituting $\benvext$ in $\bexp$ and finding corresponding \hlang values.
@@ -38,7 +39,8 @@ Given a $\bexp$ and an $\benvext$ we can consider extracting some $\hexp$, infor
 This can be expressed in judgemental form as follows.
 
 \begin{judgement}{\trahb{\hbctx}{\benvext}{\bexp}{\hexp}}
-
+{something}
+%
 \begin{prooftree}
   \leftl{\rulename{T-Num} :}
   \ax{\trahb{\hbctx}{\benvext}{\n{\nat}}{\n{\nat}}}
@@ -69,14 +71,15 @@ This can be expressed in judgemental form as follows.
 	\leftl{\rulename{T-Suc} :}
   \uinf{\trahb{\hbctx}{\benvext}{\bsuc{\bexp_1}}{\hsuc{\hexp_1}}}
 \end{prooftree}
-
+%
 \end{judgement}
 
 It uses a correspondence relation between values and expressions.
 Note that the rule for functions uses a regular $\benv$.
 
 \begin{judgement}{\corhb{\hbctx}{\bvalext}{\hexp}}
-
+{something}
+%
 \begin{prooftree}
   \leftl{\rulename{C-Var} :}
   \ax{\corhb{\Theta}{\var}{\var}}
@@ -92,7 +95,7 @@ Note that the rule for functions uses a regular $\benv$.
   \leftl{\rulename{C-Fun} :}
   \uinf{\corhb{\hbctx}{\cl{\benv}{\bexp}}{\lam{\var}{\hexp}}}
 \end{prooftree}
-
+%
 \end{judgement}
 
 \Twelf

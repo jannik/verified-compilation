@@ -6,16 +6,18 @@ Let $\shift{\mprog}{\nat}$ denote the program $\mprog$ shifted by $\nat$, i.e. w
 We translate from stack programs to machine programs using the following judgements:
 
 \begin{judgement}{$\trasmfinal{\sprog}{\mprog}{\addr}$}
-
+{the full program $\sprog$ translates to $\mprog$ with starting address $\addr$}
+%
 \begin{prooftree}
   \ninf{$\trasm{\sprog}{\mprog}$}
   \uinf{$\trasmfinal{\sprog}{\mhalt \mseq \shift{\mprog}{1}}{1}$}
 \end{prooftree}
-
+%
 \end{judgement}
 
 \begin{judgement}{$\trasm{\sprog}{\mprog}$}
-
+{$\sprog$ translates to $\mprog$}
+%
 \begin{prooftree}
   \ninf{$\trasm{\sprog}{\mprog}$}
   \uinf{$\trasm{\snum{\nat} \sseq \sprog}{\mpushnum{\nat} \mseq \shift{\mprog}{1}}$}
@@ -45,7 +47,7 @@ We translate from stack programs to machine programs using the following judgeme
 \begin{prooftree}
   \ax{$\trasm{\send}{\mret \mseq \mend}$}
 \end{prooftree}
-
+%
 \end{judgement}
 
 This translation is clearly total; for every \slang program $\sprog$ there exists a \mlang program $\mprog$ and an address $\addr$ such that \trasmfinal{\sprog}{\mprog}{\addr}.

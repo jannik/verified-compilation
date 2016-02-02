@@ -40,7 +40,8 @@ A deep control stack during execution of a \slang program corresponds to being `
 As usual, we need a judgement for indexing an environment:
 
 \begin{judgement}{\slook{\senv}{\bvar}{\sval}}
-
+{the value $\sval$ is found at index $\bvar$ in $\senv$}
+%
 \begin{prooftree}
   \leftl{\rulename{Sv-Here} :}
   \ax{\slook{\senv \envcons \sval}{\z}{\sval}}
@@ -51,7 +52,7 @@ As usual, we need a judgement for indexing an environment:
   \leftl{\rulename{Sv-There} :}
   \uinf{\slook{\senv \envcons \sval'}{\suc{\bvar}}{\sval}}
 \end{prooftree}
-
+%
 \end{judgement}
 
 We are now ready to define the single- and multi-step relations defining execution of \slang programs.
@@ -61,7 +62,8 @@ Informally, the instructions $\snum{\nat}$, $\svar{\bvar}$ and $\slam{\sprog}$ p
 $\sapp$ calls a function, creating a new frame that is eventually removed (by rule \rulename{S-Ret}) once the function body has been exhausted.
 
 \begin{judgement}{\sstep{\sctrl}{\svals}{\sctrl'}{\svals'}}
-
+{the state $\tup{\sctrl \tupsep \svals}$ advances to $\tup{\sctrl' \tupsep \svals'}$ in a single step}
+%
 \begin{prooftree}
   \leftl{\rulename{S-Num} :}
   \ax{\sstep{\sctrl \stkcons \fr{\senv}{\snum{\nat} \sseq \sprog}}{\svals}{\sctrl \stkcons \fr{\senv}{\sprog}}{\svals \stkcons \n{\nat}}}
@@ -94,11 +96,12 @@ $\sapp$ calls a function, creating a new frame that is eventually removed (by ru
   \leftl{\rulename{S-Ret} :}
   \ax{\sstep{\sctrl \stkcons \fr{\senv}{\send}}{\svals}{\sctrl}{\svals}}
 \end{prooftree}
-
+%
 \end{judgement}
 
 \begin{judgement}{\ssteps{\sctrl}{\svals}{\sctrl'}{\svals'}}
-
+{the state $\tup{\sctrl \tupsep \svals}$ advances to $\tup{\sctrl' \tupsep \svals'}$ in multiple steps}
+%
 \begin{prooftree}
   \leftl{\rulename{SS-Zero} :}
   \ax{\ssteps{\sctrl}{\svals}{\sctrl}{\svals}}
@@ -110,7 +113,8 @@ $\sapp$ calls a function, creating a new frame that is eventually removed (by ru
   \leftl{\rulename{SS-More} :}
   \binf{\ssteps{\sctrl}{\svals}{\sctrl'}{\svals'}}
 \end{prooftree}
-
+%
 \end{judgement}
 
 In order to have a clean notation for when a program executes fully and yields a value, we let \sev{\sprog}{\sval} abbreviate \ssteps{[\fr{\envnil}{\sprog}]}{\stknil}{\stknil}{[\sval]}.
+\sev{\sprog}{\sval} can then be read as ``$\sprog$ evaluates fully to $\sval$''.

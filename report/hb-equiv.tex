@@ -1,4 +1,4 @@
-\subsection{Preservation}
+\subsection{Semantics Preservation}
 
 We want to show that if \trahb{\hbctx}{\envnil}{\bexp}{\hexp}, then \hev{\hexp}{\n{\nat}} if and only if \bev{\envnil}{\bexp}{\n{\nat}}.
 To prove this, we need an assortment of lemmas.
@@ -58,9 +58,6 @@ Hence, we can take $\T'$ to be
   \binf{\trahb{\hbctx}{\sub{\benvext}{\bval}{\var}}{\bvar}{\sub{\hexp}{\hval}{\var}}}
 \end{prooftree}
 
-
-
-
 \paragraph{Case \textnormal{\rulename{T-Lam}}}
 $\T$ has the form
 \begin{prooftree}
@@ -78,10 +75,18 @@ By IH on $\T_1$ with $\C$ we get \trahb{\hbctx}{\sub{\benvext}{\bval}{\var} \env
 \Twelf
 This lemma, like any substitution lemma, comes ``for free'' since all definitions in Twelf respect substitution by construction.
 
+\vspace{0.5cm}
+
+\noindent Separating the two directions of the theorem, we are aiming to show
+\begin{itemize}
+	\item[]right-to-left: if \trahb{\hbctx}{\envnil}{\bexp}{\hexp} and \bev{\envnil}{\bexp}{\n{\nat}} then \hev{\hexp}{\n{\nat}}
+	\item[]left-to-right: if \trahb{\hbctx}{\envnil}{\bexp}{\hexp} and \hev{\hexp}{\n{\nat}} then \bev{\envnil}{\bexp}{\n{\nat}}
+\end{itemize}
+In order to prove them inductively, we generalise right-to-left and left-to-right to soundness and completeness, respectively.
 
 \begin{lemma}[Soundness]
 \label{lem:soundness-hb}
-For closed $\hexp$, if \trahb{\hbctx}{\benv}{\hexp}{\bexp} (by $\T$) and \bev{\benv}{\bexp}{\bval} (by $\B$), then there exists $\hval$ such that \hev{\hexp}{\hval} (by some $\E$) and \corhb{\hbctx}{\bval}{\hval} (by some $\C$).
+If \trahb{\hbctx}{\benv}{\hexp}{\bexp} (by $\T$) and \bev{\benv}{\bexp}{\bval} (by $\B$), then there exists $\hval$ such that \hev{\hexp}{\hval} (by some $\E$) and \corhb{\hbctx}{\bval}{\hval} (by some $\C$).
 \end{lemma}
 
 \code{soundness-hb'}{soundness-hoas-bruijn.elf}
@@ -105,7 +110,6 @@ Using \rulename{E-Lam} we get \hev{\lam{\var}{\hexp_1}}{\lam{\var}{\hexp_1}} and
   \prem{\T}{\trahb{\hbctx}{\benv}{\blam{\bexp_1}}{\lam{\var}{\hexp_1}}}
   \uinf{\corhb{\hbctx}{\cl{\benv}{\bexp_1}}{\lam{\var}{\hexp_1}}}
 \end{prooftree}
-
 
 \paragraph{Case \textnormal{\rulename{T-App}}}
 $\T$ has the form
@@ -151,9 +155,11 @@ Completely analogous to the soundness proof.
 \Twelf
 Note that the implementations of soundness and completeness are identical, safe for the choice of mode and induction variable.
 
-And finally, we can establish the main theorem:
+\vspace{0.5cm}
 
-\begin{theorem}[Preservation \textnormal{\hlang-\blang}]
+\noindent We can finally establish the main preservation theorem:
+
+\begin{theorem}[Semantics Preservation \textnormal{\hlang-\blang}]
 \label{thm:preservation-hb} If \trahb{\hbctx}{\envnil}{\bexp}{\hexp}, then \hev{\hexp}{\n{\nat}} if and only if \bev{\envnil}{\bexp}{\n{\nat}}.
 \end{theorem}
 
