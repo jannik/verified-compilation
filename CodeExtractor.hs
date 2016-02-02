@@ -20,30 +20,38 @@ main = do
 readCodeFile :: String -> IO Code
 readCodeFile = fmap lines . readFile
 
-extractDefinition :: String -> Code -> Code
-extractDefinition defName (l : ls)
-    | defName `isPrefixOf` l = takeWhile (/= "") (l : ls)
-    | otherwise = extractDefinition defName ls
+extractDefinition :: Int -> String -> Code -> Code
+extractDefinition n defName (l : ls)
+    | defName `isPrefixOf` l = takeLines n (l : ls)
+    | otherwise = extractDefinition n defName ls
+
+takeLines :: Int -> Code -> Code
+takeLines _ [] = []
+takeLines 0 _ = []
+takeLines 1 ("" : ls) = []
+takeLines n ("" : ls) = "" : takeLines (n - 1) ls
+takeLines n (l : ls) = l : takeLines n ls
 
 texify :: Code -> Code
 texify code = ["\\begin{verbatim}"] ++ code ++ ["\\end{verbatim}"]
 
-extract :: String -> String -> String -> IO ()
-extract codeFile defName texFile = do
+extract :: Int -> String -> String -> String -> IO ()
+extract n codeFile defName texFile = do
     code <- readCodeFile codeFile
-    writeFile texFile . unlines . texify $ extractDefinition defName code
+    writeFile texFile . unlines . texify $ extractDefinition n defName code
 
 extractAll :: IO ()
 extractAll = do
-    extract "code/syntax-hoas.elf" "num" "report/code-hoas-exp.tex"
-    extract "code/semantics-hoas.elf" "eval/app" "report/code-hoas-eval-app.tex"
-    extract "code/trans-hoas-bruijn.elf" "trans-hb/lam" "report/code-trans-hb-lam.tex"
-    extract "code/trans-hoas-bruijn.elf" "%block bl-trans-hb" "report/code-trans-hb-block.tex"
-    extract "code/trans-hoas-bruijn.elf" "%query 0 *" "report/code-trans-hb-query.tex"
-    extract "code/totality-hoas-bruijn.elf" "trans-hb-exists'" "report/code-totality-hb-exists.tex"
-    extract "code/totality-hoas-bruijn.elf" "trans-hb-exists'/lam" "report/code-totality-hb-lam.tex"
-    extract "code/totality-hoas-bruijn.elf" "trans-hb-exists'/app" "report/code-totality-hb-app.tex"
-    extract "code/soundness-bruijn-stack.elf" "%reduces DP' < DP (soundness-bs'" "report/code-soundness-bs.tex"
+    extract 2 "code/syntax-hoas.elf" "exp" "report/code-hoas-exp.tex"
+    extract 1 "code/semantics-hoas.elf" "eval" "report/code-hoas-eval.tex"
+    extract 1 "code/semantics-hoas.elf" "eval/app" "report/code-hoas-eval-app.tex"
+    extract 1 "code/trans-hoas-bruijn.elf" "trans-hb/lam" "report/code-trans-hb-lam.tex"
+    extract 1 "code/trans-hoas-bruijn.elf" "%block bl-trans-hb" "report/code-trans-hb-block.tex"
+    extract 1 "code/trans-hoas-bruijn.elf" "%query 0 *" "report/code-trans-hb-query.tex"
+    extract 1 "code/totality-hoas-bruijn.elf" "trans-hb-exists'" "report/code-totality-hb-exists.tex"
+    extract 1 "code/totality-hoas-bruijn.elf" "trans-hb-exists'/lam" "report/code-totality-hb-lam.tex"
+    extract 1 "code/totality-hoas-bruijn.elf" "trans-hb-exists'/app" "report/code-totality-hb-app.tex"
+    extract 1 "code/soundness-bruijn-stack.elf" "%reduces DP' < DP (soundness-bs'" "report/code-soundness-bs.tex"
 
 appendixCode :: [(String, [String])] -> String
 appendixCode = unlines . concat . map f
