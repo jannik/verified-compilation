@@ -57,7 +57,7 @@ extractAll = do
 appendixCode :: [(String, [String])] -> String
 appendixCode = unlines . concat . map f
     where
-        f (fileName, contents) = ["\\subsubsection{" ++ fileName ++ "}", "\\begin{Verbatim}[fontsize=\\tiny]"] ++ contents ++ ["\\end{Verbatim}"]
+        f (fileName, contents) = ["\\subsubsection{" ++ fileName ++ "}", "\\begin{Verbatim}[fontsize=\\scriptsize]"] ++ contents ++ ["\\end{Verbatim}"]
 
 createAppendix :: IO ()
 createAppendix = do
