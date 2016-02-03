@@ -160,10 +160,14 @@ Note that the implementations of soundness and completeness are identical, safe 
 \noindent We can finally establish the main preservation theorem:
 
 \begin{theorem}[Semantics Preservation \textnormal{\hlang-\blang}]
-\label{thm:preservation-hb} If \trahb{\benv}{\envnil}{\bexp}{\hexp}, then \hev{\hexp}{\n{\nat}} if and only if \bev{\envnil}{\bexp}{\n{\nat}}.
+\label{thm:preservation-hb} If \trahb{\envnil}{\envnil}{\bexp}{\hexp}, then \hev{\hexp}{\n{\nat}} if and only if \bev{\envnil}{\bexp}{\n{\nat}}.
 \end{theorem}
 
 \doublecode{soundness-hb}{soundness-hoas-bruijn.elf}{completeness-hb}{completeness-hoas-bruijn.elf}
+
+\begin{proof}
+Immediate from lemmas \ref{lem:soundness-hb} and \ref{lem:completeness-hb}.
+\end{proof}
 
 \Twelf
 It is not possible to state the preservation theorem directly in Twelf since it, abstractly speaking, has the form $P \rightarrow ((Q \rightarrow R) \wedge (R \rightarrow Q))$ which is not $\Pi_2^0$.
