@@ -1,19 +1,13 @@
 \subsection{Translation}
 
-% exlain overall structure/goal of translation
+The main responsibility of the \slang-\mlang translation is to flatten function definitions.
+Informally, $\slam{\sprog}$ is translated to $\mpushclos{\addr}$ and some $\mprog$ where $\addr$ points to the start of $\mprog$.
 
-Let $\shift{\mprog}{\nat}$ denote the program $\mprog$ shifted by $\nat$, i.e. with each address $\addr$ (in $\mpushclos{\addr}$ and $\mcall{\addr}$) replaced by $\addr + \nat$.
-We translate from stack programs to machine programs using the following judgements:
+During translation, instructions are placed in front of the program being constructed, and so references to function bodies must be adjusted accordingly.
+Let $\shift{\mprog}{\nat}$ denote the program $\mprog$ shifted by $\nat$, i.e. with each address $\addr$ (in $\mpushclos{\addr}$) replaced by $\addr + \nat$.
+And let $\len{\mprog}$ denote the length of the program $\mprog$, i.e. the number of the instructions in $\mprog$.
 
-\begin{judgement}{$\trasmfinal{\sprog}{\mprog}{\addr}$}
-{the full program $\sprog$ translates to $\mprog$ with starting address $\addr$}
-%
-\begin{prooftree}
-  \ninf{$\trasm{\sprog}{\mprog}$}
-  \uinf{$\trasmfinal{\sprog}{\mhalt \mseq \shift{\mprog}{1}}{1}$}
-\end{prooftree}
-%
-\end{judgement}
+We translate from \slang programs to \mlang programs using the following judgement:
 
 \begin{judgement}{$\trasm{\sprog}{\mprog}$}
 {$\sprog$ translates to $\mprog$}
@@ -36,7 +30,7 @@ We translate from stack programs to machine programs using the following judgeme
 
 \begin{prooftree}
   \ninf{$\trasm{\sprog}{\mprog}$}
-  \uinf{$\trasm{\sapp \sseq \sprog}{\mcall{1} \mseq \shift{\mprog}{1}}$}
+  \uinf{$\trasm{\sapp \sseq \sprog}{\mcall \mseq \shift{\mprog}{1}}$}
 \end{prooftree}
 
 \begin{prooftree}
@@ -50,10 +44,24 @@ We translate from stack programs to machine programs using the following judgeme
 %
 \end{judgement}
 
-This translation is clearly total; for every \slang program $\sprog$ there exists a \mlang program $\mprog$ and an address $\addr$ such that \trasmfinal{\sprog}{\mprog}{\addr}.
+This approach with shifting instructions results in a translation relation which, when executed as an Elf logic program, clearly runs in time quadratic in the program size.
+However, it is possible to translate a \slang program in linear time by delaying shifts.
 
-% mention: quadratic but equivalent to simpler linear. but (perhaps) this translation is easier to prove things about.
+We also define a finalising translation judgement, which handles bookkeeping in order to satisfy the semantics:
+
+\begin{judgement}{$\trasmfinal{\sprog}{\mprog}{\addr}$}
+{$\sprog$ translates to $\mprog$, viewed as a full program starting at address $\addr$}
+%
+\begin{prooftree}
+  \ninf{$\trasm{\sprog}{\mprog}$}
+  \uinf{$\trasmfinal{\sprog}{\mhalt \mseq \shift{\mprog}{1}}{1}$}
+\end{prooftree}
+%
+\end{judgement}
+This means that the $0$'th instruction of any translated (full) program is $\mhalt$ (and $\mhalt$ never appears elsewhere).
+And the starting address of any such program is $1$.
+
+Again, this translation is clearly total; for every \slang program $\sprog$ there exists a \mlang program $\mprog$ and an address $\addr$ such that \trasmfinal{\sprog}{\mprog}{\addr}.
 
 \Twelf
 Twelf does indeed accept a \texttt{\%total} declaration on the translation judgement.
-% something about shifts as a judgement?

@@ -1,7 +1,7 @@
 \subsection{Semantics Preservation}
 
 We want to show that if \trabs{\bexp}{\send}{\sprog}, then \bev{\envnil}{\bexp}{\n{\nat}} if and only if \sev{\sprog}{\n{\nat}}.
-To prove this we will need two correspondence judgements, associating \blang values with \slang values and \blang environments with \slang environment:
+To prove this we will need two correspondence judgements, associating \blang values with \slang values and \blang environments with \slang environments:
 
 \begin{judgement}{\cor{\bval}{\sval}}
 {$\bval$ corresponds to $\sval$}
@@ -38,7 +38,7 @@ That is, as per the \rulename{C-Fun} rule, closures correspond if their environm
 %
 \end{judgement}
 
-Separating the two directions of the theorem, we are aiming to show
+Separating the two directions of semantics-preservation, we are aiming to show
 \begin{itemize}
 	\item[]right-to-left: if \trabs{\bexp}{\send}{\sprog} and \sev{\sprog}{\n{\nat}} then \bev{\envnil}{\bexp}{\n{\nat}}
 	\item[]left-to-right: if \trabs{\bexp}{\send}{\sprog} and \bev{\envnil}{\bexp}{\n{\nat}} then \sev{\sprog}{\n{\nat}}

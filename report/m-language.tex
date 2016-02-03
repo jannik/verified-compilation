@@ -25,15 +25,28 @@ And $\mend$ signifies the end of the program store --- it should never be reache
 
 \subsection{Semantics}
 
-We define values $\mval$, environments $\menv$, control stacks $\mctrl$, and value stacks $\mvals$:
+The semantics of \mlang is similar to that of \slang, modelling an abstract stack machine.
+Values $\mval$ are again either numbers or closures, and environments $\menv$ are lists of values:
 \begin{align*}
   \mval &\defi \n{\nat} \alt \cl{\menv}{\addr} \\
-  \menv &\defi \envnil \alt \menv \envcons \mval \\
-  \mctrl &\defi \stknil \alt \mctrl \stkcons \fr{\menv}{\addr} \\
-  \mvals &\defi \stknil \alt \mvals \stkcons \mval
+  \menv &\defi \envnil \alt \menv \envcons \mval
 \end{align*}
+Note that \mlang closures, unlike their \slang counterpart, do not contain a function body directly.
+Instead, a closure contains an address pointing to (the beginning of) a function body in the fixed program.
 
-As usual, we need a judgement for variable lookup:
+We also define value stacks $\mvals$ to be lists of values:
+\[
+  \mvals \defi \stknil \alt \mvals \stkcons \mval
+\]
+And control stacks $\mctrl$ are lists of frames that keep track of execution contexts:
+\[
+  \mctrl \defi \stknil \alt \mctrl \stkcons \fr{\menv}{\addr}
+\]
+(This is mostly analogous to the semantics of \slang.)
+The address in a \mlang frame, however, is a return address; conceptually, the top frame contains the return address of the function currently being executed.
+The bottom frame is expected to return to a $\mhalt$ instruction.
+
+Yet again, we need a judgement for looking up variables:
 
 \begin{judgement}{\mlook{\menv}{\bvar}{\mval}}
 {the value $\mval$ is found at index $\bvar$ in $\menv$}
@@ -49,7 +62,8 @@ As usual, we need a judgement for variable lookup:
 %
 \end{judgement}
 
-We then define judgements for execution:
+We can now define a judgement for executing a single \mlang instruction; it is similar to the single-step execution judgement for \slang.
+An execution state here comprises a control stack, an address (acting as a program counter) and a value stack --- i.e. a tuple $\tup{\mctrl \tupsep \addr \tupsep \mvals}$.
 
 \begin{judgement}{\mexec{\minst}{\mctrl}{\addr}{\mvals}{\mctrl'}{\addr'}{\mvals'}}
 {executing $\minst$ brings the state $\tup{\mctrl \tupsep \addr \tupsep \mvals}$ to $\tup{\mctrl' \tupsep \addr' \tupsep \mvals'}$}
@@ -79,24 +93,14 @@ We then define judgements for execution:
   \ax{\mexec{\mret}{\mctrl \stkcons \fr{\menv}{\addrret}}{\addr}{\mvals}{\mctrl}{\addrret}{\mvals}}
 \end{prooftree}
 
+\begin{center}
 (No rule for \texttt{halt}!)
+\end{center}
 %
 \end{judgement}
 
-
-%msteps : mprog -> mframes -> label -> rstack -> mvalue -> type. %name msteps DMM.
-%%mode msteps +Q +Delta +L +Phi -R.
-%
-%msteps/zero : msteps Q Delta L (rstack/single R) R
-%               <- label-lookup Q L mhalt.
-%
-%msteps/more : msteps Q Delta L Phi R
-%               <- label-lookup Q L M
-%               <- mstep M Delta L Phi Delta' L' Phi'
-%               <- msteps Q Delta' L' Phi' R.
-%
-%%abbrev meval : mprog -> label -> mvalue -> type = [q] [l] [r] msteps q (mframes/final z) l rstack/nil r.
-
+Let $\mprog(\addr)$ denote the $\addr$'th instruction of the \mlang program $\mprog$.
+Finally, we define a judgement for fully executing a program starting from some specified state (including a starting address):
 
 \begin{judgement}{\meval{\mprog}{\mctrl}{\addr}{\mvals}{\mval}}
 {executing the program $\mprog$ in the state $\tup{\mctrl \tupsep \addr \tupsep \mvals}$ yields $\mval$}
@@ -114,9 +118,8 @@ We then define judgements for execution:
 \end{prooftree}
 %
 \end{judgement}
-where $\mprog(\addr)$ denotes the $\addr$'th instruction of the program $\mprog$.
+As is evident from the first rule, we require that executions terminate in an orderly fashion.
+That is, the control stack must be exhausted, the final address must refer to a $\mhalt$ instruction, and the value stack must contain exactly a single value to be returned.
 
 As an abbreviation for complete execution, let \mevalfinal{\mprog}{\addr}{\mval} denote \meval{\mprog}{[\fr{\envnil}{0}]}{\addr}{\stknil}{\mval}.
 \mevalfinal{\mprog}{\addr}{\mval} can then be read as ``$\mprog$ starting at $\addr$ evaluates fully to $\mval$''.
-
-% halt is always at index 0
