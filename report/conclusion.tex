@@ -1,3 +1,5 @@
+\clearpage
+
 \section{Conclusion}
 
 We have presented a compiler from a simple higher-order functional language with substitution-based semantics to a machine-like language.
@@ -8,21 +10,18 @@ Earlier attempts at translating from higher-abstract syntax to De Bruijn indices
 We have demonstrated that it is possible to prove totality while keeping the translation simple to reason about.
 Our target language is closer to being a machine language than for previous attempts using Twelf.
 Overall, we have established that implementing a verified compiler in Twelf is viable.
-Since we only use HOAS in the source language, however, the advantages of Twelf compared to other proof assistants (such as Coq) have not had much effect.
+Since we only use HOAS in the source language, however, the advantages of Twelf compared to other proof assistants (such as Coq or Agda) have not had much effect.
 Furthermore, logic programming does not seem better suited to constructing a verified compiler than functional programming.
 
-% Compared to previous work using Twelf we translate significantly further towards a realistic machine.
-% Additionally, our formalised translation from HOAS to De Bruijn is both total and very amenable to proofs about semantics-preservation, which is a considerable improvement on previous published work.
 
-
-\section{Future Work}
+\subsection{Future Work}
 
 A natural continuation of our work is to extend the source language to make it more realistic, for instance by adding case-expressions and explicit recursion.
-For most language constructs the general technique is well-known and adapting it to our mechanisation should be manageable, especially since Pfenning's lecture notes \cite{Pfenning01} includes a section about such extensions for the first phase of our translation.
+For most language constructs the general technique is well-known and adapting it to our mechanisation should be manageable, especially since Pfenning's lecture notes includes a section \cite[ch. 6.2]{Pfenning01} about such extensions for the first phase of our translation.
 
 Another direction is to translate further toward an actual machine language.
 This would entail first representing the heap more explicitly as an external store.
-It is then not obvious how to best represent closures. % andrzej: expand
+It is then not obvious how to best represent closures, e.g. flat versus linked closures.
 Another matter is memory management, which has been studied extensively using other proof assistants (e.g. Myreen verified a copying garbage collector using HOL4 \cite{Myreen10}) but never using Twelf.
 For the language to be even more machine-like it would also be required that values are kept in a finite number of registers, which involves reasoning about register allocation.
 We expect such an endeavor to prove challenging.

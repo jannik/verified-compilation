@@ -14,15 +14,14 @@ The translation will have to take account of this and we therefore instead consi
 Thus, given an $\benv$ and a $\bexp$ we will say what it means to extract an $\hexp$.
 When $\benv = \envnil$, as is the case for the full translation, every $\hexp$ will be the extraction of exactly one $\bexp$ (totality is proved later).
 
-To define the extraction we will rely on a technical device: for any variable $\var$ representing a \hlang expression we will consider $\hbvar$ to be a variable representing a \blang value.
+To define the extraction we will rely on a technical device: for any variable $\var$ representing a \hlang expression we will consider $\varext$ to be a variable representing a \blang value.
 We define environments containing a number of these variables:
 \begin{align*}
-  \benvext &\defi \envnil \alt \benvext \envcons \hbvar
+  \benvext &\defi \envnil \alt \benvext \envcons \varext
 \end{align*}
-The set of variables occuring in $\benvext$ at least once will be denoted by $\vars(\benvext)$.
 To talk about objects that are either ordinary values or variable values we define their disjoint union:
 \begin{align*}
-  \bvalext &\defi \bval \alt \hbvar
+  \bvalext &\defi \bval \alt \varext
 \end{align*}
 
 The \blook{\benv}{\bvar}{\bval} judgement can be extended to look through an $\benvext$ first:
@@ -70,7 +69,7 @@ This can be expressed in judgemental form as follows.
 \end{prooftree}
 
 \begin{prooftree}
-	\ninf{\trahb{\benv}{\benvext \envcons \varext}{\bexp_1}{\hexp_1}}
+  \ninf{\trahb{\benv}{\benvext \envcons \varext}{\bexp_1}{\hexp_1}}
   \leftl{\rulename{T-Lam} :}
   \uinf{\trahb{\benv}{\benvext}{\blam{\bexp_1}}{\lam{\var}{\hexp_1}}}
 \end{prooftree}
@@ -78,13 +77,13 @@ This can be expressed in judgemental form as follows.
 \begin{prooftree}
   \ninf{\trahb{\benv}{\benvext}{\bexp_1}{\hexp_1}}
   \ninf{\trahb{\benv}{\benvext}{\bexp_2}{\hexp_2}}
-	\leftl{\rulename{T-App} :}
+  \leftl{\rulename{T-App} :}
   \binf{\trahb{\benv}{\benvext}{\bapp{\bexp_1}{\bexp_2}}{\app{\hexp_1}{\hexp_2}}}
 \end{prooftree}
 
 \begin{prooftree}
   \ninf{\trahb{\benv}{\benvext}{\bexp_1}{\hexp_1}}
-	\leftl{\rulename{T-Suc} :}
+  \leftl{\rulename{T-Suc} :}
   \uinf{\trahb{\benv}{\benvext}{\bsuc{\bexp_1}}{\hsuc{\hexp_1}}}
 \end{prooftree}
 %

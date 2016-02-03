@@ -1,4 +1,5 @@
 \section{Introduction}
+
 Compilers are notoriously difficult to implement correctly.
 For instance, as shown by Eide and Regehr \cite{EideRegehr08} many C compilers (including GCC and LLVM) miscompile code involving volatile memory access.
 For most software development this is worrying but is typically not a decisive factor as contemporary compilers are robust enough that errors are vastly more often caused by bugs in the application source code than in the compiler.
@@ -15,9 +16,15 @@ This ignores some aspects of compilation such as efficiency (one would hesitate 
 Constructing a correctness proof for a compiler rigorously by hand is very tedious and more importantly very error-prone, thus not inducing the confidence we are hoping for.
 Therefore, it is natural to employ a proof assistant making it possible to encode and mechanically check statements and their proofs.
 
+We use the Twelf system, which is based on the LF logical framework.
+Other proof assistants (e.g. Coq and Isabelle/HOL) are more extensively studied, but it remains to be seen how much is viable to do with Twelf.
+Our aim is to investigate the feasibility of implementing a verified compiler using Twelf.
+
 The LF logical framework \cite{Pfenning01} supports a dependently-typed $\lambda$-calculus.
-It does not support recursion, which is crucial --- functions cannot scrutinise their arguments and must simply consider them as terms to put in a context.
+It does not support case analysis, which is crucial --- functions cannot scrutinise their arguments and must simply consider them as terms to put in a context.
 Thus, functions represent data rather than computation enabling the idea of higher-order abstract syntax (HOAS) using LF $\lambda$-abstractions to represent object-language binders.
+
+By the Curry-Howard correspondence, judgements can be represented by LF type families --- with the inference rules represented by constructors and inhabitants then corresponding to derivations.
 
 The Elf programming language is based on interpreting LF definitions as logic programs.
 This allows searching for derivations of judgements encoded in LF.
@@ -26,13 +33,13 @@ The class of theorems expressible this way is called $\Pi_2^0$~($\forall \exists
 
 The Twelf system implements Elf and allows annotations on type families describing the mode (i.e. which indices are input and output), the index used for induction and more.
 Using this information Twelf can verify that the constructors of a type family represent a proof of the corresponding meta-theorem.
-Being based on Elf, Twelf is also limited to $\Pi_2^0$ theorems, so it is not a priori clear whether a given statement can be proven (or even stated) using Twelf even if a proof exists on paper.
-Our aim is to investigate the feasibility of implementing a verified compiler using Twelf.
+Twelf is also limited to $\Pi_2^0$ theorems, so it is not a priori clear whether a given statement can be proven (or even stated) using Twelf even if a proof exists on paper.
 
-Familiarity with Twelf is not strictly necessary to understand this report, but the reader should have at least some prior exposition to other proof assistants (Coq, Agda, etc.) and in particular to how an object-language can be represented using types.
+Some familiarity with Twelf is required to fully understand this report.
+Prior exposition to other proof assistants, and in particular to how an object-language can be represented using types, is helpful.
 
 
-\section{Previous Work}
+\subsection{Previous Work}
 
 The main work in this area is the CompCert C verified compiler, a ``high-assurance compiler for almost all of the ISO C90 / ANSI C language, generating efficient code for the PowerPC, ARM and x86 processors'' \cite{CompCert16}.
 It targets embedded programming and is written almost entirely in Coq (exceptions being the parser and the assembly code pretty-printer).
@@ -45,7 +52,7 @@ Overall, however, the focus has mainly been on first-order imperative languages 
 
 Using Twelf there are not many prior examples of verified compilation.
 An early example is a verified compiler written in Elf from a simple functional language to a variant of the Categorical Abstract Machine (roughly speaking, a $\lambda$-calculus with De Bruijn indices) \cite{Hannan92}.
-It includes a proof of semantics-preservation, but being written in the time before Twelf the termination and coverage of meta-theorems are argued on paper.
+It includes a proof of semantics preservation, but being written in the time before Twelf the termination and coverage of meta-theorems are argued on paper.
 There is no formalisation of totality of the translation.
 These ideas are expanded by Pfenning in his notes \cite[ch. 6]{Pfenning01}.
 He goes slightly further to a stack language that embeds tree-structured programs and translates while evaluating.
@@ -58,14 +65,11 @@ Compared to the previous work using Twelf we translate much further, ending at a
 Additionally our translation from HOAS to De Bruijn indices combines the simplicity of Pfenning's with the totality of Simmons'.
 
 
-\section{Overview}
+\subsection{Overview}
 
 Our source language, \hlang, is a simple higher-order functional language with substitution semantics.
 The target language, \mlang, is a machine-like language featuring linearised programs with abstract stack machine semantics.
 The translation employs two intermediate languages --- \blang and \slang --- to more clearly separate the various differences between \hlang and \mlang.
-% This isolation.. Since we intend to prove that each translation preserves the semantics..
-% don't use the term equivalence, change to correctness or preservation
-% and explain if this is the first time it is used
 
 From \hlang to \blang, named variables are turned into De Bruijn indices and closures are represented explicitly.
 Then from \blang to \slang, the syntax is partially linearised and the semantics become based on an abstract machine.
@@ -73,14 +77,13 @@ And finally from \slang to \mlang, the entire program is linearised.
 
 For each language in order we present its syntax and semantics, followed by the translation from the previous language.
 We then argue that the translation is total and preserves the semantics.
-% explain our notion of soundness and completeness
 The final result is a translation from \hlang to \mlang such that a \hlang program evaluates to some value if and only if the generated \mlang program evaluates to that same value.
 
 In general, each section will include details about the Twelf mechanisation whenever relevant.
 Only the parts that differ from the paper version will be commented --- most of the Twelf code corresponds straightforwardly to it.
 The entire code is included as Appendix~\ref{sec:code}.
 
-The main challenge in this type of mechanisation is formulating lemmas to generalise the theorems about semantics-preservation.
+The main challenge in this type of mechanisation is formulating lemmas to generalise the theorems about semantics preservation.
 This involves finding the right invariants describing the relation between execution states.
 With the appropriate lemma in hand, the proof is usually fairly straightforward.
-Hence, we shall take the liberty to omit explanations of the implementation in most instances.
+Hence we shall take the liberty to omit explanations of the implementation in most instances.

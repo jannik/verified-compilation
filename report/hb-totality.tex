@@ -2,7 +2,7 @@
 It is not readily apparent that translation from \hlang to \blang is total.
 In this section we prove that for any $\hexp$ there exists some $\bexp$ such that \trahb{\envnil}{\envnil}{\bexp}{\hexp}.
 
-First we will need a notion of an expression $\hexp$ being covered by an environment $\benvext$, informally meaning that for every free variable $\var$ occuring in $\hexp$ there is a derivation of \blookext{\envnil}{\benvext}{\bvar}{\hbvar} for some $\bvar$.
+First we will need a notion of an expression $\hexp$ being covered by an environment $\benvext$, informally meaning that for every free variable $\var$ occuring in $\hexp$ there is a derivation of \blookext{\envnil}{\benvext}{\bvar}{\varext} for some $\bvar$.
 However, to define this inductively we need to keep track of the bound variables encountered when going under a $\lambda$-abstraction, since they do not need to satisfy anything.
 Let $\boundenv$ denote (mathematical) sets of variables.
 The cover judgement is as follows:
@@ -22,7 +22,7 @@ The cover judgement is as follows:
 \end{prooftree}
 
 \begin{prooftree}
-  \ninf{\blookext{\envnil}{\benvext}{\bvar}{\hbvar}}
+  \ninf{\blookext{\envnil}{\benvext}{\bvar}{\varext}}
   \leftl{\rulename{Cov-Free} :}
   \uinf{\cover{\boundenv}{\benvext}{\var}}
 \end{prooftree}
@@ -62,11 +62,11 @@ For any $\hexp$ and $\boundenv$ with $\FV(\hexp) \subseteq \boundenv$ we have \c
 Straightforward induction on $\hexp$.
 \end{proof}
 
-Before we can prove totality we need an important lemma stating that we can convert a bound variable $\var$ to a free one if we extend $\benvext$ with $\hbvar$.
+Before we can prove totality we need an important lemma stating that we can convert a bound variable $\var$ to a free one if we extend $\benvext$ with $\varext$.
 
 \begin{lemma}
 \label{lem:bound-to-free}
-If \cover{\boundenv \cup \set{\var}}{\benvext}{\hexp} (by $\C$) then \cover{\boundenv}{\benvext \envcons \hbvar}{\hexp} (by some $\C'$).
+If \cover{\boundenv \cup \set{\var}}{\benvext}{\hexp} (by $\C$) then \cover{\boundenv}{\benvext \envcons \varext}{\hexp} (by some $\C'$).
 \end{lemma}
 
 \code{bound-to-free}{totality-hoas-bruijn.elf}
@@ -84,32 +84,32 @@ $\C$ has the shape
 If $\othervar = \var$ then $\othervar$ is the variable being converted from bound to free.
 Hence, we can take $\C'$ to be
 \begin{prooftree}
-  \ax{\blookext{\envnil}{\benvext \envcons \hbvar}{\z}{\hbvar}}
-  \uinf{\cover{\boundenv}{\benvext \envcons \hbvar}{\var}}
+  \ax{\blookext{\envnil}{\benvext \envcons \varext}{\z}{\varext}}
+  \uinf{\cover{\boundenv}{\benvext \envcons \varext}{\var}}
 \end{prooftree}
 Otherwise $\othervar \neq \var$ so $\othervar$ stays a bound variable:
 \begin{prooftree}
   \rightl{($\othervar \in \boundenv$)}
-  \ax{\cover{\boundenv}{\benvext \envcons \hbvar}{\othervar}}
+  \ax{\cover{\boundenv}{\benvext \envcons \varext}{\othervar}}
 \end{prooftree}
 
 \paragraph{Case \textnormal{\rulename{Cov-Free}}}
 $\C$ has the shape
 \begin{prooftree}
-  \prem{\Tv}{\blookext{\envnil}{\benvext}{\bvar}{\hbothervar}}
+  \prem{\Tv}{\blookext{\envnil}{\benvext}{\bvar}{\othervarext}}
   \uinf{\cover{\boundenv \cup \set{\var}}{\benvext}{\othervar}}
 \end{prooftree}
 If $\othervar = \var$ we handle it as in the previous case and take $\C'$ as
 \begin{prooftree}
-  \ax{\blookext{\envnil}{\benvext \envcons \hbvar}{\z}{\hbvar}}
-  \uinf{\cover{\boundenv}{\benvext \envcons \hbvar}{\var}}
+  \ax{\blookext{\envnil}{\benvext \envcons \varext}{\z}{\varext}}
+  \uinf{\cover{\boundenv}{\benvext \envcons \varext}{\var}}
 \end{prooftree}
-Otherwise $\hbothervar$ will now be found one place further in the list, so we take $\C'$ as
+Otherwise $\othervarext$ will now be found one place further in the list, so we take $\C'$ as
 \begin{prooftree}
-  \prem{\Tv}{\blookext{\envnil}{\benvext}{\bvar}{\hbothervar}}
-  \rightl{($\hbothervar \neq \hbvar$)}
-  \uinf{\blookext{\envnil}{\benvext \envcons \hbvar}{\suc{\bvar}}{\hbothervar}}
-  \uinf{\cover{\boundenv}{\benvext \envcons \hbvar}{\othervar}}
+  \prem{\Tv}{\blookext{\envnil}{\benvext}{\bvar}{\othervarext}}
+  \rightl{($\othervarext \neq \varext$)}
+  \uinf{\blookext{\envnil}{\benvext \envcons \varext}{\suc{\bvar}}{\othervarext}}
+  \uinf{\cover{\boundenv}{\benvext \envcons \varext}{\othervar}}
 \end{prooftree}
 
 
@@ -120,10 +120,10 @@ $\C$ has the shape
   \uinf{\cover{\boundenv \cup \set{\var}}{\benvext}{\lam{\othervar}{\hexp_1}}}
 \end{prooftree}
 Note that $\boundenv \cup \set{\var} \cup \set{\othervar} = \boundenv \cup \set{\othervar} \cup \set{\var}$.
-Using the IH on $\C_1$ we get \cover{\boundenv \cup \set{\othervar}}{\benvext \envcons \hbvar}{\hexp_1} (by some $\C_1'$), with which we construct $\C'$:
+Using the IH on $\C_1$ we get \cover{\boundenv \cup \set{\othervar}}{\benvext \envcons \varext}{\hexp_1} (by some $\C_1'$), with which we construct $\C'$:
 \begin{prooftree}
-  \prem{\C_1'}{\cover{\boundenv \cup \set{\othervar}}{\benvext \envcons \hbvar}{\hexp_1}}
-  \uinf{\cover{\boundenv}{\benvext \envcons \hbvar}{\lam{\othervar}{\hexp_1}}}
+  \prem{\C_1'}{\cover{\boundenv \cup \set{\othervar}}{\benvext \envcons \varext}{\hexp_1}}
+  \uinf{\cover{\boundenv}{\benvext \envcons \varext}{\lam{\othervar}{\hexp_1}}}
 \end{prooftree}
 
 \end{proof}

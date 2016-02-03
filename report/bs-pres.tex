@@ -38,10 +38,10 @@ That is, as per the \rulename{C-Fun} rule, closures correspond if their environm
 %
 \end{judgement}
 
-Separating the two directions of semantics-preservation, we are aiming to show
+Separating the two directions of semantics preservation, we are aiming to show
 \begin{itemize}
-	\item[]right-to-left: if \trabs{\bexp}{\send}{\sprog} and \sev{\sprog}{\n{\nat}} then \bev{\envnil}{\bexp}{\n{\nat}}
-	\item[]left-to-right: if \trabs{\bexp}{\send}{\sprog} and \bev{\envnil}{\bexp}{\n{\nat}} then \sev{\sprog}{\n{\nat}}
+  \item[]right-to-left: if \trabs{\bexp}{\send}{\sprog} and \sev{\sprog}{\n{\nat}} then \bev{\envnil}{\bexp}{\n{\nat}}
+  \item[]left-to-right: if \trabs{\bexp}{\send}{\sprog} and \bev{\envnil}{\bexp}{\n{\nat}} then \sev{\sprog}{\n{\nat}}
 \end{itemize}
 We generalise right-to-left and left-to-right to soundness and completeness, respectively.
 
@@ -80,7 +80,7 @@ The proof is rather straightforward; we show the most interesting case here.
   \prem{\B_1}{\bev{\benv}{\bexp_1}{\cl{\benv'}{\bexp_0}}}
   \prem{\B_2}{\bev{\benv}{\bexp_2}{\bval_2}}
   \prem{\B_3}{\bev{\benv' \envcons \bval_2}{\bexp_0}{\bval}}
-	\leftl{$\B =$}
+  \leftl{$\B =$}
   \tinf{\bev{\benv}{\bapp{\bexp_1}{\bexp_2}}{\bval}}
 \end{prooftree}
 So $\bexp = \bapp{\bexp_1}{\bexp_2}$.

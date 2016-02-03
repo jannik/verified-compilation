@@ -1,3 +1,5 @@
+\clearpage
+
 \section{The \textnormal{\mlang} Language}
 
 The distinguishing feature of \mlang is that the program is fully linearised and is not consumed during execution.
@@ -113,7 +115,7 @@ Finally, we define a judgement for fully executing a program starting from some 
 \begin{prooftree}
   \ninf{\mexec{\minst}{\mctrl}{\addr}{\mvals}{\mctrl'}{\addr'}{\mvals'}}
   \ninf{\meval{\mprog}{\mctrl'}{\addr'}{\mvals'}{\mval}}
-	\rightl{$(\mprog(\addr) = \minst)$}
+  \rightl{$(\mprog(\addr) = \minst)$}
   \binf{\meval{\mprog}{\mctrl}{\addr}{\mvals}{\mval}}
 \end{prooftree}
 %

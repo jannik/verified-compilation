@@ -34,7 +34,7 @@ Straightforward induction on $\Tv$.
 
 \begin{lemma}[Translation Substitution]
 \label{lem:substitution-trans}
-If \trahb{\benv}{\benvdots{\varext \envcons \varext_1}{\varext_n}}{\bexp}{\hexp} (by $\T$), $\varext \neq \varext_k$ for $1 \le k \le n$ and \corhb{\benv}{\bval}{\hval} (by $\C$) then \trahb{\benv \envcons \bval}{\benvdots{\hbvar_1}{\hbvar_n}}{\bexp}{\sub{\hexp}{\hval}{\var}} (by some $\T'$).
+If \trahb{\benv}{\benvdots{\varext \envcons \varext_1}{\varext_n}}{\bexp}{\hexp} (by $\T$), $\varext \neq \varext_k$ for $1 \le k \le n$ and \corhb{\benv}{\bval}{\hval} (by $\C$) then \trahb{\benv \envcons \bval}{\benvdots{\varext_1}{\varext_n}}{\bexp}{\sub{\hexp}{\hval}{\var}} (by some $\T'$).
 \end{lemma}
 
 \begin{proof}
@@ -45,30 +45,30 @@ We show only the cases dealing with variables.
 
 $\T$ has the form
 \begin{prooftree}
-  \prem{\Tv}{\blookext{\benv}{\benvdots{\hbvar \envcons \hbvar_1}{\hbvar_n}}{\bvar}{\bvalext'}}
+  \prem{\Tv}{\blookext{\benv}{\benvdots{\varext \envcons \varext_1}{\varext_n}}{\bvar}{\bvalext'}}
   \prem{\C_1}{\corhb{}{\bvalext'}{\hexp}}
-  \binf{\trahb{\benv}{\benvdots{\hbvar \envcons \hbvar_1}{\hbvar_n}}{\bvar}{\hexp}}
+  \binf{\trahb{\benv}{\benvdots{\varext \envcons \varext_1}{\varext_n}}{\bvar}{\hexp}}
 \end{prooftree}
-By Lemma~\ref{lem:substitution-lookup} on $\Tv$ we get \blookext{\benv \envcons \bval}{\benvdots{\hbvar_1}{\hbvar_n}}{\bvar}{\sub{\bvalext'}{\bval}{\varext}} (by $\Tv'$).
+By Lemma~\ref{lem:substitution-lookup} on $\Tv$ we get \blookext{\benv \envcons \bval}{\benvdots{\varext_1}{\varext_n}}{\bvar}{\sub{\bvalext'}{\bval}{\varext}} (by $\Tv'$).
 By Lemma~\ref{lem:substitution-cor} on $\C_1$ with $\C$ we get \corhb{}{\sub{\bvalext'}{\bval}{\varext}}{\sub{\hexp}{\hval}{\var}} (by $\C_1'$).
 Hence, we can take $\T'$ to be
 \begin{prooftree}
-  \prem{\Tv'}{\blookext{\benv \envcons \bval}{\benvdots{\hbvar_1}{\hbvar_n}}{\bvar}{\sub{\bvalext'}{\bval}{\var}}}
+  \prem{\Tv'}{\blookext{\benv \envcons \bval}{\benvdots{\varext_1}{\varext_n}}{\bvar}{\sub{\bvalext'}{\bval}{\var}}}
   \prem{\C_1'}{\corhb{\benv}{\sub{\bvalext'}{\bval}{\var}}{\sub{\hexp}{\hval}{\var}}}
-  \binf{\trahb{\benv \envcons \bval}{\benvdots{\hbvar_1}{\hbvar_n}}{\bvar}{\sub{\hexp}{\hval}{\var}}}
+  \binf{\trahb{\benv \envcons \bval}{\benvdots{\varext_1}{\varext_n}}{\bvar}{\sub{\hexp}{\hval}{\var}}}
 \end{prooftree}
 
 \paragraph{Case \textnormal{\rulename{T-Lam}}}
 $\T$ has the form
 \begin{prooftree}
-	\prem{\T_1}{\trahb{\benv}{\benvdots{\hbvar \envcons \hbvar_1}{\hbvar_n \envcons \hbothervar}}{\bexp_1}{\hexp_1}}
-  \uinf{\trahb{\benv}{\benvdots{\hbvar \envcons \hbvar_1}{\hbvar_n}}{\blam{\bexp_1}}{\lam{\othervar}{\hexp_1}}}
+  \prem{\T_1}{\trahb{\benv}{\benvdots{\varext \envcons \varext_1}{\varext_n \envcons \othervarext}}{\bexp_1}{\hexp_1}}
+  \uinf{\trahb{\benv}{\benvdots{\varext \envcons \varext_1}{\varext_n}}{\blam{\bexp_1}}{\lam{\othervar}{\hexp_1}}}
 \end{prooftree}
-If $\var = \othervar$ then $\sub{(\lam{\othervar}{\hexp_1})}{\hval}{\var} = \lam{\othervar}{\hexp_1}$ and we use Lemma~\ref{lem:shadowing} on $\T_1$ to get \trahb{\benv \envcons \bval}{\benvdots{\hbvar_1}{\hbvar_n \envcons \hbothervar}}{\bexp_1}{\hexp_1} (by some $\T_1'$).
+If $\var = \othervar$ then $\sub{(\lam{\othervar}{\hexp_1})}{\hval}{\var} = \lam{\othervar}{\hexp_1}$ and we use Lemma~\ref{lem:shadowing} on $\T_1$ to get \trahb{\benv \envcons \bval}{\benvdots{\varext_1}{\varext_n \envcons \othervarext}}{\bexp_1}{\hexp_1} (by some $\T_1'$).
 Using \rulename{T-Lam} with $\T_1'$ provides the required $\T'$.
 
 Otherwise $x \neq y$ so $\sub{(\lam{\othervar}{\hexp_1})}{\hval}{\var} = \lam{\othervar}{\sub{\hexp_1}{\hval}{\var}}$.
-By IH on $\T_1$ with $\C$ we get \trahb{\benv \envcons \bval}{\benvdots{\hbvar_1}{\hbvar_n \envcons \othervarext}}{\bexp_1}{\sub{\hexp_1}{\hval}{\var}} (by $\T_1'$) which has the right shape to finish the case with \rulename{T-Lam}.
+By IH on $\T_1$ with $\C$ we get \trahb{\benv \envcons \bval}{\benvdots{\varext_1}{\varext_n \envcons \othervarext}}{\bexp_1}{\sub{\hexp_1}{\hval}{\var}} (by $\T_1'$) which has the right shape to finish the case with \rulename{T-Lam}.
 
 \end{proof}
 
@@ -77,10 +77,10 @@ This lemma, like any substitution lemma, comes ``for free'' since all definition
 
 \vspace{0.5cm}
 
-\noindent Separating the two directions of semantics-preservation, we are aiming to show
+\noindent Separating the two directions of semantics preservation, we are aiming to show
 \begin{itemize}
-	\item[]right-to-left: if \trahb{\benv}{\envnil}{\bexp}{\hexp} and \bev{\envnil}{\bexp}{\n{\nat}} then \hev{\hexp}{\n{\nat}}
-	\item[]left-to-right: if \trahb{\benv}{\envnil}{\bexp}{\hexp} and \hev{\hexp}{\n{\nat}} then \bev{\envnil}{\bexp}{\n{\nat}}
+  \item[]right-to-left: if \trahb{\benv}{\envnil}{\bexp}{\hexp} and \bev{\envnil}{\bexp}{\n{\nat}} then \hev{\hexp}{\n{\nat}}
+  \item[]left-to-right: if \trahb{\benv}{\envnil}{\bexp}{\hexp} and \hev{\hexp}{\n{\nat}} then \bev{\envnil}{\bexp}{\n{\nat}}
 \end{itemize}
 In order to prove them inductively, we generalise right-to-left and left-to-right to soundness and completeness, respectively.
 
@@ -98,7 +98,7 @@ By induction on $\B$. We proceed by case analysis on $\T$ showing only the inter
 \paragraph{Case \textnormal{\rulename{T-Lam}}}
 $\T$ has the form
 \begin{prooftree}
-	\prem{\T_1}{\trahb{\benv}{\envnil \envcons \varext}{\bexp_1}{\hexp_1}}
+  \prem{\T_1}{\trahb{\benv}{\envnil \envcons \varext}{\bexp_1}{\hexp_1}}
   \uinf{\trahb{\benv}{\envnil}{\blam{\bexp_1}}{\lam{\var}{\hexp_1}}}
 \end{prooftree}
 Hence, $\B$ must be
@@ -128,7 +128,7 @@ Hence, $\B$ must be
 
 By IH on $\B_1$ with $\T_1$ we get \hev{\hexp_1}{\hval_1} by some $\E_1$ and \corhb{\benv}{\cl{\benv'}{\bexp_0}}{\hval_1} by some $\C_1$ which must have the shape
 \begin{prooftree}
-	\prem{\T_3}{\trahb{\benv}{\envnil \envcons \varext}{\bexp_0}{\hexp_0}}
+  \prem{\T_3}{\trahb{\benv}{\envnil \envcons \varext}{\bexp_0}{\hexp_0}}
   \uinf{\trahb{\benv}{\envnil}{\blam{\bexp_0}}{\lam{\var}{\hexp_0}}}
   \uinf{\corhb{\benv}{\cl{\benv'}{\bexp_0}}{\lam{\var}{\hexp_0}}}
 \end{prooftree}

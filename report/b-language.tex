@@ -1,3 +1,5 @@
+\clearpage
+
 \section{The \textnormal{\blang} Language}
 
 \blang differs from \hlang in two important ways: variables are represented concretely by De Bruijn indices, and closures are managed explicitly instead of substituting arguments.
@@ -7,8 +9,8 @@
 
 We define variable indices $\bvar$ and \blang expressions $\bexp$ as follows:
 \begin{align*}
-	\bvar &\defi \z \alt \suc{i} \\
-	\bexp &\defi \n{\nat} \alt \bvar \alt \blam{\bexp} \alt \bapp{\bexp_1}{\bexp_2} \alt \bsuc{\bexp}
+  \bvar &\defi \z \alt \suc{i} \\
+  \bexp &\defi \n{\nat} \alt \bvar \alt \blam{\bexp} \alt \bapp{\bexp_1}{\bexp_2} \alt \bsuc{\bexp}
 \end{align*}
 
 \subsection{Semantics}
@@ -66,13 +68,13 @@ And now the judgement for evaluation of \blang expressions:
   \ninf{\bev{\benv}{\bexp_1}{\cl{\benv'}{\bexp_0}}}
   \ninf{\bev{\benv}{\bexp_2}{\bval_2}}
   \ninf{\bev{\benv' \envcons \bval_2}{\bexp_0}{\bval}}
-	\leftl{\rulename{B-App} :}
+  \leftl{\rulename{B-App} :}
   \tinf{\bev{\benv}{\bapp{\bexp_1}{\bexp_2}}{\bval}}
 \end{prooftree}
 
 \begin{prooftree}
   \ninf{\bev{\benv}{\bexp_1}{\n{\nat}}}
-	\leftl{\rulename{B-Suc} :}
+  \leftl{\rulename{B-Suc} :}
   \uinf{\bev{\benv}{\bsuc{\bexp_1}}{\n{\nat + 1}}}
 \end{prooftree}
 %

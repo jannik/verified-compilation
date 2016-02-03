@@ -1,3 +1,5 @@
+\clearpage
+
 \section{The \textnormal{\hlang} Language}
 
 \hlang is a simple functional language with $\lambda$-abstractions and numbers.
@@ -20,7 +22,7 @@ Furthermore, we note that \hlang is Turing complete since it is untyped and ther
 \Twelf
 The Twelf definition is:
 \input{code-hoas-exp}
-The hypothetical \texttt{exp} in the \texttt{lam} constructor is an example of higher-order abstract syntax (HOAS).
+The hypothetical \texttt{exp} in the \texttt{lam} constructor is an example of higher-order abstract syntax.
 This way \hlang $\lambda$-abstractions are represented by Twelf $\lambda$-abstractions.
 
 
@@ -51,13 +53,13 @@ We define canonical forms $\hval$ as a subset of expressions:
   \ninf{\hev{\hexp_1}{\lam{\var}{\hexp_0}}}
   \ninf{\hev{\hexp_2}{\hval_2}}
   \ninf{\hev{\sub{\hexp_0}{\hval_2}{\var}}{\hval}}
-	\leftl{\rulename{E-App} :}
+  \leftl{\rulename{E-App} :}
   \tinf{\hev{\app{\hexp_1}{\hexp_2}}{\hval}}
 \end{prooftree}
 
 \begin{prooftree}
   \ninf{\hev{\hexp_1}{\n{\nat}}}
-	\leftl{\rulename{E-Suc} :}
+  \leftl{\rulename{E-Suc} :}
   \uinf{\hev{\hsuc{\hexp_1}}{\n{\nat + 1}}}
 \end{prooftree}
 %

@@ -54,7 +54,7 @@ $\blacksquare$
 \ensurecommand{\alt}{\;\; | \;\;}
 \ensurecommand{\set}[1]{\{ #1 \}}%
 \ensurecommand{\tup}[1]{\langle #1 \rangle}
-\ensurecommand{\leftsquigarrow}{\raisebox{0.1em}{\rotatebox[origin=c]{180}{$\rightsquigarrow$}}}
+\ensurecommand{\leftsquigarrow}{\mathrel{\raisebox{0.1em}{\rotatebox[origin=c]{180}{$\rightsquigarrow$}}}}
 
 % separators
 \ensurecommand{\tupsep}{,}
@@ -105,7 +105,7 @@ $\blacksquare$
 \ensurecommand{\closed}[2]{\ensuremath{\mathbf{closed}_{#1}(#2)}}
 
 % b-language semantics
-\ensurecommand{\cl}[2]{\{\mkern-4mu[ #1 \clsep #2 ]\mkern-4mu\}}
+\ensurecommand{\cl}[2]{\{\mkern-4mu[ \, #1 \clsep #2 \, ]\mkern-4mu\}}
 
 \ensurecommand{\benv}{\alpha}
 
@@ -114,9 +114,7 @@ $\blacksquare$
 
 % hb translation
 \ensurecommand{\trahbfaux}[2]{\ensuremath{#1 \rhd #2}}
-\ensurecommand{\hbvar}{\tilde{\var}}%
 \ensurecommand{\varext}{\tilde{\var}}
-\ensurecommand{\hbothervar}{\tilde{\othervar}}%
 \ensurecommand{\othervarext}{\tilde{\othervar}}
 \ensurecommand{\bvalext}{\tilde{\bval}}
 \ensurecommand{\benvext}{\tilde{\benv}}
@@ -126,8 +124,6 @@ $\blacksquare$
 \ensurecommand{\benvdots}[2]{\envnil \envcons #1 \envcons \cdots \envcons #2}
 \ensurecommand{\trahb}[4]{\ensuremath{\benvboth{#1}{#2} \vdash #4 \mathrel{\lhd} #3}}
 \ensurecommand{\corhb}[3]{\ensuremath{#3 \leftsquigarrow #2}}
-\ensurecommand{\alphaeq}{=_\alpha}%
-\ensurecommand{\vars}{\mathbf{vars}}
 \ensurecommand{\FV}{\mathrm{FV}}
 \ensurecommand{\boundenv}{\Xi}
 \ensurecommand{\cover}[3]{\ensuremath{#1 \ctxsep #2 \vdash #3}}
@@ -165,7 +161,7 @@ $\blacksquare$
 % bs translation
 \ensurecommand{\trabs}[3]{\ensuremath{#1 \circ #2 \mathrel{\rhd} #3}}
 
-% bs equivalence
+% bs preservation
 \ensurecommand{\ssteplhs}[2]{\ensuremath{\tup{#1 \tupsep #2}}}
 \ensurecommand{\ssteprhs}[2]{\ensuremath{\rightarrow \phantom{^*} \tup{#1 \tupsep #2}}}
 \ensurecommand{\sstepsrhs}[2]{\ensuremath{\rightarrow^* \tup{#1 \tupsep #2}}}
@@ -209,7 +205,7 @@ $\blacksquare$
 \ensurecommand{\shift}[2]{(#1 \gg #2)} % or perhaps {#1^{\wedge #2}}
 \ensurecommand{\len}[1]{\left| #1 \right|}
 
-% sm equivalence
+% sm preservation
 \ensurecommand{\prefix}[2]{\ensuremath{#1 \preceq #2}}
 \ensurecommand{\corvalue}[3]{\ensuremath{#1 \vdash #2 \rightsquigarrow #3}}
 \ensurecommand{\corstore}{\ensuremath{\corvalue}}
