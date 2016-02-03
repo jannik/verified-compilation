@@ -39,13 +39,8 @@ It targets embedded programming and is written almost entirely in Coq (exception
 Notably, the compiler implements non-trivial optimisations such as inlining.
 A 2011 study by Yang et al. \cite{Yang11} found code generation errors in all C compilers tested, except for the verified parts of CompCert.
 
-The same framework has been used to make a compiler for mini-ML with progress towards verified garbage collection [cite Xavier Leroy].
-% http://www.cs.ox.ac.uk/ralf.hinze/WG2.8/24/slides/xavier.pdf
-% http://pauillac.inria.fr/~dargaye/publications.html
-
-Another project similarly achieves verified compilation for an ML-like language using Coq [cite Adam Chlipala].
+Another project similarly achieves verified compilation for an ML-like language using Coq \cite{Chlipala10}.
 The focus is on maintainability of the compiler, in particular using parameterised higher-order abstract syntax, while memory management is largely ignored.
-
 Overall, however, the focus has mainly been on first-order imperative languages such as C.
 
 Using Twelf there are not many prior examples of verified compilation.
