@@ -20,18 +20,18 @@ We use the Twelf system, which is based on the LF logical framework.
 Other proof assistants (e.g. Coq and Isabelle/HOL) are more extensively studied, but it remains to be seen how much is viable to do with Twelf.
 Our aim is to investigate the feasibility of implementing a verified compiler using Twelf.
 
-The LF logical framework \cite{Pfenning01} supports a dependently-typed $\lambda$-calculus.
+The LF logical framework \cite{HarperHonsellPlotkin93} supports a dependently-typed $\lambda$-calculus.
 It does not support case analysis, which is crucial --- functions cannot scrutinise their arguments and must simply consider them as terms to put in a context.
 Thus, functions represent data rather than computation enabling the idea of higher-order abstract syntax (HOAS) using LF $\lambda$-abstractions to represent object-language binders.
 
-By the Curry-Howard correspondence, judgements can be represented by LF type families --- with the inference rules represented by constructors and inhabitants then corresponding to derivations.
+By the judgements-as-types principle, judgements can be represented by LF type families --- with the inference rules represented by constructors and inhabitants then corresponding to derivations.
 
-The Elf programming language is based on interpreting LF definitions as logic programs.
+The Elf programming language \cite{Pfenning91} is based on interpreting LF definitions as logic programs.
 This allows searching for derivations of judgements encoded in LF.
 It also means that type families can be interpreted as meta-theorems by considering indices as either input or output and reading it as ``for all ground input terms there exist ground output terms such that the type-family is inhabited''.
 The class of theorems expressible this way is called $\Pi_2^0$~($\forall \exists$).
 
-The Twelf system implements Elf and allows annotations on type families describing the mode (i.e. which indices are input and output), the index used for induction and more.
+The Twelf system \cite{PfenningSchurmann99} implements Elf and allows annotations on type families describing the mode (i.e. which indices are input and output), the index used for induction and more.
 Using this information Twelf can verify that the constructors of a type family represent a proof of the corresponding meta-theorem.
 Twelf is also limited to $\Pi_2^0$ theorems, so it is not a priori clear whether a given statement can be proven (or even stated) using Twelf even if a proof exists on paper.
 

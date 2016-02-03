@@ -3,12 +3,12 @@
 We want an effective procedure that given any \hlang expression $\hexp$ finds a \blang expression $\bexp$ such that $\hexp$ evaluates to $\n{\nat}$ if and only if $\bexp$ evaluates to $\n{\nat}$ --- in other words, a translation from \hlang to \blang that preserves semantics.
 
 There is little doubt what a given $\hexp$ should translate to since each variable should simply be replaced with its De Bruijn index.
-Suppose we define such a translation judgement, \trahbfaux{\hexp}{\bexp}, and try to prove a generalised hypothesis that \trahbfaux{\hexp}{\bexp} and \hev{\hexp}{\hval} implies \bev{\benv}{\bexp}{\bval} such that $\bval$ corresponds suitably to $\hval$.
+Suppose we define such a translation judgement, \trahbfaux{\hexp}{\bexp}, and try to prove a generalised hypothesis that \trahbfaux{\hexp}{\bexp} and \hev{\hexp}{\hval} implies \bev{\benv}{\bexp}{\bval} such that $\bval$ corresponds to $\hval$, which for functions should mean that the body of a \hlang $\lambda$-abstraction translates to the code of a \blang closure.
 Consider the expression $\hexp = \app{(\lam{\var}{\lam{\othervar}{\var}})}{\n{3}}$.
 It translates to $\bexp = \bapp{(\blam{\blam{\suc{\z}}})}{\n{3}}$ and evaluates to $\lam{\othervar}{\n{3}}$.
 However, $\bexp$ evaluates to $\cl{\envnil \envcons \n{3}}{\suc{\z}}$.
-No reasonable correspondence relation will allow $\cl{\envnil \envcons \n{3}}{\suc{\z}}$ and $\lam{\othervar}{\n{3}}$ to correspond since $\n{3}$ does not translate to $\suc{\z}$.
-A closure offers the possibility of abstracting any part of its body, so we cannot hope to have a \hlang value correspond to only one \blang value.
+There is no correspondence between $\cl{\envnil \envcons \n{3}}{\suc{\z}}$ and $\lam{\othervar}{\n{3}}$ since $\n{3}$ does not translate to $\suc{\z}$.
+In general, a closure offers the possibility of abstracting any part of its body, so we cannot hope to have a \hlang value correspond to only one \blang value.
 
 The translation will have to take account of this and we therefore instead consider an ``extraction'' relation in the spirit of Pfenning \cite[p. 150]{Pfenning01}.
 Thus, given an $\benv$ and a $\bexp$ we will say what it means to extract an $\hexp$.
@@ -23,8 +23,7 @@ To talk about objects that are either ordinary values or variable values we defi
 \begin{align*}
   \bvalext &\defi \bval \alt \varext
 \end{align*}
-
-The \blook{\benv}{\bvar}{\bval} judgement can be extended to look through an $\benvext$ first:
+The \blook{\benv}{\bvar}{\bval} judgement can be extended to look through an $\benvext$ first.
 
 \begin{judgement}{\blookext{\benv}{\benvext}{\bvar}{\bvalext}}
 {searching through $\benvext$ followed by $\benv$ yields $\bval$ at index $\bvar$}
@@ -36,7 +35,7 @@ The \blook{\benv}{\bvar}{\bval} judgement can be extended to look through an $\b
 
 \begin{prooftree}
   \ninf{\blookext{\benv}{\benvext}{\bvar}{\bvalext}}
-  \rightl{($\bvalext \neq \var$)}
+  \rightl{($\bvalext \neq \varext$)}
   \leftl{\rulename{Tv-There} :}
   \uinf{\blookext{\benv}{\benvext \envcons \varext}{\suc{\bvar}}{\bvalext}}
 \end{prooftree}
@@ -49,9 +48,12 @@ The \blook{\benv}{\bvar}{\bval} judgement can be extended to look through an $\b
 %
 \end{judgement}
 
-Given a $\bexp$ and an $\benvext$ we can consider extracting some $\hexp$, informally speaking by substituting $\benvext$ in $\bexp$ and finding corresponding \hlang values.
-% rephrase
-This can be expressed in judgemental form as follows.
+
+As is indicated by the side condition in \rulename{Tv-There}, which is necessary to avoid problems with variable shadowing, this judgement is primarily used as a partial function from $\bvalext$ to $\bvar$.
+This is related to the fact that we never actually compute the extraction of a $\bval$.
+Rather, we simply shuffle around and adjust extraction derivations.
+
+That being said, we can now define the main extraction judgement.
 
 \begin{judgement}{\trahb{\benv}{\benvext}{\bexp}{\hexp}}
 {in the environment $\benvboth{\benv}{\benvext}$, $\hexp$ is the extraction of $\bexp$}
@@ -90,7 +92,6 @@ This can be expressed in judgemental form as follows.
 \end{judgement}
 
 It uses a correspondence relation between values and expressions.
-Note that the rule for functions uses an empty $\benvext$.
 
 \begin{judgement}{\corhb{\benv}{\bvalext}{\hexp}}
 {$\hexp$ corresponds to $\bvalext$}
@@ -112,6 +113,8 @@ Note that the rule for functions uses an empty $\benvext$.
 \end{prooftree}
 %
 \end{judgement}
+
+Note that the rule for functions uses an empty $\benvext$, as we do not consider the possibility of closures containing hypothetical values.
 
 \Twelf
 We do not explicitly consider a different type of environment where variables can occur --- instead, we consider worlds where hypothetical values exist.
