@@ -1,11 +1,21 @@
 \subsection{Translation}
+% Explain problem with basing correctness on forward translation.
 We want an effective procedure that given any \hlang expression $\hexp$ finds a \blang expression $\bexp$ such that $\hexp$ evaluates to $\n{\nat}$ if and only if $\bexp$ evaluates to $\n{\nat}$ --- in other words, a translation from \hlang to \blang that preserves semantics.
+
 There is little doubt what a given $\hexp$ should translate to since each variable should simply be replaced with its De Bruijn index.
-However, specifying this in general is not trivial and there are several possible solutions.
-We want to make the proof that semantics is preserved as easy as possible.
-To this end we adapt Pfenning's approach \cite[p. 150]{Pfenning01}.
-For any variable $\var$ representing a \hlang expression we will consider $\hbvar$ to be a variable representing a \blang value.
-We will need to consider environments containing a number of these variables:
+Suppose we define such a translation judgement, \trahbfaux{\hexp}{\bexp}, and try to prove a generalised hypothesis that \trahbfaux{\hexp}{\bexp} and \hev{\hexp}{\hval} implies \bev{\benv}{\bexp}{\bval} such that $\bval$ corresponds suitably to $\hval$.
+Consider the expression $\hexp = \app{(\lam{\var}{\lam{\othervar}{\var}})}{\n{3}}$.
+It translates to $\bexp = \bapp{(\blam{\blam{\suc{\z}}})}{\n{3}}$ and evaluates to $\lam{\othervar}{\n{3}}$.
+However, $\bexp$ evaluates to $\cl{\envnil \envcons \n{3}}{\suc{\z}}$.
+No reasonable correspondence relation will allow $\cl{\envnil \envcons \n{3}}{\suc{\z}}$ and $\lam{\othervar}{\n{3}}$ to correspond since $\n{3}$ does not translate to $\suc{\z}$.
+A closure offers the possibility of abstracting any part of its body, so we cannot hope to have a \hlang value correspond to only one \blang value.
+
+The translation will have to take account of this and we therefore instead consider an ``extraction'' relation in the spirit of Pfenning \cite[p. 150]{Pfenning01}.
+Thus, given an $\benv$ and a $\bexp$ we will say what it means to extract an $\hexp$.
+When $\benv = \envnil$, as is the case for the full translation, every $\hexp$ will be the extraction of exactly one $\bexp$ (totality is proved later).
+
+To define the extraction we will rely on a technical device: for any variable $\var$ representing a \hlang expression we will consider $\hbvar$ to be a variable representing a \blang value.
+We define environments containing a number of these variables:
 \begin{align*}
   \benvext &\defi \envnil \alt \benvext \envcons \hbvar
 \end{align*}
@@ -110,11 +120,3 @@ What is just a variable $\var$ during the translation on paper will manifest its
 Hence, we must make sure that they correspond giving rise to the following block:
 \input{code-trans-hb-block}
 The correspondence hypothesis is the Twelf analogue of the \rulename{C-Var} rule.
-
-Why is the judgement an extraction and why is the $\rhd$ not a $\lhd$?
-The reason is that it is only deterministic when viewed from right to left (considering a fixed $\benvext$).
-For example in the environment $\envnil \envcons \n{0}$ both $\blam{\z}$ and $\blam{\n{0}}$ extract to $\lam{\var}{\n{0}}$.
-In the general case we cannot view it as a function from $\hexp$ to $\bexp$.
-
-Even so we still want to translate!
-Thus, we proceed to argue that every closed $\hexp$ is the extraction of some $\bexp$.
