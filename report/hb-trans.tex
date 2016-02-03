@@ -3,33 +3,39 @@ We want an effective procedure that given any \hlang expression $\hexp$ finds a 
 There is little doubt what a given $\hexp$ should translate to since each variable should simply be replaced with its De Bruijn index.
 However, specifying this in general is not trivial and there are several possible solutions.
 We want to make the proof that semantics is preserved as easy as possible.
-To this end we adapt Pfenning's approach \cite[p. 150]{Pfenning01} and define a type of environments containing a number of variables followed by a number of \blang values:
+To this end we adapt Pfenning's approach \cite[p. 150]{Pfenning01}.
+For any variable $\var$ representing a \hlang expression we will consider $\hbvar$ to be a variable representing a \blang value.
+We will need to consider environments containing a number of these variables:
 \begin{align*}
-  \benvext &\defi \benv \alt \benvext \envcons \var
+  \benvext &\defi \envnil \alt \benvext \envcons \hbvar
 \end{align*}
 The set of variables occuring in $\benvext$ at least once will be denoted by $\vars(\benvext)$.
+To talk about objects that are either ordinary values or variable values we define their disjoint union:
+\begin{align*}
+  \bvalext &\defi \bval \alt \hbvar
+\end{align*}
 
-The \blook{\benv}{\bvar}{\bval} judgement can be extended to work with $\benvext$:
+The \blook{\benv}{\bvar}{\bval} judgement can be extended to look through an $\benvext$ first:
 
-\begin{judgement}{\blookext{\benvext}{\bvar}{\bval}}
-{something}
+\begin{judgement}{\blookext{\benv}{\benvext}{\bvar}{\bvalext}}
+{searching through $\benvext$ and then $\benv$ yields $\bval$ at index $\bvar$}
 %
 \begin{prooftree}
   \leftl{\rulename{Tv-Here} :}
-  \ax{\blookext{\benvext \envcons \var}{\z}{\var}}
+  \ax{\blookext{\benv}{\benvext \envcons \var}{\z}{\varext}}
 \end{prooftree}
 
 \begin{prooftree}
-  \ninf{\blookext{\benvext}{\bvar}{\bval}}
-  \rightl{($\bval \neq \var$)}
+  \ninf{\blookext{\benv}{\benvext}{\bvar}{\bvalext}}
+  \rightl{($\bvalext \neq \var$)}
   \leftl{\rulename{Tv-There} :}
-  \uinf{\blookext{\benvext \envcons \var}{\suc{\bvar}}{\bval}}
+  \uinf{\blookext{\benv}{\benvext \envcons \varext}{\suc{\bvar}}{\bvalext}}
 \end{prooftree}
 
 \begin{prooftree}
   \ninf{\blook{\benv}{\bvar}{\bval}}
   \leftl{\rulename{Tv-Value} :}
-  \uinf{\blookext{\benv}{\bvar}{\bval}}
+  \uinf{\blookext{\benv}{\envnil}{\bvar}{\bval}}
 \end{prooftree}
 %
 \end{judgement}
@@ -38,62 +44,62 @@ Given a $\bexp$ and an $\benvext$ we can consider extracting some $\hexp$, infor
 % rephrase
 This can be expressed in judgemental form as follows.
 
-\begin{judgement}{\trahb{\hbctx}{\benvext}{\bexp}{\hexp}}
-{something}
+\begin{judgement}{\trahb{\benv}{\benvext}{\bexp}{\hexp}}
+{in the environment $\benvboth{\benv}{\benvext}$, $\hexp$ is the extraction of $\bexp$}
 %
 \begin{prooftree}
   \leftl{\rulename{T-Num} :}
-  \ax{\trahb{\hbctx}{\benvext}{\n{\nat}}{\n{\nat}}}
+  \ax{\trahb{\benv}{\benvext}{\n{\nat}}{\n{\nat}}}
 \end{prooftree}
 
 \begin{prooftree}
-  \ninf{\blookext{\benvext}{\bvar}{\bvalext}}
-  \ninf{\corhb{\hbctx}{\bvalext}{\hexp}}
+  \ninf{\blookext{\benv}{\benvext}{\bvar}{\bvalext}}
+  \ninf{\corhb{\benv}{\bvalext}{\hexp}}
   \leftl{\rulename{T-Var} :}
-  \binf{\trahb{\hbctx}{\benvext}{\bvar}{\hexp}}
+  \binf{\trahb{\benv}{\benvext}{\bvar}{\hexp}}
 \end{prooftree}
 
 \begin{prooftree}
-	\ninf{\trahb{\hbctx}{\benvext \envcons \var}{\bexp_1}{\hexp_1}}
+	\ninf{\trahb{\benv}{\benvext \envcons \varext}{\bexp_1}{\hexp_1}}
   \leftl{\rulename{T-Lam} :}
-  \uinf{\trahb{\hbctx}{\benvext}{\blam{\bexp_1}}{\lam{\var}{\hexp_1}}}
+  \uinf{\trahb{\benv}{\benvext}{\blam{\bexp_1}}{\lam{\var}{\hexp_1}}}
 \end{prooftree}
 
 \begin{prooftree}
-  \ninf{\trahb{\hbctx}{\benvext}{\bexp_1}{\hexp_1}}
-  \ninf{\trahb{\hbctx}{\benvext}{\bexp_2}{\hexp_2}}
+  \ninf{\trahb{\benv}{\benvext}{\bexp_1}{\hexp_1}}
+  \ninf{\trahb{\benv}{\benvext}{\bexp_2}{\hexp_2}}
 	\leftl{\rulename{T-App} :}
-  \binf{\trahb{\hbctx}{\benvext}{\bapp{\bexp_1}{\bexp_2}}{\app{\hexp_1}{\hexp_2}}}
+  \binf{\trahb{\benv}{\benvext}{\bapp{\bexp_1}{\bexp_2}}{\app{\hexp_1}{\hexp_2}}}
 \end{prooftree}
 
 \begin{prooftree}
-  \ninf{\trahb{\hbctx}{\benvext}{\bexp_1}{\hexp_1}}
+  \ninf{\trahb{\benv}{\benvext}{\bexp_1}{\hexp_1}}
 	\leftl{\rulename{T-Suc} :}
-  \uinf{\trahb{\hbctx}{\benvext}{\bsuc{\bexp_1}}{\hsuc{\hexp_1}}}
+  \uinf{\trahb{\benv}{\benvext}{\bsuc{\bexp_1}}{\hsuc{\hexp_1}}}
 \end{prooftree}
 %
 \end{judgement}
 
 It uses a correspondence relation between values and expressions.
-Note that the rule for functions uses a regular $\benv$.
+Note that the rule for functions uses an empty $\benvext$.
 
-\begin{judgement}{\corhb{\hbctx}{\bvalext}{\hexp}}
-{something}
+\begin{judgement}{\corhb{\benv}{\bvalext}{\hexp}}
+{$\hexp$ corresponds to $\bvalext$}
 %
 \begin{prooftree}
   \leftl{\rulename{C-Var} :}
-  \ax{\corhb{\Theta}{\var}{\var}}
+  \ax{\corhb{}{\varext}{\var}}
 \end{prooftree}
 
 \begin{prooftree}
   \leftl{\rulename{C-Num} :}
-  \ax{\corhb{\hbctx}{\n{\nat}}{\n{\nat}}}
+  \ax{\corhb{}{\n{\nat}}{\n{\nat}}}
 \end{prooftree}
 
 \begin{prooftree}
-  \ninf{\trahb{\hbctx}{\benv}{\blam{\bexp}}{\lam{\var}{\hexp}}}
+  \ninf{\trahb{\benv}{\envnil}{\blam{\bexp}}{\lam{\var}{\hexp}}}
   \leftl{\rulename{C-Fun} :}
-  \uinf{\corhb{\hbctx}{\cl{\benv}{\bexp}}{\lam{\var}{\hexp}}}
+  \uinf{\corhb{}{\cl{\benv}{\bexp}}{\lam{\var}{\hexp}}}
 \end{prooftree}
 %
 \end{judgement}

@@ -1,14 +1,14 @@
 \subsubsection{Totality}
 It is not readily apparent that translation from \hlang to \blang is total.
-In this section we prove that for any $\hexp$ there exists some $\bexp$ such that \trahb{}{\envnil}{\bexp}{\hexp}.
+In this section we prove that for any $\hexp$ there exists some $\bexp$ such that \trahb{\envnil}{\envnil}{\bexp}{\hexp}.
 
-First we will need a notion of an expression $\hexp$ being covered by an environment $\benvext$, informally meaning that for every free variable $\var$ occuring in $\hexp$ there is a derivation of \blookext{\benvext}{\bvar}{\hbvar} for some $\bvar$.
+First we will need a notion of an expression $\hexp$ being covered by an environment $\benvext$, informally meaning that for every free variable $\var$ occuring in $\hexp$ there is a derivation of \blookext{\envnil}{\benvext}{\bvar}{\hbvar} for some $\bvar$.
 However, to define this inductively we need to keep track of the bound variables encountered when going under a $\lambda$-abstraction, since they do not need to satisfy anything.
 Let $\boundenv$ denote (mathematical) sets of variables.
-The following cover judgement is then read as: given a set of bound variables $\boundenv$, $\hexp$ is covered by $\benvext$.
+The cover judgement is as follows:
 
 \begin{judgement}{\cover{\boundenv}{\benvext}{\hexp}}
-{}
+{given a set of bound variables $\boundenv$, $\hexp$ is covered by $\benvext$}
 %
 \begin{prooftree}
   \leftl{\rulename{Cov-Num} :}
@@ -22,7 +22,7 @@ The following cover judgement is then read as: given a set of bound variables $\
 \end{prooftree}
 
 \begin{prooftree}
-  \ninf{\blookext{\benvext}{\bvar}{\hbvar}}
+  \ninf{\blookext{\envnil}{\benvext}{\bvar}{\hbvar}}
   \leftl{\rulename{Cov-Free} :}
   \uinf{\cover{\boundenv}{\benvext}{\var}}
 \end{prooftree}
@@ -84,7 +84,7 @@ $\C$ has the shape
 If $\othervar = \var$ then $\othervar$ is the variable being converted from bound to free.
 Hence, we can take $\C'$ to be
 \begin{prooftree}
-  \ax{\blookext{\benvext \envcons \hbvar}{\z}{\hbvar}}
+  \ax{\blookext{\envnil}{\benvext \envcons \hbvar}{\z}{\hbvar}}
   \uinf{\cover{\boundenv}{\benvext \envcons \hbvar}{\var}}
 \end{prooftree}
 Otherwise $\othervar \neq \var$ so $\othervar$ stays a bound variable:
@@ -96,19 +96,19 @@ Otherwise $\othervar \neq \var$ so $\othervar$ stays a bound variable:
 \paragraph{Case \textnormal{\rulename{Cov-Free}}}
 $\C$ has the shape
 \begin{prooftree}
-  \prem{\Tv}{\blookext{\benvext}{\bvar}{\hbothervar}}
+  \prem{\Tv}{\blookext{\envnil}{\benvext}{\bvar}{\hbothervar}}
   \uinf{\cover{\boundenv \cup \set{\var}}{\benvext}{\othervar}}
 \end{prooftree}
 If $\othervar = \var$ we handle it as in the previous case and take $\C'$ as
 \begin{prooftree}
-  \ax{\blookext{\benvext \envcons \hbvar}{\z}{\hbvar}}
+  \ax{\blookext{\envnil}{\benvext \envcons \hbvar}{\z}{\hbvar}}
   \uinf{\cover{\boundenv}{\benvext \envcons \hbvar}{\var}}
 \end{prooftree}
 Otherwise $\hbothervar$ will now be found one place further in the list, so we take $\C'$ as
 \begin{prooftree}
-  \prem{\Tv}{\blookext{\benvext}{\bvar}{\hbothervar}}
+  \prem{\Tv}{\blookext{\envnil}{\benvext}{\bvar}{\hbothervar}}
   \rightl{($\hbothervar \neq \hbvar$)}
-  \uinf{\blookext{\benvext \envcons \hbvar}{\suc{\bvar}}{\hbothervar}}
+  \uinf{\blookext{\envnil}{\benvext \envcons \hbvar}{\suc{\bvar}}{\hbothervar}}
   \uinf{\cover{\boundenv}{\benvext \envcons \hbvar}{\othervar}}
 \end{prooftree}
 
@@ -133,7 +133,7 @@ The important part of the induction hypothesis is that there are free variables,
 
 \begin{lemma}
 \label{lem:totality}
-If \cover{\emptyset}{\benvext}{\hexp} (by $\C$) there exists $\bexp$ such that \trahb{}{\benvext}{\bexp}{\hexp}.
+If \cover{\emptyset}{\benvext}{\hexp} (by $\C$) there exists $\bexp$ such that \trahb{\envnil}{\benvext}{\bexp}{\hexp}.
 \end{lemma}
 
 \code{trans-hb-exists'}{totality-hoas-bruijn.elf}
@@ -147,14 +147,14 @@ We show only the case where $\C$ ends in \rulename{Cov-Lam} and has the shape
   \uinf{\cover{\emptyset}{\benvext}{\lam{\var}{\hexp_1}}}
 \end{prooftree}
 By Lemma~\ref{lem:bound-to-free} on $\C_1$ we get \cover{\emptyset}{\benvext \envcons \var}{\hexp_1} (by $\C_1'$).
-Applying the IH to $\hexp_1$ with $\C_1'$ we get \trahb{}{\benvext \envcons \var}{\bexp_1}{\hexp_1} for some $\bexp_1$, which suffices to finish the case with \rulename{T-Lam}.
+Applying the IH to $\hexp_1$ with $\C_1'$ we get \trahb{\envnil}{\benvext \envcons \var}{\bexp_1}{\hexp_1} for some $\bexp_1$, which suffices to finish the case with \rulename{T-Lam}.
 
 \end{proof}
 
 We finally state the main totality theorem.
 
 \begin{theorem}
-For any closed $\hexp$ there exists $\bexp$ such that \trahb{}{\envnil}{\bexp}{\hexp}.
+For any closed $\hexp$ there exists $\bexp$ such that \trahb{\envnil}{\envnil}{\bexp}{\hexp}.
 \end{theorem}
 
 \code{trans-hb-exists}{totality-hoas-bruijn.elf}

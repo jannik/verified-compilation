@@ -1,12 +1,12 @@
 \subsection{Semantics Preservation}
 
-We want to show that if \trahb{\hbctx}{\envnil}{\bexp}{\hexp}, then \hev{\hexp}{\n{\nat}} if and only if \bev{\envnil}{\bexp}{\n{\nat}}.
+We want to show that if \trahb{\envnil}{\envnil}{\bexp}{\hexp}, then \hev{\hexp}{\n{\nat}} if and only if \bev{\envnil}{\bexp}{\n{\nat}}.
 To prove this, we need an assortment of lemmas.
 First some facts about substitution.
 
 \begin{lemma}[Shadowing]
 \label{lem:shadowing}
-If \trahb{\hbctx}{\benvext \envcons \var}{\bexp}{\hexp} (by $\T$) then \trahb{\hbctx}{\sub{\benvext}{\bval}{\var} \envcons \var}{\bexp}{\hexp}.
+If \trahb{\benv}{\benvdots{\varext \envcons \varext_1}{\varext_n \envcons \varext}}{\bexp}{\hexp} (by $\T$) then \trahb{\benv \envcons \bval}{\benvdots{\varext_1}{\varext_n \envcons \varext}}{\bexp}{\hexp} for all $\bval$.
 \end{lemma}
 
 \begin{proof}
@@ -15,7 +15,7 @@ Straighforward induction on $\T$, suitably appealing to the side condition in \r
 
 \begin{lemma}[Correspondence Substitution]
 \label{lem:substitution-cor}
-If \corhb{\hbxtx}{\bvalext}{\hexp} (by $\C$) and \corhb{\hbctx}{\bval'}{\hexp'} (by $\C'$) then \corhb{\hbctx}{\sub{\bvalext}{\bval'}{\var}}{\sub{\hexp}{\hexp'}{\var}} (by some $\C''$).
+If \corhb{\hbxtx}{\bvalext}{\hexp} (by $\C$) and \corhb{\benv}{\bval'}{\hval} (by $\C'$) then \corhb{\benv}{\sub{\bvalext}{\bval'}{\varext}}{\sub{\hexp}{\hval}{\var}} (by some $\C''$).
 \end{lemma}
 
 \begin{proof}
@@ -25,7 +25,7 @@ Straightforward induction on $\C$.
 
 \begin{lemma}[Lookup Substitution]
 \label{lem:substitution-lookup}
-Given $\var$ and $\bval$, if \blook{\benv}{\bvar}{\bval'} (by $\Tv$) then \blook{\sub{\benv}{\bval}{\var}}{\bvar}{\sub{\bval'}{\bval}{\var}}.
+If \blookext{\benv}{\benvdots{\varext \envcons \varext_1}{\varext_n}}{\bvar}{\bvalext'} (by $\Tv$) and $\varext \neq \varext_k$ for $1 \le k \le n$ then \blookext{\benv \envcons \bval}{\benvdots{\varext_1}{\varext_n}}{\bvar}{\sub{\bvalext'}{\bval}{\varext}} for all $\var$ and $\bval$.
 \end{lemma}
 
 \begin{proof}
@@ -34,7 +34,7 @@ Straightforward induction on $\Tv$.
 
 \begin{lemma}[Translation Substitution]
 \label{lem:substitution-trans}
-If \trahb{\hbctx}{\benvext}{\bexp}{\hexp} (by $\T$) and \corhb{\hbctx}{\bval}{\hval} (by $\C$) then \trahb{\hbctx}{\sub{\benvext}{\bval}{\var}}{\bexp}{\sub{\hexp}{\hval}{\var}} (by some $\T'$).
+If \trahb{\benv}{\benvdots{\varext \envcons \varext_1}{\varext_n}}{\bexp}{\hexp} (by $\T$), $\varext \neq \varext_k$ for $1 \le k \le n$ and \corhb{\benv}{\bval}{\hval} (by $\C$) then \trahb{\benv \envcons \bval}{\benvdots{\hbvar_1}{\hbvar_n}}{\bexp}{\sub{\hexp}{\hval}{\var}} (by some $\T'$).
 \end{lemma}
 
 \begin{proof}
@@ -45,30 +45,30 @@ We show only the cases dealing with variables.
 
 $\T$ has the form
 \begin{prooftree}
-  \prem{\Tv}{\blookext{\benvext}{\bvar}{\bval'}}
-  \prem{\C_1}{\corhb{\hbctx}{\bval'}{\hexp}}
-  \binf{\trahb{\hbctx}{\benvext}{\bvar}{\hexp}}
+  \prem{\Tv}{\blookext{\benv}{\benvdots{\hbvar \envcons \hbvar_1}{\hbvar_n}}{\bvar}{\bvalext'}}
+  \prem{\C_1}{\corhb{}{\bvalext'}{\hexp}}
+  \binf{\trahb{\benv}{\benvdots{\hbvar \envcons \hbvar_1}{\hbvar_n}}{\bvar}{\hexp}}
 \end{prooftree}
-By Lemma~\ref{lem:substitution-lookup} on $\Tv$ we get \blookext{\sub{\benvext}{\bval}{\var}}{\bvar}{\sub{\bval'}{\bval}{\var}} (by $\Tv'$).
-By Lemma~\ref{lem:substitution-cor} on $\C_1$ with $\C$ we get \corhb{\hbctx}{\sub{\bval'}{\bval}{\var}}{\sub{\hexp}{\hval}{\var}} (by $\C_1'$).
+By Lemma~\ref{lem:substitution-lookup} on $\Tv$ we get \blookext{\benv \envcons \bval}{\benvdots{\hbvar_1}{\hbvar_n}}{\bvar}{\sub{\bvalext'}{\bval}{\varext}} (by $\Tv'$).
+By Lemma~\ref{lem:substitution-cor} on $\C_1$ with $\C$ we get \corhb{}{\sub{\bvalext'}{\bval}{\varext}}{\sub{\hexp}{\hval}{\var}} (by $\C_1'$).
 Hence, we can take $\T'$ to be
 \begin{prooftree}
-  \prem{\Tv'}{\blookext{\sub{\benvext}{\bval}{\var}}{\bvar}{\sub{\bval'}{\bval}{\var}}}
-  \prem{\C_1'}{\corhb{\hbctx}{\sub{\bval'}{\bval}{\var}}{\sub{\hexp}{\hval}{\var}}}
-  \binf{\trahb{\hbctx}{\sub{\benvext}{\bval}{\var}}{\bvar}{\sub{\hexp}{\hval}{\var}}}
+  \prem{\Tv'}{\blookext{\benv \envcons \bval}{\benvdots{\hbvar_1}{\hbvar_n}}{\bvar}{\sub{\bvalext'}{\bval}{\var}}}
+  \prem{\C_1'}{\corhb{\benv}{\sub{\bvalext'}{\bval}{\var}}{\sub{\hexp}{\hval}{\var}}}
+  \binf{\trahb{\benv \envcons \bval}{\benvdots{\hbvar_1}{\hbvar_n}}{\bvar}{\sub{\hexp}{\hval}{\var}}}
 \end{prooftree}
 
 \paragraph{Case \textnormal{\rulename{T-Lam}}}
 $\T$ has the form
 \begin{prooftree}
-	\prem{\T_1}{\trahb{\hbctx}{\benvext \envcons \othervar}{\bexp_1}{\hexp_1}}
-  \uinf{\trahb{\hbctx}{\benvext}{\blam{\bexp_1}}{\lam{\othervar}{\hexp_1}}}
+	\prem{\T_1}{\trahb{\benv}{\benvdots{\hbvar \envcons \hbvar_1}{\hbvar_n \envcons \hbothervar}}{\bexp_1}{\hexp_1}}
+  \uinf{\trahb{\benv}{\benvdots{\hbvar \envcons \hbvar_1}{\hbvar_n}}{\blam{\bexp_1}}{\lam{\othervar}{\hexp_1}}}
 \end{prooftree}
-If $\var = \othervar$ then $\sub{(\benvext \envcons \othervar)}{\bval}{\var} = \sub{\benvext}{\bval}{\var} \envcons \bval$ and $\sub{(\lam{\othervar}{\hexp_1})}{\hval}{\var} = \lam{\othervar}{\hexp_1}$ and we use Lemma~\ref{lem:shadowing} on $\T_1$ to get \trahb{\hbctx}{\sub{\benvext}{\bval}{\var} \envcons \othervar}{\bexp_1}{\hexp_1} (by some $\T_1'$).
+If $\var = \othervar$ then $\sub{(\lam{\othervar}{\hexp_1})}{\hval}{\var} = \lam{\othervar}{\hexp_1}$ and we use Lemma~\ref{lem:shadowing} on $\T_1$ to get \trahb{\benv \envcons \bval}{\benvdots{\hbvar_1}{\hbvar_n \envcons \hbothervar}}{\bexp_1}{\hexp_1} (by some $\T_1'$).
 Using \rulename{T-Lam} with $\T_1'$ provides the required $\T'$.
 
-Otherwise $x \neq y$ so $\sub{(\benvext \envcons \othervar)}{\bval}{\var} = \sub{\benvext}{\bval}{\var} \envcons \othervar$ and $\sub{(\lam{\othervar}{\hexp_1})}{\hval}{\var} = \lam{\othervar}{\sub{\hexp_1}{\hval}{\var}}$.
-By IH on $\T_1$ with $\C$ we get \trahb{\hbctx}{\sub{\benvext}{\bval}{\var} \envcons \othervar}{\bexp_1}{\sub{\hexp_1}{\hval}{\var}} (by $\T_1'$) which has the right shape to finish the case with \rulename{T-Lam}.
+Otherwise $x \neq y$ so $\sub{(\lam{\othervar}{\hexp_1})}{\hval}{\var} = \lam{\othervar}{\sub{\hexp_1}{\hval}{\var}}$.
+By IH on $\T_1$ with $\C$ we get \trahb{\benv \envcons \bval}{\benvdots{\hbvar_1}{\hbvar_n \envcons \othervarext}}{\bexp_1}{\sub{\hexp_1}{\hval}{\var}} (by $\T_1'$) which has the right shape to finish the case with \rulename{T-Lam}.
 
 \end{proof}
 
@@ -79,14 +79,14 @@ This lemma, like any substitution lemma, comes ``for free'' since all definition
 
 \noindent Separating the two directions of the theorem, we are aiming to show
 \begin{itemize}
-	\item[]right-to-left: if \trahb{\hbctx}{\envnil}{\bexp}{\hexp} and \bev{\envnil}{\bexp}{\n{\nat}} then \hev{\hexp}{\n{\nat}}
-	\item[]left-to-right: if \trahb{\hbctx}{\envnil}{\bexp}{\hexp} and \hev{\hexp}{\n{\nat}} then \bev{\envnil}{\bexp}{\n{\nat}}
+	\item[]right-to-left: if \trahb{\benv}{\envnil}{\bexp}{\hexp} and \bev{\envnil}{\bexp}{\n{\nat}} then \hev{\hexp}{\n{\nat}}
+	\item[]left-to-right: if \trahb{\benv}{\envnil}{\bexp}{\hexp} and \hev{\hexp}{\n{\nat}} then \bev{\envnil}{\bexp}{\n{\nat}}
 \end{itemize}
 In order to prove them inductively, we generalise right-to-left and left-to-right to soundness and completeness, respectively.
 
 \begin{lemma}[Soundness]
 \label{lem:soundness-hb}
-If \trahb{\hbctx}{\benv}{\hexp}{\bexp} (by $\T$) and \bev{\benv}{\bexp}{\bval} (by $\B$), then there exists $\hval$ such that \hev{\hexp}{\hval} (by some $\E$) and \corhb{\hbctx}{\bval}{\hval} (by some $\C$).
+If \trahb{\benv}{\envnil}{\hexp}{\bexp} (by $\T$) and \bev{\benv}{\bexp}{\bval} (by $\B$), then there exists $\hval$ such that \hev{\hexp}{\hval} (by some $\E$) and \corhb{\benv}{\bval}{\hval} (by some $\C$).
 \end{lemma}
 
 \code{soundness-hb'}{soundness-hoas-bruijn.elf}
@@ -98,8 +98,8 @@ By induction on $\B$. We proceed by case analysis on $\T$ showing only the inter
 \paragraph{Case \textnormal{\rulename{T-Lam}}}
 $\T$ has the form
 \begin{prooftree}
-	\prem{\T_1}{\trahb{\hbctx}{\benv \ctxcons \var}{\bexp_1}{\hexp_1}}
-  \uinf{\trahb{\Theta}{\benv}{\blam{\bexp_1}}{\lam{\var}{\hexp_1}}}
+	\prem{\T_1}{\trahb{\benv}{\envnil \envcons \varext}{\bexp_1}{\hexp_1}}
+  \uinf{\trahb{\benv}{\envnil}{\blam{\bexp_1}}{\lam{\var}{\hexp_1}}}
 \end{prooftree}
 Hence, $\B$ must be
 \begin{prooftree}
@@ -107,16 +107,16 @@ Hence, $\B$ must be
 \end{prooftree}
 Using \rulename{E-Lam} we get \hev{\lam{\var}{\hexp_1}}{\lam{\var}{\hexp_1}} and construct the required correspondence as follows:
 \begin{prooftree}
-  \prem{\T}{\trahb{\hbctx}{\benv}{\blam{\bexp_1}}{\lam{\var}{\hexp_1}}}
-  \uinf{\corhb{\hbctx}{\cl{\benv}{\bexp_1}}{\lam{\var}{\hexp_1}}}
+  \prem{\T}{\trahb{\benv}{\envnil}{\blam{\bexp_1}}{\lam{\var}{\hexp_1}}}
+  \uinf{\corhb{\benv}{\cl{\benv}{\bexp_1}}{\lam{\var}{\hexp_1}}}
 \end{prooftree}
 
 \paragraph{Case \textnormal{\rulename{T-App}}}
 $\T$ has the form
 \begin{prooftree}
-  \prem{\T_1}{\trahb{\hbctx}{\benv}{\bexp_1}{\hexp_1}}
-  \prem{\T_2}{\trahb{\hbctx}{\benv}{\bexp_2}{\hexp_2}}
-  \binf{\trahb{\hbctx}{\benv}{\bapp{\bexp_1}{\bexp_2}}{\app{\hexp_1}{\hexp_2}}}
+  \prem{\T_1}{\trahb{\benv}{\envnil}{\bexp_1}{\hexp_1}}
+  \prem{\T_2}{\trahb{\benv}{\envnil}{\bexp_2}{\hexp_2}}
+  \binf{\trahb{\benv}{\envnil}{\bapp{\bexp_1}{\bexp_2}}{\app{\hexp_1}{\hexp_2}}}
 \end{prooftree}
 Hence, $\B$ must be
 \begin{prooftree}
@@ -126,24 +126,24 @@ Hence, $\B$ must be
   \tinf{\bev{\benv}{\bapp{\bexp_1}{\bexp_2}}{\bval}}
 \end{prooftree}
 
-By IH on $\B_1$ with $\T_1$ we get \hev{\hexp_1}{\hval_1} by some $\E_1$ and \corhb{\hbctx}{\cl{\benv'}{\bexp_0}}{\hval_1} by some $\C_1$ which must have the shape
+By IH on $\B_1$ with $\T_1$ we get \hev{\hexp_1}{\hval_1} by some $\E_1$ and \corhb{\benv}{\cl{\benv'}{\bexp_0}}{\hval_1} by some $\C_1$ which must have the shape
 \begin{prooftree}
-	\prem{\T_3}{\trahb{\hbctx}{\benv \envcons \var}{\bexp_0}{\hexp_0}}
-  \uinf{\trahb{\hbctx}{\benv}{\blam{\bexp_0}}{\lam{\var}{\hexp_0}}}
-  \uinf{\corhb{\hbctx}{\cl{\benv'}{\bexp_0}}{\lam{\var}{\hexp_0}}}
+	\prem{\T_3}{\trahb{\benv}{\envnil \envcons \varext}{\bexp_0}{\hexp_0}}
+  \uinf{\trahb{\benv}{\envnil}{\blam{\bexp_0}}{\lam{\var}{\hexp_0}}}
+  \uinf{\corhb{\benv}{\cl{\benv'}{\bexp_0}}{\lam{\var}{\hexp_0}}}
 \end{prooftree}
 so $\hval_1 = \lam{\var}{\hexp_0}$.
 
-By IH on $\B_2$ with $\T_2$ we get \hev{\hexp_2}{\hval_2} (by some $\E_2$) and \corhb{\hbctx}{\bval_2}{\hval_2} (by some $\C_2$).
-Using Lemma~\ref{lem:substitution-trans} on $\T_3$ with $\C_2$ we get \trahb{\hbctx}{\benv \envcons \bval_2}{\bexp_0}{\sub{\hexp_0}{\hval_2}{\var}} (by some $\T_3'$).
-By IH on $\B_3$ with $\T_3'$ we get \hev{\sub{\hexp_0}{\hval_2}{\var}}{\hval} by some $\E_3$ and $\corhb{\hbctx}{\bval}{\hval}$ by some $\C_3$.
+By IH on $\B_2$ with $\T_2$ we get \hev{\hexp_2}{\hval_2} (by some $\E_2$) and \corhb{\benv}{\bval_2}{\hval_2} (by some $\C_2$).
+Using Lemma~\ref{lem:substitution-trans} on $\T_3$ with $\C_2$ we get \trahb{\benv \envcons \bval_2}{\envnil}{\bexp_0}{\sub{\hexp_0}{\hval_2}{\var}} (by some $\T_3'$).
+By IH on $\B_3$ with $\T_3'$ we get \hev{\sub{\hexp_0}{\hval_2}{\var}}{\hval} by some $\E_3$ and $\corhb{\benv}{\bval}{\hval}$ by some $\C_3$.
 The case is finished using \rulename{E-App} with $\E_1$, $\E_2$ and $\E_3$; the required correspondence is provided by $\C_3$.
 
 \end{proof}
 
 \begin{lemma}[Completeness]
 \label{lem:completeness-hb}
-If \trahb{\hbctx}{\benv}{\hexp}{\bexp} (by $\T$) and \hev{\hexp}{\hval} (by $\E$), then there exists $\bval$ such that \bev{\benv}{\bexp}{\bval} (by some $\B$) and \corhb{\hbctx}{\bval}{\hval} (by some $\C$).
+If \trahb{\benv}{\envnil}{\hexp}{\bexp} (by $\T$) and \hev{\hexp}{\hval} (by $\E$), then there exists $\bval$ such that \bev{\benv}{\bexp}{\bval} (by some $\B$) and \corhb{\benv}{\bval}{\hval} (by some $\C$).
 \end{lemma}
 
 \code{completeness-hb'}{completeness-hoas-bruijn.elf}
@@ -160,7 +160,7 @@ Note that the implementations of soundness and completeness are identical, safe 
 \noindent We can finally establish the main preservation theorem:
 
 \begin{theorem}[Semantics Preservation \textnormal{\hlang-\blang}]
-\label{thm:preservation-hb} If \trahb{\hbctx}{\envnil}{\bexp}{\hexp}, then \hev{\hexp}{\n{\nat}} if and only if \bev{\envnil}{\bexp}{\n{\nat}}.
+\label{thm:preservation-hb} If \trahb{\benv}{\envnil}{\bexp}{\hexp}, then \hev{\hexp}{\n{\nat}} if and only if \bev{\envnil}{\bexp}{\n{\nat}}.
 \end{theorem}
 
 \doublecode{soundness-hb}{soundness-hoas-bruijn.elf}{completeness-hb}{completeness-hoas-bruijn.elf}

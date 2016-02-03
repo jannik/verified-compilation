@@ -53,7 +53,8 @@ $\blacksquare$
 \ensurecommand{\alt}{\;\; | \;\;}
 \ensurecommand{\set}[1]{\{ #1 \}}%
 \ensurecommand{\tup}[1]{\langle #1 \rangle}
-\ensurecommand{\leftsquiqarrow}{\mathrel{\reflectbox{$\rightsquigarrow$}}}
+%\ensurecommand{\leftsquiqarrow}{\mathrel{\reflectbox{$\rightsquigarrow$}}}
+\ensurecommand{\leftsquigarrow}{\mathrel{\reflectbox{$\rightsquigarrow$}}}
 
 % separators
 \ensurecommand{\tupsep}{,}
@@ -112,15 +113,18 @@ $\blacksquare$
 \ensurecommand{\bev}[3]{\ensuremath{#1 \vdash #2 \downarrow #3}}
 
 % hb translation
-\ensurecommand{\hbvar}{\tilde{\var}}
-\ensurecommand{\hbothervar}{\tilde{\othervar}}
-\ensurecommand{\bvalext}{\hat{\bval}}
-\ensurecommand{\benvext}{\hat{\benv}}
-\ensurecommand{\hbctx}{\Theta}%
+\ensurecommand{\hbvar}{\tilde{\var}}%
+\ensurecommand{\varext}{\tilde{\var}}
+\ensurecommand{\hbothervar}{\tilde{\othervar}}%
+\ensurecommand{\othervarext}{\tilde{\othervar}}
+\ensurecommand{\bvalext}{\tilde{\bval}}
+\ensurecommand{\benvext}{\tilde{\benv}}
 \ensurecommand{\cor}[2]{\ensuremath{#1 \rightsquigarrow #2}}
-\ensurecommand{\blookext}[3]{\ensuremath{#1 \vdash #2 \Uparrow #3}}
-\ensurecommand{\trahb}[4]{\ensuremath{#2 \vdash #4 \mathrel{\lhd} #3}} % a bit of a hack
-\ensurecommand{\corhb}[3]{\ensuremath{#2 \rightsquigarrow #3}}
+\ensurecommand{\benvboth}[2]{\tup{#1 \tupsep #2}}
+\ensurecommand{\blookext}[4]{\ensuremath{\benvboth{#1}{#2} \vdash #3 \Uparrow #4}}
+\ensurecommand{\benvdots}[2]{\envnil \envcons #1 \envcons \cdots \envcons #2}
+\ensurecommand{\trahb}[4]{\ensuremath{\benvboth{#1}{#2} \vdash #4 \mathrel{\lhd} #3}}
+\ensurecommand{\corhb}[3]{\ensuremath{#3 \leftsquigarrow #2}}
 \ensurecommand{\alphaeq}{=_\alpha}%
 \ensurecommand{\vars}{\mathbf{vars}}
 \ensurecommand{\FV}{\mathrm{FV}}
@@ -211,7 +215,7 @@ $\blacksquare$
 \ensurecommand{\corstack}[4]{\ensuremath{#1 \vdash #2 \rightsquigarrow \tup{#3 \tupsep #4}}}
 
 % conclusion
-\ensurecommand{\trahbqual}[2]{\ensuremath{\envnil \vdash #2 \mathrel{\lhd_{\mathrm{FB}}} #1}}
+\ensurecommand{\trahbqual}[2]{\ensuremath{\benvboth{\envnil}{\envnil} \vdash #2 \mathrel{\lhd_{\mathrm{FB}}} #1}}
 \ensurecommand{\trabsqual}[2]{\ensuremath{#1 \circ \send \mathrel{\rhd_{\mathrm{BS}}} #2}}
 \ensurecommand{\trasmqual}[3]{\ensuremath{#1 \mathrel{\rhd_{\mathrm{SM}}} \tup{#2 \tupsep #3}}}
 \ensurecommand{\trahmqual}[3]{\ensuremath{#1 \mathrel{\rhd_{\mathrm{FM}}} \tup{#2 \tupsep #3}}}
