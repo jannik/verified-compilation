@@ -46,6 +46,8 @@ We translate from \slang programs to \mlang programs using the following judgeme
 
 This approach with shifting instructions results in a translation relation which, when executed as an Elf logic program, clearly runs in time quadratic in the program size.
 However, it is possible to translate a \slang program in linear time by delaying shifts.
+(We had in fact implemented this alternative translation in Twelf, but since we represent numbers in unary the running time was still quadratic.
+Since efficiency is not the focus of this project, we have omitted the implementation.)
 
 We also define a finalising translation judgement, which handles bookkeeping in order to satisfy the semantics:
 

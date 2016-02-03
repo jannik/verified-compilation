@@ -170,7 +170,6 @@ Immediate from lemmas \ref{lem:soundness-hb} and \ref{lem:completeness-hb}.
 \end{proof}
 
 \Twelf
-It is not possible to state the preservation theorem directly in Twelf since it, abstractly speaking, has the form $P \rightarrow ((Q \rightarrow R) \wedge (R \rightarrow Q))$ which is not $\Pi_2^0$.
-Proving $P \rightarrow Q \rightarrow R$ and $P \rightarrow R \rightarrow Q$ separately is equivalent, however, so the Twelf proof of preservation is factored into soundness and completeness.
-
-% something about the fact that we cannot state preservation in twelf.
+The preservation theorem, abstractly speaking, has the form $P \rightarrow ((Q \rightarrow R) \wedge (R \rightarrow Q))$.
+Since LF cannot directly represent bi-implications (due to the lack of conjunction), we have factored the theorem into its two directions.
+That is, $P \rightarrow Q \rightarrow R$ and $P \rightarrow R \rightarrow Q$.
