@@ -50,7 +50,7 @@ trans-hb/suc : trans-hb Alph (bsuc B1) (suc E1)
                 <- trans-hb Alph B1 E1.
 
 %block bl-trans-hb
-   : block {v : value} {x : exp} {dc : cor v x}.
+   : block {u : value} {x : exp} {dc : cor u x}.
 
 % Example showing that trans-hb is not total.
-%query 0 * {v} {x} cor v x -> trans-hb env/nil B x.
+%query 0 * {u} {x} cor u x -> trans-hb env/nil B x.

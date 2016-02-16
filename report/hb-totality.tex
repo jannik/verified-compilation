@@ -78,7 +78,7 @@ We show only select cases.
 \paragraph{Case \textnormal{\rulename{Cov-Bound}}}
 $\C$ has the shape
 \begin{prooftree}
-  \rightl{($\othervar \in \boundenv$)}
+  \rightl{($\othervar \in \boundenv \cup \set{\var}$)}
   \ax{\cover{\boundenv \cup \set{\var}}{\benvext}{\othervar}}
 \end{prooftree}
 If $\othervar = \var$ then $\othervar$ is the variable being converted from bound to free.
